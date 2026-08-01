@@ -1,6 +1,3 @@
-/* ============================================================
-   location Data up date lines
-   ============================================================ */
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -220,15 +217,78 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f3f4f6;margin:0;
 .salary-wrap{position:relative;display:flex;align-items:center}
 .salary-wrap .rupee{position:absolute;left:12px;font-weight:600;color:#1e293b;font-size:15px;pointer-events:none}
 .salary-wrap .form-control{padding-left:28px}
+
+/* ============================================================
+   FIXED LOCATION SEARCH SUGGESTIONS
+   ============================================================ */
 .location-search-wrapper{position:relative;width:100%}
 .location-search-wrapper input{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:12px;font-size:14px;background:#fff;outline:0}
 .location-search-wrapper input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
-.location-search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:100;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+
+/* Fixed Dropdown Styling */
+.location-search-wrapper .suggestions{
+    position:absolute;
+    top:calc(100% + 4px);
+    left:0;
+    right:0;
+    background:#fff; /* Ensures a solid white background */
+    border:1px solid #e2e8f0;
+    border-radius:12px;
+    max-height:220px;
+    overflow-y:auto;
+    z-index:50;
+    display:none;
+    box-shadow:0 8px 24px rgba(0,0,0,0.10);
+    margin:0;
+    padding:4px 0;
+}
 .location-search-wrapper .suggestions.show{display:block}
-.location-search-wrapper .suggestions .item{padding:8px 12px;font-size:13px;color:#1e293b;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
-.location-search-wrapper .suggestions .item:hover{background:#f8fafc}
-.location-search-wrapper .suggestions .item .highlight{background:#dbeafe;font-weight:600}
-.location-search-wrapper .suggestions .no-result{padding:10px 12px;font-size:13px;color:#94a3b8;text-align:center}
+.location-search-wrapper .suggestions .item{
+    padding:10px 16px;
+    font-size:13px;
+    color:#1e293b;
+    cursor:pointer;
+    display:flex;
+    justify-content:space-between; /* Separates name and state/PIN */
+    align-items:center;
+    border-bottom:1px solid #f8fafc;
+}
+.location-search-wrapper .suggestions .item:last-child{border-bottom:none}
+.location-search-wrapper .suggestions .item:hover, 
+.location-search-wrapper .suggestions .item:active{
+    background:#f1f5f9; /* Clean hover effect */
+}
+.location-search-wrapper .suggestions .item .name-part{
+    font-weight:600;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width:60%;
+}
+.location-search-wrapper .suggestions .item .pin-part{
+    color:#64748b;
+    font-weight:500;
+    font-size:11px;
+    text-align:right;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width:40%;
+}
+.location-search-wrapper .suggestions .item .highlight{
+    background:#dbeafe;
+    font-weight:600;
+    padding:0 2px;
+    border-radius:2px;
+}
+.location-search-wrapper .suggestions .no-result{
+    padding:14px 16px;
+    font-size:13px;
+    color:#94a3b8;
+    text-align:center;
+}
+/* ============================================================ */
+
 .char-counter{text-align:right;font-size:10px;color:#94a3b8;margin-top:2px}
 .select-hint{font-size:10px;color:#94a3b8;margin-top:2px}
 
@@ -710,7 +770,7 @@ function getDistance(lat1, lng1, lat2, lng2) {
 }
 
 // ============================================================
-// LOCATION SEARCH
+// LOCATION SEARCH (UPDATED HTML RENDER FOR SPLIT VIEW)
 // ============================================================
 function searchLocation(){
     const input=$('location-search');
@@ -724,13 +784,17 @@ function searchLocation(){
         return;
     }
     suggestions.innerHTML=results.map(l=>{
-        const displayName=`${l.name}, ${l.district}, ${l.state} (${l.pin})`;
+        const displayName=`${l.name}, ${l.district}, ${l.state}`;
         const idx=displayName.toLowerCase().indexOf(query.toLowerCase());
         let html=displayName;
         if(idx!==-1 && query){
             html=displayName.substring(0,idx)+'<span class="highlight">'+displayName.substring(idx,idx+query.length)+'</span>'+displayName.substring(idx+query.length);
         }
-        return `<div class="item" onclick="selectLocation('${l.pin}','${l.name}','${l.state}')">${html}</div>`;
+        // Split into two columns to prevent overlapping
+        return `<div class="item" onclick="selectLocation('${l.pin}','${l.name}','${l.state}')">
+                    <span class="name-part">${html}</span>
+                    <span class="pin-part">${l.state} (${l.pin})</span>
+                </div>`;
     }).join('');
     suggestions.classList.add('show');
 }
@@ -756,8 +820,11 @@ function searchLocationInForm(context){
         return;
     }
     suggestions.innerHTML=results.map(l=>{
-        const displayName=`${l.name}, ${l.district}, ${l.state} (${l.pin})`;
-        return `<div class="item" onclick="selectLocationInForm('${context}','${l.pin}','${l.name}','${l.state}')">${displayName}</div>`;
+        // Split into two columns to prevent overlapping
+        return `<div class="item" onclick="selectLocationInForm('${context}','${l.pin}','${l.name}','${l.state}')">
+                    <span class="name-part">${l.name}, ${l.district}</span>
+                    <span class="pin-part">${l.state} (${l.pin})</span>
+                </div>`;
     }).join('');
     suggestions.classList.add('show');
 }
@@ -1651,12 +1718,48 @@ async function loadProfile(){
     loadMyLoads();
 }
 
-function saveLoadGiverProfile(){/* Same pattern */}    
-function editLoadGiver(){/* Same pattern */}    
-function saveFleetProfile(){/* Same pattern */}    
-function editFleet(){/* Same pattern */}    
-function saveAgentProfile(){/* Same pattern */}    
-function editAgent(){/* Same pattern */}
+// --- ADD MISSING PROFILE SAVE FUNCTIONS HERE ---
+async function saveLoadGiverProfile() {
+    if (isGuest || !currentUser) { showToast('🔐 Please login first'); return; }
+    const company = document.getElementById('lg-company').value.trim();
+    if (!company) { showToast('⚠️ Please enter a company name'); return; }
+    const website = document.getElementById('lg-website').value.trim();
+    const { error } = await sb.from('active_users').update({ company_name: company, company_web: website }).eq('mobile', currentUser.mobile);
+    if (error) { showToast('❌ Error: ' + error.message); return; }
+    currentUser.company_name = company; currentUser.company_web = website;
+    showToast('✅ Load Giver profile saved!');
+    loadProfile();
+}
+function editLoadGiver() { document.getElementById('loadgiver-input-area').style.display = 'block'; document.getElementById('loadgiver-active-area').style.display = 'none'; }
+
+async function saveFleetProfile() {
+    if (isGuest || !currentUser) { showToast('🔐 Please login first'); return; }
+    const company = document.getElementById('fo-company').value.trim();
+    if (!company) { showToast('⚠️ Please enter a company name'); return; }
+    const gst = document.getElementById('fo-gst').value.trim();
+    const pan = document.getElementById('fo-pan').value.trim();
+    const { error } = await sb.from('active_users').update({ fleet_company: company, fleet_gst: gst, fleet_pan: pan }).eq('mobile', currentUser.mobile);
+    if (error) { showToast('❌ Error: ' + error.message); return; }
+    currentUser.fleet_company = company; currentUser.fleet_gst = gst; currentUser.fleet_pan = pan;
+    showToast('✅ Fleet Operator profile saved!');
+    loadProfile();
+}
+function editFleet() { document.getElementById('fleet-input-area').style.display = 'block'; document.getElementById('fleet-active-area').style.display = 'none'; }
+
+async function saveAgentProfile() {
+    if (isGuest || !currentUser) { showToast('🔐 Please login first'); return; }
+    const company = document.getElementById('ag-company').value.trim();
+    if (!company) { showToast('⚠️ Please enter a agency name'); return; }
+    const gst = document.getElementById('ag-gst').value.trim();
+    const pan = document.getElementById('ag-pan').value.trim();
+    const { error } = await sb.from('active_users').update({ agent_company: company, agent_gst: gst, agent_pan: pan }).eq('mobile', currentUser.mobile);
+    if (error) { showToast('❌ Error: ' + error.message); return; }
+    currentUser.agent_company = company; currentUser.agent_gst = gst; currentUser.agent_pan = pan;
+    showToast('✅ Agent profile saved!');
+    loadProfile();
+}
+function editAgent() { document.getElementById('agent-input-area').style.display = 'block'; document.getElementById('agent-active-area').style.display = 'none'; }
+// --- END MISSING PROFILE SAVE FUNCTIONS ---
 
 async function loadMyTrucks(){
     const container=$('my-trucks-list');
