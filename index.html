@@ -199,7 +199,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <div id="display-mobile" style="font-size:22px;font-weight:700;color:#1e293b;padding:4px 0">--</div>
                 <div style="font-size:14px;font-weight:500;color:#475569">Enter your 4-digit PIN</div>
             </div>
-            <input type="password" id="pin" class="input-field" style="letter-spacing:8px;" placeholder="Enter 4-digit PIN" maxlength="4">
+            <input type="password" id="pin" class="input-field" style="letter-spacing:4px;" placeholder="Enter 4-digit PIN" maxlength="4">
             <div style="font-size:12px;text-align:center;margin-bottom:12px;color:#64748b">Forgot PIN? <span style="color:#2563eb;cursor:pointer;font-weight:600" onclick="resetPIN()">Reset PIN</span></div>
             <button onclick="submitPin()" id="submitBtn" class="btn-primary" style="background:#16a34a">🔐 Login</button>
             <button onclick="resetForm()" class="btn-back">← Change Number</button>
@@ -462,7 +462,7 @@ function fixLayoutHeight(){
 let resizeTimer; function handleResize(){ clearTimeout(resizeTimer); resizeTimer=setTimeout(fixLayoutHeight, 200); }
 
 // ============================================================
-// AUTH FLOW (FIXED MOBILE DISPLAY)
+// AUTH FLOW (FIXED MOBILE DISPLAY & ENTER KEY)
 // ============================================================
 function continueAsGuest(){isGuest=true; showToast('👤 Guest Mode'); showHome(); }
 function showLogin(){resetForm(); $('mobile').focus();}
@@ -483,14 +483,22 @@ window.submitPin=async function(){
     const {data:user}=await sb.from('active_users').select('*').eq('mobile',currentMobile).eq('pinhash',pinhash).single();
     if(user){ currentUser=user; showToast('✅ Welcome back!'); showHome(); }
 };
+
+// FIXED: Mobile Autodetect
 $('mobile').addEventListener('input',e=>{
     const m=e.target.value.trim(); 
     if(m.length===10){
         currentMobile=m; 
         $('step1').classList.add('hidden'); 
         $('step2').classList.remove('hidden');
-        // FIX: Display the Mobile Number properly
         $('display-mobile').textContent = m;
+    }
+});
+
+// FIXED: Pin Input "Enter" Key Listener
+$('pin').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        submitPin();
     }
 });
 
