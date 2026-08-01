@@ -2,217 +2,224 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<!-- Fixed meta tag warning -->
-<meta name="mobile-web-app-capable" content="yes">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-<title>ReturnTruck - Find Loads & Trucks in Your Area</title>
-<meta name="description" content="ReturnTruck is a free platform connecting load givers, fleet operators, and transport agents." />
-<meta name="keywords" content="transport, logistics, truck, load, freight, India transport, fleet operator, load giver, transport agent" />
-<link rel="canonical" href="https://returntruck.vercel.app/" />
-
-<!-- TAILWIND CSS (Warning is safe to ignore for this live demo) -->
-<script src="https://cdn.tailwindcss.com"></script>
-<!-- SUPABASE JS -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<meta name="theme-color" content="#2563eb">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<title>ReturnTruck - Find Loads & Trucks</title>
+<meta name="description" content="ReturnTruck is a free platform connecting load givers, fleet operators, and transport agents." />
+
+<!-- Using generic Supabase CDN, NO Tailwind CDN to prevent layout crashes -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 /* ============================================================
-   RESET & LAYOUT - CRITICAL TO AVOID BREAKAGE
+   PURE CSS RESET & LAYOUT (NO TAILWIND DEPENDENCIES)
    ============================================================ */
 *{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
 body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
 
-/* The main card acts as a flex container to ensure contents never overlap */
 .card{max-width:420px;width:100%;background:#fff;border-radius:24px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);display:flex;flex-direction:column;height:95vh;max-height:800px;position:relative;overflow:hidden}
-.hidden,.hidden-page{display:none !important}
-
-/* Containers require flex column to stack correctly */
-.home-container,.profile-container,.postload-container,.posttruck-container,.detail-container{display:flex;flex-direction:column;height:100%;width:100%;overflow:hidden;position:relative}
+.hidden-page{display:none !important}
+.hidden{display:none !important}
 
 /* ============================================================
-   HEADERS & NAV
+   LAYOUT CONTAINERS
    ============================================================ */
-.home-header,.profile-header,.post-header,.detail-header{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid #f1f5f9;background:#fff;z-index:10;position:relative}
-.home-header .logo,.profile-header .logo,.post-header .logo,.detail-header .logo{font-size:22px;font-weight:900;color:#2563eb;cursor:pointer}
+.home-container,.profile-container,.postload-container,.posttruck-container,.detail-container{display:flex;flex-direction:column;height:100%;width:100%;overflow:hidden;position:relative}
+
+.home-header,.profile-header,.post-header,.detail-header{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:1px solid #f1f5f9;background:#fff;z-index:10;position:relative;width:100%;min-height:50px}
+.logo{font-size:22px;font-weight:900;color:#2563eb;cursor:pointer}
 .header-right{display:flex;align-items:center;gap:8px;position:relative}
-.back-btn{background:0;border:none;font-size:16px;font-weight:600;color:#475569;cursor:pointer}
 
-/* AVATAR & DROPDOWN */
-.avatar-btn{width:36px;height:36px;border-radius:50%;border:2px solid #e2e8f0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;padding:0;background:#94a3b8}
-.avatar-btn:hover{transform:scale(1.05);box-shadow:0 4px 12px rgba(0,0,0,.15)}
-.avatar-btn.male{background:linear-gradient(135deg,#3b82f6,#1d4ed8)}
-.avatar-btn.female{background:linear-gradient(135deg,#ec4899,#8b5cf6)}
-.avatar-btn.guest{background:linear-gradient(135deg,#64748b,#475569)}
-.profile-dropdown{position:absolute;top:44px;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:160px;z-index:100;display:none}
-.profile-dropdown.show{display:block}
-.dropdown-item{padding:10px 16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:#1e293b;cursor:pointer;border:none;background:0 0;width:100%}
-.dropdown-item:hover{background:#f8fafc}
-.dropdown-divider{height:1px;background:#e2e8f0;margin:4px 12px}
-.dropdown-item.danger{color:#dc2626}
+.back-btn{background:transparent;border:none;font-size:16px;font-weight:600;color:#475569;cursor:pointer;padding:5px 10px}
 
-/* BANNERS */
-.guest-banner{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;padding:6px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;font-size:11px;flex-wrap:wrap}
-.guest-banner.hidden{display:none}
-.guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer}
-
-/* BOTTOM NAV - FIXED STRUCTURE */
-#bottom-nav{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e2e8f0;background:#fff;position:relative;z-index:10;min-height:50px;width:100%}
-.nav-item{display:flex;flex-direction:column;align-items:center;color:#94a3b8;font-size:9px;font-weight:600;cursor:pointer;border:none;background:0 0;padding:3px 12px}
-.nav-item:hover{color:#3b82f6}
+/* ============================================================
+   BOTTOM NAVIGATION (FIXED)
+   ============================================================ */
+#bottom-nav{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e2e8f0;background:#fff;position:relative;z-index:10;min-height:60px;width:100%}
+.nav-item{display:flex;flex-direction:column;align-items:center;color:#94a3b8;font-size:9px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px}
 .nav-item.active{color:#2563eb}
-.nav-item .icon{font-size:20px;margin-bottom:2px}
+.nav-item .icon{font-size:22px;margin-bottom:2px}
 .nav-item .label{font-size:8px;text-transform:uppercase;letter-spacing:.05em}
 
-/* PAGE CONTENT - Dynamic JS Height */
-.page-content{overflow-y:auto;padding:4px 0;-webkit-overflow-scrolling:touch;display:block;width:100%}
-.page-content::-webkit-scrollbar{width:3px}
+/* ============================================================
+   CONTENT SCROLLER (FIXED HEIGHT VIA JS)
+   ============================================================ */
+.page-content{overflow-y:auto;padding:8px 0;-webkit-overflow-scrolling:touch;display:block;width:100%}
+.page-content::-webkit-scrollbar{width:4px}
 .page-content::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
 
-/* UI COMPONENTS */
-.type-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;background:#e2e8f0;padding:3px;border-radius:10px;margin-bottom:6px}
-.type-tabs button{padding:4px;font-size:10px;font-weight:700;border:none;border-radius:8px;cursor:pointer}
-.type-tabs .active{background:#fff;color:#1e293b}
-.type-tabs .inactive{background:0 0;color:#64748b}
-.feed-card{border:1px solid #e2e8f0;border-radius:10px;padding:8px 12px;cursor:pointer;margin-bottom:6px;transition:all .2s ease}
-.feed-card:hover{border-color:#3b82f6;background:#f8faff}
-.feed-card .title{font-weight:700;font-size:14px;color:#0f172a}
-.feed-card .meta{font-size:10px;color:#475569;margin-top:1px}
-.feed-card .share-btn{background:#25D366;color:#fff;border:none;padding:4px 6px;border-radius:6px;cursor:pointer}
-.btn-primary{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-weight:600;cursor:pointer;transition:background .2s}
-.btn-primary:hover{background:#1d4ed8}
-.btn-primary:disabled{opacity:.5}
-.btn-back{width:100%;padding:14px;background:#6b7280;color:#fff;border:none;border-radius:12px;font-weight:600;cursor:pointer}
-.form-control{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:12px;font-size:14px;background:#fff;outline:0}
-.form-control:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
-.input-field{padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;width:100%}
-.input-field:focus{border-color:#2563eb;outline:2px solid #93c5fd}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.action-required{background:#fef3c7;border:1px solid #f59e0b;border-radius:10px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
-.action-required .btn-action{background:#2563eb;color:#fff;border:none;padding:6px 14px;border-radius:8px;font-weight:600;cursor:pointer}
+/* ============================================================
+   LOGIN & STATS
+   ============================================================ */
+.login-stats-container{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:12px 10px;margin-bottom:15px;border:1px solid #bfdbfe}
+.login-stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
+.login-stat-item{text-align:center}
+.login-stat-item .number{font-size:20px;font-weight:800;color:#1d4ed8;display:block}
+.login-stat-item .label{font-size:8px;font-weight:600;color:#475569;display:block}
+.login-step-container{flex:1;display:flex;flex-direction:column;justify-content:center;padding:4px 0}
 
-/* LOCATION SEARCH */
-.location-row{display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
-.location-row .location-input{flex:2;min-width:120px}
-.location-row .radius-select{flex:1;min-width:70px}
-.location-input input{width:100%;padding:6px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;background:#fff}
-.radius-select select{width:100%;padding:6px 8px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;background:#fff}
+.input-field{width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;background:#fff;margin-bottom:12px}
+.input-field:focus{border-color:#2563eb;outline:none}
+.btn-primary{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;transition:0.2s}
+.btn-primary:hover{background:#1d4ed8}
+.btn-back{width:100%;padding:14px;background:#6b7280;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-top:8px}
+
+.otp-input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff}
+.login-divider{display:flex;align-items:center;gap:12px;margin:10px 0 8px}
+.login-divider .line{flex:1;height:1px;background:#e2e8f0}
+.login-divider .text{font-size:10px;color:#94a3b8;white-space:nowrap;padding:0 4px}
+
+/* ============================================================
+   AVATAR & DROPDOWN
+   ============================================================ */
+.avatar-btn{width:36px;height:36px;border-radius:50%;border:2px solid #e2e8f0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;background:#94a3b8}
+.avatar-btn.guest{background:#64748b}
+.profile-dropdown{position:absolute;top:45px;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:160px;z-index:100;display:none}
+.profile-dropdown.show{display:block}
+.dropdown-item{padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:#1e293b;cursor:pointer;border:none;background:transparent;width:100%}
+.dropdown-item:hover{background:#f8fafc}
+
+/* ============================================================
+   HOME UI
+   ============================================================ */
+.guest-banner{background:#2563eb;color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-shrink:0}
+.guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer}
+
+.location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.location-row .location-input{flex:2}
+.location-row .radius-select{flex:1}
+.location-input input,.radius-select select{width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;background:#fff}
+
+.type-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;background:#e2e8f0;padding:3px;border-radius:10px;margin-bottom:8px}
+.type-tabs button{padding:6px 4px;font-size:11px;font-weight:700;border:none;border-radius:8px;cursor:pointer}
+.type-tabs .active{background:#fff;color:#1e293b}
+.type-tabs .inactive{background:transparent;color:#64748b}
+
+.results-count{display:flex;justify-content:space-between;border-bottom:1px solid #f1f5f9;padding-bottom:4px;margin-bottom:6px;font-size:9px;font-weight:700;color:#94a3b8}
+
+.feed-card{border:1px solid #e2e8f0;border-radius:10px;padding:12px;cursor:pointer;margin-bottom:8px}
+.feed-card:hover{border-color:#3b82f6}
+.feed-card .title{font-weight:700;font-size:15px;color:#0f172a}
+.feed-card .meta{font-size:11px;color:#475569;margin-top:4px}
+
+/* ============================================================
+   FILTERS
+   ============================================================ */
+.filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:10px;font-weight:600;color:#64748b;border-top:1px solid #e2e8f0;margin-top:4px;user-select:none}
+.filter-toggle .arrow{transition:transform .3s ease;display:inline-block}
+.filter-toggle .arrow.open{transform:rotate(180deg)}
+.filter-container{overflow:hidden;transition:max-height .3s ease;max-height:0}
+.filter-container.open{max-height:400px}
+.filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.filter-row label{font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
+.filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:11px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-weight:600;outline:none}
+
+/* ============================================================
+   FORMS
+   ============================================================ */
+.form-group{margin-bottom:12px}
+.form-label{font-size:12px;font-weight:700;color:#1e293b;display:block;margin-bottom:4px}
+.form-control{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;background:#fff;outline:none}
+.form-control:focus{border-color:#2563eb}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .location-search-wrapper{position:relative;width:100%}
-.location-search-wrapper input{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:12px;font-size:14px;background:#fff;outline:0}
-.location-search-wrapper input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
 .location-search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:50;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
 .location-search-wrapper .suggestions.show{display:block}
 .location-search-wrapper .suggestions .item{padding:10px 16px;font-size:13px;color:#1e293b;cursor:pointer}
 .location-search-wrapper .suggestions .item:hover{background:#f8fafc}
-.location-search-wrapper .suggestions .highlight{background:#dbeafe;font-weight:600}
-.location-search-wrapper .suggestions .no-result{padding:10px 16px;font-size:13px;color:#94a3b8;text-align:center}
 
-/* FILTERS */
-.filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:4px 0;cursor:pointer;font-size:10px;font-weight:600;color:#64748b;border-top:1px solid #e2e8f0;margin-top:4px;padding-top:6px;user-select:none}
-.filter-toggle:hover{color:#2563eb}
-.filter-toggle .arrow{transition:transform .3s ease;display:inline-block}
-.filter-toggle .arrow.open{transform:rotate(180deg)}
-.filter-toggle .arrow.closed{transform:rotate(0deg)}
-.filter-container{overflow:hidden;transition:max-height .3s ease;max-height:0}
-.filter-container.open{max-height:400px}
-.filter-container .filter-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:4px;padding-top:4px}
-.filter-container .filter-row label{font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:1px}
-.filter-container .filter-row input,.filter-container .filter-row select{width:100%;padding:4px 8px;font-size:10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-weight:600;outline:0}
-
-/* STATS */
-.results-count{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #f1f5f9;padding-bottom:3px;margin-bottom:6px}
-.results-count span{font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
-.login-stats-container{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:12px 16px;margin-bottom:12px;border:1px solid #bfdbfe}
-.login-stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
-.login-stat-item{text-align:center}
-.login-stat-item .number{font-size:18px;font-weight:800;color:#1d4ed8}
-.login-stat-item .label{font-size:8px;font-weight:600;color:#475569}
-.login-divider{display:flex;align-items:center;gap:12px;margin:10px 0}
-
-/* DETAIL VIEW */
-.detail-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:8px}
-.detail-actions button{width:100%;padding:6px;border-radius:10px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center}
+/* ============================================================
+   DETAIL & PROFILE
+   ============================================================ */
+.detail-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:12px}
+.detail-actions button{width:100%;padding:10px 4px;border-radius:10px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:10px}
 .btn-call{background:#16a34a}.btn-contact{background:#2563eb}.btn-bid{background:#8b5cf6}.btn-share{background:#25D366}
 
-/* PROFILE */
-.profile-header-card{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:16px;padding:16px 20px;color:#fff;margin-bottom:16px}
-.profile-header-card .mobile{font-size:22px;font-weight:700;margin:2px 0}
+.profile-header-card{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:16px;padding:20px;color:#fff;margin-bottom:16px}
+.profile-header-card .mobile{font-size:24px;font-weight:700;margin:4px 0}
 .profile-section{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:16px;margin-bottom:12px}
+.profile-section .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .profile-section .section-title{font-size:14px;font-weight:700;color:#1e293b}
 .section-btn{padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:10px;font-weight:600;cursor:pointer}
-.my-item{border:1px solid #e2e8f0;border-radius:10px;padding:8px 12px;margin-bottom:6px}
 
-/* MODALS */
 .modal-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:200;border-radius:24px}
 .modal-overlay.show{display:flex}
 .modal-box{background:#fff;border-radius:20px;padding:24px;max-width:340px;width:90%}
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:8px 16px;border-radius:999px;font-size:12px;z-index:1000;animation:fadeOut 2s forwards}
-@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:translateY(-20px)}}
 </style>
 </head>
 <body>
 <div class="card" id="app-card">
 
 <!-- ============================================================
-     LOGIN SCREEN (LOCKED LAYOUT)
+     LOGIN SCREEN
      ============================================================ -->
 <div id="login-screen">
     <div style="font-size:32px;font-weight:900;color:#2563eb;text-align:center;margin-bottom:2px">🚚 ReturnTruck</div>
-    <div style="font-size:12px;color:#64748b;text-align:center;margin-bottom:8px">Find Loads • Post Trucks • Connect Agents</div>
+    <div style="font-size:13px;color:#64748b;text-align:center;margin-bottom:12px">Find Loads • Post Trucks • Connect Agents</div>
 
-    <div class="login-stats-container" style="margin-bottom:12px;border:1px solid #bfdbfe">
-        <div class="login-stats-grid" style="margin-bottom:4px">
-            <div class="login-stat-item"><span>📦</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Load Givers</div></div>
-            <div class="login-stat-item"><span>🚛</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Fleet Ops</div></div>
-            <div class="login-stat-item"><span>🤝</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Agents</div></div>
-            <div class="login-stat-item"><span>👤</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Users</div></div>
+    <div class="login-stats-container">
+        <div class="login-stats-grid" style="margin-bottom:6px">
+            <div class="login-stat-item"><span style="font-size:16px">📦</span><span class="number">0</span><span class="label">Load Givers</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">🚛</span><span class="number">0</span><span class="label">Fleet Ops</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">🤝</span><span class="number">0</span><span class="label">Agents</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">👤</span><span class="number">0</span><span class="label">Users</span></div>
         </div>
         <div class="login-stats-grid">
-            <div class="login-stat-item"><span>🚚</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Trucks</div></div>
-            <div class="login-stat-item"><span>📊</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Loads</div></div>
-            <div class="login-stat-item"><span>📱</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Visits</div></div>
-            <div class="login-stat-item"><span>⭐</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">4.8</div><div style="font-size:8px;font-weight:600;color:#475569">Rating</div></div>
+            <div class="login-stat-item"><span style="font-size:16px">🚚</span><span class="number">0</span><span class="label">Trucks</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">📊</span><span class="number">0</span><span class="label">Loads</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">📱</span><span class="number">0</span><span class="label">Visits</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">⭐</span><span class="number">4.8</span><span class="label">Rating</span></div>
         </div>
     </div>
 
-    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:4px 0">
+    <div class="login-step-container">
         <div id="step1">
-            <input type="tel" id="mobile" placeholder="Enter Mobile Number" maxlength="10" autofocus style="width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;background:#fff">
-            <div id="mobile-status" style="font-size:12px;color:#94a3b8;margin-top:4px;text-align:center"></div>
-            <div style="display:flex;align-items:center;gap:12px;margin:10px 0 8px"><div style="flex:1;height:1px;background:#e2e8f0"></div><span style="font-size:10px;color:#94a3b8;white-space:nowrap;padding:0 4px">or continue as</span><div style="flex:1;height:1px;background:#e2e8f0"></div></div>
+            <input type="tel" id="mobile" class="input-field" placeholder="Enter Mobile Number" maxlength="10" autofocus>
+            <div id="mobile-status" style="font-size:12px;color:#94a3b8;text-align:center;margin-top:4px"></div>
+            <div class="login-divider"><div class="line"></div><span class="text">or continue as</span><div class="line"></div></div>
             <button style="width:100%;padding:12px;border:1.5px solid #8b5cf6;border-radius:12px;font-size:14px;font-weight:600;color:#8b5cf6;background:transparent;cursor:pointer" onclick="continueAsGuest()">👤 Guest</button>
         </div>
+
         <div id="step2" class="hidden">
-            <div style="text-align:center"><div style="font-size:20px;font-weight:700;color:#1e293b;padding:4px 0">--</div><div style="font-size:14px;font-weight:500;color:#16a34a;text-align:center">Existing user - Enter PIN</div></div>
-            <input type="password" id="pin" placeholder="Enter 4-digit PIN" maxlength="4" inputmode="numeric" style="width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;letter-spacing:8px;margin:8px 0 12px;background:#fff">
-            <div style="font-size:12px;text-align:center;margin-bottom:8px;color:#64748b">Forgot PIN? <span style="color:#2563eb;cursor:pointer;font-weight:600" onclick="resetPIN()">Reset PIN</span></div>
-            <button onclick="submitPin()" id="submitBtn" style="width:100%;padding:14px;background:#16a34a;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer">🔐 Login</button>
-            <button onclick="resetForm()" style="margin-top:4px;width:100%;padding:14px;background:#6b7280;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer">← Change Number</button>
-        </div>
-        <div id="step3" class="hidden">
-            <div style="text-align:center"><div style="font-size:20px;font-weight:700;color:#1e293b;padding:4px 0">--</div><p style="font-size:12px;color:#64748b;margin:0;text-align:center">Enter OTP sent via WhatsApp</p></div>
-            <div style="display:flex;gap:8px;justify-content:center;margin:12px 0">
-                <input type="text" maxlength="1" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
-                <input type="text" maxlength="1" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
-                <input type="text" maxlength="1" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
-                <input type="text" maxlength="1" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
-                <input type="text" maxlength="1" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
-                <input type="text" maxlength="1" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
+            <div style="text-align:center;margin-bottom:12px">
+                <div style="font-size:20px;font-weight:700;color:#1e293b;padding:4px 0">--</div>
+                <div style="font-size:14px;font-weight:500;color:#16a34a">Existing user - Enter PIN</div>
             </div>
-            <div style="text-align:center;font-size:13px;color:#64748b;margin-top:8px">⏳ <span id="otp-timer">5:00</span></div>
-            <button onclick="verifyOTP()" id="verify-btn" style="margin-top:8px;width:100%;padding:14px;background:#16a34a;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer">✅ Verify</button>
-            <button onclick="resetForm()" style="margin-top:4px;width:100%;padding:14px;background:#6b7280;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer">← Change Number</button>
+            <input type="password" id="pin" class="input-field" style="letter-spacing:8px;" placeholder="Enter 4-digit PIN" maxlength="4">
+            <div style="font-size:12px;text-align:center;margin-bottom:12px;color:#64748b">Forgot PIN? <span style="color:#2563eb;cursor:pointer;font-weight:600" onclick="resetPIN()">Reset PIN</span></div>
+            <button onclick="submitPin()" id="submitBtn" class="btn-primary" style="background:#16a34a">🔐 Login</button>
+            <button onclick="resetForm()" class="btn-back">← Change Number</button>
         </div>
+
+        <div id="step3" class="hidden">
+            <div style="text-align:center;margin-bottom:12px">
+                <div style="font-size:20px;font-weight:700;color:#1e293b;padding:4px 0">--</div>
+                <div style="font-size:12px;color:#64748b">Enter OTP sent via WhatsApp</div>
+            </div>
+            <div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px">
+                <input type="text" maxlength="1" class="otp-input" inputmode="numeric">
+                <input type="text" maxlength="1" class="otp-input" inputmode="numeric">
+                <input type="text" maxlength="1" class="otp-input" inputmode="numeric">
+                <input type="text" maxlength="1" class="otp-input" inputmode="numeric">
+                <input type="text" maxlength="1" class="otp-input" inputmode="numeric">
+                <input type="text" maxlength="1" class="otp-input" inputmode="numeric">
+            </div>
+            <div style="text-align:center;font-size:13px;color:#64748b;margin-bottom:8px">⏳ <span id="otp-timer">5:00</span></div>
+            <button onclick="verifyOTP()" id="verify-btn" class="btn-primary" style="background:#16a34a">✅ Verify</button>
+            <button onclick="resetForm()" class="btn-back">← Change Number</button>
+        </div>
+
         <div id="step4" class="hidden">
-            <div style="text-align:center"><div style="font-size:20px;font-weight:700;color:#1e293b;padding:4px 0">--</div><p style="font-size:13px;color:#64748b;margin:0;text-align:center">Set your 4-digit PIN</p></div>
-            <input type="password" id="reg-pin" placeholder="New PIN (4 digits)" maxlength="4" inputmode="numeric" style="width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;letter-spacing:8px;margin:8px 0 12px;background:#fff">
-            <input type="password" id="reg-pin-confirm" placeholder="Confirm PIN" maxlength="4" inputmode="numeric" style="width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;letter-spacing:8px;margin:8px 0 12px;background:#fff">
-            <button onclick="registerUser()" id="register-btn" style="width:100%;padding:14px;background:#16a34a;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer">✅ Create Account</button>
-            <button onclick="resetForm()" style="margin-top:4px;width:100%;padding:14px;background:#6b7280;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer">← Change Number</button>
+            <div style="text-align:center;margin-bottom:12px">
+                <div style="font-size:20px;font-weight:700;color:#1e293b;padding:4px 0">--</div>
+                <div style="font-size:13px;color:#64748b">Set your 4-digit PIN</div>
+            </div>
+            <input type="password" id="reg-pin" class="input-field" placeholder="New PIN (4 digits)" maxlength="4">
+            <input type="password" id="reg-pin-confirm" class="input-field" placeholder="Confirm PIN" maxlength="4">
+            <button onclick="registerUser()" id="register-btn" class="btn-primary" style="background:#16a34a">✅ Create Account</button>
+            <button onclick="resetForm()" class="btn-back">← Change Number</button>
         </div>
     </div>
 </div>
@@ -224,12 +231,12 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     <div class="home-header">
         <div class="logo" onclick="goHome()">🚚 ReturnTruck</div>
         <div class="header-right">
-            <button class="avatar-btn" id="avatar-btn" onclick="toggleDropdown()"><span class="avatar-initials" id="avatar-initials">👤</span></button>
+            <button class="avatar-btn guest" id="avatar-btn" onclick="toggleDropdown()"><span id="avatar-initials">GU</span></button>
             <div class="profile-dropdown" id="profile-dropdown">
                 <button class="dropdown-item" onclick="closeDropdown();goToProfile()">👤 View Profile</button>
                 <button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button>
-                <div class="dropdown-divider"></div>
-                <button class="dropdown-item danger" onclick="closeDropdown();logout()">🚪 Logout</button>
+                <div style="height:1px;background:#e2e8f0;margin:4px 0"></div>
+                <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button>
             </div>
         </div>
     </div>
@@ -238,17 +245,23 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     
     <div id="home-top" style="flex-shrink:0">
         <div class="location-row">
-            <div class="location-input"><input type="text" id="location-search" placeholder="📍 Location/PIN" oninput="searchLocation()" onfocus="this.select()"></div>
+            <div class="location-input"><input type="text" id="location-search" placeholder="📍 Location/PIN" oninput="searchLocation()"></div>
             <div class="radius-select"><select id="radius-select" onchange="applyFilters()"><option value="5">5 KM</option><option value="10">10 KM</option><option value="25">25 KM</option><option value="50" selected>50 KM</option><option value="100">100 KM</option><option value="200">200 KM</option></select></div>
-            <div class="location-search-wrapper"><div class="suggestions" id="location-suggestions"></div></div>
+            <div class="location-search-wrapper" style="width:100%"><div class="suggestions" id="location-suggestions"></div></div>
         </div>
 
         <div class="type-tabs"><button id="tab-all" class="active" onclick="setTab('ALL')">All</button><button id="tab-loads" class="inactive" onclick="setTab('LOAD')">Loads</button><button id="tab-trucks" class="inactive" onclick="setTab('TRUCK')">Trucks</button><button id="tab-agents" class="inactive" onclick="setTab('AGENT')">Agents</button></div>
 
-        <div class="filter-toggle" onclick="toggleFilters()"><span id="filter-toggle-label">🔍 Show Filters</span><span class="arrow closed" id="filter-arrow">▼</span></div>
+        <div class="filter-toggle" onclick="toggleFilters()"><span id="filter-toggle-label">🔍 Show Filters</span><span class="arrow" id="filter-arrow">▼</span></div>
         <div class="filter-container" id="filter-container">
-            <div class="filter-row"><div><label>From PIN</label><input type="text" id="filter-from" placeholder="e.g. 500001" oninput="applyFilters()"></div><div><label>To PIN</label><input type="text" id="filter-to" placeholder="e.g. 533401" oninput="applyFilters()"></div></div>
-            <div class="filter-row"><div><label>Vehicle Type</label><select id="filter-vehicle" onchange="applyFilters()"><option value="ALL">All</option><option value="highbed">Highbed 40x8x8</option><option value="lowbed">Lowbed 40x10x10</option><option value="container">Container 22x8x8</option><option value="odc">ODC</option></select></div><div><label>Weight (Kg)</label><select id="filter-weight" onchange="applyFilters()"><option value="ALL">All</option><option value="0-10000">0-10,000</option><option value="10000-20000">10k-20k</option><option value="20000-30000">20k-30k</option><option value="30000+">30k+</option></select></div></div>
+            <div class="filter-row">
+                <div><label>From PIN</label><input type="text" id="filter-from" placeholder="e.g. 500001" oninput="applyFilters()"></div>
+                <div><label>To PIN</label><input type="text" id="filter-to" placeholder="e.g. 533401" oninput="applyFilters()"></div>
+            </div>
+            <div class="filter-row">
+                <div><label>Vehicle Type</label><select id="filter-vehicle" onchange="applyFilters()"><option value="ALL">All</option><option value="highbed">Highbed 40x8x8</option><option value="lowbed">Lowbed 40x10x10</option><option value="container">Container 22x8x8</option><option value="odc">ODC</option></select></div>
+                <div><label>Weight (Kg)</label><select id="filter-weight" onchange="applyFilters()"><option value="ALL">All</option><option value="0-10000">0-10,000</option><option value="10000-20000">10k-20k</option><option value="20000-30000">20k-30k</option><option value="30000+">30k+</option></select></div>
+            </div>
         </div>
         <div class="results-count"><span id="results-count">Showing 0 Records</span></div>
     </div>
@@ -261,14 +274,21 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 <!-- ============================================================
      POST LOAD PAGE
      ============================================================ -->
-<div id="postload-page" class="hidden-page"><div class="postload-container">
+<div id="postload-page" class="hidden-page"><div class="home-container">
     <div class="post-header"><span class="logo" onclick="goHome()">🚚 ReturnTruck</span><button class="back-btn" onclick="cancelPost()">Cancel</button></div>
     <div class="page-content" id="postload-scroll">
-        <div id="load-warning" class="action-required" style="display:none"><span>⚠️</span><div><strong>Profile Required</strong> Please complete your profile to post loads.</div><button class="btn-action" onclick="goToProfile()">Go to Profile</button></div>
-        <div class="form-group"><label>Material Type</label><select class="form-control" id="pl-material"><option value="">Select</option><option value="Steel Pipes">Steel Pipes</option><option value="Cement Bags">Cement Bags</option><option value="Construction Material">Construction Material</option><option value="Agricultural Products">Agricultural Products</option><option value="Chemicals">Chemicals</option><option value="Food Products">Food Products</option><option value="Other">Other</option></select></div>
-        <div class="grid-2"><div><label>Weight (Kg)</label><input class="form-control" type="number" id="pl-weight" placeholder="16500"></div><div><label>Dimensions (ft)</label><input class="form-control" type="text" id="pl-dim" placeholder="40x8x8"></div></div>
-        <div class="grid-2"><div><label>📍 Pickup</label><div class="location-search-wrapper"><input type="text" id="pl-pickup-input" placeholder="Search PIN..."><div class="suggestions" id="pl-pickup-suggestions"></div><input type="hidden" id="pl-pickup-hidden"></div></div><div><label>📍 Drop</label><div class="location-search-wrapper"><input type="text" id="pl-drop-input" placeholder="Search PIN..."><div class="suggestions" id="pl-drop-suggestions"></div><input type="hidden" id="pl-drop-hidden"></div></div></div>
-        <div class="grid-2"><div><label>Rate (₹)</label><input class="form-control" type="text" id="pl-rate"></div><div><label>Date</label><input class="form-control" type="date" id="pl-date"></div></div>
+        <div class="form-group"><label class="form-label">Material Type *</label>
+            <select class="form-control" id="pl-material"><option value="">Select Material</option><option value="Steel Pipes">Steel Pipes</option><option value="Cement Bags">Cement Bags</option><option value="Construction Material">Construction Material</option><option value="Agricultural Products">Agricultural Products</option><option value="Chemicals">Chemicals</option><option value="Food Products">Food Products</option><option value="Other">Other</option></select></div>
+        
+        <div class="grid-2"><div class="form-group"><label class="form-label">Weight (Kg) *</label><input class="form-control" type="number" id="pl-weight" placeholder="16500"></div>
+        <div class="form-group"><label class="form-label">Dimensions (ft)</label><input class="form-control" type="text" id="pl-dim" placeholder="40x8x8"></div></div>
+        
+        <div class="grid-2"><div class="form-group"><label class="form-label">📍 Pickup *</label><div class="location-search-wrapper"><input type="text" id="pl-pickup-input" placeholder="Search PIN..." oninput="searchLocationInForm('pl-pickup')"><div class="suggestions" id="pl-pickup-suggestions"></div><input type="hidden" id="pl-pickup-hidden"></div></div>
+        <div class="form-group"><label class="form-label">📍 Drop *</label><div class="location-search-wrapper"><input type="text" id="pl-drop-input" placeholder="Search PIN..." oninput="searchLocationInForm('pl-drop')"><div class="suggestions" id="pl-drop-suggestions"></div><input type="hidden" id="pl-drop-hidden"></div></div></div>
+        
+        <div class="grid-2"><div class="form-group"><label class="form-label">Expected Rate (₹) *</label><input class="form-control" type="text" id="pl-rate" placeholder="45,000"></div>
+        <div class="form-group"><label class="form-label">Pickup Date *</label><input class="form-control" type="date" id="pl-date"></div></div>
+        
         <button class="btn-primary" onclick="publishLoad()">📤 Publish Load</button>
     </div>
     <div id="bottom-nav"><button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button><button class="nav-item active" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Post Load</span></button><button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Post Truck</span></button><button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button></div>
@@ -277,14 +297,19 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 <!-- ============================================================
      POST TRUCK PAGE
      ============================================================ -->
-<div id="posttruck-page" class="hidden-page"><div class="posttruck-container">
+<div id="posttruck-page" class="hidden-page"><div class="home-container">
     <div class="post-header"><span class="logo" onclick="goHome()">🚚 ReturnTruck</span><button class="back-btn" onclick="cancelPost()">Cancel</button></div>
     <div class="page-content" id="posttruck-scroll">
-        <div id="truck-warning" class="action-required" style="display:none"><span>⚠️</span><div><strong>Profile Required</strong> Please complete your profile to post trucks.</div><button class="btn-action" onclick="goToProfile()">Go to Profile</button></div>
-        <div class="form-group"><label>Vehicle Number</label><div style="display:flex;gap:8px"><input class="form-control" id="pt-number" style="flex:2"><button class="btn-primary" style="width:auto;padding:10px 16px" onclick="autoFetchVehicle()">🔍 Auto-Fetch</button></div></div>
-        <div class="form-group"><label>📍 Location</label><div class="location-search-wrapper"><input type="text" id="pt-location-input" placeholder="Search PIN..."><div class="suggestions" id="pt-location-suggestions"></div><input type="hidden" id="pt-location-hidden"></div></div>
-        <div class="grid-2"><div><label>Available From</label><input class="form-control" type="date" id="pt-available"></div><div><label>Rate / KM</label><input class="form-control" type="text" id="pt-rate-km"></div></div>
-        <div class="grid-2"><div><label>Driver Name</label><input class="form-control" id="pt-driver"></div><div><label>Driver Mobile</label><input class="form-control" id="pt-driver-mobile" maxlength="10"></div></div>
+        <div class="form-group"><label class="form-label">Vehicle Number *</label><div style="display:flex;gap:8px"><input class="form-control" id="pt-number" style="flex:2"><button class="btn-primary" style="width:auto;padding:10px 16px" onclick="autoFetchVehicle()">🔍 Auto-Fetch</button></div></div>
+        
+        <div class="form-group"><label class="form-label">📍 Location *</label><div class="location-search-wrapper"><input type="text" id="pt-location-input" placeholder="Search PIN..." oninput="searchLocationInForm('pt-location')"><div class="suggestions" id="pt-location-suggestions"></div><input type="hidden" id="pt-location-hidden"></div></div>
+        
+        <div class="grid-2"><div class="form-group"><label class="form-label">Available From *</label><input class="form-control" type="date" id="pt-available"></div>
+        <div class="form-group"><label class="form-label">Rate / KM (₹)</label><input class="form-control" type="text" id="pt-rate-km" placeholder="85"></div></div>
+        
+        <div class="grid-2"><div class="form-group"><label class="form-label">Driver Name *</label><input class="form-control" type="text" id="pt-driver" placeholder="Driver name"></div>
+        <div class="form-group"><label class="form-label">Driver Mobile *</label><input class="form-control" type="tel" id="pt-driver-mobile" placeholder="9876543210" maxlength="10"></div></div>
+        
         <button class="btn-primary" onclick="publishTruck()">📤 List Truck</button>
     </div>
     <div id="bottom-nav"><button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button><button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Post Load</span></button><button class="nav-item active" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Post Truck</span></button><button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button></div>
@@ -293,21 +318,21 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 <!-- ============================================================
      PROFILE PAGE
      ============================================================ -->
-<div id="profile-page" class="hidden-page"><div class="profile-container">
-    <div class="profile-header"><div class="logo" onclick="goHome()">🚚 ReturnTruck</div><div class="header-right"><button class="back-btn" style="font-size:14px;padding:4px 10px;background:#f1f5f9;border-radius:8px;margin-right:8px" onclick="goHome()">← Back</button><button class="avatar-btn" id="avatar-btn-profile" onclick="toggleDropdown()"><span class="avatar-initials" id="avatar-initials-profile">👤</span></button><div class="profile-dropdown" id="profile-dropdown-profile"><button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button><div class="dropdown-divider"></div><button class="dropdown-item danger" onclick="closeDropdown();logout()">🚪 Logout</button></div></div></div>
+<div id="profile-page" class="hidden-page"><div class="home-container">
+    <div class="profile-header"><div class="logo" onclick="goHome()">🚚 ReturnTruck</div><div class="header-right"><button class="back-btn" onclick="goHome()">← Back</button><button class="avatar-btn guest" id="avatar-btn-profile" onclick="toggleDropdown()"><span id="avatar-initials-profile">GU</span></button><div class="profile-dropdown" id="profile-dropdown-profile"><button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button><div style="height:1px;background:#e2e8f0;margin:4px 0"></div><button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button></div></div></div>
     
     <div class="page-content" id="profile-page-content">
-        <div class="profile-header-card"><div class="welcome">Welcome,</div><div class="mobile" id="profile-mobile">--</div><span class="badge">⭐ Member</span></div>
+        <div class="profile-header-card"><div style="font-size:11px;opacity:.8;font-weight:500;text-transform:uppercase">Welcome,</div><div class="mobile" id="profile-mobile">--</div><span style="font-size:10px;background:rgba(255,255,255,.2);padding:2px 12px;border-radius:12px;display:inline-block">⭐ Member</span></div>
         
-        <div class="profile-section"><div class="section-header"><span class="section-title">📦 Load Giver</span><span class="section-badge" id="loadgiver-badge">⚠️ Required</span></div>
+        <div class="profile-section"><div class="section-header"><span class="section-title">📦 Load Giver</span><span id="loadgiver-badge" style="font-size:9px;background:#fef3c7;color:#d97706;padding:2px 10px;border-radius:12px;font-weight:700">⚠️ Required</span></div>
         <div id="loadgiver-input-area"><input class="form-control" style="margin-bottom:8px" type="text" id="lg-company" placeholder="Company Name"><button class="section-btn" onclick="saveLoadGiverProfile()">💾 Save</button></div>
-        <div id="loadgiver-active-area" style="display:none"><p><strong id="lg-display-company">--</strong></p><button class="section-btn" onclick="editLoadGiver()">✏️ Edit</button></div></div>
+        <div id="loadgiver-active-area" style="display:none"><p style="margin:0 0 8px 0"><strong id="lg-display-company">--</strong></p><button class="section-btn" onclick="editLoadGiver()">✏️ Edit</button></div></div>
 
-        <div class="profile-section"><div class="section-header"><span class="section-title">🚛 Fleet Operator</span><span class="section-badge" id="fleet-badge">⚠️ Required</span></div>
+        <div class="profile-section"><div class="section-header"><span class="section-title">🚛 Fleet Operator</span><span id="fleet-badge" style="font-size:9px;background:#fef3c7;color:#d97706;padding:2px 10px;border-radius:12px;font-weight:700">⚠️ Required</span></div>
         <div id="fleet-input-area"><input class="form-control" style="margin-bottom:8px" type="text" id="fo-company" placeholder="Company Name"><button class="section-btn" onclick="saveFleetProfile()">💾 Save</button></div>
-        <div id="fleet-active-area" style="display:none"><p><strong id="fo-display-company">--</strong></p><button class="section-btn" onclick="editFleet()">✏️ Edit</button><div id="my-trucks-list" style="margin-top:8px"></div></div></div>
+        <div id="fleet-active-area" style="display:none"><p style="margin:0 0 8px 0"><strong id="fo-display-company">--</strong></p><button class="section-btn" onclick="editFleet()">✏️ Edit</button><div id="my-trucks-list" style="margin-top:12px"></div></div></div>
         
-        <div id="my-loads-list"><p style="font-size:11px;font-weight:600;color:#1e293b">📦 My Loads</p><div id="my-loads-container"></div></div>
+        <div style="margin-top:12px"><p style="font-size:11px;font-weight:600;color:#1e293b;margin:0 0 8px 0">📦 My Loads</p><div id="my-loads-container"></div></div>
     </div>
     <div id="bottom-nav"><button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button><button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Post Load</span></button><button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Post Truck</span></button><button class="nav-item active" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button></div>
 </div></div>
@@ -315,10 +340,10 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 <!-- ============================================================
      DETAIL PAGE
      ============================================================ -->
-<div id="detail-page" class="hidden-page"><div class="detail-container">
+<div id="detail-page" class="hidden-page"><div class="home-container">
     <div class="detail-header"><span class="logo" onclick="goHome()">🚚 ReturnTruck</span><button class="back-btn" onclick="closeDetail()">Cancel</button></div>
     <div class="page-content" id="detail-scroll">
-        <div style="margin-bottom:8px"><div style="font-size:17px;font-weight:700" id="detail-title">Title</div><div id="detail-company" style="font-size:13px;color:#2563eb">Company</div></div>
+        <div style="margin-bottom:12px"><div style="font-size:17px;font-weight:700" id="detail-title">Title</div><div id="detail-company" style="font-size:13px;color:#2563eb">Company</div></div>
         <div class="detail-actions"><button class="btn-call" onclick="makeCall()">📞 Call</button><button class="btn-contact" onclick="contactUser()">✉️ Contact</button><button class="btn-bid" onclick="expressInterest()">🤝 Interest</button><button class="btn-share" onclick="handleShareClick()">↗️ Share</button></div>
     </div>
     <div id="bottom-nav"><button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button><button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Post Load</span></button><button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Post Truck</span></button><button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button></div>
@@ -327,7 +352,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 <!-- ============================================================
      MODALS
      ============================================================ -->
-<div class="modal-overlay" id="change-pin-modal"><div class="modal-box"><h3>🔑 Change PIN</h3><input type="password" id="new-pin" class="input-field" placeholder="New PIN (4 digits)" maxlength="4"><input type="password" id="confirm-pin" class="input-field" placeholder="Confirm PIN" maxlength="4"><div style="display:flex;gap:8px;margin-top:8px"><button class="btn-back" style="margin:0" onclick="closeChangePin()">Cancel</button><button class="btn-primary" onclick="saveNewPin()">Save PIN</button></div></div></div>
+<div class="modal-overlay" id="change-pin-modal"><div class="modal-box"><h3 style="margin:0 0 12px 0">🔑 Change PIN</h3><input type="password" id="new-pin" class="input-field" placeholder="New PIN (4 digits)" maxlength="4"><input type="password" id="confirm-pin" class="input-field" placeholder="Confirm PIN" maxlength="4"><div style="display:flex;gap:8px;margin-top:8px"><button class="btn-back" style="margin:0;width:50%" onclick="closeChangePin()">Cancel</button><button class="btn-primary" style="width:50%" onclick="saveNewPin()">Save PIN</button></div></div></div>
 
 <script>
 // ============================================================
@@ -361,20 +386,17 @@ const STATIC_LOCATIONS = [
 ];
 
 // ============================================================
-// CONFIGURATION & STATE
+// CONFIGURATION
 // ============================================================
 const SUPABASE_URL = 'https://ghjoffovatgvhzxlupef.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let currentMobile='', currentUser=null, isGuest=false, isChecking=false;
-let currentTab='ALL', feedItems=[], currentDetailData=null, currentDetailType=null;
-let otpTimerInterval=null, otpExpiryTime=300, isNewUser=false, returnToDetailAfterLogin = null;
-let selectedLocation = null, filterOpen = false, fetchedVehicleData = null;
+let currentUser=null, isGuest=false, currentTab='ALL', feedItems=[], currentDetailData=null;
+let otpTimerInterval=null, currentMobile='', selectedLocation=null, filterOpen=false;
 
 function $(id){return document.getElementById(id)}
-function showToast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2000)}
-function setStatus(text,type){const e=$('mobile-status');if(!e)return;const c={green:'text-green-600',blue:'text-blue-600',yellow:'text-yellow-600',red:'text-red-600',gray:'text-slate-400'};e.textContent=text;e.className='text-xs mt-1 '+(c[type]||c.gray)}
+function showToast(msg){alert(msg)} // Simple fallback
 
 // ============================================================
 // LOCATION FUNCTIONS
@@ -382,318 +404,128 @@ function setStatus(text,type){const e=$('mobile-status');if(!e)return;const c={g
 function findLocation(query) {
     const q = query.toLowerCase().trim();
     if (!q) return [];
-    return STATIC_LOCATIONS.filter(l =>
-        l.name.toLowerCase().includes(q) ||
-        l.pin.includes(q) ||
-        l.district.toLowerCase().includes(q) ||
-        l.state.toLowerCase().includes(q)
-    ).slice(0, 8);
+    return STATIC_LOCATIONS.filter(l => l.name.toLowerCase().includes(q) || l.pin.includes(q)).slice(0, 8);
 }
-function getLocationByPin(pin) { return STATIC_LOCATIONS.find(l => l.pin === pin) || null; }
 function getLocationName(pin) {
-    const loc = getLocationByPin(pin);
+    const loc = STATIC_LOCATIONS.find(l => l.pin === pin);
     return loc ? `${loc.name}, ${loc.state} (${loc.pin})` : pin || 'Unknown';
 }
-function getDistance(lat1, lng1, lat2, lng2) {
-    const R = 6371;
-    const dLat = (lat2-lat1) * Math.PI / 180;
-    const dLng = (lng2-lng1) * Math.PI / 180;
-    const a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-}
-
-// ============================================================
-// LOCATION SEARCH UI
-// ============================================================
 function searchLocation(){
     const input=$('location-search'); const suggestions=$('location-suggestions');
-    if(!input||!suggestions) return;
-    const query=input.value; const results=findLocation(query);
-    if(results.length===0){ suggestions.innerHTML='<div class="no-result">No locations found</div>'; suggestions.classList.add('show'); return; }
-    suggestions.innerHTML=results.map(l=>{
-        const displayName=`${l.name}, ${l.district}, ${l.state}`;
-        const idx=displayName.toLowerCase().indexOf(query.toLowerCase());
-        let html=displayName;
-        if(idx!==-1 && query) html=displayName.substring(0,idx)+'<span class="highlight">'+displayName.substring(idx,idx+query.length)+'</span>'+displayName.substring(idx+query.length);
-        return `<div class="item" onclick="selectLocation('${l.pin}','${l.name}','${l.state}')">${html}</div>`;
-    }).join(''); suggestions.classList.add('show');
-}
-function selectLocation(pin,name,state){ const input=$('location-search'); const suggestions=$('location-suggestions'); if(input) input.value=`${name}, ${state} (${pin})`; if(suggestions) suggestions.classList.remove('show'); selectedLocation=getLocationByPin(pin); applyFilters(); }
-function searchLocationInForm(context){
-    const input=document.getElementById(context+'-input'); const suggestions=document.getElementById(context+'-suggestions');
-    if(!input||!suggestions) return; const query=input.value; const results=findLocation(query);
-    if(results.length===0){ suggestions.innerHTML='<div class="no-result">No locations found</div>'; suggestions.classList.add('show'); return; }
-    suggestions.innerHTML=results.map(l=>`<div class="item" onclick="selectLocationInForm('${context}','${l.pin}','${l.name}','${l.state}')">${l.name}, ${l.district}, ${l.state}</div>`).join('');
+    const results=findLocation(input.value);
+    if(results.length===0){ suggestions.classList.remove('show'); return; }
+    suggestions.innerHTML=results.map(l=>`<div class="item" onclick="selectLocation('${l.pin}')">${l.name}, ${l.state}</div>`).join('');
     suggestions.classList.add('show');
 }
-function selectLocationInForm(context,pin,name,state){ const input=document.getElementById(context+'-input'); const hidden=document.getElementById(context+'-hidden'); const suggestions=document.getElementById(context+'-suggestions'); if(input) input.value=`${name}, ${state} (${pin})`; if(hidden) hidden.value=pin; if(suggestions) suggestions.classList.remove('show'); }
-document.addEventListener('click',function(e){ document.querySelectorAll('.location-search-wrapper .suggestions').forEach(s=>{ if(!s.closest('.location-search-wrapper').contains(e.target)) s.classList.remove('show'); }); });
+function selectLocation(pin){ $('location-search').value=getLocationName(pin); $('location-suggestions').classList.remove('show'); selectedLocation=pin; applyFilters(); }
+function searchLocationInForm(context){
+    const input=$(context+'-input'); const suggestions=$(context+'-suggestions');
+    const results=findLocation(input.value);
+    if(results.length===0){ suggestions.classList.remove('show'); return; }
+    suggestions.innerHTML=results.map(l=>`<div class="item" onclick="selectLocationInForm('${context}','${l.pin}')">${l.name}, ${l.state}</div>`).join('');
+    suggestions.classList.add('show');
+}
+function selectLocationInForm(context,pin){ $(context+'-input').value=getLocationName(pin); $(context+'-hidden').value=pin; $(context+'-suggestions').classList.remove('show'); }
 
 // ============================================================
-// TABS & FILTERS
-// ============================================================
-function setTab(tab){ currentTab=tab; document.querySelectorAll('.type-tabs button').forEach(b=>b.className='inactive'); const map={'ALL':'tab-all','LOAD':'tab-loads','TRUCK':'tab-trucks','AGENT':'tab-agents'}; const el=$(map[tab]); if(el) el.className='active'; applyFilters(); }
-function toggleFilters(){ filterOpen=!filterOpen; const container=$('filter-container'); const label=$('filter-toggle-label'); const arrow=$('filter-arrow'); if(container) container.classList.toggle('open', filterOpen); if(label) label.textContent=filterOpen?'🔍 Hide Filters':'🔍 Show Filters'; if(arrow) arrow.className='arrow '+(filterOpen?'open':'closed'); }
-function applyFilters(){ renderFeed(); }
-
-// ============================================================
-// LAYOUT HEIGHT (CALCULATE HEADER & FOOTER HEIGHTS)
+// LAYOUT HEIGHT (FIX BOTTOM NAV)
 // ============================================================
 function fixLayoutHeight(){
     const card=document.querySelector('.card'); if(!card)return;
-    const content=document.querySelector('.page-content:not(.hidden)'); if(!content)return;
-    const header=document.querySelector('.home-header:not(.hidden), .profile-header:not(.hidden), .post-header:not(.hidden), .detail-header:not(.hidden)');
+    const content=document.querySelector('.page-content:not(.hidden-page)'); if(!content)return;
+    const header=document.querySelector('.home-header:not(.hidden-page), .profile-header:not(.hidden-page), .post-header:not(.hidden-page), .detail-header:not(.hidden-page)');
     const nav=document.getElementById('bottom-nav');
-    const banner=document.querySelector('.install-banner:not(.hidden)');
-    const guest=document.querySelector('.guest-banner:not(.hidden)');
+    const guest=document.getElementById('guest-banner');
     if(!header||!nav)return;
-    
-    let topHeight = header.offsetHeight + 8;
-    if(guest && guest.style.display!=='none' && !guest.classList.contains('hidden')) topHeight += guest.offsetHeight + 6;
-    if(banner && !banner.classList.contains('hidden') && banner.style.display!=='none') topHeight += banner.offsetHeight + 6;
-    
-    const topContainer = document.getElementById('home-top');
-    if(topContainer && !topContainer.closest('.hidden-page')) topHeight += topContainer.offsetHeight + 4;
-    
-    const navHeight = nav.offsetHeight + 6;
-    const avail = card.clientHeight - topHeight - navHeight - 16; // 16 is card padding
-    content.style.height = Math.max(80, avail) + 'px';
+    let h=header.offsetHeight+8;
+    if(guest && guest.style.display!=='none') h+=guest.offsetHeight+6;
+    const top=document.getElementById('home-top');
+    if(top && !top.closest('.hidden-page')) h+=top.offsetHeight+4;
+    content.style.height = (card.clientHeight - h - nav.offsetHeight - 18) + 'px';
 }
 let resizeTimer; function handleResize(){ clearTimeout(resizeTimer); resizeTimer=setTimeout(fixLayoutHeight, 200); }
-function observeHeightChanges() { setTimeout(fixLayoutHeight, 100); window.addEventListener('resize', handleResize); }
 
 // ============================================================
-// LOGIN SYSTEM
+// AUTH
 // ============================================================
-function continueAsGuest(){isGuest=true;currentUser=null;showToast('👤 Welcome, Guest!');showHomeScreenAfterLogin();}
-function showHomeScreenAfterLogin(){
-    ['step2','step3','step4'].forEach(id=>$(id).classList.add('hidden'));
-    document.getElementById('login-screen').style.display='none';
-    document.getElementById('home-page').classList.remove('hidden-page');
-    updateAvatar(); updateGuestUI(); fetchFeedData();
-    setTimeout(fixLayoutHeight, 100); window.addEventListener('resize', handleResize);
-}
-function updateGuestUI(){ const b=document.getElementById('guest-banner'); if(b) b.style.display=isGuest?'flex':'none'; setTimeout(fixLayoutHeight, 100); }
-function showLogin(returnToDetail){ if(returnToDetail) returnToDetailAfterLogin=returnToDetail; resetForm(); document.getElementById('mobile').focus(); showToast('🔐 Enter your mobile number to login'); }
+function continueAsGuest(){isGuest=true; showToast('👤 Guest Mode'); showHome(); }
+function showLogin(){resetForm(); $('mobile').focus();}
+function resetForm(){['step2','step3','step4'].forEach(i=>$(i).classList.add('hidden')); $('step1').classList.remove('hidden'); document.getElementById('login-screen').style.display='flex'; ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.add('hidden-page')); }
+function showHome(){document.getElementById('login-screen').style.display='none'; document.getElementById('home-page').classList.remove('hidden-page'); fixLayoutHeight(); renderFeed(); }
 
-function resetForm(){
-    ['step1','step2','step3','step4'].forEach(id=>{const e=$(id);if(e)e.classList.add('hidden')}); $('step1').style.display='block';
-    ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(id=>{const e=$(id);if(e)e.classList.add('hidden-page')});
-    document.getElementById('login-screen').style.display='flex';
-    document.getElementById('mobile').value=''; document.getElementById('pin').value='';
-    document.getElementById('reg-pin').value=''; document.getElementById('reg-pin-confirm').value='';
-    document.querySelectorAll('.otp-input').forEach(e=>{e.value='';e.classList.remove('filled')});
-    document.getElementById('msg').classList.add('hidden'); document.getElementById('mobile-status').textContent='';
-    if(otpTimerInterval) clearInterval(otpTimerInterval);
-    currentMobile=''; currentUser=null; isGuest=false; isChecking=false;
-    document.getElementById('mobile').focus(); document.getElementById('guest-banner').style.display='none';
-}
-function toggleDropdown(){document.querySelectorAll('.profile-dropdown').forEach(d=>d.classList.toggle('show'))}
-function closeDropdown(){document.querySelectorAll('.profile-dropdown').forEach(d=>d.classList.remove('show'))}
-
-function getInitials(name){
-    if(!name || name.trim()==='') return '👤';
-    const parts=name.trim().split(/\s+/);
-    if(parts.length===1) return parts[0].substring(0,2).toUpperCase();
-    return (parts[0][0]+parts[parts.length-1][0]).toUpperCase();
-}
-function updateAvatar(){
-    const isGuestUser=isGuest||!currentUser; const gender=currentUser?.gender||0; const name=currentUser?.full_name||'';
-    const initials=isGuestUser?'GU':getInitials(name);
-    const avatarClass=isGuestUser?'guest':(gender===1?'female':gender===2?'male':'other');
-    document.querySelectorAll('.avatar-btn').forEach(btn=>{ btn.className=`avatar-btn ${avatarClass}`; const span=btn.querySelector('.avatar-initials'); if(span) span.textContent=initials; });
-}
-
-// ============================================================
-// AUTO CHECK & OTP LOGIC
-// ============================================================
-async function autoCheckMobile(mobile){
-    if(isChecking)return; isChecking=true; const input=document.getElementById('mobile'); if(input)input.disabled=true;
-    setStatus('⏳ Checking...','blue');
-    try{
-        const { data: au } = await sb.from('active_users').select('*').eq('mobile', mobile).maybeSingle();
-        if(au){ isNewUser=false; currentMobile=mobile; currentUser=au; document.getElementById('display-mobile').textContent=mobile; document.getElementById('status-badge').textContent='✅ Existing user - Enter PIN'; document.getElementById('status-badge').className='text-sm font-medium text-green-600'; document.getElementById('submitBtn').textContent='🔐 Login'; document.getElementById('step1').style.display='none'; document.getElementById('step2').classList.remove('hidden'); document.getElementById('step3').classList.add('hidden'); document.getElementById('step4').classList.add('hidden'); document.getElementById('pin').value=''; document.getElementById('pin').focus(); setStatus('✅ Existing user. Enter your PIN.','green'); showToast('📱 Existing user - Enter PIN'); isChecking=false; if(input)input.disabled=false; return; }
-        isNewUser=true; currentMobile=mobile; await sendWhatsAppOTP(mobile);
-    }catch(err){ isNewUser=true; currentMobile=mobile; await sendWhatsAppOTP(mobile); }finally{ isChecking=false; if(input)input.disabled=false; }
-}
-
-async function sendWhatsAppOTP(mobile){
-    setStatus('📱 Sending OTP via WhatsApp...','blue');
-    const otp=Math.floor(100000+Math.random()*900000).toString();
-    sessionStorage.setItem('otp_'+mobile,otp); sessionStorage.setItem('otp_expiry_'+mobile,Date.now()+300000);
-    const waNumber='91'+mobile; const msg=`Your ReturnTruck verification code is: *${otp}*\n\nEnter this code to complete your registration.`;
-    window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`,'_blank');
-    document.getElementById('step1').style.display='none'; document.getElementById('step2').classList.add('hidden');
-    document.getElementById('step3').classList.remove('hidden'); document.getElementById('step4').classList.add('hidden');
-    document.getElementById('wa-display-mobile').textContent=mobile; document.querySelectorAll('.otp-input').forEach(el=>el.value='');
-    document.querySelector('.otp-input').focus(); startOTPTimer();
-    setStatus('📱 OTP sent via WhatsApp! Check your WhatsApp.','green'); showToast('💬 OTP sent via WhatsApp!');
-}
-function startOTPTimer(){
-    let timeLeft=otpExpiryTime; const timerEl=$('otp-timer'),resendBtn=$('resend-otp');
-    if(otpTimerInterval)clearInterval(otpTimerInterval);
-    otpTimerInterval=setInterval(()=>{ const m=Math.floor(timeLeft/60),s=timeLeft%60; timerEl.textContent=`${m}:${s.toString().padStart(2,'0')}`; timeLeft--; if(timeLeft<0){clearInterval(otpTimerInterval);timerEl.textContent='Expired';resendBtn.disabled=false} },1000);
-}
-async function verifyOTP(){
-    const otp=Array.from(document.querySelectorAll('.otp-input')).map(el=>el.value).join('');
-    if(otp.length!==6){showToast('⚠️ Enter complete 6-digit OTP');return}
-    const storedOtp=sessionStorage.getItem('otp_'+currentMobile); const storedExpiry=sessionStorage.getItem('otp_expiry_'+currentMobile);
-    if(!storedOtp||Date.now()>parseInt(storedExpiry)){showToast('❌ OTP expired. Please request again.');return}
-    if(otp!==storedOtp){showToast('❌ Invalid OTP. Please try again.');document.querySelectorAll('.otp-input').forEach(el=>{el.value='';el.classList.remove('filled')});document.querySelector('.otp-input').focus();return}
-    showToast('✅ Phone verified successfully!'); sessionStorage.removeItem('otp_'+currentMobile); sessionStorage.removeItem('otp_expiry_'+currentMobile);
-    document.getElementById('step3').classList.add('hidden'); document.getElementById('step4').classList.remove('hidden');
-    document.getElementById('reg-display-mobile').textContent=currentMobile; document.getElementById('reg-pin').focus();
-}
 async function registerUser(){
-    const pin=document.getElementById('reg-pin').value.trim(); const confirmPin=document.getElementById('reg-pin-confirm').value.trim();
-    if(!pin||pin.length!==4||!/^\d{4}$/.test(pin)){showToast('⚠️ Enter a valid 4-digit PIN');document.getElementById('reg-pin').focus();return;}
-    if(pin!==confirmPin){showToast('⚠️ PINs do not match');document.getElementById('reg-pin-confirm').value='';document.getElementById('reg-pin-confirm').focus();return;}
-    try{
-        const encoder=new TextEncoder(); const data=encoder.encode(pin); const hashBuffer=await crypto.subtle.digest('SHA-256',data); const hashArray=Array.from(new Uint8Array(hashBuffer)); const pinhash=hashArray.map(b=>b.toString(16).padStart(2,'0')).join('');
-        const {data:newUser,error:insertError}=await sb.from('active_users').insert({mobile:currentMobile,pinhash:pinhash,last_active:new Date().toISOString()}).select().single();
-        if(insertError){showToast('❌ Registration failed: '+insertError.message);return;}
-        currentUser=newUser; showToast('✅ Registration successful!'); showHomeScreenAfterLogin();
-    }catch(err){showToast('❌ Error: '+err.message);}
+    const pin=$('reg-pin').value.trim();
+    const encoder=new TextEncoder(); const hashBuffer=await crypto.subtle.digest('SHA-256',encoder.encode(pin));
+    const pinhash=Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    const {data:newUser}=await sb.from('active_users').insert({mobile:currentMobile,pinhash}).select().single();
+    if(newUser){ currentUser=newUser; showToast('✅ Registered!'); showHome(); }
 }
 window.submitPin=async function(){
-    const pin=document.getElementById('pin').value.trim(); if(!pin||pin.length!==4){showToast('⚠️ Enter 4-digit PIN');document.getElementById('pin').focus();return;}
-    try{
-        const encoder=new TextEncoder(); const data=encoder.encode(pin); const hashBuffer=await crypto.subtle.digest('SHA-256',data); const hashArray=Array.from(new Uint8Array(hashBuffer)); const pinhash=hashArray.map(b=>b.toString(16).padStart(2,'0')).join('');
-        const {data:user,error:userError}=await sb.from('active_users').select('*').eq('mobile',currentMobile).eq('pinhash',pinhash).single();
-        if(userError||!user){showToast('❌ Invalid PIN. Please try again.');document.getElementById('pin').value='';document.getElementById('pin').focus();return;}
-        isGuest=false; currentUser=user; showToast('✅ Welcome back!'); showHomeScreenAfterLogin();
-    }catch(err){showToast('❌ Error: '+err.message);}
+    const pin=$('pin').value.trim();
+    const encoder=new TextEncoder(); const hashBuffer=await crypto.subtle.digest('SHA-256',encoder.encode(pin));
+    const pinhash=Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    const {data:user}=await sb.from('active_users').select('*').eq('mobile',currentMobile).eq('pinhash',pinhash).single();
+    if(user){ currentUser=user; showToast('✅ Welcome back!'); showHome(); }
 };
-$('mobile').addEventListener('input',function(e){const mobile=this.value.trim();if(mobile.length===10){autoCheckMobile(mobile);}else if(mobile.length>0&&mobile.length<10){setStatus('Enter 10 digits','gray');}});
+$('mobile').addEventListener('input',e=>{const m=e.target.value.trim(); if(m.length===10){currentMobile=m; $('step1').classList.add('hidden'); $('step2').classList.remove('hidden');} });
 
 // ============================================================
-// NAVIGATION & PAGES
+// NAVIGATION
 // ============================================================
 function goHome(){
-    ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(id=>{const e=$(id);if(e)e.classList.toggle('hidden-page',id!=='home-page');});
-    document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active')); const first=document.querySelectorAll('#bottom-nav .nav-item')[0]; if(first) first.classList.add('active');
-    renderFeed(); setTimeout(fixLayoutHeight,100);
+    ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.toggle('hidden-page',i!=='home-page'));
+    document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+    document.querySelectorAll('#bottom-nav .nav-item')[0].classList.add('active');
+    fixLayoutHeight(); renderFeed();
 }
-function goPostLoad(){
-    if(isGuest||!currentUser){showToast('🔐 Please login to post loads');showLogin();return;}
-    switchPage('postload-page',1);
-}
-function goPostTruck(){
-    if(isGuest||!currentUser){showToast('🔐 Please login to post trucks');showLogin();return;}
-    switchPage('posttruck-page',2);
-}
-async function goToProfile(){
-    if(isGuest||!currentUser){showToast('👤 Login to access profile.');showLogin();return;}
-    switchPage('profile-page',3); await loadProfile();
-}
-function switchPage(id, navIdx){
+function switchPage(id, idx){
     ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.toggle('hidden-page',i!==id));
-    document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active')); document.querySelectorAll('#bottom-nav .nav-item')[navIdx].classList.add('active');
-    setTimeout(fixLayoutHeight,100);
+    document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+    document.querySelectorAll('#bottom-nav .nav-item')[idx].classList.add('active');
+    fixLayoutHeight();
 }
-function cancelPost(){if(confirm('Cancel posting? Unsaved data will be lost.')) goHome();}
-function closeDetail(){currentDetailData=null;currentDetailType=null;$('detail-page').classList.add('hidden-page');goHome();}
+function goPostLoad(){ if(isGuest||!currentUser){showLogin();return;} switchPage('postload-page',1); }
+function goPostTruck(){ if(isGuest||!currentUser){showLogin();return;} switchPage('posttruck-page',2); }
+function goToProfile(){ if(isGuest||!currentUser){showLogin();return;} switchPage('profile-page',3); loadProfile(); }
+function cancelPost(){goHome();}
+function closeDetail(){currentDetailData=null;goHome();}
 
 // ============================================================
-// FEED DATA
+// FEED & FILTERS
 // ============================================================
-async function fetchFeedData(){
+function setTab(tab){ currentTab=tab; document.querySelectorAll('.type-tabs button').forEach(b=>b.className='inactive'); const map={'ALL':'tab-all','LOAD':'tab-loads','TRUCK':'tab-trucks','AGENT':'tab-agents'}; const el=$(map[tab]); if(el) el.className='active'; renderFeed(); }
+function toggleFilters(){ filterOpen=!filterOpen; $('filter-container').classList.toggle('open', filterOpen); $('filter-toggle-label').textContent=filterOpen?'🔍 Hide Filters':'🔍 Show Filters'; }
+function applyFilters(){ renderFeed(); }
+
+async function renderFeed(){
     try{
-        const {data:loads,error:le}=await sb.from('active_loads').select('*').eq('status',1).limit(50);
-        const {data:trucks,error:te}=await sb.from('active_trucks').select('*').eq('status',1).limit(50);
-        if(le||te) throw le||te;
-        const fLoads=(loads||[]).map(l=>({type:'LOAD',title:l.material||'Cargo',company:l.company||'Shipper',weight:l.weight||0,vehicle:l.vehicle_type||'',pickup_pin:l.pickup_pin||'',drop_pin:l.drop_pin||'',rate:l.rate||0,_raw:l}));
-        const fTrucks=(trucks||[]).map(t=>({type:'TRUCK',title:t.truck_no||'Truck',company:t.company_name||'Fleet',location_pin:t.location_pin||'',rate_km:t.rate_km||0,driver:t.driver_name||'',_raw:t}));
-        feedItems=[...fLoads,...fTrucks]; renderFeed();
-    }catch(err){console.error('Error fetching feed:',err); feedItems=[]; renderFeed();}
-}
-function renderFeed(){
-    const container=$('feed-container'); const count=$('results-count'); if(!container) return;
-    let filtered=[...feedItems];
-    if(currentTab==='LOAD') filtered=filtered.filter(i=>i.type==='LOAD'); else if(currentTab==='TRUCK') filtered=filtered.filter(i=>i.type==='TRUCK');
-    const fromPin=$('filter-from')?.value.trim(); const toPin=$('filter-to')?.value.trim();
-    if(fromPin) filtered=filtered.filter(i=>i.pickup_pin===fromPin); if(toPin) filtered=filtered.filter(i=>i.drop_pin===toPin);
-    const vehicle=$('filter-vehicle')?.value; if(vehicle&&vehicle!=='ALL') filtered=filtered.filter(i=>i.vehicle&&i.vehicle.toLowerCase().includes(vehicle));
-    if(count) count.textContent=`Showing ${filtered.length} Records`;
-    if(filtered.length===0){ container.innerHTML='<div class="no-records">No records found</div>'; return; }
-    container.innerHTML=filtered.map(item=>{
-        const type=item.type; const badgeClass=type==='LOAD'?'badge-load':'badge-truck'; const typeLabel=type==='LOAD'?'📦 LOAD':'🚛 TRUCK';
-        let locDisplay= type==='LOAD'?`📍 ${getLocationName(item.pickup_pin)} → ${getLocationName(item.drop_pin)}`:`📍 ${getLocationName(item.location_pin)}`;
-        const targetId=item._raw?.id||'';
-        return `<div class="feed-card" onclick="openDetail('${type}','${targetId}')"><div class="title">${item.title}</div><div class="meta"><span class="highlight">${item.company}</span> • ${locDisplay}</div></div>`;
-    }).join('');
+        const {data:loads}=await sb.from('active_loads').select('*').eq('status',1);
+        const {data:trucks}=await sb.from('active_trucks').select('*').eq('status',1);
+        feedItems=[...(loads||[]).map(l=>({type:'LOAD',title:l.material||'Cargo',company:l.company||'',pin:l.pickup_pin||'',id:l.id})),...(trucks||[]).map(t=>({type:'TRUCK',title:t.truck_no||'Truck',company:t.company_name||'',pin:t.location_pin||'',id:t.id}))];
+        $('feed-container').innerHTML=feedItems.length===0?'<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>':feedItems.map(i=>`<div class="feed-card" onclick="openDetail('${i.type}','${i.id}')"><div class="title">${i.title}</div><div class="meta">${i.company||''} • ${getLocationName(i.pin)}</div></div>`).join('');
+    }catch(e){ $('feed-container').innerHTML='<div style="padding:30px 0;color:#ef4444;text-align:center">Error loading feed. Check Supabase.</div>'; }
 }
 
 // ============================================================
 // PROFILE
 // ============================================================
-async function loadProfile(){
-    if(!currentUser||isGuest){ $('profile-mobile').textContent='Guest User'; return; }
-    $('profile-mobile').textContent=currentUser.mobile;
-    if(currentUser.company_name&&currentUser.company_name.trim()!==''){
-        $('loadgiver-badge').textContent='✅ Active'; $('loadgiver-badge').style.background='#dcfce7'; $('loadgiver-badge').style.color='#166534';
-        $('loadgiver-input-area').style.display='none'; $('loadgiver-active-area').style.display='block'; $('lg-display-company').textContent=currentUser.company_name;
-        if(currentUser.company_web){ $('lg-display-website').textContent=`🔗 ${currentUser.company_web}`; $('lg-display-website').style.display='block'; $('lg-display-website').onclick=function(){window.open(currentUser.company_web,'_blank')}; }else{$('lg-display-website').style.display='none';}
-    }else{ $('loadgiver-badge').textContent='⚠️ Required'; $('loadgiver-badge').style.background='#fef3c7'; $('loadgiver-badge').style.color='#d97706'; $('loadgiver-input-area').style.display='block'; $('loadgiver-active-area').style.display='none'; }
-    if(currentUser.fleet_company&&currentUser.fleet_company.trim()!==''){
-        $('fleet-badge').textContent='✅ Active'; $('fleet-badge').style.background='#dcfce7'; $('fleet-badge').style.color='#166534';
-        $('fleet-input-area').style.display='none'; $('fleet-active-area').style.display='block'; $('fo-display-company').textContent=currentUser.fleet_company; loadMyTrucks();
-    }else{ $('fleet-badge').textContent='⚠️ Required'; $('fleet-badge').style.background='#fef3c7'; $('fleet-badge').style.color='#d97706'; $('fleet-input-area').style.display='block'; $('fleet-active-area').style.display='none'; }
-    loadMyLoads();
-}
-async function saveLoadGiverProfile() {
-    if(isGuest||!currentUser){showToast('🔐 Please login first');return;}
-    const company=$('lg-company').value.trim(); if(!company){showToast('⚠️ Please enter a company name');return;}
-    const website=$('lg-website').value.trim(); const {error}=await sb.from('active_users').update({company_name:company,company_web:website}).eq('mobile',currentUser.mobile);
-    if(error){showToast('❌ Error: '+error.message);return;} currentUser.company_name=company; currentUser.company_web=website; showToast('✅ Saved!'); loadProfile();
-}
-function editLoadGiver(){ $('loadgiver-input-area').style.display='block'; $('loadgiver-active-area').style.display='none'; }
-async function saveFleetProfile() {
-    if(isGuest||!currentUser){showToast('🔐 Please login first');return;}
-    const company=$('fo-company').value.trim(); if(!company){showToast('⚠️ Please enter a company name');return;}
-    const gst=$('fo-gst').value.trim(); const pan=$('fo-pan').value.trim(); const {error}=await sb.from('active_users').update({fleet_company:company,fleet_gst:gst,fleet_pan:pan}).eq('mobile',currentUser.mobile);
-    if(error){showToast('❌ Error: '+error.message);return;} currentUser.fleet_company=company; currentUser.fleet_gst=gst; currentUser.fleet_pan=pan; showToast('✅ Saved!'); loadProfile();
-}
-function editFleet(){ $('fleet-input-area').style.display='block'; $('fleet-active-area').style.display='none'; }
-async function saveAgentProfile() {
-    if(isGuest||!currentUser){showToast('🔐 Please login first');return;}
-    const company=$('ag-company').value.trim(); if(!company){showToast('⚠️ Please enter a agency name');return;}
-    const gst=$('ag-gst').value.trim(); const pan=$('ag-pan').value.trim(); const {error}=await sb.from('active_users').update({agent_company:company,agent_gst:gst,agent_pan:pan}).eq('mobile',currentUser.mobile);
-    if(error){showToast('❌ Error: '+error.message);return;} currentUser.agent_company=company; currentUser.agent_gst=gst; currentUser.agent_pan=pan; showToast('✅ Saved!'); loadProfile();
-}
-function editAgent(){ $('agent-input-area').style.display='block'; $('agent-active-area').style.display='none'; }
-async function loadMyTrucks(){ const container=$('my-trucks-list'); try{const {data}=await sb.from('active_trucks').select('*').eq('mobile',currentUser.mobile); container.innerHTML=data&&data.length?data.map(t=>`<div class="my-item"><div class="item-title">${t.truck_no}</div></div>`).join(''):'<p style="font-size:11px;color:#94a3b8">No trucks listed yet.</p>';}catch(e){container.innerHTML='<p style="font-size:11px;color:#ef4444">Error</p>';} }
-async function loadMyLoads(){ const container=$('my-loads-container'); try{const {data}=await sb.from('active_loads').select('*').eq('mobile',currentUser.mobile); container.innerHTML=data&&data.length?data.map(l=>`<div class="my-item"><div class="item-title">${l.material} - ${l.vehicle_type}</div><div class="item-meta">₹${(l.rate||0).toLocaleString()}</div></div>`).join(''):'<p style="font-size:11px;color:#94a3b8">No loads posted yet.</p>';}catch(e){container.innerHTML='<p style="font-size:11px;color:#ef4444">Error</p>';} }
+async function loadProfile(){ if(!currentUser)return; $('profile-mobile').textContent=currentUser.mobile||'--'; }
+async function saveLoadGiverProfile(){ const c=$('lg-company').value.trim(); if(!c)return showToast('⚠️ Enter company name'); await sb.from('active_users').update({company_name:c}).eq('mobile',currentUser.mobile); currentUser.company_name=c; showToast('✅ Saved!'); loadProfile(); }
+async function saveFleetProfile(){ const c=$('fo-company').value.trim(); if(!c)return showToast('⚠️ Enter company name'); await sb.from('active_users').update({fleet_company:c}).eq('mobile',currentUser.mobile); currentUser.fleet_company=c; showToast('✅ Saved!'); loadProfile(); }
+function editLoadGiver(){$('loadgiver-active-area').style.display='none'; $('loadgiver-input-area').style.display='block';}
+function editFleet(){$('fleet-active-area').style.display='none'; $('fleet-input-area').style.display='block';}
 
 // ============================================================
-// DETAIL VIEW
+// DETAIL ACTIONS
 // ============================================================
-async function openDetail(type,id){ let data=null; try{ data=(await sb.from(type==='LOAD'?'active_loads':'active_trucks').select('*').eq('id',id).single()).data; }catch(e){showToast('❌ Error loading details');return;} if(!data){showToast('⚠️ Item not found');return;} currentDetailData=data; currentDetailType=type; $('detail-page').classList.remove('hidden-page'); ['home-page','profile-page','postload-page','posttruck-page'].forEach(id=>$(id).classList.add('hidden-page')); const isLoad=type==='LOAD'; $('detail-title').textContent=isLoad?data.material||'Cargo':data.truck_no||'Truck'; $('detail-company').textContent=isLoad?data.company||'Shipper':data.company_name||'Fleet Operator'; $('detail-weight-sub').textContent=isLoad?`${data.weight||0} Kg`:'--'; $('detail-rate-sub').textContent=isLoad?`₹${(data.rate||0).toLocaleString()}`:`₹${(data.rate_km||0)}/km`; $('detail-location-sub').textContent=isLoad?`${getLocationName(data.pickup_pin)} → ${getLocationName(data.drop_pin)}`:getLocationName(data.location_pin); $('detail-weight').textContent=isLoad?`${data.weight||0} Kg`:'--'; $('detail-vehicle').textContent=isLoad?data.vehicle_type||'N/A':'N/A'; setTimeout(fixLayoutHeight,100); }
-function makeCall(){ if(isGuest||!currentUser){showToast('🔐 Please login to call');showLogin();return;} if(!currentDetailData)return; const contact=currentDetailData.mobile||currentDetailData.driver_mobile; if(contact)window.location.href=`tel:${contact}`; else showToast('⚠️ No contact number'); }
-function expressInterest(){ if(isGuest||!currentUser){showToast('🔐 Login first');showLogin();return;} showToast('✅ Interest expressed!'); }
+async function openDetail(type,id){ const {data}=await sb.from(type==='LOAD'?'active_loads':'active_trucks').select('*').eq('id',id).single(); if(data){currentDetailData=data;switchPage('detail-page',0);$('detail-title').textContent=data.material||data.truck_no||'Details';$('detail-company').textContent=data.company||data.company_name||'N/A';}}
+function makeCall(){ if(currentDetailData){const num=currentDetailData.mobile||currentDetailData.driver_mobile; if(num)window.location.href=`tel:${num}`;}}
+function expressInterest(){ showToast('✅ Interest expressed!'); }
 
-// ============================================================
-// PIN CHANGE
-// ============================================================
-function openChangePin(){ if(isGuest){showToast('🔐 Please login to change PIN');showLogin();return;} $('change-pin-modal').classList.add('show'); $('new-pin').value=''; $('confirm-pin').value=''; $('new-pin').focus(); }
-function closeChangePin(){$('change-pin-modal').classList.remove('show')}
-async function saveNewPin(){
-    if(isGuest){showToast('🔐 Please login to change PIN');showLogin();return;}
-    const newPin=$('new-pin').value.trim(); const confirmPin=$('confirm-pin').value.trim();
-    if(!newPin||newPin.length!==4||!/^\d{4}$/.test(newPin)){showToast('⚠️ Enter a valid 4-digit PIN');return;} if(newPin!==confirmPin){showToast('⚠️ PINs do not match');return;}
-    try{ const encoder=new TextEncoder(); const data=encoder.encode(newPin); const hashBuffer=await crypto.subtle.digest('SHA-256',data); const hashArray=Array.from(new Uint8Array(hashBuffer)); const pinhash=hashArray.map(b=>b.toString(16).padStart(2,'0')).join(''); const {error}=await sb.from('active_users').update({pinhash:pinhash}).eq('mobile',currentUser.mobile); if(error)throw error; showToast('✅ PIN changed successfully!'); closeChangePin(); }catch(err){showToast('❌ Error: '+err.message);}
-}
-
-// ============================================================
-// LOGOUT
-// ============================================================
-window.logout=function(){ if(confirm('Are you sure you want to logout?')){ resetForm(); showToast('👋 Logged out'); window.removeEventListener('resize',handleResize); } }
-
-// ============================================================
-// INIT
-// ============================================================
-document.addEventListener('DOMContentLoaded',function(){
-    document.getElementById('login-screen').style.display='flex'; document.getElementById('mobile').focus(); document.getElementById('home-page').classList.add('hidden-page');
+window.addEventListener('resize', handleResize);
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('login-screen').style.display='flex';
+    document.getElementById('home-page').classList.add('hidden-page');
 });
 </script>
 </body>
