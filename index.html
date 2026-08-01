@@ -165,7 +165,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 <div class="card" id="app-card">
 
 <!-- ============================================================
-     LOGIN SCREEN (FIXED LAYOUT & SPACING)
+     LOGIN SCREEN
      ============================================================ -->
 <div id="login-screen">
     <div style="font-size:32px;font-weight:900;color:#2563eb;text-align:center;margin-bottom:4px;flex-shrink:0">🚚 ReturnTruck</div>
@@ -462,26 +462,52 @@ function fixLayoutHeight(){
 let resizeTimer; function handleResize(){ clearTimeout(resizeTimer); resizeTimer=setTimeout(fixLayoutHeight, 200); }
 
 // ============================================================
-// AUTH FLOW (FIXED MOBILE DISPLAY & ENTER KEY)
+// SESSION & AUTH FLOW (PERSISTENT LOGIN)
 // ============================================================
-function continueAsGuest(){isGuest=true; showToast('👤 Guest Mode'); showHome(); }
+function continueAsGuest(){
+    isGuest=true; 
+    localStorage.setItem('rt_user', JSON.stringify({guest: true}));
+    showHome(); 
+}
+
 function showLogin(){resetForm(); $('mobile').focus();}
-function resetForm(){['step2','step3','step4'].forEach(i=>$(i).classList.add('hidden')); $('step1').classList.remove('hidden'); document.getElementById('login-screen').style.display='flex'; ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.add('hidden-page')); }
-function showHome(){document.getElementById('login-screen').style.display='none'; document.getElementById('home-page').classList.remove('hidden-page'); fixLayoutHeight(); renderFeed(); }
+function resetForm(){
+    ['step2','step3','step4'].forEach(i=>$(i).classList.add('hidden')); 
+    $('step1').classList.remove('hidden'); 
+    document.getElementById('login-screen').style.display='flex'; 
+    ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.add('hidden-page')); 
+}
+
+function showHome(){
+    document.getElementById('login-screen').style.display='none'; 
+    document.getElementById('home-page').classList.remove('hidden-page'); 
+    fixLayoutHeight(); renderFeed(); 
+}
 
 async function registerUser(){
     const pin=$('reg-pin').value.trim();
     const encoder=new TextEncoder(); const hashBuffer=await crypto.subtle.digest('SHA-256',encoder.encode(pin));
     const pinhash=Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
     const {data:newUser}=await sb.from('active_users').insert({mobile:currentMobile,pinhash}).select().single();
-    if(newUser){ currentUser=newUser; showToast('✅ Registered!'); showHome(); }
+    if(newUser){ 
+        currentUser=newUser; 
+        localStorage.setItem('rt_user', JSON.stringify({mobile: currentUser.mobile, user: currentUser}));
+        showHome(); 
+    }
 }
+
 window.submitPin=async function(){
     const pin=$('pin').value.trim();
     const encoder=new TextEncoder(); const hashBuffer=await crypto.subtle.digest('SHA-256',encoder.encode(pin));
     const pinhash=Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
     const {data:user}=await sb.from('active_users').select('*').eq('mobile',currentMobile).eq('pinhash',pinhash).single();
-    if(user){ currentUser=user; showToast('✅ Welcome back!'); showHome(); }
+    if(user){ 
+        currentUser=user; 
+        localStorage.setItem('rt_user', JSON.stringify({mobile: currentUser.mobile, user: currentUser}));
+        showHome(); 
+    } else {
+        alert("Incorrect PIN. Please try again.");
+    }
 };
 
 // FIXED: Mobile Autodetect
@@ -501,6 +527,18 @@ $('pin').addEventListener('keydown', function(e) {
         submitPin();
     }
 });
+
+// ============================================================
+// LOGOUT
+// ============================================================
+function logout() {
+    if(confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('rt_user');
+        currentUser = null;
+        isGuest = false;
+        resetForm();
+    }
+}
 
 // ============================================================
 // NAVIGATION
@@ -555,10 +593,30 @@ async function openDetail(type,id){ const {data}=await sb.from(type==='LOAD'?'ac
 function makeCall(){ if(currentDetailData){const num=currentDetailData.mobile||currentDetailData.driver_mobile; if(num)window.location.href=`tel:${num}`;}}
 function expressInterest(){ showToast('✅ Interest expressed!'); }
 
+// ============================================================
+// APP INITIALIZATION (PERSISTENT SESSION ON REFRESH)
+// ============================================================
 window.addEventListener('resize', handleResize);
 document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('login-screen').style.display='flex';
-    document.getElementById('home-page').classList.add('hidden-page');
+    // Check LocalStorage for existing user session
+    const savedSession = localStorage.getItem('rt_user');
+    
+    if (savedSession) {
+        const sessionData = JSON.parse(savedSession);
+        if (sessionData.guest) {
+            isGuest = true;
+            currentUser = null;
+        } else if (sessionData.user) {
+            currentUser = sessionData.user;
+            isGuest = false;
+        }
+        // If session exists, bypass login and go straight to Home
+        showHome();
+    } else {
+        // No session, show login screen
+        document.getElementById('login-screen').style.display='flex';
+        document.getElementById('home-page').classList.add('hidden-page');
+    }
 });
 </script>
 </body>
