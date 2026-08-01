@@ -74,13 +74,13 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .dropdown-item:hover{background:#f8fafc}
 
 /* ============================================================
-   HOME UI ELEMENTS
+   HOME UI ELEMENTS (FIXED INPUT WIDTHS)
    ============================================================ */
-.guest-banner{background:#2563eb;color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.guest-banner{background:#2563eb;color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-shrink:0}
 .guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer}
-.location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
-.location-row .location-input{flex:2}
-.location-row .radius-select{flex:1}
+.location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-shrink:0}
+.location-row .location-input{flex:2;min-width:120px}
+.location-row .radius-select{flex:1;min-width:70px}
 .location-input input,.radius-select select{width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;background:#fff}
 .location-search-wrapper{position:relative;width:100%}
 .location-search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:50;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
@@ -88,12 +88,12 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .location-search-wrapper .suggestions .item{padding:10px 16px;font-size:13px;color:#1e293b;cursor:pointer}
 .location-search-wrapper .suggestions .item:hover{background:#f8fafc}
 
-.type-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;background:#e2e8f0;padding:3px;border-radius:10px;margin-bottom:8px}
+.type-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;background:#e2e8f0;padding:3px;border-radius:10px;margin-bottom:8px;flex-shrink:0}
 .type-tabs button{padding:6px 4px;font-size:11px;font-weight:700;border:none;border-radius:8px;cursor:pointer}
 .type-tabs .active{background:#fff;color:#1e293b}
 .type-tabs .inactive{background:transparent;color:#64748b}
 
-.filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:10px;font-weight:600;color:#64748b;border-top:1px solid #e2e8f0;margin-top:4px;user-select:none}
+.filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:10px;font-weight:600;color:#64748b;border-top:1px solid #e2e8f0;margin-top:4px;user-select:none;flex-shrink:0}
 .filter-toggle .arrow{transition:transform .3s ease;display:inline-block}
 .filter-toggle .arrow.open{transform:rotate(180deg)}
 .filter-container{overflow:hidden;transition:max-height .3s ease;max-height:0}
@@ -242,12 +242,15 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 
     <div id="guest-banner" class="guest-banner hidden"><span>👋 Welcome, Guest!</span><button class="btn-login" onclick="showLogin()">🔐 Login</button></div>
     
-    <!-- 2. Static Top Content -->
-    <div id="home-top" style="flex-shrink:0">
+    <!-- 2. Static Top Content (Fixed Width Inputs) -->
+    <div id="home-top" style="flex-shrink:0;padding:0 0 4px 0">
         <div class="location-row">
-            <div class="location-input"><input type="text" id="location-search" placeholder="📍 Location/PIN" oninput="searchLocation()"></div>
+            <!-- LOCATION INPUT FIXED -->
+            <div class="location-input">
+                <input type="text" id="location-search" placeholder="📍 Location/PIN" oninput="searchLocation()">
+                <div class="location-search-wrapper" style="width:100%"><div class="suggestions" id="location-suggestions"></div></div>
+            </div>
             <div class="radius-select"><select id="radius-select" onchange="applyFilters()"><option value="5">5 KM</option><option value="10">10 KM</option><option value="25">25 KM</option><option value="50" selected>50 KM</option><option value="100">100 KM</option><option value="200">200 KM</option></select></div>
-            <div class="location-search-wrapper" style="width:100%"><div class="suggestions" id="location-suggestions"></div></div>
         </div>
 
         <div class="type-tabs"><button id="tab-all" class="active" onclick="setTab('ALL')">All</button><button id="tab-loads" class="inactive" onclick="setTab('LOAD')">Loads</button><button id="tab-trucks" class="inactive" onclick="setTab('TRUCK')">Trucks</button><button id="tab-agents" class="inactive" onclick="setTab('AGENT')">Agents</button></div>
