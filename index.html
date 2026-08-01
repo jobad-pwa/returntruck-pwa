@@ -34,8 +34,7 @@
 
 <style>
 /* ============================================================
-   STATIC DATA LOCATIONS - Lines 50-150 (Approx)
-   Search uses: pincode, location_name, district, statename
+   STATIC LOCATION DATA - Pin, Location, District, State, Lat, Lng
    ============================================================ */
 *{box-sizing:border-box}
 body{font-family:system-ui,-apple-system,sans-serif;background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
@@ -649,17 +648,18 @@ const STATIC_LOCATIONS = [
 ];
 
 // ============================================================
-// CONFIGURATION
+// CONFIGURATION - UPDATE WITH YOUR VALUES
 // ============================================================
-const SUPABASE_URL = 'https://ghjoffovatgvhzxlupef.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
-const EDGE_FUNCTION_URL = 'https://ghjoffovatgvhzxlupef.supabase.co/functions/v1';
-const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const SUPABASE_URL = 'https://ghjoffovatgyhxzlupef.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRneWh4emx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDIzNDU2NzgsImV4cCI6MjAxNzkyMTY3OH0.4E8Y1cYp3X7kLq6W9qN5sR6tT8qV2vB5xN9zM8cL2sY';
+// ⚠️ Replace with your actual anon key from Supabase
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ============================================================
 // STATE
 // ============================================================
-let currentMobile='',currentUser=null,isGuest=false,isChecking=false;
+let currentMobile='', currentUser=null, isGuest=false, isChecking=false;
 let currentTab='ALL', feedItems=[], currentPage='home';
 let currentDetailData=null, currentDetailType=null;
 let otpTimerInterval=null, otpExpiryTime=300, isNewUser=false;
@@ -800,7 +800,7 @@ function toggleFilters(){
 function applyFilters(){ renderFeed(); }
 
 // ============================================================
-// LOGIN SYSTEM (Same as JobAd-PWA)
+// LOGIN SYSTEM (Direct Supabase)
 // ============================================================
 function continueAsGuest(){isGuest=true;currentUser=null;showToast('👤 Welcome, Guest!');showHomeScreenAfterLogin();}
 
@@ -922,59 +922,57 @@ function fixLayoutHeight(){
 let resizeTimer;function handleResize(){clearTimeout(resizeTimer);resizeTimer=setTimeout(fixLayoutHeight,200)}
 
 // ============================================================
-// AUTO CHECK & OTP (Same as JobAd-PWA)
+// AUTO CHECK & OTP (Direct Supabase)
 // ============================================================
-async function autoCheckMobile(mobile) {
-    if (isChecking) return;
-    isChecking = true;
-    const input = document.getElementById('mobile');
-    if (input) input.disabled = true;
-    setStatus('⏳ Checking...', 'blue');
-    
-    try {
-        // First check active_users directly via Supabase
+async function autoCheckMobile(mobile){
+    if(isChecking)return;
+    isChecking=true;
+    const input=document.getElementById('mobile');
+    if(input)input.disabled=true;
+    setStatus('⏳ Checking...','blue');
+    try{
+        // Step 1: Check active_users
         const { data: au } = await sb
             .from('active_users')
             .select('*')
             .eq('mobile', mobile)
             .maybeSingle();
-            
-        if (au) {
-            // User exists in active_users
-            isNewUser = false;
-            currentMobile = mobile;
-            document.getElementById('display-mobile').textContent = mobile;
-            document.getElementById('status-badge').textContent = '✅ Existing user - Enter PIN';
-            document.getElementById('status-badge').className = 'text-sm font-medium text-green-600';
-            document.getElementById('submitBtn').textContent = '🔐 Login';
-            document.getElementById('submitBtn').className = 'btn-primary btn-green';
-            document.getElementById('step1').style.display = 'none';
+        
+        if(au){
+            isNewUser=false;
+            currentMobile=mobile;
+            currentUser=au;
+            document.getElementById('display-mobile').textContent=mobile;
+            document.getElementById('status-badge').textContent='✅ Existing user - Enter PIN';
+            document.getElementById('status-badge').className='text-sm font-medium text-green-600';
+            document.getElementById('submitBtn').textContent='🔐 Login';
+            document.getElementById('step1').style.display='none';
             document.getElementById('step2').classList.remove('hidden');
             document.getElementById('step3').classList.add('hidden');
             document.getElementById('step4').classList.add('hidden');
-            document.getElementById('pin').value = '';
+            document.getElementById('pin').value='';
             document.getElementById('pin').focus();
-            setStatus('✅ Existing user. Enter your PIN.', 'green');
+            setStatus('✅ Existing user. Enter your PIN.','green');
             showToast('📱 Existing user - Enter PIN');
-            isChecking = false;
-            if (input) input.disabled = false;
+            isChecking=false;
+            if(input)input.disabled=false;
             return;
         }
-
-        // Check platform_stats all_user
+        
+        // Step 2: Check platform_stats
         const { data: pd } = await sb
             .from('platform_stats')
             .select('all_user')
             .maybeSingle();
             
         let isArchived = false;
-        if (pd && pd.all_user) {
+        if(pd && pd.all_user) {
             const allUsers = pd.all_user || [];
             isArchived = allUsers.some(m => String(m) === String(mobile));
         }
-
-        if (isArchived) {
-            // User was registered before - create new active user
+        
+        if(isArchived){
+            // Step 3: User was registered before - reactivate
             showToast('📱 Welcome back! Reactivating your account...');
             const { data: na, error: ce } = await sb
                 .from('active_users')
@@ -982,48 +980,47 @@ async function autoCheckMobile(mobile) {
                 .select()
                 .single();
                 
-            if (ce) {
+            if(ce){
                 console.error('Error reactivating user:', ce);
-                showToast('❌ Error reactivating: ' + ce.message);
-                isChecking = false;
-                if (input) input.disabled = false;
+                showToast('❌ Error: ' + ce.message);
+                isChecking=false;
+                if(input)input.disabled=false;
                 return;
             }
             
             showToast('✅ Account reactivated!');
-            isNewUser = false;
-            currentMobile = mobile;
-            document.getElementById('display-mobile').textContent = mobile;
-            document.getElementById('status-badge').textContent = '✅ Welcome back! Enter PIN';
-            document.getElementById('status-badge').className = 'text-sm font-medium text-green-600';
-            document.getElementById('submitBtn').textContent = '🔐 Login';
-            document.getElementById('submitBtn').className = 'btn-primary btn-green';
-            document.getElementById('step1').style.display = 'none';
+            isNewUser=false;
+            currentMobile=mobile;
+            currentUser=na;
+            document.getElementById('display-mobile').textContent=mobile;
+            document.getElementById('status-badge').textContent='✅ Welcome back! Enter PIN';
+            document.getElementById('status-badge').className='text-sm font-medium text-green-600';
+            document.getElementById('submitBtn').textContent='🔐 Login';
+            document.getElementById('step1').style.display='none';
             document.getElementById('step2').classList.remove('hidden');
             document.getElementById('step3').classList.add('hidden');
             document.getElementById('step4').classList.add('hidden');
-            document.getElementById('pin').value = '';
+            document.getElementById('pin').value='';
             document.getElementById('pin').focus();
-            setStatus('✅ Welcome back! Enter your PIN.', 'green');
-            isChecking = false;
-            if (input) input.disabled = false;
+            setStatus('✅ Welcome back! Enter your PIN.','green');
+            isChecking=false;
+            if(input)input.disabled=false;
             return;
         }
-
-        // New user - send OTP
-        isNewUser = true;
-        currentMobile = mobile;
-        await sendWhatsAppOTP(mobile);
         
-    } catch (err) {
-        console.error('Error checking user:', err);
-        // Fallback - treat as new user
-        isNewUser = true;
-        currentMobile = mobile;
+        // Step 4: New user - send OTP
+        isNewUser=true;
+        currentMobile=mobile;
         await sendWhatsAppOTP(mobile);
-    } finally {
-        isChecking = false;
-        if (input) input.disabled = false;
+    }catch(err){
+        console.error('Error checking user:',err);
+        // Fallback - treat as new user
+        isNewUser=true;
+        currentMobile=mobile;
+        await sendWhatsAppOTP(mobile);
+    }finally{
+        isChecking=false;
+        if(input)input.disabled=false;
     }
 }
 
@@ -1094,68 +1091,237 @@ async function resendOTP(){
     showToast('🔄 OTP resent via WhatsApp!');
 }
 
+// ============================================================
+// REGISTER USER - DIRECT SUPABASE
+// ============================================================
 async function registerUser(){
+    const pin=document.getElementById('reg-pin').value.trim();
+    const confirmPin=document.getElementById('reg-pin-confirm').value.trim();
+    
+    if(!pin||pin.length!==4||!/^\d{4}$/.test(pin)){
+        showToast('⚠️ Enter a valid 4-digit PIN');
+        document.getElementById('reg-pin').focus();
+        return;
+    }
+    if(pin!==confirmPin){
+        showToast('⚠️ PINs do not match');
+        document.getElementById('reg-pin-confirm').value='';
+        document.getElementById('reg-pin-confirm').focus();
+        return;
+    }
+    
+    document.getElementById('register-btn').disabled=true;
+    document.getElementById('register-btn').textContent='⏳ Creating...';
+    
+    try {
+        // Hash PIN using SHA-256
+        const encoder = new TextEncoder();
+        const data = encoder.encode(pin);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const pinhash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        
+        // Insert into active_users
+        const { data: newUser, error: insertError } = await sb
+            .from('active_users')
+            .insert({
+                mobile: currentMobile,
+                pinhash: pinhash,
+                last_active: new Date().toISOString()
+            })
+            .select()
+            .single();
+        
+        if (insertError) {
+            if (insertError.code === '23505') {
+                showToast('⚠️ User already exists. Please login.');
+            } else {
+                showToast('❌ Registration failed: ' + insertError.message);
+            }
+            document.getElementById('register-btn').disabled = false;
+            document.getElementById('register-btn').textContent = '✅ Create Account';
+            return;
+        }
+        
+        // Update platform_stats - all_user
+        const { data: stats } = await sb
+            .from('platform_stats')
+            .select('all_user')
+            .eq('id', 1)
+            .single();
+        
+        let allUsers = stats?.all_user || [];
+        if (!allUsers.includes(currentMobile)) {
+            allUsers.push(Number(currentMobile));
+            await sb
+                .from('platform_stats')
+                .update({ all_user: allUsers })
+                .eq('id', 1);
+        }
+        
+        // Update total_users count
+        const { count: totalUsers } = await sb
+            .from('active_users')
+            .select('*', { count: 'exact', head: true });
+        
+        await sb
+            .from('platform_stats')
+            .update({ total_users: totalUsers })
+            .eq('id', 1);
+        
+        showToast('✅ Registration successful!');
+        currentUser = newUser;
+        showHomeScreenAfterLogin();
+        
+    } catch (err) {
+        showToast('❌ Error: ' + err.message);
+        document.getElementById('register-btn').disabled = false;
+        document.getElementById('register-btn').textContent = '✅ Create Account';
+    }
+}
+
+// ============================================================
+// LOGIN USER - DIRECT SUPABASE
+// ============================================================
+window.submitPin = async function() {
+    const pin = document.getElementById('pin').value.trim();
+    if (!pin || pin.length !== 4) {
+        showToast('⚠️ Enter 4-digit PIN');
+        document.getElementById('pin').focus();
+        return;
+    }
+    
+    document.getElementById('submitBtn').disabled = true;
+    document.getElementById('submitBtn').textContent = '⏳ Verifying...';
+    
+    try {
+        // Hash PIN
+        const encoder = new TextEncoder();
+        const data = encoder.encode(pin);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const pinhash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        
+        // Find user
+        const { data: user, error: userError } = await sb
+            .from('active_users')
+            .select('*')
+            .eq('mobile', currentMobile)
+            .eq('pinhash', pinhash)
+            .single();
+        
+        if (userError || !user) {
+            showToast('❌ Invalid PIN. Please try again.');
+            document.getElementById('pin').value = '';
+            document.getElementById('pin').focus();
+            document.getElementById('submitBtn').disabled = false;
+            document.getElementById('submitBtn').textContent = '🔐 Login';
+            return;
+        }
+        
+        // Update last_active
+        await sb
+            .from('active_users')
+            .update({ last_active: new Date().toISOString() })
+            .eq('mobile', currentMobile);
+        
+        isGuest = false;
+        currentUser = user;
+        showToast('✅ Welcome back!');
+        showHomeScreenAfterLogin();
+        
+    } catch (err) {
+        showToast('❌ Error: ' + err.message);
+    } finally {
+        document.getElementById('submitBtn').disabled = false;
+        document.getElementById('submitBtn').textContent = '🔐 Login';
+    }
+};
+
+// ============================================================
+// RESET PIN
+// ============================================================
+function resetPIN(){
+    if(confirm('Forgot your PIN? We\'ll send an OTP to reset it.')){
+        const mobile=currentMobile;
+        const otp=Math.floor(100000+Math.random()*900000).toString();
+        sessionStorage.setItem('reset_otp_'+mobile,otp);
+        sessionStorage.setItem('reset_otp_expiry_'+mobile,Date.now()+300000);
+        window.open(`https://wa.me/${formatMobileForWA(mobile)}?text=${encodeURIComponent(`Your ReturnTruck PIN reset code is: *${otp}*`)}`,'_blank');
+        showToast('📱 PIN reset OTP sent via WhatsApp!');
+        document.getElementById('step2').classList.add('hidden');
+        document.getElementById('step3').classList.remove('hidden');
+        document.getElementById('wa-display-mobile').textContent=mobile;
+        document.getElementById('verify-btn').textContent='✅ Verify & Reset PIN';
+        document.getElementById('verify-btn').className='btn-primary btn-green';
+        document.getElementById('verify-btn').onclick=function(){verifyResetOTP()};
+        document.querySelectorAll('.otp-input').forEach(el=>el.value='');
+        document.querySelector('.otp-input').focus();
+        startOTPTimer();
+        document.getElementById('resend-otp').disabled=true;
+        document.getElementById('resend-otp').onclick=function(){
+            const no=Math.floor(100000+Math.random()*900000).toString();
+            sessionStorage.setItem('reset_otp_'+mobile,no);
+            sessionStorage.setItem('reset_otp_expiry_'+mobile,Date.now()+300000);
+            window.open(`https://wa.me/${formatMobileForWA(mobile)}?text=${encodeURIComponent(`Your ReturnTruck PIN reset code is: *${no}*`)}`,'_blank');
+            document.getElementById('resend-otp').disabled=true;
+            startOTPTimer();
+            showToast('🔄 Reset OTP resent!');
+        };
+    }
+}
+
+async function verifyResetOTP(){
+    const otp=getOTP();
+    if(otp.length!==6){showToast('⚠️ Enter complete 6-digit OTP');return}
+    const mobile=currentMobile;
+    const storedOtp=sessionStorage.getItem('reset_otp_'+mobile);
+    const storedExpiry=sessionStorage.getItem('reset_otp_expiry_'+mobile);
+    if(!storedOtp||Date.now()>parseInt(storedExpiry)){showToast('❌ OTP expired. Please try again.');return}
+    if(otp!==storedOtp){showToast('❌ Invalid OTP. Please try again.');document.querySelectorAll('.otp-input').forEach(el=>{el.value='';el.classList.remove('filled')});document.querySelector('.otp-input').focus();return}
+    showToast('✅ OTP verified! Set your new PIN.');
+    sessionStorage.removeItem('reset_otp_'+mobile);
+    sessionStorage.removeItem('reset_otp_expiry_'+mobile);
+    document.getElementById('step3').classList.add('hidden');
+    document.getElementById('step4').classList.remove('hidden');
+    document.getElementById('reg-display-mobile').textContent=mobile;
+    document.getElementById('register-btn').textContent='💾 Reset PIN';
+    document.getElementById('register-btn').className='btn-primary btn-yellow';
+    document.getElementById('register-btn').onclick=function(){saveResetPIN()};
+    document.getElementById('reg-pin').value='';
+    document.getElementById('reg-pin-confirm').value='';
+    document.getElementById('reg-pin').focus();
+}
+
+async function saveResetPIN(){
     const pin=document.getElementById('reg-pin').value.trim();
     const confirmPin=document.getElementById('reg-pin-confirm').value.trim();
     if(!pin||pin.length!==4||!/^\d{4}$/.test(pin)){showToast('⚠️ Enter a valid 4-digit PIN');document.getElementById('reg-pin').focus();return}
     if(pin!==confirmPin){showToast('⚠️ PINs do not match');document.getElementById('reg-pin-confirm').value='';document.getElementById('reg-pin-confirm').focus();return}
-    document.getElementById('register-btn').disabled=true;
-    document.getElementById('register-btn').textContent='⏳ Creating...';
     try{
-        const r=await fetch(`${EDGE_FUNCTION_URL}/register-user`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mobile:currentMobile,pin:pin})});
-        const d=await r.json();
-        if(d.success){
-            showToast('✅ Registration successful!');
-            await fetchUserData(currentMobile);
-        }else{
-            showToast('❌ Registration failed: '+d.error);
-            document.getElementById('register-btn').disabled=false;
-            document.getElementById('register-btn').textContent='✅ Create Account';
-        }
-    }catch(err){
+        // Hash PIN
+        const encoder = new TextEncoder();
+        const data = encoder.encode(pin);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const pinhash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        
+        // Update PIN
+        const { error: updateError } = await sb
+            .from('active_users')
+            .update({ pinhash: pinhash })
+            .eq('mobile', currentMobile);
+        
+        if (updateError) throw updateError;
+        
+        showToast('✅ PIN reset successfully! Please login with your new PIN.');
+        resetForm();
+        document.getElementById('mobile').value=currentMobile;
+        document.getElementById('mobile').focus();
+    } catch(err) {
         showToast('❌ Error: '+err.message);
-        document.getElementById('register-btn').disabled=false;
-        document.getElementById('register-btn').textContent='✅ Create Account';
     }
 }
-
-window.submitPin=async function(){
-    const pin=document.getElementById('pin').value.trim();
-    if(!pin||pin.length!==4){showToast('⚠️ Enter 4-digit PIN');document.getElementById('pin').focus();return}
-    document.getElementById('submitBtn').disabled=true;
-    document.getElementById('submitBtn').textContent='⏳ Verifying...';
-    try{
-        const r=await fetch(`${EDGE_FUNCTION_URL}/login-user`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mobile:currentMobile,pin:pin})});
-        const d=await r.json();
-        if(d.success){isGuest=false;await fetchUserData(currentMobile);showToast('✅ Welcome back!')}
-        else{showToast('❌ Invalid PIN. Please try again.');document.getElementById('pin').value='';document.getElementById('pin').focus()}
-    }catch(err){showToast('❌ Error: '+err.message)}
-    finally{document.getElementById('submitBtn').disabled=false;document.getElementById('submitBtn').textContent='🔐 Login'}
-};
-
-async function fetchUserData(mobile){
-    const {data,error}=await sb.from('active_users').select('*').eq('mobile',mobile).single();
-    if(error){
-        const {data:nu,error:ie}=await sb.from('active_users').insert([{mobile:mobile,last_active:new Date().toISOString()}]).select().single();
-        if(ie){showToast('❌ Error creating user: '+ie.message);return}
-        currentUser=nu;
-    }else{
-        currentUser=data;
-    }
-    showHomeScreenAfterLogin();
-    if(returnToDetailAfterLogin){
-        setTimeout(()=>{
-            const {type,id}=returnToDetailAfterLogin;
-            returnToDetailAfterLogin=null;
-            // Open detail based on type
-            if(type==='LOAD') viewLoad(id);
-            else if(type==='TRUCK') viewTruck(id);
-            else if(type==='AGENT') viewAgent(id);
-        },500);
-    }
-}
-
-function resetPIN(){/* Same as JobAd-PWA */}
 
 // ============================================================
 // NAVIGATION
@@ -1483,11 +1649,11 @@ async function loadProfile(){
     loadMyLoads();
 }
 
-function saveLoadGiverProfile(){/* Same pattern */}
-function editLoadGiver(){/* Same pattern */}
-function saveFleetProfile(){/* Same pattern */}
-function editFleet(){/* Same pattern */}
-function saveAgentProfile(){/* Same pattern */}
+function saveLoadGiverProfile(){/* Same pattern */}    
+function editLoadGiver(){/* Same pattern */}    
+function saveFleetProfile(){/* Same pattern */}    
+function editFleet(){/* Same pattern */}    
+function saveAgentProfile(){/* Same pattern */}    
 function editAgent(){/* Same pattern */}
 
 async function loadMyTrucks(){
@@ -1798,11 +1964,22 @@ async function saveNewPin(){
     if(!newPin||newPin.length!==4||!/^\d{4}$/.test(newPin)){showToast('⚠️ Enter a valid 4-digit PIN');return;}
     if(newPin!==confirmPin){showToast('⚠️ PINs do not match');return;}
     try{
-        const r=await fetch(`${EDGE_FUNCTION_URL}/change-pin`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mobile:currentUser.mobile,new_pin:newPin})});
-        const d=await r.json();
-        if(d.success){showToast('✅ PIN changed successfully!');closeChangePin();}
-        else showToast('❌ Failed to change PIN: '+d.error);
-    }catch(err){showToast('❌ Error: '+err.message)}
+        // Hash PIN
+        const encoder = new TextEncoder();
+        const data = encoder.encode(newPin);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const pinhash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        
+        const { error } = await sb
+            .from('active_users')
+            .update({ pinhash: pinhash })
+            .eq('mobile', currentUser.mobile);
+        
+        if (error) throw error;
+        showToast('✅ PIN changed successfully!');
+        closeChangePin();
+    } catch(err){showToast('❌ Error: '+err.message)}
 }
 
 // ============================================================
