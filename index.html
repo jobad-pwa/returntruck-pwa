@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<!-- Fixed meta tag warning -->
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <title>ReturnTruck - Find Loads & Trucks in Your Area</title>
@@ -9,7 +11,7 @@
 <meta name="keywords" content="transport, logistics, truck, load, freight, India transport, fleet operator, load giver, transport agent" />
 <link rel="canonical" href="https://returntruck.vercel.app/" />
 
-<!-- TAILWIND CSS -->
+<!-- TAILWIND CSS (Warning is safe to ignore for this live demo) -->
 <script src="https://cdn.tailwindcss.com"></script>
 <!-- SUPABASE JS -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -20,12 +22,16 @@
 
 <style>
 /* ============================================================
-   RESET & LAYOUT
+   RESET & LAYOUT - CRITICAL TO AVOID BREAKAGE
    ============================================================ */
 *{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
 body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
+
+/* The main card acts as a flex container to ensure contents never overlap */
 .card{max-width:420px;width:100%;background:#fff;border-radius:24px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);display:flex;flex-direction:column;height:95vh;max-height:800px;position:relative;overflow:hidden}
-.hidden,.hidden-page{display:none}
+.hidden,.hidden-page{display:none !important}
+
+/* Containers require flex column to stack correctly */
 .home-container,.profile-container,.postload-container,.posttruck-container,.detail-container{display:flex;flex-direction:column;height:100%;width:100%;overflow:hidden;position:relative}
 
 /* ============================================================
@@ -152,67 +158,62 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 <div class="card" id="app-card">
 
 <!-- ============================================================
-     LOGIN SCREEN (FIXED LAYOUT)
+     LOGIN SCREEN (LOCKED LAYOUT)
      ============================================================ -->
 <div id="login-screen">
-    <div class="logo text-center" style="font-size:32px;font-weight:900;color:#2563eb;text-align:center;margin-bottom:2px">🚚 ReturnTruck</div>
-    <div class="subtitle text-center" style="font-size:12px;color:#64748b;text-align:center;margin-bottom:8px">Find Loads • Post Trucks • Connect Agents</div>
+    <div style="font-size:32px;font-weight:900;color:#2563eb;text-align:center;margin-bottom:2px">🚚 ReturnTruck</div>
+    <div style="font-size:12px;color:#64748b;text-align:center;margin-bottom:8px">Find Loads • Post Trucks • Connect Agents</div>
 
     <div class="login-stats-container" style="margin-bottom:12px;border:1px solid #bfdbfe">
         <div class="login-stats-grid" style="margin-bottom:4px">
-            <div class="login-stat-item"><span class="icon" style="font-size:14px">📦</span><div class="number text-center" style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div class="label text-center" style="font-size:8px;font-weight:600;color:#475569">Load Givers</div></div>
-            <div class="login-stat-item"><span class="icon">🚛</span><div class="number">0</div><div class="label">Fleet Ops</div></div>
-            <div class="login-stat-item"><span class="icon">🤝</span><div class="number">0</div><div class="label">Agents</div></div>
-            <div class="login-stat-item"><span class="icon">👤</span><div class="number">0</div><div class="label">Users</div></div>
+            <div class="login-stat-item"><span>📦</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Load Givers</div></div>
+            <div class="login-stat-item"><span>🚛</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Fleet Ops</div></div>
+            <div class="login-stat-item"><span>🤝</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Agents</div></div>
+            <div class="login-stat-item"><span>👤</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Users</div></div>
         </div>
         <div class="login-stats-grid">
-            <div class="login-stat-item"><span class="icon">🚚</span><div class="number">0</div><div class="label">Trucks</div></div>
-            <div class="login-stat-item"><span class="icon">📊</span><div class="number">0</div><div class="label">Loads</div></div>
-            <div class="login-stat-item"><span class="icon">📱</span><div class="number">0</div><div class="label">Visits</div></div>
-            <div class="login-stat-item"><span class="icon">⭐</span><div class="number" style="font-size:18px">4.8</div><div class="label">Rating</div></div>
+            <div class="login-stat-item"><span>🚚</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Trucks</div></div>
+            <div class="login-stat-item"><span>📊</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Loads</div></div>
+            <div class="login-stat-item"><span>📱</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Visits</div></div>
+            <div class="login-stat-item"><span>⭐</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">4.8</div><div style="font-size:8px;font-weight:600;color:#475569">Rating</div></div>
         </div>
     </div>
 
-    <div class="login-step-container" style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:4px 0">
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:4px 0">
         <div id="step1">
-            <input type="tel" id="mobile" class="input-field" placeholder="Enter Mobile Number" maxlength="10" autofocus>
-            <div class="mobile-status text-center" id="mobile-status" style="font-size:12px;color:#94a3b8;margin-top:4px;text-align:center"></div>
-            <div class="login-divider flex items-center" style="display:flex;align-items:center;gap:12px;margin:10px 0 8px"><div style="flex:1;height:1px;background:#e2e8f0"></div><span style="font-size:10px;color:#94a3b8;font-weight:500;white-space:nowrap;padding:0 4px">or continue as</span><div style="flex:1;height:1px;background:#e2e8f0"></div></div>
-            <button class="btn-primary" style="background:transparent;border:1.5px solid #8b5cf6;color:#8b5cf6;width:100%;padding:12px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer" onclick="continueAsGuest()">👤 Guest</button>
+            <input type="tel" id="mobile" placeholder="Enter Mobile Number" maxlength="10" autofocus style="width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;background:#fff">
+            <div id="mobile-status" style="font-size:12px;color:#94a3b8;margin-top:4px;text-align:center"></div>
+            <div style="display:flex;align-items:center;gap:12px;margin:10px 0 8px"><div style="flex:1;height:1px;background:#e2e8f0"></div><span style="font-size:10px;color:#94a3b8;white-space:nowrap;padding:0 4px">or continue as</span><div style="flex:1;height:1px;background:#e2e8f0"></div></div>
+            <button style="width:100%;padding:12px;border:1.5px solid #8b5cf6;border-radius:12px;font-size:14px;font-weight:600;color:#8b5cf6;background:transparent;cursor:pointer" onclick="continueAsGuest()">👤 Guest</button>
         </div>
-        <div id="step2" class="hidden fade-in">
-            <div class="text-center"><div id="display-mobile" style="font-size:20px;font-weight:700;color:#1e293b;padding:4px 0;text-align:center">--</div><div id="status-badge" class="text-sm font-medium text-green-600" style="font-size:14px;font-weight:500;color:#16a34a;text-align:center">Existing user - Enter PIN</div></div>
-            <input type="password" id="pin" class="pin-login-input" placeholder="Enter 4-digit PIN" maxlength="4" inputmode="numeric" style="width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;letter-spacing:8px;margin:8px 0 12px;background:#fff">
+        <div id="step2" class="hidden">
+            <div style="text-align:center"><div style="font-size:20px;font-weight:700;color:#1e293b;padding:4px 0">--</div><div style="font-size:14px;font-weight:500;color:#16a34a;text-align:center">Existing user - Enter PIN</div></div>
+            <input type="password" id="pin" placeholder="Enter 4-digit PIN" maxlength="4" inputmode="numeric" style="width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;letter-spacing:8px;margin:8px 0 12px;background:#fff">
             <div style="font-size:12px;text-align:center;margin-bottom:8px;color:#64748b">Forgot PIN? <span style="color:#2563eb;cursor:pointer;font-weight:600" onclick="resetPIN()">Reset PIN</span></div>
-            <button onclick="submitPin()" id="submitBtn" class="btn-primary btn-green" style="width:100%;padding:14px;background:#16a34a;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer">🔐 Login</button>
-            <button onclick="resetForm()" class="btn-back" style="margin-top:4px;width:100%;padding:14px;background:#6b7280;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer">← Change Number</button>
+            <button onclick="submitPin()" id="submitBtn" style="width:100%;padding:14px;background:#16a34a;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer">🔐 Login</button>
+            <button onclick="resetForm()" style="margin-top:4px;width:100%;padding:14px;background:#6b7280;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer">← Change Number</button>
         </div>
-        <div id="step3" class="hidden fade-in">
-            <div class="text-center"><div id="wa-display-mobile" style="font-size:20px;font-weight:700;color:#1e293b;padding:4px 0;text-align:center">--</div><p style="font-size:12px;color:#64748b;margin:0;text-align:center">Enter OTP sent via WhatsApp</p></div>
-            <div class="otp-input-group" style="display:flex;gap:8px;justify-content:center;margin:12px 0">
-                <input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
-                <input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
-                <input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
-                <input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
-                <input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
-                <input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
+        <div id="step3" class="hidden">
+            <div style="text-align:center"><div style="font-size:20px;font-weight:700;color:#1e293b;padding:4px 0">--</div><p style="font-size:12px;color:#64748b;margin:0;text-align:center">Enter OTP sent via WhatsApp</p></div>
+            <div style="display:flex;gap:8px;justify-content:center;margin:12px 0">
+                <input type="text" maxlength="1" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
+                <input type="text" maxlength="1" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
+                <input type="text" maxlength="1" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
+                <input type="text" maxlength="1" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
+                <input type="text" maxlength="1" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
+                <input type="text" maxlength="1" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
             </div>
             <div style="text-align:center;font-size:13px;color:#64748b;margin-top:8px">⏳ <span id="otp-timer">5:00</span></div>
-            <button onclick="verifyOTP()" id="verify-btn" class="btn-primary btn-green" style="margin-top:8px;width:100%;padding:14px;background:#16a34a;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer">✅ Verify</button>
-            <button onclick="resetForm()" class="btn-back" style="margin-top:4px;width:100%;padding:14px;background:#6b7280;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer">← Change Number</button>
+            <button onclick="verifyOTP()" id="verify-btn" style="margin-top:8px;width:100%;padding:14px;background:#16a34a;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer">✅ Verify</button>
+            <button onclick="resetForm()" style="margin-top:4px;width:100%;padding:14px;background:#6b7280;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer">← Change Number</button>
         </div>
-        <div id="step4" class="hidden fade-in">
-            <div class="text-center"><div id="reg-display-mobile" style="font-size:20px;font-weight:700;color:#1e293b;padding:4px 0;text-align:center">--</div><p style="font-size:13px;color:#64748b;margin:0;text-align:center">Set your 4-digit PIN</p></div>
-            <input type="password" id="reg-pin" class="input-field" placeholder="New PIN (4 digits)" maxlength="4" inputmode="numeric" style="width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;letter-spacing:8px;margin:8px 0 12px;background:#fff">
-            <input type="password" id="reg-pin-confirm" class="input-field" placeholder="Confirm PIN" maxlength="4" inputmode="numeric" style="width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;letter-spacing:8px;margin:8px 0 12px;background:#fff">
-            <button onclick="registerUser()" id="register-btn" class="btn-primary btn-green" style="width:100%;padding:14px;background:#16a34a;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer">✅ Create Account</button>
-            <button onclick="resetForm()" class="btn-back" style="margin-top:4px;width:100%;padding:14px;background:#6b7280;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer">← Change Number</button>
+        <div id="step4" class="hidden">
+            <div style="text-align:center"><div style="font-size:20px;font-weight:700;color:#1e293b;padding:4px 0">--</div><p style="font-size:13px;color:#64748b;margin:0;text-align:center">Set your 4-digit PIN</p></div>
+            <input type="password" id="reg-pin" placeholder="New PIN (4 digits)" maxlength="4" inputmode="numeric" style="width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;letter-spacing:8px;margin:8px 0 12px;background:#fff">
+            <input type="password" id="reg-pin-confirm" placeholder="Confirm PIN" maxlength="4" inputmode="numeric" style="width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;letter-spacing:8px;margin:8px 0 12px;background:#fff">
+            <button onclick="registerUser()" id="register-btn" style="width:100%;padding:14px;background:#16a34a;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer">✅ Create Account</button>
+            <button onclick="resetForm()" style="margin-top:4px;width:100%;padding:14px;background:#6b7280;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer">← Change Number</button>
         </div>
-        <div id="msg" class="hidden"></div>
-    </div>
-    <div class="login-disclaimer" style="background:#fef3c7;border-left:4px solid #f59e0b;border-radius:8px;padding:8px 12px;margin-top:12px;font-size:10px;color:#92400e;line-height:1.5">
-        <div class="disclaimer-title" style="font-weight:700;font-size:10px;display:flex;align-items:center;gap:4px">⚠️ Disclaimer</div>
-        ReturnTruck is a FREE connecting platform. No charges from any party. Not responsible for financial or other losses. Users transact at their own risk.
     </div>
 </div>
 
@@ -264,12 +265,11 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     <div class="post-header"><span class="logo" onclick="goHome()">🚚 ReturnTruck</span><button class="back-btn" onclick="cancelPost()">Cancel</button></div>
     <div class="page-content" id="postload-scroll">
         <div id="load-warning" class="action-required" style="display:none"><span>⚠️</span><div><strong>Profile Required</strong> Please complete your profile to post loads.</div><button class="btn-action" onclick="goToProfile()">Go to Profile</button></div>
-        <div class="form-group"><label class="form-label">Material Type <span class="required">*</span></label><select class="form-control" id="pl-material"><option value="">Select</option><option value="Steel Pipes">Steel Pipes</option><option value="Cement Bags">Cement Bags</option><option value="Construction Material">Construction Material</option><option value="Agricultural Products">Agricultural Products</option><option value="Chemicals">Chemicals</option><option value="Food Products">Food Products</option><option value="Other">Other</option></select></div>
+        <div class="form-group"><label>Material Type</label><select class="form-control" id="pl-material"><option value="">Select</option><option value="Steel Pipes">Steel Pipes</option><option value="Cement Bags">Cement Bags</option><option value="Construction Material">Construction Material</option><option value="Agricultural Products">Agricultural Products</option><option value="Chemicals">Chemicals</option><option value="Food Products">Food Products</option><option value="Other">Other</option></select></div>
         <div class="grid-2"><div><label>Weight (Kg)</label><input class="form-control" type="number" id="pl-weight" placeholder="16500"></div><div><label>Dimensions (ft)</label><input class="form-control" type="text" id="pl-dim" placeholder="40x8x8"></div></div>
         <div class="grid-2"><div><label>📍 Pickup</label><div class="location-search-wrapper"><input type="text" id="pl-pickup-input" placeholder="Search PIN..."><div class="suggestions" id="pl-pickup-suggestions"></div><input type="hidden" id="pl-pickup-hidden"></div></div><div><label>📍 Drop</label><div class="location-search-wrapper"><input type="text" id="pl-drop-input" placeholder="Search PIN..."><div class="suggestions" id="pl-drop-suggestions"></div><input type="hidden" id="pl-drop-hidden"></div></div></div>
         <div class="grid-2"><div><label>Rate (₹)</label><input class="form-control" type="text" id="pl-rate"></div><div><label>Date</label><input class="form-control" type="date" id="pl-date"></div></div>
         <button class="btn-primary" onclick="publishLoad()">📤 Publish Load</button>
-        <div style="height:10px"></div>
     </div>
     <div id="bottom-nav"><button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button><button class="nav-item active" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Post Load</span></button><button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Post Truck</span></button><button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button></div>
 </div></div>
@@ -286,7 +286,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div class="grid-2"><div><label>Available From</label><input class="form-control" type="date" id="pt-available"></div><div><label>Rate / KM</label><input class="form-control" type="text" id="pt-rate-km"></div></div>
         <div class="grid-2"><div><label>Driver Name</label><input class="form-control" id="pt-driver"></div><div><label>Driver Mobile</label><input class="form-control" id="pt-driver-mobile" maxlength="10"></div></div>
         <button class="btn-primary" onclick="publishTruck()">📤 List Truck</button>
-        <div style="height:10px"></div>
     </div>
     <div id="bottom-nav"><button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button><button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Post Load</span></button><button class="nav-item active" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Post Truck</span></button><button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button></div>
 </div></div>
