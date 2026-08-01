@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReturnTruck - Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; background: #f3f4f6; }
+        .card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .success { background: #dcfce7; color: #166534; padding: 12px; border-radius: 8px; margin: 8px 0; }
+        .error { background: #fee2e2; color: #991b1b; padding: 12px; border-radius: 8px; margin: 8px 0; }
+        .info { background: #dbeafe; color: #1e40af; padding: 12px; border-radius: 8px; margin: 8px 0; }
+        input, button { padding: 10px; margin: 5px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        button { background: #2563eb; color: white; cursor: pointer; font-weight: 600; }
+        button:hover { background: #1d4ed8; }
+        .log-box { background: #1e293b; color: #e2e8f0; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 12px; max-height: 400px; overflow-y: auto; white-space: pre-wrap; }
+        .step { background: #f8fafc; padding: 8px 12px; border-radius: 6px; margin: 4px 0; border-left: 3px solid #2563eb; }
+        .step.pass { border-left-color: #16a34a; background: #f0fdf4; }
+        .step.fail { border-left-color: #dc2626; background: #fef2f2; }
+    </style>
+</head>
+<body>
+    <h1>🚚 ReturnTruck - Debug Test</h1>
+    
+    <div class="card">
+        <h2>Step 1: Supabase Connection</h2>
+        <div id="connection-status">⏳ Testing...</div>
+        <button onclick="testConnection()">Test Connection</button>
+    </div>
+
+    <div class="card">
+        <h2>Step 2: Mobile Number Input</h2>
+        <input type="text" id="test-mobile" placeholder="Enter Mobile Number" value="6300067332">
+        <button onclick="testCheckUser()">Check User</button>
+        <div id="check-user-result"></div>
+    </div>
+
+    <div class="card">
+        <h2>Step 3: PIN Functions</h2>
+        <input type="text" id="test-pin" placeholder="Enter 4-digit PIN" value="1234" maxlength="4">
+        <button onclick="testHashPin()">Test Hash PIN</button>
+        <button onclick="testRegisterUser()">Test Register User</button>
+        <button onclick="testLoginUser()">Test Login User</button>
+        <div id="pin-result"></div>
+    </div>
+
+    <div class="card">
+        <h2>Step 4: Database Check</h2>
+        <button onclick="testDatabase()">Check Database</button>
+        <div id="db-result"></div>
+    </div>
+
+    <div class="card">
+        <h2>📋 Log</h2>
+        <div id="log" class="log-box">Click a button to start testing...</div>
+    </div>
+
+    <script>
+        // ============================================================
+        // CONFIGURATION - UPDATE WITH YOUR VALUES
+        // ============================================================
+        const SUPABASE_URL = 'https://ghjoffovatgyhxzlupef.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRneWh4emx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDIzNDU2NzgsImV4cCI6MjAxNzkyMTY3OH0.YOUR_ACTUAL_KEY';
+        // ⚠️ Replace YOUR_ACTUAL_KEY with your actual anon key from Supabase
+        
+        const EDGE_FUNCTION_URL = 'https://ghjoffovatgyhxzlupef.supabase.co/functions/v1';
+        
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        // Log function
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: '#60a5fa',
+                success: '#34d399',
+                error: '#f87171',
+                step: '#fbbf24'
+            };
+            const color = colors[type] || colors.info;
+            logDiv.innerHTML += `<span style="color: ${color}">[${timestamp}]</span> ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function addResult(id, message, type) {
+            const el = document.getElementById(id);
+            const classes = {
+                success: 'success',
+                error: 'error',
+                info: 'info'
+            };
+            el.className = classes[type] || 'info';
+            el.textContent = message;
+        }
+
+        // ============================================================
+        // TEST 1: Supabase Connection
+        // ============================================================
+        async function testConnection() {
+            log('🔗 Testing Supabase connection...', 'step');
+            try {
+                const { data, error } = await sb.from('platform_stats').select('*').limit(1);
+                if (error) {
+                    log(`❌ Connection failed: ${error.message}`, 'error');
+                    addResult('connection-status', `❌ Error: ${error.message}`, 'error');
+                    return;
+                }
+                log('✅ Connection successful!', 'success');
+                addResult('connection-status', '✅ Connected to Supabase successfully!', 'success');
+                log(`📊 Data received: ${JSON.stringify(data)}`, 'info');
+            } catch (e) {
+                log(`❌ Exception: ${e.message}`, 'error');
+                addResult('connection-status', `❌ Error: ${e.message}`, 'error');
+            }
+        }
+
+        // ============================================================
+        // TEST 2: Check User
+        // ============================================================
+        async function testCheckUser() {
+            const mobile = document.getElementById('test-mobile').value.trim();
+            if (!mobile) {
+                log('⚠️ Please enter a mobile number', 'error');
+                return;
+            }
+            
+            log(`🔍 Checking user: ${mobile}`, 'step');
+            
+            try {
+                // Step 1: Check active_users
+                log('📌 Step 1: Checking active_users...', 'info');
+                const { data: user, error: userError } = await sb
+                    .from('active_users')
+                    .select('*')
+                    .eq('mobile', mobile)
+                    .maybeSingle();
+                
+                if (userError) {
+                    log(`❌ Error: ${userError.message}`, 'error');
+                    addResult('check-user-result', `❌ Error: ${userError.message}`, 'error');
+                    return;
+                }
+                
+                if (user) {
+                    log(`✅ User found in active_users: ${JSON.stringify(user)}`, 'success');
+                    addResult('check-user-result', `✅ User found! Name: ${user.name || 'N/A'}`, 'success');
+                    return;
+                }
+                
+                log('ℹ️ User not in active_users', 'info');
+                
+                // Step 2: Check platform_stats
+                log('📌 Step 2: Checking platform_stats...', 'info');
+                const { data: stats, error: statsError } = await sb
+                    .from('platform_stats')
+                    .select('all_user')
+                    .eq('id', 1)
+                    .maybeSingle();
+                
+                if (statsError) {
+                    log(`❌ Error: ${statsError.message}`, 'error');
+                    addResult('check-user-result', `❌ Error: ${statsError.message}`, 'error');
+                    return;
+                }
+                
+                const allUsers = stats?.all_user || [];
+                const isArchived = allUsers.some(m => String(m) === String(mobile));
+                
+                if (isArchived) {
+                    log(`ℹ️ User in platform_stats (archived): ${mobile}`, 'info');
+                    addResult('check-user-result', `📦 User found in archive (platform_stats)`, 'info');
+                } else {
+                    log(`ℹ️ User not found anywhere. New user.`, 'info');
+                    addResult('check-user-result', `🆕 New user - ready to register`, 'info');
+                }
+                
+            } catch (e) {
+                log(`❌ Exception: ${e.message}`, 'error');
+                addResult('check-user-result', `❌ Error: ${e.message}`, 'error');
+            }
+        }
+
+        // ============================================================
+        // TEST 3: Hash PIN
+        // ============================================================
+        async function testHashPin() {
+            const pin = document.getElementById('test-pin').value.trim();
+            if (!pin || pin.length !== 4) {
+                log('⚠️ Please enter a valid 4-digit PIN', 'error');
+                return;
+            }
+            
+            log(`🔑 Testing PIN hash for: ${pin}`, 'step');
+            
+            try {
+                // Hash using SHA-256
+                const encoder = new TextEncoder();
+                const data = encoder.encode(pin);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const pinhash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                
+                log(`✅ PIN hashed successfully`, 'success');
+                log(`📝 PIN: ${pin}`, 'info');
+                log(`🔐 Hash: ${pinhash.substring(0, 20)}...${pinhash.substring(pinhash.length - 20)}`, 'info');
+                log(`📏 Hash length: ${pinhash.length} characters`, 'info');
+                
+                addResult('pin-result', `✅ Hash created: ${pinhash.substring(0, 20)}...`, 'success');
+                
+            } catch (e) {
+                log(`❌ Exception: ${e.message}`, 'error');
+                addResult('pin-result', `❌ Error: ${e.message}`, 'error');
+            }
+        }
+
+        // ============================================================
+        // TEST 4: Register User (Direct Supabase + Edge Function)
+        // ============================================================
+        async function testRegisterUser() {
+            const mobile = document.getElementById('test-mobile').value.trim();
+            const pin = document.getElementById('test-pin').value.trim();
+            
+            if (!mobile) {
+                log('⚠️ Please enter a mobile number', 'error');
+                return;
+            }
+            if (!pin || pin.length !== 4) {
+                log('⚠️ Please enter a valid 4-digit PIN', 'error');
+                return;
+            }
+            
+            log(`📝 Registering user: ${mobile}`, 'step');
+            
+            try {
+                // Step 1: Hash PIN
+                log('📌 Step 1: Hashing PIN...', 'info');
+                const encoder = new TextEncoder();
+                const data = encoder.encode(pin);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const pinhash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                log(`✅ PIN hashed`, 'success');
+                
+                // Step 2: Insert into active_users
+                log('📌 Step 2: Inserting into active_users...', 'info');
+                const { data: newUser, error: insertError } = await sb
+                    .from('active_users')
+                    .insert({
+                        mobile: mobile,
+                        pinhash: pinhash,
+                        last_active: new Date().toISOString()
+                    })
+                    .select()
+                    .single();
+                
+                if (insertError) {
+                    if (insertError.code === '23505') {
+                        log(`⚠️ User already exists with mobile: ${mobile}`, 'error');
+                        addResult('pin-result', `⚠️ User already exists`, 'error');
+                    } else {
+                        log(`❌ Insert error: ${insertError.message}`, 'error');
+                        addResult('pin-result', `❌ Error: ${insertError.message}`, 'error');
+                    }
+                    return;
+                }
+                
+                log(`✅ User inserted successfully!`, 'success');
+                log(`📊 New user data: ${JSON.stringify(newUser)}`, 'info');
+                
+                // Step 3: Update platform_stats
+                log('📌 Step 3: Updating platform_stats...', 'info');
+                const { data: stats } = await sb
+                    .from('platform_stats')
+                    .select('all_user')
+                    .eq('id', 1)
+                    .single();
+                
+                let allUsers = stats?.all_user || [];
+                if (!allUsers.includes(mobile)) {
+                    allUsers.push(mobile);
+                    const { error: updateError } = await sb
+                        .from('platform_stats')
+                        .update({ all_user: allUsers })
+                        .eq('id', 1);
+                    
+                    if (updateError) {
+                        log(`⚠️ Could not update platform_stats: ${updateError.message}`, 'error');
+                    } else {
+                        log(`✅ platform_stats updated`, 'success');
+                    }
+                }
+                
+                addResult('pin-result', `✅ User registered successfully!`, 'success');
+                
+            } catch (e) {
+                log(`❌ Exception: ${e.message}`, 'error');
+                addResult('pin-result', `❌ Error: ${e.message}`, 'error');
+            }
+        }
+
+        // ============================================================
+        // TEST 5: Login User
+        // ============================================================
+        async function testLoginUser() {
+            const mobile = document.getElementById('test-mobile').value.trim();
+            const pin = document.getElementById('test-pin').value.trim();
+            
+            if (!mobile) {
+                log('⚠️ Please enter a mobile number', 'error');
+                return;
+            }
+            if (!pin || pin.length !== 4) {
+                log('⚠️ Please enter a valid 4-digit PIN', 'error');
+                return;
+            }
+            
+            log(`🔐 Testing login for: ${mobile}`, 'step');
+            
+            try {
+                // Step 1: Hash PIN
+                log('📌 Step 1: Hashing PIN...', 'info');
+                const encoder = new TextEncoder();
+                const data = encoder.encode(pin);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const pinhash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                log(`✅ PIN hashed`, 'success');
+                
+                // Step 2: Find user
+                log('📌 Step 2: Finding user...', 'info');
+                const { data: user, error: userError } = await sb
+                    .from('active_users')
+                    .select('*')
+                    .eq('mobile', mobile)
+                    .eq('pinhash', pinhash)
+                    .maybeSingle();
+                
+                if (userError) {
+                    log(`❌ Query error: ${userError.message}`, 'error');
+                    addResult('pin-result', `❌ Error: ${userError.message}`, 'error');
+                    return;
+                }
+                
+                if (!user) {
+                    log(`❌ Invalid PIN or user not found`, 'error');
+                    addResult('pin-result', `❌ Invalid PIN. Please try again.`, 'error');
+                    return;
+                }
+                
+                log(`✅ User found!`, 'success');
+                log(`📊 User data: ${JSON.stringify(user)}`, 'info');
+                
+                // Step 3: Update last_active
+                log('📌 Step 3: Updating last_active...', 'info');
+                const { error: updateError } = await sb
+                    .from('active_users')
+                    .update({ last_active: new Date().toISOString() })
+                    .eq('mobile', mobile);
+                
+                if (updateError) {
+                    log(`⚠️ Could not update last_active: ${updateError.message}`, 'error');
+                } else {
+                    log(`✅ last_active updated`, 'success');
+                }
+                
+                addResult('pin-result', `✅ Login successful! Welcome ${user.name || 'User'}!`, 'success');
+                
+            } catch (e) {
+                log(`❌ Exception: ${e.message}`, 'error');
+                addResult('pin-result', `❌ Error: ${e.message}`, 'error');
+            }
+        }
+
+        // ============================================================
+        // TEST 6: Database Check
+        // ============================================================
+        async function testDatabase() {
+            log('🔍 Checking database...', 'step');
+            
+            try {
+                // Check active_users table
+                log('📌 Checking active_users table...', 'info');
+                const { data: users, error: usersError } = await sb
+                    .from('active_users')
+                    .select('*')
+                    .limit(5);
+                
+                if (usersError) {
+                    log(`❌ active_users error: ${usersError.message}`, 'error');
+                } else {
+                    log(`✅ active_users: ${users.length} rows (showing first 5)`, 'success');
+                    users.forEach(u => {
+                        log(`  📱 ${u.mobile} | ${u.name || 'No name'} | ${u.last_active?.substring(0, 10) || 'N/A'}`, 'info');
+                    });
+                }
+                
+                // Check platform_stats
+                log('📌 Checking platform_stats...', 'info');
+                const { data: stats, error: statsError } = await sb
+                    .from('platform_stats')
+                    .select('*')
+                    .eq('id', 1)
+                    .maybeSingle();
+                
+                if (statsError) {
+                    log(`❌ platform_stats error: ${statsError.message}`, 'error');
+                } else if (stats) {
+                    log(`✅ platform_stats:`, 'success');
+                    log(`  👤 Total Users: ${stats.total_users || 0}`, 'info');
+                    log(`  📋 All Users: ${stats.all_user?.join(', ') || 'None'}`, 'info');
+                    log(`  📦 Total Loads: ${stats.total_loads || 0}`, 'info');
+                    log(`  🚛 Total Trucks: ${stats.total_trucks || 0}`, 'info');
+                } else {
+                    log(`ℹ️ No platform_stats row found. Creating...`, 'info');
+                    const { error: insertError } = await sb
+                        .from('platform_stats')
+                        .insert([{ id: 1 }]);
+                    if (insertError) {
+                        log(`❌ Could not create platform_stats: ${insertError.message}`, 'error');
+                    } else {
+                        log(`✅ platform_stats created`, 'success');
+                    }
+                }
+                
+                addResult('db-result', '✅ Database check complete. Check log for details.', 'success');
+                
+            } catch (e) {
+                log(`❌ Exception: ${e.message}`, 'error');
+                addResult('db-result', `❌ Error: ${e.message}`, 'error');
+            }
+        }
+
+        // ============================================================
+        // TEST 7: Full Registration Flow
+        // ============================================================
+        async function testFullFlow() {
+            log('🚀 Starting full registration flow test...', 'step');
+            
+            const mobile = document.getElementById('test-mobile').value.trim();
+            const pin = document.getElementById('test-pin').value.trim();
+            
+            if (!mobile || !pin) {
+                log('⚠️ Please enter mobile and PIN', 'error');
+                return;
+            }
+            
+            try {
+                // Step 1: Check if user exists
+                log('📌 Step 1: Checking if user exists...', 'info');
+                const { data: existing } = await sb
+                    .from('active_users')
+                    .select('mobile')
+                    .eq('mobile', mobile)
+                    .maybeSingle();
+                
+                if (existing) {
+                    log(`ℹ️ User already exists. Trying login...`, 'info');
+                    await testLoginUser();
+                    return;
+                }
+                
+                // Step 2: Register user
+                log('📌 Step 2: Registering user...', 'info');
+                await testRegisterUser();
+                
+                // Step 3: Login user
+                log('📌 Step 3: Logging in...', 'info');
+                await testLoginUser();
+                
+                log('✅ Full flow completed!', 'success');
+                
+            } catch (e) {
+                log(`❌ Exception: ${e.message}`, 'error');
+            }
+        }
+
+        // ============================================================
+        // AUTO-TEST ON LOAD
+        // ============================================================
+        window.onload = function() {
+            log('🚚 ReturnTruck Debug Test loaded', 'info');
+            log('ℹ️ Click buttons to run individual tests', 'info');
+            log('📌 Or click "Full Flow" to test everything', 'info');
+            
+            // Auto-test connection
+            setTimeout(testConnection, 500);
+        };
+    </script>
+
+    <div class="card">
+        <h2>⚡ Quick Test</h2>
+        <button onclick="testFullFlow()" style="background: #16a34a;">▶️ Run Full Flow</button>
+        <button onclick="testDatabase()" style="background: #8b5cf6;">🗄️ Check Database</button>
+        <button onclick="document.getElementById('log').innerHTML = '';" style="background: #6b7280;">🗑️ Clear Log</button>
+    </div>
+</body>
+</html>
