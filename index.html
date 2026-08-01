@@ -20,7 +20,11 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
    FIXED HEADER & NAV (USING JS HEIGHT CALC)
    ============================================================ */
 .header-fixed{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #f1f5f9;background:#fff;z-index:10;width:100%;min-height:50px}
-.logo{font-size:22px;font-weight:900;color:#2563eb;cursor:pointer}
+
+/* Updated Logo CSS to handle PNG image */
+.logo{font-size:22px;font-weight:900;color:#2563eb;cursor:pointer;display:flex;align-items:center}
+.logo-img{height:32px;width:auto;margin-right:6px;object-fit:contain;display:inline-block;vertical-align:middle}
+
 .header-right{display:flex;align-items:center;gap:8px;position:relative}
 
 /* AVATAR */
@@ -152,7 +156,10 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
      LOGIN SCREEN
      ============================================================ -->
 <div id="login-screen">
-    <div class="logo" style="font-size:32px;font-weight:900;color:#2563eb;text-align:center;margin-bottom:4px">🚚 ReturnTruck</div>
+    <!-- REPLACED EMOJI WITH PNG LOGO -->
+    <div class="logo" style="font-size:32px;font-weight:900;color:#2563eb;text-align:center;margin-bottom:4px;justify-content:center">
+        <img src="launchericon-192x192.png" alt="Logo" style="height:40px;width:auto;margin-right:8px;"> ReturnTruck
+    </div>
     <div style="font-size:13px;color:#64748b;text-align:center;margin-bottom:16px">Find Loads • Post Trucks • Connect Agents</div>
 
     <div class="login-stats-container">
@@ -230,7 +237,10 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 <div id="home-page" class="hidden-page">
     <!-- 1. Fixed Header -->
     <div class="header-fixed">
-        <div class="logo" onclick="goHome()">🚚 ReturnTruck</div>
+        <!-- REPLACED EMOJI WITH PNG LOGO -->
+        <div class="logo" onclick="goHome()">
+            <img src="launchericon-192x192.png" class="logo-img" alt="Logo"> ReturnTruck
+        </div>
         <div class="header-right">
             <button class="avatar-btn guest" id="avatar-btn" onclick="toggleDropdown()"><span id="avatar-initials">GU</span></button>
             <div class="profile-dropdown" id="profile-dropdown">
@@ -297,7 +307,12 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
      POST LOAD PAGE
      ============================================================ -->
 <div id="postload-page" class="hidden-page">
-    <div class="header-fixed"><span class="logo" onclick="goHome()">🚚 ReturnTruck</span><button class="back-btn" onclick="cancelPost()">Cancel</button></div>
+    <div class="header-fixed">
+        <span class="logo" onclick="goHome()">
+            <img src="launchericon-192x192.png" class="logo-img" alt="Logo"> ReturnTruck
+        </span>
+        <button class="back-btn" onclick="cancelPost()">Cancel</button>
+    </div>
     <div class="scroll-body" id="postload-scroll">
         <div class="form-group"><label class="form-label">Material Type *</label>
             <select class="form-control" id="pl-material"><option value="">Select</option><option value="Steel Pipes">Steel Pipes</option><option value="Cement">Cement</option><option value="Other">Other</option></select></div>
@@ -318,7 +333,12 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
      POST TRUCK PAGE
      ============================================================ -->
 <div id="posttruck-page" class="hidden-page">
-    <div class="header-fixed"><span class="logo" onclick="goHome()">🚚 ReturnTruck</span><button class="back-btn" onclick="cancelPost()">Cancel</button></div>
+    <div class="header-fixed">
+        <span class="logo" onclick="goHome()">
+            <img src="launchericon-192x192.png" class="logo-img" alt="Logo"> ReturnTruck
+        </span>
+        <button class="back-btn" onclick="cancelPost()">Cancel</button>
+    </div>
     <div class="scroll-body" id="posttruck-scroll">
         <div class="form-group"><label>Vehicle Number</label><div style="display:flex;gap:8px"><input class="form-control" id="pt-number" style="flex:2"><button class="btn-primary" style="width:auto;padding:10px 16px" onclick="autoFetchVehicle()">🔍 Auto-Fetch</button></div></div>
         <div class="form-group"><label>📍 Location</label><div class="location-search-wrapper"><input type="text" id="pt-location-input" placeholder="Search PIN..."><div class="suggestions" id="pt-location-suggestions"></div><input type="hidden" id="pt-location-hidden"></div></div>
@@ -338,7 +358,20 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
      PROFILE PAGE
      ============================================================ -->
 <div id="profile-page" class="hidden-page">
-    <div class="header-fixed"><div class="logo" onclick="goHome()">🚚 ReturnTruck</div><div class="header-right"><button class="back-btn" onclick="goHome()">← Back</button><button class="avatar-btn guest" id="avatar-btn-profile" onclick="toggleDropdown()"><span id="avatar-initials-profile">GU</span></button><div class="profile-dropdown" id="profile-dropdown-profile"><button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button><div class="dropdown-divider"></div><button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button></div></div></div>
+    <div class="header-fixed">
+        <div class="logo" onclick="goHome()">
+            <img src="launchericon-192x192.png" class="logo-img" alt="Logo"> ReturnTruck
+        </div>
+        <div class="header-right">
+            <button class="back-btn" onclick="goHome()">← Back</button>
+            <button class="avatar-btn guest" id="avatar-btn-profile" onclick="toggleDropdown()"><span id="avatar-initials-profile">GU</span></button>
+            <div class="profile-dropdown" id="profile-dropdown-profile">
+                <button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button>
+            </div>
+        </div>
+    </div>
     <div class="scroll-body" id="profile-scroll">
         <div class="profile-header-card"><div style="font-size:11px;opacity:.8;font-weight:500;text-transform:uppercase">Welcome,</div><div class="mobile" id="profile-mobile">--</div><span style="font-size:10px;background:rgba(255,255,255,.2);padding:2px 12px;border-radius:12px;display:inline-block">⭐ Member</span></div>
         <div class="profile-section"><div class="section-header"><span class="section-title">📦 Load Giver</span><span id="loadgiver-badge" style="font-size:9px;background:#fef3c7;color:#d97706;padding:2px 10px;border-radius:12px;font-weight:700">⚠️ Required</span></div>
@@ -361,7 +394,12 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
      DETAIL PAGE
      ============================================================ -->
 <div id="detail-page" class="hidden-page">
-    <div class="header-fixed"><span class="logo" onclick="goHome()">🚚 ReturnTruck</span><button class="back-btn" onclick="closeDetail()">Cancel</button></div>
+    <div class="header-fixed">
+        <span class="logo" onclick="goHome()">
+            <img src="launchericon-192x192.png" class="logo-img" alt="Logo"> ReturnTruck
+        </span>
+        <button class="back-btn" onclick="closeDetail()">Cancel</button>
+    </div>
     <div class="scroll-body" id="detail-scroll">
         <div style="margin-bottom:12px"><div style="font-size:17px;font-weight:700" id="detail-title">Title</div><div id="detail-company" style="font-size:13px;color:#2563eb">Company</div></div>
         <div class="detail-actions"><button class="btn-call" onclick="makeCall()">📞 Call</button><button class="btn-contact" onclick="contactUser()">✉️ Contact</button><button class="btn-bid" onclick="expressInterest()">🤝 Interest</button><button class="btn-share" onclick="handleShareClick()">↗️ Share</button></div>
