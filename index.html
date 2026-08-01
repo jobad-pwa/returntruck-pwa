@@ -223,10 +223,9 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 </div>
 
 <!-- ============================================================
-     HOME PAGE (Fix Header, Body, Nav)
+     HOME PAGE
      ============================================================ -->
 <div id="home-page" class="hidden-page">
-    <!-- 1. Fixed Header -->
     <div class="header-fixed">
         <div class="logo" onclick="goHome()">🚚 ReturnTruck</div>
         <div class="header-right">
@@ -242,10 +241,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 
     <div id="guest-banner" class="guest-banner hidden"><span>👋 Welcome, Guest!</span><button class="btn-login" onclick="showLogin()">🔐 Login</button></div>
     
-    <!-- 2. Static Top Content (Fixed Width Inputs) -->
     <div id="home-top" style="flex-shrink:0;padding:0 0 4px 0">
         <div class="location-row">
-            <!-- LOCATION INPUT FIXED -->
             <div class="location-input">
                 <input type="text" id="location-search" placeholder="📍 Location/PIN" oninput="searchLocation()">
                 <div class="location-search-wrapper" style="width:100%"><div class="suggestions" id="location-suggestions"></div></div>
@@ -269,10 +266,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div class="results-count"><span id="results-count">Showing 0 Records</span></div>
     </div>
 
-    <!-- 3. Dynamic Scroll Body -->
     <div class="scroll-body" id="home-scroll-body"><div id="feed-container" class="feed-container"></div></div>
     
-    <!-- 4. Fixed Bottom Nav -->
     <div class="nav-fixed">
         <button class="nav-item active" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
         <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Post Load</span></button>
@@ -430,13 +425,13 @@ function findLocation(query) {
 }
 function getLocationName(pin) {
     const loc = STATIC_LOCATIONS.find(l => l.pin === pin);
-    return loc ? `${loc.name}, ${loc.state} (${loc.pin})` : pin || 'Unknown';
+    return loc ? `${loc.name}, ${loc.district}, ${loc.state} (${loc.pin})` : pin || 'Unknown';
 }
 function searchLocation(){
     const input=$('location-search'); const suggestions=$('location-suggestions');
     const results=findLocation(input.value);
     if(results.length===0){ suggestions.classList.remove('show'); return; }
-    suggestions.innerHTML=results.map(l=>`<div class="item" onclick="selectLocation('${l.pin}')">${l.name}, ${l.state}</div>`).join('');
+    suggestions.innerHTML=results.map(l=>`<div class="item" onclick="selectLocation('${l.pin}')">${l.name}, ${l.district}, ${l.state} (${l.pin})</div>`).join('');
     suggestions.classList.add('show');
 }
 function selectLocation(pin){ $('location-search').value=getLocationName(pin); $('location-suggestions').classList.remove('show'); selectedLocation=pin; applyFilters(); }
@@ -444,7 +439,7 @@ function searchLocationInForm(context){
     const input=$(context+'-input'); const suggestions=$(context+'-suggestions');
     const results=findLocation(input.value);
     if(results.length===0){ suggestions.classList.remove('show'); return; }
-    suggestions.innerHTML=results.map(l=>`<div class="item" onclick="selectLocationInForm('${context}','${l.pin}')">${l.name}, ${l.state}</div>`).join('');
+    suggestions.innerHTML=results.map(l=>`<div class="item" onclick="selectLocationInForm('${context}','${l.pin}')">${l.name}, ${l.district}, ${l.state} (${l.pin})</div>`).join('');
     suggestions.classList.add('show');
 }
 function selectLocationInForm(context,pin){ $(context+'-input').value=getLocationName(pin); $(context+'-hidden').value=pin; $(context+'-suggestions').classList.remove('show'); }
@@ -518,7 +513,16 @@ window.submitPin=async function(){
     }
 };
 
-$('mobile').addEventListener('input',e=>{ const m=e.target.value.trim(); if(m.length===10){currentMobile=m; $('step1').classList.add('hidden'); $('step2').classList.remove('hidden'); $('display-mobile').textContent = m; }});
+// Fixed: Mobile Auto-detection (Detects automatically once 10 digits are entered)
+$('mobile').addEventListener('input', function(e) {
+    const m = this.value.trim();
+    if (m.length === 10) {
+        currentMobile = m; 
+        $('step1').classList.add('hidden'); 
+        $('step2').classList.remove('hidden'); 
+        $('display-mobile').textContent = m;
+    }
+});
 $('pin').addEventListener('keydown', function(e) { if (e.key === 'Enter') { submitPin(); } });
 
 function logout() {
