@@ -21,9 +21,9 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
    ============================================================ */
 .header-fixed{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #f1f5f9;background:#fff;z-index:10;width:100%;min-height:50px}
 
-/* Updated Logo CSS using SVG */
+/* Updated Logo CSS using new SVG */
 .logo{font-size:22px;font-weight:900;color:#2563eb;cursor:pointer;display:flex;align-items:center}
-.logo-svg{height:38px;width:auto;margin-right:8px;display:block}
+.logo-svg{height:40px;width:auto;margin-right:6px;display:block}
 
 .header-right{display:flex;align-items:center;gap:8px;position:relative}
 
@@ -156,24 +156,38 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
      LOGIN SCREEN
      ============================================================ -->
 <div id="login-screen">
-    <!-- UPDATED LOGO TO LARGER, CLEAN SVG -->
+    <!-- PERFECTLY RECREATED SVG LOGO (Circular, Navy Arrows, Teal Truck, Text) -->
     <div class="logo" style="font-size:32px;font-weight:900;color:#2563eb;text-align:center;margin-bottom:4px;justify-content:center">
-        <svg class="logo-svg" style="height:45px;" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- Blue Arrow Background Loop -->
-            <path d="M50 15 C50 15 60 15 70 22 C77 26 82 35 82 45 C82 65 60 70 50 70" stroke="#0f2b53" stroke-width="14" stroke-linecap="round"/>
-            <!-- Backward Return Arrow -->
-            <path d="M15 30 C15 30 35 12 55 12 C75 12 88 25 88 45 C88 65 78 80 55 80 C35 80 15 65 15 65" stroke="#0f2b53" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" transform="scale(-1, 1) translate(-100, 0)"/>
-            <!-- Teal Truck Cab -->
-            <path d="M20 55 L20 38 L35 38 L45 28 L80 28 L80 55 L20 55 Z" fill="#429b9d"/>
-            <!-- Truck Cabin Window -->
-            <path d="M35 55 L35 38 L48 38 L48 55 L35 55 Z" fill="#ffffff"/>
+        <svg class="logo-svg" style="height:48px;" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- White Circle Background -->
+            <circle cx="50" cy="48" r="50" fill="#ffffff"/>
+            
+            <!-- Top Navy Return Arrow -->
+            <path d="M45 36 C45 36 57 34 67 36 C75 40 79 46 79 48 C79 54 75 58 65 58 L20 58" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
+            <path d="M75 50 L80 42 L85 50" fill="#0f2b53"/>
+            
+            <!-- Bottom Navy Return Arrow -->
+            <path d="M55 62 C55 62 43 64 33 62 C25 58 21 52 21 50 C21 44 25 40 35 40 L80 40" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
+            <path d="M25 48 L20 56 L15 48" fill="#0f2b53"/>
+
+            <!-- Teal Truck Body -->
+            <path d="M45 58 L50 40 L78 40 L78 50 L65 50 L60 58 Z" fill="#429b9d"/>
+            <path d="M50 40 L41 40 L32 42 L31 58 L45 58 Z" fill="#429b9d"/>
+            <!-- Truck Window -->
+            <rect x="37" y="44" width="7" height="6" rx="1" fill="#ffffff"/>
+            
             <!-- Truck Wheels -->
-            <circle cx="35" cy="55" r="8" fill="#0f2b53"/>
-            <circle cx="35" cy="55" r="4" fill="#cbd5e1"/>
-            <circle cx="65" cy="55" r="8" fill="#0f2b53"/>
-            <circle cx="65" cy="55" r="4" fill="#cbd5e1"/>
-            <circle cx="80" cy="55" r="8" fill="#0f2b53"/>
-            <circle cx="80" cy="55" r="4" fill="#cbd5e1"/>
+            <circle cx="43" cy="59" r="4" fill="#0f2b53"/>
+            <circle cx="43" cy="59" r="1.8" fill="#e2e8f0"/>
+            <circle cx="56" cy="59" r="4" fill="#0f2b53"/>
+            <circle cx="56" cy="59" r="1.8" fill="#e2e8f0"/>
+            <circle cx="68" cy="59" r="4" fill="#0f2b53"/>
+            <circle cx="68" cy="59" r="1.8" fill="#e2e8f0"/>
+
+            <!-- RETURN Text -->
+            <text x="50" y="82" font-family="Arial, sans-serif" font-weight="900" font-size="12" fill="#0f2b53" text-anchor="middle" letter-spacing="1">RETURN</text>
+            <!-- TRUCK Text -->
+            <text x="50" y="95" font-family="Arial, sans-serif" font-weight="900" font-size="10" fill="#0f2b53" text-anchor="middle" letter-spacing="1">TRUCK</text>
         </svg>
         ReturnTruck
     </div>
@@ -254,19 +268,25 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 <div id="home-page" class="hidden-page">
     <!-- 1. Fixed Header -->
     <div class="header-fixed">
-        <!-- UPDATED LOGO TO LARGER, CLEAN SVG -->
+        <!-- PERFECTLY RECREATED SVG LOGO -->
         <div class="logo" onclick="goHome()">
             <svg class="logo-svg" style="height:38px;" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M50 15 C50 15 60 15 70 22 C77 26 82 35 82 45 C82 65 60 70 50 70" stroke="#0f2b53" stroke-width="14" stroke-linecap="round"/>
-                <path d="M15 30 C15 30 35 12 55 12 C75 12 88 25 88 45 C88 65 78 80 55 80 C35 80 15 65 15 65" stroke="#0f2b53" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" transform="scale(-1, 1) translate(-100, 0)"/>
-                <path d="M20 55 L20 38 L35 38 L45 28 L80 28 L80 55 L20 55 Z" fill="#429b9d"/>
-                <path d="M35 55 L35 38 L48 38 L48 55 L35 55 Z" fill="#ffffff"/>
-                <circle cx="35" cy="55" r="8" fill="#0f2b53"/>
-                <circle cx="35" cy="55" r="4" fill="#cbd5e1"/>
-                <circle cx="65" cy="55" r="8" fill="#0f2b53"/>
-                <circle cx="65" cy="55" r="4" fill="#cbd5e1"/>
-                <circle cx="80" cy="55" r="8" fill="#0f2b53"/>
-                <circle cx="80" cy="55" r="4" fill="#cbd5e1"/>
+                <circle cx="50" cy="48" r="50" fill="#ffffff"/>
+                <path d="M45 36 C45 36 57 34 67 36 C75 40 79 46 79 48 C79 54 75 58 65 58 L20 58" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
+                <path d="M75 50 L80 42 L85 50" fill="#0f2b53"/>
+                <path d="M55 62 C55 62 43 64 33 62 C25 58 21 52 21 50 C21 44 25 40 35 40 L80 40" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
+                <path d="M25 48 L20 56 L15 48" fill="#0f2b53"/>
+                <path d="M45 58 L50 40 L78 40 L78 50 L65 50 L60 58 Z" fill="#429b9d"/>
+                <path d="M50 40 L41 40 L32 42 L31 58 L45 58 Z" fill="#429b9d"/>
+                <rect x="37" y="44" width="7" height="6" rx="1" fill="#ffffff"/>
+                <circle cx="43" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="43" cy="59" r="1.8" fill="#e2e8f0"/>
+                <circle cx="56" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="56" cy="59" r="1.8" fill="#e2e8f0"/>
+                <circle cx="68" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="68" cy="59" r="1.8" fill="#e2e8f0"/>
+                <text x="50" y="82" font-family="Arial, sans-serif" font-weight="900" font-size="12" fill="#0f2b53" text-anchor="middle" letter-spacing="1">RETURN</text>
+                <text x="50" y="95" font-family="Arial, sans-serif" font-weight="900" font-size="10" fill="#0f2b53" text-anchor="middle" letter-spacing="1">TRUCK</text>
             </svg>
             ReturnTruck
         </div>
@@ -337,19 +357,24 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
      ============================================================ -->
 <div id="postload-page" class="hidden-page">
     <div class="header-fixed">
-        <!-- UPDATED LOGO TO LARGER, CLEAN SVG -->
         <span class="logo" onclick="goHome()">
             <svg class="logo-svg" style="height:38px;" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M50 15 C50 15 60 15 70 22 C77 26 82 35 82 45 C82 65 60 70 50 70" stroke="#0f2b53" stroke-width="14" stroke-linecap="round"/>
-                <path d="M15 30 C15 30 35 12 55 12 C75 12 88 25 88 45 C88 65 78 80 55 80 C35 80 15 65 15 65" stroke="#0f2b53" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" transform="scale(-1, 1) translate(-100, 0)"/>
-                <path d="M20 55 L20 38 L35 38 L45 28 L80 28 L80 55 L20 55 Z" fill="#429b9d"/>
-                <path d="M35 55 L35 38 L48 38 L48 55 L35 55 Z" fill="#ffffff"/>
-                <circle cx="35" cy="55" r="8" fill="#0f2b53"/>
-                <circle cx="35" cy="55" r="4" fill="#cbd5e1"/>
-                <circle cx="65" cy="55" r="8" fill="#0f2b53"/>
-                <circle cx="65" cy="55" r="4" fill="#cbd5e1"/>
-                <circle cx="80" cy="55" r="8" fill="#0f2b53"/>
-                <circle cx="80" cy="55" r="4" fill="#cbd5e1"/>
+                <circle cx="50" cy="48" r="50" fill="#ffffff"/>
+                <path d="M45 36 C45 36 57 34 67 36 C75 40 79 46 79 48 C79 54 75 58 65 58 L20 58" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
+                <path d="M75 50 L80 42 L85 50" fill="#0f2b53"/>
+                <path d="M55 62 C55 62 43 64 33 62 C25 58 21 52 21 50 C21 44 25 40 35 40 L80 40" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
+                <path d="M25 48 L20 56 L15 48" fill="#0f2b53"/>
+                <path d="M45 58 L50 40 L78 40 L78 50 L65 50 L60 58 Z" fill="#429b9d"/>
+                <path d="M50 40 L41 40 L32 42 L31 58 L45 58 Z" fill="#429b9d"/>
+                <rect x="37" y="44" width="7" height="6" rx="1" fill="#ffffff"/>
+                <circle cx="43" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="43" cy="59" r="1.8" fill="#e2e8f0"/>
+                <circle cx="56" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="56" cy="59" r="1.8" fill="#e2e8f0"/>
+                <circle cx="68" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="68" cy="59" r="1.8" fill="#e2e8f0"/>
+                <text x="50" y="82" font-family="Arial, sans-serif" font-weight="900" font-size="12" fill="#0f2b53" text-anchor="middle" letter-spacing="1">RETURN</text>
+                <text x="50" y="95" font-family="Arial, sans-serif" font-weight="900" font-size="10" fill="#0f2b53" text-anchor="middle" letter-spacing="1">TRUCK</text>
             </svg>
             ReturnTruck
         </span>
@@ -376,19 +401,24 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
      ============================================================ -->
 <div id="posttruck-page" class="hidden-page">
     <div class="header-fixed">
-        <!-- UPDATED LOGO TO LARGER, CLEAN SVG -->
         <span class="logo" onclick="goHome()">
             <svg class="logo-svg" style="height:38px;" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M50 15 C50 15 60 15 70 22 C77 26 82 35 82 45 C82 65 60 70 50 70" stroke="#0f2b53" stroke-width="14" stroke-linecap="round"/>
-                <path d="M15 30 C15 30 35 12 55 12 C75 12 88 25 88 45 C88 65 78 80 55 80 C35 80 15 65 15 65" stroke="#0f2b53" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" transform="scale(-1, 1) translate(-100, 0)"/>
-                <path d="M20 55 L20 38 L35 38 L45 28 L80 28 L80 55 L20 55 Z" fill="#429b9d"/>
-                <path d="M35 55 L35 38 L48 38 L48 55 L35 55 Z" fill="#ffffff"/>
-                <circle cx="35" cy="55" r="8" fill="#0f2b53"/>
-                <circle cx="35" cy="55" r="4" fill="#cbd5e1"/>
-                <circle cx="65" cy="55" r="8" fill="#0f2b53"/>
-                <circle cx="65" cy="55" r="4" fill="#cbd5e1"/>
-                <circle cx="80" cy="55" r="8" fill="#0f2b53"/>
-                <circle cx="80" cy="55" r="4" fill="#cbd5e1"/>
+                <circle cx="50" cy="48" r="50" fill="#ffffff"/>
+                <path d="M45 36 C45 36 57 34 67 36 C75 40 79 46 79 48 C79 54 75 58 65 58 L20 58" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
+                <path d="M75 50 L80 42 L85 50" fill="#0f2b53"/>
+                <path d="M55 62 C55 62 43 64 33 62 C25 58 21 52 21 50 C21 44 25 40 35 40 L80 40" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
+                <path d="M25 48 L20 56 L15 48" fill="#0f2b53"/>
+                <path d="M45 58 L50 40 L78 40 L78 50 L65 50 L60 58 Z" fill="#429b9d"/>
+                <path d="M50 40 L41 40 L32 42 L31 58 L45 58 Z" fill="#429b9d"/>
+                <rect x="37" y="44" width="7" height="6" rx="1" fill="#ffffff"/>
+                <circle cx="43" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="43" cy="59" r="1.8" fill="#e2e8f0"/>
+                <circle cx="56" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="56" cy="59" r="1.8" fill="#e2e8f0"/>
+                <circle cx="68" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="68" cy="59" r="1.8" fill="#e2e8f0"/>
+                <text x="50" y="82" font-family="Arial, sans-serif" font-weight="900" font-size="12" fill="#0f2b53" text-anchor="middle" letter-spacing="1">RETURN</text>
+                <text x="50" y="95" font-family="Arial, sans-serif" font-weight="900" font-size="10" fill="#0f2b53" text-anchor="middle" letter-spacing="1">TRUCK</text>
             </svg>
             ReturnTruck
         </span>
@@ -414,19 +444,24 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
      ============================================================ -->
 <div id="profile-page" class="hidden-page">
     <div class="header-fixed">
-        <!-- UPDATED LOGO TO LARGER, CLEAN SVG -->
         <div class="logo" onclick="goHome()">
             <svg class="logo-svg" style="height:38px;" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M50 15 C50 15 60 15 70 22 C77 26 82 35 82 45 C82 65 60 70 50 70" stroke="#0f2b53" stroke-width="14" stroke-linecap="round"/>
-                <path d="M15 30 C15 30 35 12 55 12 C75 12 88 25 88 45 C88 65 78 80 55 80 C35 80 15 65 15 65" stroke="#0f2b53" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" transform="scale(-1, 1) translate(-100, 0)"/>
-                <path d="M20 55 L20 38 L35 38 L45 28 L80 28 L80 55 L20 55 Z" fill="#429b9d"/>
-                <path d="M35 55 L35 38 L48 38 L48 55 L35 55 Z" fill="#ffffff"/>
-                <circle cx="35" cy="55" r="8" fill="#0f2b53"/>
-                <circle cx="35" cy="55" r="4" fill="#cbd5e1"/>
-                <circle cx="65" cy="55" r="8" fill="#0f2b53"/>
-                <circle cx="65" cy="55" r="4" fill="#cbd5e1"/>
-                <circle cx="80" cy="55" r="8" fill="#0f2b53"/>
-                <circle cx="80" cy="55" r="4" fill="#cbd5e1"/>
+                <circle cx="50" cy="48" r="50" fill="#ffffff"/>
+                <path d="M45 36 C45 36 57 34 67 36 C75 40 79 46 79 48 C79 54 75 58 65 58 L20 58" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
+                <path d="M75 50 L80 42 L85 50" fill="#0f2b53"/>
+                <path d="M55 62 C55 62 43 64 33 62 C25 58 21 52 21 50 C21 44 25 40 35 40 L80 40" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
+                <path d="M25 48 L20 56 L15 48" fill="#0f2b53"/>
+                <path d="M45 58 L50 40 L78 40 L78 50 L65 50 L60 58 Z" fill="#429b9d"/>
+                <path d="M50 40 L41 40 L32 42 L31 58 L45 58 Z" fill="#429b9d"/>
+                <rect x="37" y="44" width="7" height="6" rx="1" fill="#ffffff"/>
+                <circle cx="43" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="43" cy="59" r="1.8" fill="#e2e8f0"/>
+                <circle cx="56" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="56" cy="59" r="1.8" fill="#e2e8f0"/>
+                <circle cx="68" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="68" cy="59" r="1.8" fill="#e2e8f0"/>
+                <text x="50" y="82" font-family="Arial, sans-serif" font-weight="900" font-size="12" fill="#0f2b53" text-anchor="middle" letter-spacing="1">RETURN</text>
+                <text x="50" y="95" font-family="Arial, sans-serif" font-weight="900" font-size="10" fill="#0f2b53" text-anchor="middle" letter-spacing="1">TRUCK</text>
             </svg>
             ReturnTruck
         </div>
@@ -463,19 +498,24 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
      ============================================================ -->
 <div id="detail-page" class="hidden-page">
     <div class="header-fixed">
-        <!-- UPDATED LOGO TO LARGER, CLEAN SVG -->
         <span class="logo" onclick="goHome()">
             <svg class="logo-svg" style="height:38px;" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M50 15 C50 15 60 15 70 22 C77 26 82 35 82 45 C82 65 60 70 50 70" stroke="#0f2b53" stroke-width="14" stroke-linecap="round"/>
-                <path d="M15 30 C15 30 35 12 55 12 C75 12 88 25 88 45 C88 65 78 80 55 80 C35 80 15 65 15 65" stroke="#0f2b53" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" transform="scale(-1, 1) translate(-100, 0)"/>
-                <path d="M20 55 L20 38 L35 38 L45 28 L80 28 L80 55 L20 55 Z" fill="#429b9d"/>
-                <path d="M35 55 L35 38 L48 38 L48 55 L35 55 Z" fill="#ffffff"/>
-                <circle cx="35" cy="55" r="8" fill="#0f2b53"/>
-                <circle cx="35" cy="55" r="4" fill="#cbd5e1"/>
-                <circle cx="65" cy="55" r="8" fill="#0f2b53"/>
-                <circle cx="65" cy="55" r="4" fill="#cbd5e1"/>
-                <circle cx="80" cy="55" r="8" fill="#0f2b53"/>
-                <circle cx="80" cy="55" r="4" fill="#cbd5e1"/>
+                <circle cx="50" cy="48" r="50" fill="#ffffff"/>
+                <path d="M45 36 C45 36 57 34 67 36 C75 40 79 46 79 48 C79 54 75 58 65 58 L20 58" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
+                <path d="M75 50 L80 42 L85 50" fill="#0f2b53"/>
+                <path d="M55 62 C55 62 43 64 33 62 C25 58 21 52 21 50 C21 44 25 40 35 40 L80 40" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
+                <path d="M25 48 L20 56 L15 48" fill="#0f2b53"/>
+                <path d="M45 58 L50 40 L78 40 L78 50 L65 50 L60 58 Z" fill="#429b9d"/>
+                <path d="M50 40 L41 40 L32 42 L31 58 L45 58 Z" fill="#429b9d"/>
+                <rect x="37" y="44" width="7" height="6" rx="1" fill="#ffffff"/>
+                <circle cx="43" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="43" cy="59" r="1.8" fill="#e2e8f0"/>
+                <circle cx="56" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="56" cy="59" r="1.8" fill="#e2e8f0"/>
+                <circle cx="68" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="68" cy="59" r="1.8" fill="#e2e8f0"/>
+                <text x="50" y="82" font-family="Arial, sans-serif" font-weight="900" font-size="12" fill="#0f2b53" text-anchor="middle" letter-spacing="1">RETURN</text>
+                <text x="50" y="95" font-family="Arial, sans-serif" font-weight="900" font-size="10" fill="#0f2b53" text-anchor="middle" letter-spacing="1">TRUCK</text>
             </svg>
             ReturnTruck
         </span>
@@ -535,12 +575,17 @@ function $(id){return document.getElementById(id)}
 function showToast(msg){alert(msg)} // Fallback Alert
 
 // ============================================================
-// LOCATION FUNCTIONS
+// LOCATION FUNCTIONS (UPDATED TO SEARCH DISTRICT & STATE)
 // ============================================================
 function findLocation(query) {
     const q = query.toLowerCase().trim();
     if (!q) return [];
-    return STATIC_LOCATIONS.filter(l => l.name.toLowerCase().includes(q) || l.pin.includes(q)).slice(0, 8);
+    return STATIC_LOCATIONS.filter(l =>
+        l.name.toLowerCase().includes(q) ||
+        l.pin.includes(q) ||
+        l.district.toLowerCase().includes(q) ||
+        l.state.toLowerCase().includes(q)
+    ).slice(0, 8);
 }
 function getLocationName(pin) {
     const loc = STATIC_LOCATIONS.find(l => l.pin === pin);
