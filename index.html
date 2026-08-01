@@ -3,280 +3,250 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ReturnTruck - Find Loads & Trucks</title>
-<meta name="description" content="Free platform connecting load givers, fleet operators, and transport agents." />
+<title>ReturnTruck</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <meta name="theme-color" content="#2563eb">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
 <style>
 *{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
 body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
-.card{max-width:420px;width:100%;background:#fff;border-radius:24px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);display:flex;flex-direction:column;height:95vh;max-height:800px;position:relative;overflow:hidden}
+.card{max-width:420px;width:100%;background:#fff;border-radius:24px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);display:flex;flex-direction:column;height:95vh;max-height:900px;position:relative;overflow:hidden}
 .hidden-page{display:none}
-.home-container,.profile-container,.postload-container,.posttruck-container,.detail-container{display:flex;flex-direction:column;height:100%;width:100%;overflow:hidden;position:relative}
+.page-wrapper{display:flex;flex-direction:column;height:100%;width:100%;overflow:hidden;position:relative}
 
-/* HEADERS */
-.home-header,.profile-header,.post-header,.detail-header{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid #f1f5f9;background:#fff;z-index:10;position:relative}
-.home-header .logo,.profile-header .logo,.post-header .logo,.detail-header .logo{font-size:22px;font-weight:900;color:#2563eb;cursor:pointer}
+/* HEADER */
+.header{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid #f1f5f9;background:#fff;z-index:10;position:relative}
+.logo{font-size:22px;font-weight:900;color:#2563eb;cursor:pointer}
 .header-right{display:flex;align-items:center;gap:8px;position:relative}
-.back-btn{background:0;border:none;font-size:16px;font-weight:600;color:#475569;cursor:pointer}
+.back-btn{background:0;border:none;font-size:14px;font-weight:600;color:#475569;cursor:pointer;padding:4px 10px;background:#f1f5f9;border-radius:8px}
 
 /* AVATAR & DROPDOWN */
-.avatar-btn{width:36px;height:36px;border-radius:50%;border:2px solid #e2e8f0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;padding:0;background:#94a3b8}
-.avatar-btn.male{background:linear-gradient(135deg,#3b82f6,#1d4ed8)}
-.avatar-btn.female{background:linear-gradient(135deg,#ec4899,#8b5cf6)}
+.avatar-btn{width:36px;height:36px;border-radius:50%;border:2px solid #e2e8f0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;background:#94a3b8}
 .avatar-btn.guest{background:linear-gradient(135deg,#64748b,#475569)}
 .profile-dropdown{position:absolute;top:44px;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:160px;z-index:100;display:none}
 .profile-dropdown.show{display:block}
 .dropdown-item{padding:10px 16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:#1e293b;cursor:pointer;border:none;background:0 0;width:100%}
 .dropdown-item:hover{background:#f8fafc}
-.dropdown-divider{height:1px;background:#e2e8f0;margin:4px 12px}
 .dropdown-item.danger{color:#dc2626}
 
 /* BANNERS */
-.guest-banner{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;padding:6px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;font-size:11px;flex-wrap:wrap}
-.guest-banner.hidden{display:none}
+.guest-banner{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;padding:6px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-shrink:0}
 .guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer}
 
-/* BOTTOM NAV */
-#bottom-nav{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e2e8f0;background:#fff;position:relative;z-index:10;min-height:50px}
-.nav-item{display:flex;flex-direction:column;align-items:center;color:#94a3b8;font-size:9px;font-weight:600;cursor:pointer;border:none;background:0 0;padding:3px 12px}
+/* BOTTOM NAVIGATION - Fixed to bottom on ALL pages */
+.bottom-nav{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e2e8f0;background:#fff;z-index:10;min-height:55px;padding:4px 0;width:100%;margin-top:auto}
+.nav-item{display:flex;flex-direction:column;align-items:center;color:#94a3b8;font-size:8px;font-weight:600;cursor:pointer;border:none;background:0 0;padding:2px 12px;text-transform:uppercase}
 .nav-item.active{color:#2563eb}
 .nav-item .icon{font-size:20px;margin-bottom:2px}
 
-/* UI COMPONENTS */
+/* CONTENT - Fills remaining space exactly */
+.page-content{flex:1;overflow-y:auto;padding:4px 0;-webkit-overflow-scrolling:touch}
+.page-content::-webkit-scrollbar{width:3px}
+.page-content::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
+
+/* FORMS & CARDS */
+.form-control{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:12px;font-size:14px;background:#fff;outline:0}
+.form-control:focus{border-color:#2563eb}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn-primary{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-weight:600;cursor:pointer}
+.btn-green{background:#16a34a}.btn-back{width:100%;padding:14px;background:#6b7280;color:#fff;border:none;border-radius:12px;font-weight:600;cursor:pointer}
+.input-field{padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;width:100%}
+
+/* LOCATION */
+.location-wrapper{position:relative}
+.location-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:50;display:none}
+.location-wrapper .suggestions.show{display:block}
+.location-wrapper .suggestions .item{padding:8px 12px;font-size:13px;cursor:pointer;display:flex;justify-content:space-between;border-bottom:1px solid #f8fafc}
+.location-wrapper .suggestions .item:hover{background:#f1f5f9}
+.location-wrapper .suggestions .item:last-child{border-bottom:none}
+.suggestions .name-part{font-weight:600;max-width:60%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.suggestions .pin-part{color:#64748b;font-weight:500;font-size:11px;text-align:right;max-width:40%;white-space:nowrap}
+
+/* TABS */
 .type-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;background:#e2e8f0;padding:3px;border-radius:10px;margin-bottom:6px}
 .type-tabs button{padding:4px;font-size:10px;font-weight:700;border:none;border-radius:8px;cursor:pointer}
 .type-tabs .active{background:#fff;color:#1e293b}
 .type-tabs .inactive{background:0 0;color:#64748b}
-.feed-card{border:1px solid #e2e8f0;border-radius:10px;padding:8px 12px;cursor:pointer;margin-bottom:6px}
-.feed-card:hover{border-color:#3b82f6}
-.feed-card .title{font-weight:700;font-size:14px;color:#0f172a}
-.feed-card .meta{font-size:10px;color:#475569;margin-top:1px}
-.feed-card .share-btn{background:#25D366;color:#fff;border:none;padding:4px 6px;border-radius:6px;cursor:pointer}
-.btn-primary{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-weight:600;cursor:pointer}
-.btn-primary:disabled{opacity:.5}
-.btn-back{width:100%;padding:14px;background:#6b7280;color:#fff;border:none;border-radius:12px;font-weight:600;cursor:pointer}
-.form-control{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:12px;font-size:14px;background:#fff;outline:0}
-.form-control:focus{border-color:#2563eb}
-.input-field{padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;width:100%}
-.input-field:focus{border-color:#2563eb}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
-/* PAGE LAYOUT */
-.page-content{overflow-y:auto;padding:4px 0;-webkit-overflow-scrolling:touch;display:block;flex:1}
-.page-content::-webkit-scrollbar{width:3px}
-.page-content::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
-.action-required{background:#fef3c7;border:1px solid #f59e0b;border-radius:10px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
-.action-required .btn-action{background:#2563eb;color:#fff;border:none;padding:6px 14px;border-radius:8px;font-weight:600;cursor:pointer}
-.location-search-wrapper{position:relative}
-.location-search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:50;display:none}
-.location-search-wrapper .suggestions.show{display:block}
-.location-search-wrapper .suggestions .item{padding:10px 16px;font-size:13px;cursor:pointer}
-.location-search-wrapper .suggestions .item:hover{background:#f8fafc}
-
-/* STATS */
-.login-stats-container{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:12px 16px;border:1px solid #bfdbfe}
-.login-stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
-.login-stat-item{text-align:center}
-.login-stat-item .number{font-size:18px;font-weight:800;color:#1d4ed8}
-.login-stat-item .label{font-size:8px;font-weight:600;color:#475569}
-.login-divider{display:flex;align-items:center;gap:12px;margin:10px 0}
-
-/* DETAIL VIEW */
+/* DETAIL & PROFILE */
 .detail-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:8px}
 .detail-actions button{width:100%;padding:6px;border-radius:10px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center}
 .btn-call{background:#16a34a}.btn-contact{background:#2563eb}.btn-bid{background:#8b5cf6}.btn-share{background:#25D366}
-
-/* PROFILE */
 .profile-section{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:16px;margin-bottom:12px}
-.profile-section .section-title{font-size:14px;font-weight:700;color:#1e293b}
-.section-btn{padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:10px;font-weight:600;cursor:pointer}
-.my-item{border:1px solid #e2e8f0;border-radius:10px;padding:8px 12px;margin-bottom:6px}
-
-/* MODALS */
 .modal-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:200;border-radius:24px}
 .modal-overlay.show{display:flex}
 .modal-box{background:#fff;border-radius:20px;padding:24px;max-width:340px;width:90%}
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:8px 16px;border-radius:999px;font-size:12px;z-index:1000;animation:fadeOut 2s forwards}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:8px 16px;border-radius:999px;z-index:1000;animation:fadeOut 2s forwards}
 @keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:translateY(-20px)}}
 </style>
 </head>
 <body>
-<div class="card" id="app-card">
+<div class="card">
 
-<!-- ============================================================
-     LOGIN SCREEN
-     ============================================================ -->
-<div id="login-screen">
+<!-- LOGIN SCREEN -->
+<div id="login-screen" style="display:flex;flex-direction:column;height:100%;overflow-y:auto;padding:4px 0">
     <div style="font-size:32px;font-weight:900;color:#2563eb;text-align:center">🚚 ReturnTruck</div>
-    <div style="font-size:12px;color:#64748b;text-align:center;margin-bottom:8px">Find Loads • Post Trucks • Connect Agents</div>
-
-    <div class="login-stats-container">
-        <div class="login-stats-grid" style="margin-bottom:4px">
-            <div class="login-stat-item"><span class="icon">📦</span><div class="number" id="stat-loadgivers">0</div><div class="label">Load Givers</div></div>
-            <div class="login-stat-item"><span class="icon">🚛</span><div class="number" id="stat-operators">0</div><div class="label">Fleet Ops</div></div>
-            <div class="login-stat-item"><span class="icon">🤝</span><div class="number" id="stat-agents">0</div><div class="label">Agents</div></div>
-            <div class="login-stat-item"><span class="icon">👤</span><div class="number" id="stat-users">0</div><div class="label">Users</div></div>
+    <div style="text-align:center;color:#64748b;font-size:12px;margin-bottom:8px">Find Loads • Post Trucks</div>
+    
+    <div class="login-stats-container" style="background:#eff6ff;border-radius:16px;padding:12px;border:1px solid #bfdbfe">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;margin-bottom:4px">
+            <div style="text-align:center"><div id="stat-loadgivers" style="font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Load Givers</div></div>
+            <div style="text-align:center"><div id="stat-operators" style="font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Fleet Ops</div></div>
+            <div style="text-align:center"><div id="stat-agents" style="font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Agents</div></div>
+            <div style="text-align:center"><div id="stat-users" style="font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Users</div></div>
         </div>
-        <div class="login-stats-grid">
-            <div class="login-stat-item"><span class="icon">🚚</span><div class="number" id="stat-trucks">0</div><div class="label">Trucks</div></div>
-            <div class="login-stat-item"><span class="icon">📊</span><div class="number" id="stat-loads">0</div><div class="label">Loads</div></div>
-            <div class="login-stat-item"><span class="icon">📱</span><div class="number" id="stat-visits">0</div><div class="label">Visits</div></div>
-            <div class="login-stat-item"><span class="icon">⭐</span><div class="number" id="stat-rating">4.8</div><div class="label">Rating</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px">
+            <div style="text-align:center"><div id="stat-trucks" style="font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Trucks</div></div>
+            <div style="text-align:center"><div id="stat-loads" style="font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Loads</div></div>
+            <div style="text-align:center"><div id="stat-visits" style="font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Visits</div></div>
+            <div style="text-align:center"><div id="stat-rating" style="font-weight:800;color:#1d4ed8">4.8</div><div style="font-size:8px;font-weight:600;color:#475569">Rating</div></div>
         </div>
     </div>
 
-    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:4px 0">
-        <div id="step1"><input type="tel" id="mobile" class="input-field" placeholder="Enter Mobile Number" maxlength="10" autofocus><div id="mobile-status" class="text-xs mt-1"></div><div class="login-divider"><div style="flex:1;height:1px;background:#e2e8f0"></div><span style="font-size:10px;color:#94a3b8">or continue as</span><div style="flex:1;height:1px;background:#e2e8f0"></div></div><button class="btn-primary" style="background:transparent;border:1.5px solid #8b5cf6;color:#8b5cf6" onclick="continueAsGuest()">👤 Guest</button></div>
-        <div id="step2" class="hidden"><div class="text-center"><div id="display-mobile" style="font-size:20px;font-weight:700">--</div><div id="status-badge" class="text-sm font-medium text-green-600">Enter PIN</div></div><input type="password" id="pin" class="input-field" placeholder="Enter 4-digit PIN" maxlength="4"><div style="font-size:12px;text-align:center;margin-bottom:8px">Forgot PIN? <span style="color:#2563eb;cursor:pointer;font-weight:600" onclick="resetPIN()">Reset PIN</span></div><button onclick="submitPin()" id="submitBtn" class="btn-primary btn-green">🔐 Login</button><button onclick="resetForm()" class="btn-back" style="margin-top:4px">← Change Number</button></div>
-        <div id="step3" class="hidden"><div class="text-center"><div id="wa-display-mobile" style="font-size:20px;font-weight:700">--</div><p style="font-size:12px;color:#64748b;margin:0">Enter OTP sent via WhatsApp</p></div><div style="display:flex;gap:8px;justify-content:center;margin:12px 0"><input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;border-radius:12px;border:2px solid #e2e8f0" inputmode="numeric"><input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;border-radius:12px;border:2px solid #e2e8f0" inputmode="numeric"><input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;border-radius:12px;border:2px solid #e2e8f0" inputmode="numeric"><input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;border-radius:12px;border:2px solid #e2e8f0" inputmode="numeric"><input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;border-radius:12px;border:2px solid #e2e8f0" inputmode="numeric"><input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;border-radius:12px;border:2px solid #e2e8f0" inputmode="numeric"></div><div style="text-align:center;font-size:13px">⏳ <span id="otp-timer">5:00</span></div><button onclick="verifyOTP()" id="verify-btn" class="btn-primary btn-green" style="margin-top:8px">✅ Verify</button><button onclick="resetForm()" class="btn-back" style="margin-top:4px">← Change Number</button></div>
-        <div id="step4" class="hidden"><div class="text-center"><div id="reg-display-mobile" style="font-size:20px;font-weight:700">--</div><p style="font-size:13px;color:#64748b;margin:0">Set your 4-digit PIN</p></div><input type="password" id="reg-pin" class="input-field" placeholder="New PIN (4 digits)" maxlength="4"><input type="password" id="reg-pin-confirm" class="input-field" placeholder="Confirm PIN" maxlength="4"><button onclick="registerUser()" id="register-btn" class="btn-primary btn-green">✅ Create Account</button><button onclick="resetForm()" class="btn-back" style="margin-top:4px">← Change Number</button></div>
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center">
+        <div id="step1"><input type="tel" id="mobile" class="input-field" placeholder="Enter Mobile Number" maxlength="10"><div id="mobile-status" class="text-xs mt-1"></div><button class="btn-primary" style="background:transparent;border:1.5px solid #8b5cf6;color:#8b5cf6;margin-top:10px" onclick="continueAsGuest()">👤 Guest</button></div>
+        <div id="step2" class="hidden-page"><div class="text-center"><div id="display-mobile" style="font-size:20px;font-weight:700">--</div><div class="text-sm font-medium text-green-600">Enter PIN</div></div><input type="password" id="pin" class="input-field" placeholder="Enter 4-digit PIN" maxlength="4" style="margin-top:10px"><button onclick="submitPin()" id="submitBtn" class="btn-primary btn-green" style="margin-top:8px">🔐 Login</button><button onclick="resetForm()" class="btn-back" style="margin-top:4px">← Change Number</button></div>
     </div>
 </div>
 
-<!-- ============================================================
-     APP PAGES
-     ============================================================ -->
-<div id="home-page" class="hidden-page"><div class="home-container">
-    <div class="home-header"><div class="logo">🚚 ReturnTruck</div><div class="header-right"><button class="avatar-btn" id="avatar-btn" onclick="toggleDropdown()"><span class="avatar-initials" id="avatar-initials">👤</span></button><div class="profile-dropdown" id="profile-dropdown"><button class="dropdown-item" onclick="closeDropdown();goToProfile()">👤 Profile</button><button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button><div class="dropdown-divider"></div><button class="dropdown-item danger" onclick="closeDropdown();logout()">🚪 Logout</button></div></div></div>
-    <div id="guest-banner" class="guest-banner hidden"><span>👋 Welcome, Guest!</span><button class="btn-login" onclick="showLogin()">🔐 Login</button></div>
+<!-- HOME PAGE -->
+<div id="home-page" class="hidden-page"><div class="page-wrapper">
+    <div class="header"><div class="logo">🚚 ReturnTruck</div><div class="header-right"><button class="avatar-btn guest" id="avatar-btn" onclick="toggleDropdown()"><span class="avatar-initials" id="avatar-initials">👤</span></button><div class="profile-dropdown" id="profile-dropdown"><button class="dropdown-item" onclick="closeDropdown();goToProfile()">👤 Profile</button><button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button><div class="dropdown-divider"></div><button class="dropdown-item danger" onclick="closeDropdown();logout()">🚪 Logout</button></div></div></div>
     
-    <div style="flex-shrink:0">
-        <div style="display:flex;gap:8px;margin-bottom:6px"><div style="flex:2"><input type="text" id="location-search" placeholder="📍 Location/PIN" style="width:100%;padding:6px 10px;border:1px solid #e2e8f0;border-radius:8px"></div><div style="flex:1"><select id="radius-select" style="width:100%;padding:6px 8px;border:1px solid #e2e8f0;border-radius:8px"><option value="5">5 KM</option><option value="50" selected>50 KM</option><option value="200">200 KM</option></select></div></div>
-        <div class="type-tabs"><button id="tab-all" class="active" onclick="setTab('ALL')">All</button><button id="tab-loads" class="inactive" onclick="setTab('LOAD')">Loads</button><button id="tab-trucks" class="inactive" onclick="setTab('TRUCK')">Trucks</button><button id="tab-agents" class="inactive" onclick="setTab('AGENT')">Agents</button></div>
-        <div class="results-count" style="display:flex;justify-content:space-between;padding-bottom:3px;font-size:9px;font-weight:700;color:#94a3b8"><span id="results-count">Showing 0 Records</span></div>
+    <div id="guest-banner" class="guest-banner hidden-page"><span>👋 Welcome, Guest!</span><button class="btn-login" onclick="showLogin()">🔐 Login</button></div>
+    
+    <div style="flex-shrink:0;padding:4px 0">
+        <div style="display:flex;gap:8px;margin-bottom:6px"><div style="flex:2"><input type="text" id="location-search" placeholder="📍 Location/PIN" class="form-control"></div><div style="flex:1"><select id="radius-select" class="form-control"><option value="50" selected>50 KM</option></select></div></div>
+        <div class="type-tabs"><button id="tab-all" class="active" onclick="setTab('ALL')">All</button><button id="tab-loads" class="inactive" onclick="setTab('LOAD')">Loads</button><button id="tab-trucks" class="inactive" onclick="setTab('TRUCK')">Trucks</button></div>
     </div>
 
-    <div class="page-content" id="home-page-content"><div id="feed-container" class="feed-container"></div></div>
+    <div class="page-content"><div id="feed-container"></div></div>
     
-    <div id="bottom-nav"><button class="nav-item active" onclick="goHome()"><span class="icon">🏠</span>Home</button><button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span>Post Load</button><button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span>Post Truck</button><button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span>Profile</button></div>
+    <div class="bottom-nav"><button class="nav-item active" onclick="goHome()"><span class="icon">🏠</span>Home</button><button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span>Post Load</button><button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span>Post Truck</button><button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span>Profile</button></div>
 </div></div>
 
-<div id="postload-page" class="hidden-page"><div class="postload-container">
-    <div class="post-header"><span class="logo">🚚 ReturnTruck</span><button class="back-btn" onclick="goHome()">Cancel</button></div>
-    <div class="page-content" id="postload-scroll">
-        <div class="form-group"><label class="form-label">Material Type</label><select class="form-control" id="pl-material"><option value="">Select</option><option>Steel Pipes</option><option>Cement</option><option>Other</option></select></div>
-        <div class="grid-2"><div><label>Weight (Kg)</label><input class="form-control" type="number" id="pl-weight"></div><div><label>Dimensions (ft)</label><input class="form-control" type="text" id="pl-dim" placeholder="40x8x8"></div></div>
-        <div class="grid-2"><div><label>📍 Pickup</label><div class="location-search-wrapper"><input type="text" id="pl-pickup-input" placeholder="Search PIN..."><div class="suggestions" id="pl-pickup-suggestions"></div><input type="hidden" id="pl-pickup-hidden"></div></div><div><label>📍 Drop</label><div class="location-search-wrapper"><input type="text" id="pl-drop-input" placeholder="Search PIN..."><div class="suggestions" id="pl-drop-suggestions"></div><input type="hidden" id="pl-drop-hidden"></div></div></div>
-        <div class="grid-2"><div><label>Rate (₹)</label><input class="form-control" type="text" id="pl-rate"></div><div><label>Date</label><input class="form-control" type="date" id="pl-date"></div></div>
-        <button class="btn-primary" onclick="publishLoad()">📤 Publish Load</button>
+<!-- POST LOAD PAGE -->
+<div id="postload-page" class="hidden-page"><div class="page-wrapper">
+    <div class="header"><div class="logo">🚚 ReturnTruck</div><button class="back-btn" onclick="goHome()">Cancel</button></div>
+    <div class="page-content">
+        <div style="margin-bottom:12px"><label style="font-size:11px;font-weight:700">Material</label><select class="form-control" id="pl-material"><option>Steel</option><option>Cement</option></select></div>
+        <div class="grid-2"><div><label style="font-size:11px;font-weight:700">Weight (Kg)</label><input class="form-control" type="number" id="pl-weight"></div><div><label style="font-size:11px;font-weight:700">Rate (₹)</label><input class="form-control" type="text" id="pl-rate"></div></div>
+        <button class="btn-primary" style="margin-top:8px" onclick="publishLoad()">📤 Publish Load</button>
     </div>
-    <div id="bottom-nav"><button class="nav-item" onclick="goHome()">🏠 Home</button><button class="nav-item active">📦 Post Load</button><button class="nav-item" onclick="goPostTruck()">🚛 Post Truck</button><button class="nav-item" onclick="goToProfile()">👤 Profile</button></div>
+    <div class="bottom-nav"><button class="nav-item" onclick="goHome()">🏠 Home</button><button class="nav-item active">📦 Post Load</button><button class="nav-item" onclick="goPostTruck()">🚛 Post Truck</button><button class="nav-item" onclick="goToProfile()">👤 Profile</button></div>
 </div></div>
 
-<div id="posttruck-page" class="hidden-page"><div class="posttruck-container">
-    <div class="post-header"><span class="logo">🚚 ReturnTruck</span><button class="back-btn" onclick="goHome()">Cancel</button></div>
-    <div class="page-content" id="posttruck-scroll">
-        <div class="form-group"><label>Vehicle Number</label><div style="display:flex;gap:8px"><input class="form-control" id="pt-number" style="flex:2"><button class="btn-primary" style="width:auto;padding:10px 16px" onclick="autoFetchVehicle()">🔍 Auto-Fetch</button></div></div>
-        <div class="form-group"><label>📍 Location</label><div class="location-search-wrapper"><input type="text" id="pt-location-input" placeholder="Search PIN..."><div class="suggestions" id="pt-location-suggestions"></div><input type="hidden" id="pt-location-hidden"></div></div>
-        <div class="grid-2"><div><label>Available From</label><input class="form-control" type="date" id="pt-available"></div><div><label>Rate / KM</label><input class="form-control" type="text" id="pt-rate-km"></div></div>
-        <div class="grid-2"><div><label>Driver Name</label><input class="form-control" id="pt-driver"></div><div><label>Driver Mobile</label><input class="form-control" id="pt-driver-mobile" maxlength="10"></div></div>
-        <button class="btn-primary" onclick="publishTruck()">📤 List Truck</button>
+<!-- POST TRUCK PAGE -->
+<div id="posttruck-page" class="hidden-page"><div class="page-wrapper">
+    <div class="header"><div class="logo">🚚 ReturnTruck</div><button class="back-btn" onclick="goHome()">Cancel</button></div>
+    <div class="page-content">
+        <div style="margin-bottom:12px"><label style="font-size:11px;font-weight:700">Vehicle Number</label><input class="form-control" id="pt-number"></div>
+        <div><label style="font-size:11px;font-weight:700">Location</label><div class="location-wrapper"><input type="text" id="pt-location-input" class="form-control" placeholder="Search PIN..."><div class="suggestions" id="pt-location-suggestions"></div><input type="hidden" id="pt-location-hidden"></div></div>
+        <button class="btn-primary" style="margin-top:8px" onclick="publishTruck()">📤 List Truck</button>
     </div>
-    <div id="bottom-nav"><button class="nav-item" onclick="goHome()">🏠 Home</button><button class="nav-item" onclick="goPostLoad()">📦 Post Load</button><button class="nav-item active">🚛 Post Truck</button><button class="nav-item" onclick="goToProfile()">👤 Profile</button></div>
+    <div class="bottom-nav"><button class="nav-item" onclick="goHome()">🏠 Home</button><button class="nav-item" onclick="goPostLoad()">📦 Post Load</button><button class="nav-item active">🚛 Post Truck</button><button class="nav-item" onclick="goToProfile()">👤 Profile</button></div>
 </div></div>
 
-<div id="profile-page" class="hidden-page"><div class="profile-container">
-    <div class="profile-header"><div class="logo">🚚 ReturnTruck</div><div class="header-right"><button class="back-btn" style="font-size:14px;padding:4px 10px;background:#f1f5f9;border-radius:8px;margin-right:8px" onclick="goHome()">← Back</button><button class="avatar-btn" id="avatar-btn-profile" onclick="toggleDropdown()"><span class="avatar-initials" id="avatar-initials-profile">👤</span></button><div class="profile-dropdown" id="profile-dropdown-profile"><button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button><div class="dropdown-divider"></div><button class="dropdown-item danger" onclick="closeDropdown();logout()">🚪 Logout</button></div></div></div>
-    
+<!-- PROFILE PAGE -->
+<div id="profile-page" class="hidden-page"><div class="page-wrapper">
+    <div class="header"><div class="logo">🚚 ReturnTruck</div><div class="header-right"><button class="back-btn" onclick="goHome()">← Back</button><button class="avatar-btn guest" id="avatar-btn-profile" onclick="toggleDropdown()"><span class="avatar-initials" id="avatar-initials-profile">👤</span></button><div class="profile-dropdown" id="profile-dropdown-profile"><button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button><div class="dropdown-divider"></div><button class="dropdown-item danger" onclick="closeDropdown();logout()">🚪 Logout</button></div></div></div>
     <div class="page-content" id="profile-page-content">
-        <div style="background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:16px;padding:16px;color:#fff;margin-bottom:12px"><div class="mobile" id="profile-mobile">--</div></div>
-        
-        <div class="profile-section"><div class="section-header"><span class="section-title">📦 Load Giver</span><span class="section-badge" id="loadgiver-badge">⚠️ Required</span></div>
-        <div id="loadgiver-input-area"><input class="form-control" style="margin-bottom:8px" type="text" id="lg-company" placeholder="Company Name"><button class="section-btn" onclick="saveLoadGiverProfile()">💾 Save</button></div>
-        <div id="loadgiver-active-area" style="display:none"><p><strong id="lg-display-company">--</strong></p><button class="section-btn" onclick="editLoadGiver()">✏️ Edit</button></div></div>
-
-        <div class="profile-section"><div class="section-header"><span class="section-title">🚛 Fleet Operator</span><span class="section-badge" id="fleet-badge">⚠️ Required</span></div>
-        <div id="fleet-input-area"><input class="form-control" style="margin-bottom:8px" type="text" id="fo-company" placeholder="Company Name"><button class="section-btn" onclick="saveFleetProfile()">💾 Save</button></div>
-        <div id="fleet-active-area" style="display:none"><p><strong id="fo-display-company">--</strong></p><button class="section-btn" onclick="editFleet()">✏️ Edit</button><div id="my-trucks-list" style="margin-top:8px"></div></div></div>
-        
-        <div id="my-loads-list"><p style="font-size:11px;font-weight:600;color:#1e293b">📦 My Loads</p><div id="my-loads-container"></div></div>
+        <div style="background:#2563eb;border-radius:16px;padding:16px;color:#fff;margin-bottom:12px"><div id="profile-mobile" style="font-size:20px;font-weight:700">--</div></div>
+        <div class="profile-section"><div style="font-weight:700;color:#1e293b;font-size:14px">📦 Load Giver</div><div id="loadgiver-input-area"><input class="form-control" style="margin-bottom:8px;margin-top:8px" type="text" id="lg-company" placeholder="Company Name"><button class="btn-primary" onclick="saveLoadGiverProfile()">💾 Save</button></div></div>
+        <div class="profile-section"><div style="font-weight:700;color:#1e293b;font-size:14px">🚛 Fleet Operator</div><div id="fleet-input-area"><input class="form-control" style="margin-bottom:8px;margin-top:8px" type="text" id="fo-company" placeholder="Company Name"><button class="btn-primary" onclick="saveFleetProfile()">💾 Save</button></div></div>
     </div>
-    <div id="bottom-nav"><button class="nav-item" onclick="goHome()">🏠 Home</button><button class="nav-item" onclick="goPostLoad()">📦 Post Load</button><button class="nav-item" onclick="goPostTruck()">🚛 Post Truck</button><button class="nav-item active">👤 Profile</button></div>
+    <div class="bottom-nav"><button class="nav-item" onclick="goHome()">🏠 Home</button><button class="nav-item" onclick="goPostLoad()">📦 Post Load</button><button class="nav-item" onclick="goPostTruck()">🚛 Post Truck</button><button class="nav-item active">👤 Profile</button></div>
 </div></div>
 
-<div id="detail-page" class="hidden-page"><div class="detail-container">
-    <div class="detail-header"><span class="logo">🚚 ReturnTruck</span><button class="back-btn" onclick="closeDetail()">Cancel</button></div>
-    <div class="page-content" id="detail-scroll">
-        <div style="margin-bottom:8px"><div style="font-size:17px;font-weight:700" id="detail-title">Title</div><div id="detail-company" style="font-size:13px;color:#2563eb">Company</div></div>
-        <div class="detail-actions"><button class="btn-call" onclick="makeCall()">📞 Call</button><button class="btn-contact" onclick="contactUser()">✉️ Contact</button><button class="btn-bid" onclick="expressInterest()">🤝 Interest</button><button class="btn-share" onclick="handleShareClick()">↗️ Share</button></div>
-    </div>
-    <div id="bottom-nav"><button class="nav-item" onclick="goHome()">🏠 Home</button><button class="nav-item" onclick="goPostLoad()">📦 Post Load</button><button class="nav-item" onclick="goPostTruck()">🚛 Post Truck</button><button class="nav-item" onclick="goToProfile()">👤 Profile</button></div>
-</div></div>
-
-<!-- MODALS -->
-<div class="modal-overlay" id="change-pin-modal"><div class="modal-box"><h3>🔑 Change PIN</h3><input type="password" id="new-pin" class="input-field" placeholder="New PIN (4 digits)" maxlength="4"><input type="password" id="confirm-pin" class="input-field" placeholder="Confirm PIN" maxlength="4"><div style="display:flex;gap:8px;margin-top:8px"><button class="btn-back" style="margin:0" onclick="closeChangePin()">Cancel</button><button class="btn-primary" onclick="saveNewPin()">Save PIN</button></div></div></div>
+</div>
 
 <script>
 // ============================================================
-// CONFIGURATION
+// RESTORED STATIC LOCATION DATA
+// ============================================================
+const STATIC_LOCATIONS = [
+  {pin:"110018", name:"Ashok Nagar", district:"NEW DELHI", state:"DH", lat:28.636587, lng:77.094466},
+  {pin:"182141", name:"Chenani", district:"UDHAMPUR", state:"JK", lat:33.0389444, lng:75.2846944},
+  {pin:"400001", name:"Mumbai", district:"MUMBAI", state:"MH", lat:18.9391667, lng:72.8375556},
+  {pin:"516362", name:"Khadarabad", district:"Y.S.R.", state:"AP", lat:14.7626487, lng:78.6336605},
+  {pin:"517501", name:"Tirupati", district:"Tirupati", state:"AP", lat:13.6322875, lng:79.4226094},
+  {pin:"518001", name:"Kurnool", district:"KURNOOL", state:"AP", lat:15.833006, lng:78.047822},
+  {pin:"521202", name:"Hanumanthunigudem", district:"Eluru", state:"AP", lat:16.784728, lng:80.849867},
+  {pin:"522301", name:"Anantavaram", district:"GUNTUR", state:"AP", lat:16.02644444, lng:80.16291667},
+  {pin:"522603", name:"Ravipadu", district:"Palnadu", state:"AP", lat:16.2233, lng:79.9719},
+  {pin:"522616", name:"Chilakaluripet", district:"GUNTUR", state:"AP", lat:16.087918, lng:80.266533},
+  {pin:"523253", name:"Uppalapadu", district:"PRAKASAM", state:"AP", lat:15.621921, lng:79.700266},
+  {pin:"524223", name:"Jaladanki", district:"SPSR NELLORE", state:"AP", lat:14.853108, lng:79.84613},
+  {pin:"530001", name:"Visakhapatnam", district:"VISAKHAPATANAM", state:"AP", lat:17.70402479, lng:83.29639357},
+  {pin:"531111", name:"Chintapalli", district:"Alluri Sitharama Raju", state:"AP", lat:17.980066, lng:82.41334},
+  {pin:"531118", name:"Rajupakalu", district:"VISAKHAPATANAM", state:"AP", lat:17.608616, lng:82.632208},
+  {pin:"531162", name:"Chittivalasa", district:"VISAKHAPATANAM", state:"AP", lat:17.936293, lng:83.49369},
+  {pin:"533001", name:"Kakinada", district:"Kakinada", state:"AP", lat:16.9550556, lng:82.2354722},
+  {pin:"533101", name:"Rajahmundry", district:"EAST GODAVARI", state:"AP", lat:16.9920339, lng:81.7779721},
+  {pin:"533406", name:"Annavaram", district:"Kakinada", state:"AP", lat:17.2830278, lng:82.4064444},
+  {pin:"534202", name:"Gollalakoderu", district:"WEST GODAVARI", state:"AP", lat:16.545316, lng:81.513696},
+  {pin:"560002", name:"Bengaluru City", district:"BENGALURU URBAN", state:"KA", lat:12.839909, lng:77.662968},
+  {pin:"570001", name:"Mysuru", district:"MYSURU", state:"KA", lat:12.31416667, lng:76.65655556},
+  {pin:"671314", name:"Bengalam", district:"KASARAGOD", state:"KL", lat:12.2949717, lng:75.154531},
+  {pin:"700001", name:"KOLKATA", district:"KOLKATA", state:"WB", lat:22.5736, lng:88.3483}
+];
+
+// ============================================================
+// RESTORED LOCATION HELPERS
+// ============================================================
+function findLocation(q) { 
+    const query = q.toLowerCase().trim(); 
+    if(!query) return []; 
+    return STATIC_LOCATIONS.filter(l => l.name.toLowerCase().includes(query) || l.pin.includes(query)).slice(0, 8); 
+}
+function getLocationByPin(pin) { return STATIC_LOCATIONS.find(l => l.pin === pin) || null; }
+function getLocationName(pin) { const loc = getLocationByPin(pin); return loc ? `${loc.name} (${loc.pin})` : pin || 'Unknown'; }
+function getDistance(lat1,lng1,lat2,lng2){ const R=6371; const dLat=(lat2-lat1)*Math.PI/180; const dLng=(lng2-lng1)*Math.PI/180; const a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2); return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)); }
+
+// ============================================================
+// SUPABASE CONFIG
 // ============================================================
 const SUPABASE_URL = 'https://ghjoffovatgvhzxlupef.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-let currentUser=null, isGuest=false, currentTab='ALL', feedItems=[], currentDetailData=null, otpTimerInterval=null;
-
+let currentUser=null, isGuest=false, currentTab='ALL', feedItems=[];
 function $(id){return document.getElementById(id)}
 function showToast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2000)}
 
 // ============================================================
-// NAVIGATION & UI
+// NAVIGATION
 // ============================================================
-function goHome(){
-    ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(id=>$(id).classList.toggle('hidden-page',id!=='home-page'));
-    document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
-    document.querySelectorAll('#bottom-nav .nav-item')[0].classList.add('active');
-    renderFeed();
-}
-function goPostLoad(){if(!currentUser&&!isGuest){showLogin();return}switchPage('postload-page',1)}
-function goPostTruck(){if(!currentUser&&!isGuest){showLogin();return}switchPage('posttruck-page',2)}
-function goToProfile(){if(isGuest||!currentUser){showLogin();return}switchPage('profile-page',3);loadProfile()}
-function switchPage(id, navIdx){['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.toggle('hidden-page',i!==id));document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));document.querySelectorAll('#bottom-nav .nav-item')[navIdx].classList.add('active')}
-function closeDetail(){currentDetailData=null;goHome()}
+function goHome(){switchPage('home-page');document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));document.querySelectorAll('#home-page .nav-item')[0].classList.add('active');renderFeed()}
+function goPostLoad(){switchPage('postload-page');document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));document.querySelectorAll('#postload-page .nav-item')[1].classList.add('active')}
+function goPostTruck(){switchPage('posttruck-page');document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));document.querySelectorAll('#posttruck-page .nav-item')[2].classList.add('active')}
+function goToProfile(){switchPage('profile-page');document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));document.querySelectorAll('#profile-page .nav-item')[3].classList.add('active');loadProfile()}
+function switchPage(id){['home-page','profile-page','postload-page','posttruck-page'].forEach(i=>$(i).classList.toggle('hidden-page',i!==id));}
 
 // ============================================================
 // LOGIN SYSTEM
 // ============================================================
 function continueAsGuest(){isGuest=true;showToast('👤 Guest Mode');showHome()}
-function showLogin(){resetForm();$('mobile').focus()}
-function resetForm(){['step1','step2','step3','step4'].forEach(i=>{const e=$(i);e&&e.classList.add('hidden')});$('step1').classList.remove('hidden');['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.add('hidden-page'));$('login-screen').style.display='flex'}
-function showHome(){['step2','step3','step4'].forEach(i=>$(i).classList.add('hidden'));$('login-screen').style.display='none';$('home-page').classList.remove('hidden-page');renderFeed()}
+function showLogin(){['step1','step2'].forEach(i=>$(i).classList.add('hidden-page'));$('step1').classList.remove('hidden-page');['home-page','profile-page','postload-page','posttruck-page'].forEach(i=>$(i).classList.add('hidden-page'));$('login-screen').style.display='flex';$('mobile').focus()}
+function showHome(){['step1','step2'].forEach(i=>$(i).classList.add('hidden-page'));$('login-screen').style.display='none';$('home-page').classList.remove('hidden-page');renderFeed()}
+function resetForm(){['step1','step2'].forEach(i=>$(i).classList.add('hidden-page'));$('step1').classList.remove('hidden-page');$('mobile').value='';$('pin').value=''}
+function toggleDropdown(){document.querySelectorAll('.profile-dropdown').forEach(d=>d.classList.toggle('show'))}
+function closeDropdown(){document.querySelectorAll('.profile-dropdown').forEach(d=>d.classList.remove('show'))}
+function logout(){if(confirm('Logout?')){resetForm();location.reload()}}
 
-// PIN & OTP
-async function registerUser(){
-    const pin=$('reg-pin').value.trim();
-    if(!pin||pin.length!==4)return showToast('⚠️ Enter 4-digit PIN');
-    const encoder=new TextEncoder();const hashBuffer=await crypto.subtle.digest('SHA-256',encoder.encode(pin));
-    const pinhash=Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
-    const {data:newUser}=await sb.from('active_users').insert({mobile:currentMobile,pinhash}).select().single();
-    if(newUser){currentUser=newUser;showToast('✅ Registered!');showHome()}
-}
-window.submitPin=async function(){
-    const pin=$('pin').value.trim();
-    const encoder=new TextEncoder();const hashBuffer=await crypto.subtle.digest('SHA-256',encoder.encode(pin));
-    const pinhash=Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
-    const {data:user}=await sb.from('active_users').select('*').eq('mobile',currentMobile).eq('pinhash',pinhash).single();
-    if(user){currentUser=user;showToast('✅ Welcome back!');showHome()}
-}
-$('mobile').addEventListener('input',e=>{const m=e.target.value.trim();if(m.length===10){currentMobile=m;$('step1').classList.add('hidden');$('step2').classList.remove('hidden')}});
+$('mobile').addEventListener('input',e=>{const m=e.target.value.trim();if(m.length===10){$('step1').classList.add('hidden-page');$('step2').classList.remove('hidden-page');$('display-mobile').textContent=m}});
 
 // ============================================================
-// FEED DATA
+// FEED
 // ============================================================
+function setTab(tab){currentTab=tab;document.querySelectorAll('.type-tabs button').forEach(b=>b.className='inactive');const map={'ALL':'tab-all','LOAD':'tab-loads','TRUCK':'tab-trucks'};$(map[tab]).className='active';renderFeed()}
 async function renderFeed(){
     const container=$('feed-container');
     try{
         const {data:loads}=await sb.from('active_loads').select('*').eq('status',1);
-        const {data:trucks}=await sb.from('active_trucks').select('*').eq('status',1);
-        feedItems=[...(loads||[]).map(l=>({type:'LOAD',title:l.material||'Cargo',company:l.company||'',rate:l.rate||0,pin:l.pickup_pin||'',id:l.id})),...(trucks||[]).map(t=>({type:'TRUCK',title:t.truck_no||'Truck',company:t.company_name||'',rate:t.rate_km||0,pin:t.location_pin||'',id:t.id}))];
-        
-        if(feedItems.length===0)container.innerHTML='<div class="no-records" style="text-align:center;padding:30px 0;color:#94a3b8">No records found</div>';
-        else container.innerHTML=feedItems.map(i=>`<div class="feed-card" onclick="openDetail('${i.type}','${i.id}')"><div class="title">${i.title}</div><div class="meta">${i.company||''}</div></div>`).join('');
-    }catch(e){container.innerHTML='<div class="no-records">Error loading feed</div>'}
+        feedItems=[...(loads||[]).map(l=>({type:'LOAD',title:l.material||'Cargo',company:l.company||'',rate:l.rate||0,pin:l.pickup_pin||'',id:l.id}))];
+        if(feedItems.length===0)container.innerHTML='<div style="text-align:center;padding:30px 0;color:#94a3b8;font-size:13px">No records found</div>';
+        else container.innerHTML=feedItems.map(i=>`<div style="border:1px solid #e2e8f0;border-radius:10px;padding:8px 12px;margin-bottom:6px;cursor:pointer"><div style="font-weight:700;font-size:14px;color:#0f172a">${i.title}</div><div style="font-size:10px;color:#475569">${i.company}</div></div>`).join('');
+    }catch(e){container.innerHTML='<div style="text-align:center;color:#ef4444">Error loading data</div>'}
 }
 
 // ============================================================
@@ -284,22 +254,10 @@ async function renderFeed(){
 // ============================================================
 async function loadProfile(){
     if(!currentUser)return;
-    const u=currentUser;
-    $('profile-mobile').textContent=u.mobile||'--';
-    if(u.company_name){$('loadgiver-input-area').style.display='none';$('loadgiver-active-area').style.display='block';$('lg-display-company').textContent=u.company_name}else{$('loadgiver-input-area').style.display='block';$('loadgiver-active-area').style.display='none'}
-    if(u.fleet_company){$('fleet-input-area').style.display='none';$('fleet-active-area').style.display='block';$('fo-display-company').textContent=u.fleet_company}else{$('fleet-input-area').style.display='block';$('fleet-active-area').style.display='none'}
+    $('profile-mobile').textContent=currentUser.mobile||'--';
 }
-async function saveLoadGiverProfile(){const c=$('lg-company').value.trim();if(!c)return showToast('⚠️ Enter company name');await sb.from('active_users').update({company_name:c}).eq('mobile',currentUser.mobile);currentUser.company_name=c;showToast('✅ Saved!');loadProfile()}
-async function saveFleetProfile(){const c=$('fo-company').value.trim();if(!c)return showToast('⚠️ Enter company name');await sb.from('active_users').update({fleet_company:c}).eq('mobile',currentUser.mobile);currentUser.fleet_company=c;showToast('✅ Saved!');loadProfile()}
-function editLoadGiver(){$('loadgiver-input-area').style.display='block';$('loadgiver-active-area').style.display='none'}
-function editFleet(){$('fleet-input-area').style.display='block';$('fleet-active-area').style.display='none'}
-
-// ============================================================
-// DETAIL ACTIONS
-// ============================================================
-async function openDetail(type,id){const {data}=await sb.from(type==='LOAD'?'active_loads':'active_trucks').select('*').eq('id',id).single();if(data){currentDetailData=data;switchPage('detail-page',0);$('detail-title').textContent=data.material||data.truck_no||'Details';$('detail-company').textContent=data.company||data.company_name||'N/A'}}
-function makeCall(){if(currentDetailData){const num=currentDetailData.mobile||currentDetailData.driver_mobile;if(num)window.location.href=`tel:${num}`}}
-function expressInterest(){if(isGuest||!currentUser)return showToast('🔐 Login first');showToast('🤝 Interest expressed!')}
+async function saveLoadGiverProfile(){const c=$('lg-company').value.trim();if(!c)return showToast('⚠️ Enter company');await sb.from('active_users').update({company_name:c}).eq('mobile',currentUser.mobile);currentUser.company_name=c;showToast('✅ Saved!');loadProfile()}
+async function saveFleetProfile(){const c=$('fo-company').value.trim();if(!c)return showToast('⚠️ Enter company');await sb.from('active_users').update({fleet_company:c}).eq('mobile',currentUser.mobile);currentUser.fleet_company=c;showToast('✅ Saved!');loadProfile()}
 </script>
 </body>
 </html>
