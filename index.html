@@ -652,7 +652,7 @@ const STATIC_LOCATIONS = [
 // CONFIGURATION
 // ============================================================
 const SUPABASE_URL='https://ghjoffovatgvhzxlupef.supabase.co';
-const SUPABASE_KEY='sb_publishable_8TEJpRWqPcofbyvashLctA_aGC-zU46';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
 const EDGE_FUNCTION_URL='https://ghjoffovatgvhzxlupef.supabase.co/functions/v1';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
@@ -924,48 +924,106 @@ let resizeTimer;function handleResize(){clearTimeout(resizeTimer);resizeTimer=se
 // ============================================================
 // AUTO CHECK & OTP (Same as JobAd-PWA)
 // ============================================================
-async function autoCheckMobile(mobile){
-    if(isChecking)return;
-    isChecking=true;
-    const input=document.getElementById('mobile');
-    if(input)input.disabled=true;
-    setStatus('⏳ Checking...','blue');
-    try{
-        // Call Supabase function check_user_login
-        const {data, error}=await sb.rpc('check_user_login', {p_mobile: BigInt(mobile)});
-        if(error) throw error;
-        const result=data[0];
-        if(result.user_exists){
-            isNewUser=false;
-            currentMobile=mobile;
-            currentUser=result;
-            document.getElementById('display-mobile').textContent=mobile;
-            document.getElementById('status-badge').textContent='✅ Existing user - Enter PIN';
-            document.getElementById('status-badge').className='text-sm font-medium text-green-600';
-            document.getElementById('submitBtn').textContent='🔐 Login';
-            document.getElementById('step1').style.display='none';
+async function autoCheckMobile(mobile) {
+    if (isChecking) return;
+    isChecking = true;
+    const input = document.getElementById('mobile');
+    if (input) input.disabled = true;
+    setStatus('⏳ Checking...', 'blue');
+    
+    try {
+        // First check active_users directly via Supabase
+        const { data: au } = await sb
+            .from('active_users')
+            .select('*')
+            .eq('mobile', mobile)
+            .maybeSingle();
+            
+        if (au) {
+            // User exists in active_users
+            isNewUser = false;
+            currentMobile = mobile;
+            document.getElementById('display-mobile').textContent = mobile;
+            document.getElementById('status-badge').textContent = '✅ Existing user - Enter PIN';
+            document.getElementById('status-badge').className = 'text-sm font-medium text-green-600';
+            document.getElementById('submitBtn').textContent = '🔐 Login';
+            document.getElementById('submitBtn').className = 'btn-primary btn-green';
+            document.getElementById('step1').style.display = 'none';
             document.getElementById('step2').classList.remove('hidden');
             document.getElementById('step3').classList.add('hidden');
             document.getElementById('step4').classList.add('hidden');
-            document.getElementById('pin').value='';
+            document.getElementById('pin').value = '';
             document.getElementById('pin').focus();
-            setStatus('✅ Existing user. Enter your PIN.','green');
+            setStatus('✅ Existing user. Enter your PIN.', 'green');
             showToast('📱 Existing user - Enter PIN');
-            isChecking=false;
-            if(input)input.disabled=false;
+            isChecking = false;
+            if (input) input.disabled = false;
             return;
         }
-        isNewUser=true;
-        currentMobile=mobile;
+
+        // Check platform_stats all_user
+        const { data: pd } = await sb
+            .from('platform_stats')
+            .select('all_user')
+            .maybeSingle();
+            
+        let isArchived = false;
+        if (pd && pd.all_user) {
+            const allUsers = pd.all_user || [];
+            isArchived = allUsers.some(m => String(m) === String(mobile));
+        }
+
+        if (isArchived) {
+            // User was registered before - create new active user
+            showToast('📱 Welcome back! Reactivating your account...');
+            const { data: na, error: ce } = await sb
+                .from('active_users')
+                .insert([{ mobile: mobile, last_active: new Date().toISOString() }])
+                .select()
+                .single();
+                
+            if (ce) {
+                console.error('Error reactivating user:', ce);
+                showToast('❌ Error reactivating: ' + ce.message);
+                isChecking = false;
+                if (input) input.disabled = false;
+                return;
+            }
+            
+            showToast('✅ Account reactivated!');
+            isNewUser = false;
+            currentMobile = mobile;
+            document.getElementById('display-mobile').textContent = mobile;
+            document.getElementById('status-badge').textContent = '✅ Welcome back! Enter PIN';
+            document.getElementById('status-badge').className = 'text-sm font-medium text-green-600';
+            document.getElementById('submitBtn').textContent = '🔐 Login';
+            document.getElementById('submitBtn').className = 'btn-primary btn-green';
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2').classList.remove('hidden');
+            document.getElementById('step3').classList.add('hidden');
+            document.getElementById('step4').classList.add('hidden');
+            document.getElementById('pin').value = '';
+            document.getElementById('pin').focus();
+            setStatus('✅ Welcome back! Enter your PIN.', 'green');
+            isChecking = false;
+            if (input) input.disabled = false;
+            return;
+        }
+
+        // New user - send OTP
+        isNewUser = true;
+        currentMobile = mobile;
         await sendWhatsAppOTP(mobile);
-    }catch(err){
-        console.error('Error checking user:',err);
-        isNewUser=true;
-        currentMobile=mobile;
+        
+    } catch (err) {
+        console.error('Error checking user:', err);
+        // Fallback - treat as new user
+        isNewUser = true;
+        currentMobile = mobile;
         await sendWhatsAppOTP(mobile);
-    }finally{
-        isChecking=false;
-        if(input)input.disabled=false;
+    } finally {
+        isChecking = false;
+        if (input) input.disabled = false;
     }
 }
 
