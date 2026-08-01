@@ -24,6 +24,18 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .hidden{display:none !important}
 
 /* ============================================================
+   LOGIN PAGE FIX (Stack elements vertically)
+   ============================================================ */
+#login-screen{
+    display:flex;
+    flex-direction:column; /* FORCE VERTICAL STACK */
+    height:100%;
+    width:100%;
+    overflow-y:auto;
+    padding:4px 0;
+}
+
+/* ============================================================
    LAYOUT CONTAINERS
    ============================================================ */
 .home-container,.profile-container,.postload-container,.posttruck-container,.detail-container{display:flex;flex-direction:column;height:100%;width:100%;overflow:hidden;position:relative}
@@ -156,10 +168,10 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
      LOGIN SCREEN
      ============================================================ -->
 <div id="login-screen">
-    <div style="font-size:32px;font-weight:900;color:#2563eb;text-align:center;margin-bottom:2px">🚚 ReturnTruck</div>
-    <div style="font-size:13px;color:#64748b;text-align:center;margin-bottom:12px">Find Loads • Post Trucks • Connect Agents</div>
+    <div style="font-size:32px;font-weight:900;color:#2563eb;text-align:center;margin-bottom:2px;flex-shrink:0">🚚 ReturnTruck</div>
+    <div style="font-size:13px;color:#64748b;text-align:center;margin-bottom:12px;flex-shrink:0">Find Loads • Post Trucks • Connect Agents</div>
 
-    <div class="login-stats-container">
+    <div class="login-stats-container" style="flex-shrink:0">
         <div class="login-stats-grid" style="margin-bottom:6px">
             <div class="login-stat-item"><span style="font-size:16px">📦</span><span class="number">0</span><span class="label">Load Givers</span></div>
             <div class="login-stat-item"><span style="font-size:16px">🚛</span><span class="number">0</span><span class="label">Fleet Ops</span></div>
@@ -221,6 +233,10 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <button onclick="registerUser()" id="register-btn" class="btn-primary" style="background:#16a34a">✅ Create Account</button>
             <button onclick="resetForm()" class="btn-back">← Change Number</button>
         </div>
+    </div>
+    <div style="flex-shrink:0;background:#fef3c7;border-left:4px solid #f59e0b;border-radius:8px;padding:8px 12px;margin-top:12px;font-size:10px;color:#92400e;line-height:1.5">
+        <div style="font-weight:700;font-size:10px;display:flex;align-items:center;gap:4px">⚠️ Disclaimer</div>
+        ReturnTruck is a FREE connecting platform. No charges from any party. Not responsible for financial or other losses.
     </div>
 </div>
 
@@ -446,7 +462,7 @@ function fixLayoutHeight(){
 let resizeTimer; function handleResize(){ clearTimeout(resizeTimer); resizeTimer=setTimeout(fixLayoutHeight, 200); }
 
 // ============================================================
-// AUTH
+// AUTH FLOW
 // ============================================================
 function continueAsGuest(){isGuest=true; showToast('👤 Guest Mode'); showHome(); }
 function showLogin(){resetForm(); $('mobile').focus();}
