@@ -69,7 +69,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 /* ============================================================
    HOME UI (MOCKUP DESIGN)
    ============================================================ */
-.home-top{flex-shrink:0;padding-bottom:0px;border-bottom:0px solid #f1f5f9;margin-bottom:0px}
 .location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
 .location-row .location-input{flex:2}
 .location-row .radius-select{flex:1}
@@ -115,6 +114,18 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .feed-card .stats-row .val{font-weight:600;color:#475569}
 
 /* ============================================================
+   BANNERS
+   ============================================================ */
+.install-banner{flex-shrink:0;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;padding:8px 14px;border-radius:12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;min-height:40px}
+.install-banner .btn-install{background:#fff;color:#2563eb;border:none;padding:6px 16px;border-radius:8px;font-weight:600;font-size:12px;cursor:pointer}
+.install-banner .btn-close{background:0 0;border:none;color:rgba(255,255,255,.7);font-size:18px;cursor:pointer}
+.install-banner.hidden{display:none}
+
+.guest-banner{flex-shrink:0;background:#2563eb;color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.guest-banner.hidden{display:none}
+.guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer}
+
+/* ============================================================
    OTHER FORMS & PROFILES
    ============================================================ */
 .profile-header-card{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:12px;padding:16px;color:#fff;margin-bottom:16px}
@@ -125,18 +136,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .detail-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:12px}
 .detail-actions button{width:100%;padding:10px;border-radius:10px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:10px}
 .btn-call{background:#16a34a}.btn-contact{background:#2563eb}.btn-bid{background:#8b5cf6}.btn-share{background:#25D366}
-
-/* INSTALL & GUEST BANNERS */
-.install-banner{flex-shrink:0;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;padding:8px 14px;border-radius:12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;min-height:40px}
-.install-banner .btn-install{background:#fff;color:#2563eb;border:none;padding:6px 16px;border-radius:8px;font-weight:600;font-size:12px;cursor:pointer}
-.install-banner .btn-close{background:0 0;border:none;color:rgba(255,255,255,.7);font-size:18px;cursor:pointer}
-.install-banner.hidden{display:none}
-.guest-banner{background:#2563eb;color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-shrink:0}
-.guest-banner.hidden{display:none}
-.guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer}
-
-/* ---- IMPORTANT: Bottom Border Line Below Banners ---- */
-.home-top-border{width:100%;height:1px;background:#f1f5f9;margin-top:2px;margin-bottom:6px;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -275,13 +274,13 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         </div>
     </div>
 
-    <!-- ============================================================
-         TOP STATIC BLOCK
-         CRITICAL: Banners MUST be inside home-top to calculate height!
-         ============================================================ -->
+    <!-- 
+        *********************************************************
+        TOP STATIC BLOCK (BANNERS, SEARCH, TABS, FILTERS) 
+        *********************************************************
+    -->
     <div id="home-top" style="flex-shrink:0; padding-top:0;">
         
-        <!-- Install Banner -->
         <div class="install-banner" id="install-banner">
             <span class="text">📲 Install ReturnTruck app</span>
             <div>
@@ -290,10 +289,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
         </div>
 
-        <!-- Guest Banner -->
         <div id="guest-banner" class="guest-banner hidden"><span>👋 Welcome, Guest!</span><button class="btn-login" onclick="showLogin()">🔐 Login</button></div>
 
-        <!-- Location Row -->
         <div class="location-row">
             <div class="location-input">
                 <input type="text" id="location-search" placeholder="📍 Location/PIN" oninput="searchLocation()">
@@ -307,7 +304,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
         </div>
 
-        <!-- Tabs -->
         <div class="type-tabs">
             <button id="tab-all" class="active" onclick="setTab('ALL')">All</button>
             <button id="tab-loads" class="inactive" onclick="setTab('LOAD')">Loads</button>
@@ -315,13 +311,11 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <button id="tab-agents" class="inactive" onclick="setTab('AGENT')">Agents</button>
         </div>
 
-        <!-- Filters Toggle -->
         <div class="filter-toggle" onclick="toggleFilters()">
             <span id="filter-toggle-label">🔍 Show Filters</span>
             <span class="arrow" id="filter-arrow">▼</span>
         </div>
         
-        <!-- Filters Container -->
         <div class="filter-container" id="filter-container">
             <div class="filter-row">
                 <div>
@@ -345,12 +339,12 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
         </div>
 
-        <!-- Results Header & FIXED BOTTOM BORDER -->
         <div class="results-count"><span id="results-count">Showing 0 Records</span></div>
-        <div class="home-top-border"></div>
+        <!-- Separator Line -->
+        <div style="width:100%;height:1px;background:#f1f5f9;margin-top:2px;margin-bottom:4px;flex-shrink:0"></div>
     </div>
 
-    <!-- 3. Dynamic Scroll Body (Results) -->
+    <!-- 3. Dynamic Scroll Body -->
     <div class="scroll-body" id="home-scroll-body"><div id="feed-container" class="feed-container"></div></div>
     
     <!-- 4. Fixed Bottom Nav -->
@@ -583,7 +577,7 @@ let otpTimerInterval=null, currentMobile='', selectedLocation=null, filterOpen=f
 let logoutTimer = null;
 
 function $(id){return document.getElementById(id)}
-function showToast(msg){alert(msg)} // Fallback Alert
+function showToast(msg){alert(msg)}
 
 // ============================================================
 // IDLE LOGOUT TIMER (5 MINUTES)
@@ -598,39 +592,30 @@ function resetLogoutTimer() {
         }
     }, 5 * 60 * 1000);
 }
-
-// Listen to browser activity
 document.addEventListener('click', resetLogoutTimer);
 document.addEventListener('keydown', resetLogoutTimer);
 document.addEventListener('touchstart', resetLogoutTimer);
 document.addEventListener('scroll', resetLogoutTimer);
-
-// Listen to tab visibility change
 document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-        resetLogoutTimer();
-    }
+    if (document.visibilityState === 'visible') resetLogoutTimer();
 });
 
 // ============================================================
-// INSTALL BANNER LOGIC
+// INSTALL BANNER LOGIC (PERSISTENT CLOSE)
 // ============================================================
 function dismissInstallBanner(){
     const b=$('install-banner');
     if(b){
         b.classList.add('hidden');
         b.style.display='none';
-        localStorage.setItem('rt_install_dismissed', 'true');
-        // Fix Height Immediately
+        localStorage.setItem('rt_install_dismissed', 'true'); // Remember permanent close
         setTimeout(fixLayoutHeight, 50);
     }
 }
-
 function checkAndHandleInstallBanner(){
     const b=$('install-banner'); 
     if(!b) return;
-    
-    // Reset display if hidden is removed by JS
+    // If user closed it previously, never show it again.
     if(localStorage.getItem('rt_install_dismissed') === 'true') {
         b.classList.add('hidden'); b.style.display='none'; return;
     }
@@ -649,7 +634,6 @@ function checkAndHandleInstallBanner(){
         b.style.display='none';
     }
 }
-
 let deferredPrompt=null;
 function installApp(){
     if(deferredPrompt){
@@ -668,7 +652,6 @@ function installApp(){
     }
     showToast('📱 Tap share button → "Add to Home Screen"');
 }
-
 window.addEventListener('beforeinstallprompt',function(e){
     e.preventDefault();
     deferredPrompt=e;
@@ -712,10 +695,6 @@ function selectLocation(pin){
     selectedLocation=pin; 
     applyFilters(); 
 }
-
-// ============================================================
-// SEARCH FUNCTIONS FOR FILTER INPUTS (FROM & TO)
-// ============================================================
 function filterFromSearch(){
     const input=$('filter-from'); const suggestions=$('filter-from-suggestions');
     const results=findLocation(input.value);
@@ -728,7 +707,6 @@ function selectFilterFrom(pin){
     $('filter-from-suggestions').classList.remove('show'); 
     applyFilters(); 
 }
-
 function filterToSearch(){
     const input=$('filter-to'); const suggestions=$('filter-to-suggestions');
     const results=findLocation(input.value);
@@ -741,7 +719,6 @@ function selectFilterTo(pin){
     $('filter-to-suggestions').classList.remove('show'); 
     applyFilters(); 
 }
-
 function searchLocationInForm(context){
     const input=$(context+'-input'); const suggestions=$(context+'-suggestions');
     const results=findLocation(input.value);
@@ -750,8 +727,6 @@ function searchLocationInForm(context){
     suggestions.classList.add('show');
 }
 function selectLocationInForm(context,pin){ $(context+'-input').value=getLocationName(pin); $(context+'-hidden').value=pin; $(context+'-suggestions').classList.remove('show'); }
-
-// Close dropdowns when clicking outside
 document.addEventListener('click', function(e) {
     document.querySelectorAll('.suggestions').forEach(s => {
         if(!s.parentElement.contains(e.target)) s.classList.remove('show');
@@ -759,7 +734,7 @@ document.addEventListener('click', function(e) {
 });
 
 // ============================================================
-// CRITICAL: JS HEIGHT CALCULATION (FIXED HEADER / FOOTER)
+// CRITICAL HEIGHT CALCULATION (FIXED BOTTOM NAV)
 // ============================================================
 function fixLayoutHeight(){
     const card=document.querySelector('.card'); 
@@ -768,24 +743,16 @@ function fixLayoutHeight(){
     const scrollBody=document.querySelector('.scroll-body:not(.hidden-page)');
     const header=document.querySelector('.header-fixed:not(.hidden-page)');
     const nav=document.querySelector('.nav-fixed:not(.hidden-page)');
-    // Target the home-top container by ID
-    const topContainer = document.getElementById('home-top'); 
     
     if(!scrollBody||!header||!nav) return;
     
-    let topHeight = header.offsetHeight + 12;
-    
-    // ONLY measure home-top when it is visible on the HOME PAGE
-    if(topContainer && !topContainer.closest('.hidden-page')){
-        // .offsetHeight automatically includes the Install Banner and Guest Banner because they are children!
-        topHeight += topContainer.offsetHeight + 8;
-    }
+    // Uses getBoundingClientRect to get precise pixel positioning dynamic to banners/filters
+    const headerBottom = header.getBoundingClientRect().bottom;
+    const cardTop = card.getBoundingClientRect().top;
+    const topOffset = headerBottom - cardTop;
     
     const navHeight = nav.offsetHeight + 8;
-    
-    // Calculate available height based on total card height
-    // 16 represents the card padding
-    const avail = card.clientHeight - topHeight - navHeight - 16; 
+    const avail = card.clientHeight - topOffset - navHeight - 16; // 16 is card padding
     scrollBody.style.height = Math.max(100, avail) + 'px';
 }
 
@@ -798,6 +765,21 @@ function handleResize(){
 // ============================================================
 // SESSION & AUTH
 // ============================================================
+function updateGuestUI(){
+    const b=$('guest-banner');
+    if(b){
+        // If Guest is active, show banner. If user is logged in, hide it.
+        if(isGuest){
+            b.classList.remove('hidden');
+            b.style.display='flex';
+        } else {
+            b.classList.add('hidden');
+            b.style.display='none';
+        }
+        setTimeout(fixLayoutHeight, 50);
+    }
+}
+
 function continueAsGuest(){
     isGuest=true; 
     localStorage.setItem('rt_user', JSON.stringify({guest: true}));
@@ -814,9 +796,7 @@ function resetForm(){
 function showHome(){
     document.getElementById('login-screen').style.display='none'; 
     document.getElementById('home-page').classList.remove('hidden-page'); 
-    // Hide Guest Banner explicitly on login/register
-    document.getElementById('guest-banner').classList.add('hidden');
-    // IMPORTANT: Layout must be fixed after DOM paints
+    updateGuestUI(); // Ensure guest banner visibility is correct on load
     setTimeout(fixLayoutHeight, 50); 
     renderFeed(); 
     resetLogoutTimer();
@@ -830,6 +810,7 @@ async function registerUser(){
     if(newUser){ 
         currentUser=newUser; 
         localStorage.setItem('rt_user', JSON.stringify({mobile: currentUser.mobile, user: currentUser}));
+        isGuest = false; // Explicitly turn off guest mode
         showHome(); 
     }
 }
@@ -841,13 +822,12 @@ window.submitPin=async function(){
     if(user){ 
         currentUser=user; 
         localStorage.setItem('rt_user', JSON.stringify({mobile: currentUser.mobile, user: currentUser}));
+        isGuest = false; // Explicitly turn off guest mode
         showHome(); 
     } else {
         alert("Incorrect PIN. Please try again.");
     }
 };
-
-// Mobile Auto-detection
 $('mobile').addEventListener('input', function(e) {
     const m = this.value.trim();
     if (m.length === 10) {
@@ -904,7 +884,7 @@ function toggleFilters(){
     filterOpen=!filterOpen; 
     $('filter-container').classList.toggle('open', filterOpen); 
     $('filter-toggle-label').textContent=filterOpen?'🔍 Hide Filters':'🔍 Show Filters'; 
-    // CRITICAL: Force height recalculation immediately when filter opens
+    // Recalculate layout immediately because the visual height has changed
     setTimeout(fixLayoutHeight, 50); 
 }
 function applyFilters(){ renderFeed(); }
@@ -915,25 +895,20 @@ async function renderFeed(){
         const {data:trucks}=await sb.from('active_trucks').select('*').eq('status',1);
         feedItems=[...(loads||[]).map(l=>({type:'LOAD',title:l.material||'Cargo',company:l.company||'',from:l.pickup_pin||'',to:l.drop_pin||'',weight:l.weight||0,vehicle:l.vehicle_type||'',rate:l.rate||0,views:l.views||0,interests:(l.interests||[]).length,shares:l.shares||0,id:l.id})),...(trucks||[]).map(t=>({type:'TRUCK',title:t.truck_no||'Truck',company:t.company_name||'',pin:t.location_pin||'',vehicle:t.vehicle_type||'',rate:t.rate_km||0,views:t.views||0,interests:(t.interested||[]).length,shares:t.share||0,id:t.id}))];
         
-        // Apply Location Filter
         let filtered = [...feedItems];
         if(selectedLocation) {
             filtered = filtered.filter(i => i.from === selectedLocation || i.to === selectedLocation || i.pin === selectedLocation);
         }
-        // Apply Tab Filter
         if(currentTab==='LOAD') filtered=filtered.filter(i=>i.type==='LOAD');
         else if(currentTab==='TRUCK') filtered=filtered.filter(i=>i.type==='TRUCK');
         
-        // Other Filters
         const fromPin=$('filter-from')?.value.trim(); const toPin=$('filter-to')?.value.trim();
         if(fromPin) filtered=filtered.filter(i=>i.from===fromPin); if(toPin) filtered=filtered.filter(i=>i.to===toPin);
         const vehicle=$('filter-vehicle')?.value; if(vehicle&&vehicle!=='ALL') filtered=filtered.filter(i=>i.vehicle&&i.vehicle.toLowerCase().includes(vehicle));
         
         $('results-count').textContent=`Showing ${filtered.length} Records`;
-        
         if(filtered.length===0){ $('feed-container').innerHTML='<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>'; return; }
         
-        // RENDER VISUALLY APPEALING CARDS
         $('feed-container').innerHTML=filtered.map(i=>{
             const badgeClass=i.type==='LOAD'?'load':'truck';
             const titleClass=i.type==='LOAD'?'load-title':'truck-title';
@@ -989,9 +964,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const savedSession = localStorage.getItem('rt_user');
     if (savedSession) {
         const sessionData = JSON.parse(savedSession);
-        if (sessionData.guest) { isGuest = true; currentUser = null; } 
-        else if (sessionData.user) { currentUser = sessionData.user; isGuest = false; }
-        document.getElementById('guest-banner').classList.add('hidden');
+        if (sessionData.guest) { 
+            isGuest = true; currentUser = null; 
+        } else if (sessionData.user) { 
+            currentUser = sessionData.user; isGuest = false; 
+        }
         showHome();
     } else {
         document.getElementById('login-screen').style.display='flex';
