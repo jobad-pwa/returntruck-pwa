@@ -596,14 +596,14 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // ============================================================
-// INSTALL BANNER LOGIC
+// INSTALL BANNER LOGIC (FIXED: NO 'standalone' CHECK)
 // ============================================================
 function dismissInstallBanner(){
     const b=$('install-banner');
     if(b){
         b.classList.add('hidden');
         b.style.display='none';
-        localStorage.setItem('rt_install_dismissed', 'true'); // Remember permanent close
+        localStorage.setItem('rt_install_dismissed', 'true'); 
         setTimeout(fixLayoutHeight, 50);
     }
 }
@@ -615,7 +615,9 @@ function checkAndHandleInstallBanner(){
     if(localStorage.getItem('rt_install_dismissed') === 'true') {
         b.classList.add('hidden'); b.style.display='none'; return;
     }
-    // Removed the standalone check so it always shows on mobile browsers for installation
+    
+    // Note: The critical check 'window.matchMedia(...standalone)' has been REMOVED
+    // so the banner will show on mobile browsers regardless of Vercel's environment.
     const isPWASupported='serviceWorker' in navigator && 'BeforeInstallPromptEvent' in window;
     const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if(isPWASupported||isMobile){
@@ -729,7 +731,7 @@ document.addEventListener('click', function(e) {
 });
 
 // ============================================================
-// FIXED HEIGHT CALCULATION (USING scrollHeight FOR ACCURACY)
+// FIXED HEIGHT CALCULATION
 // ============================================================
 function fixLayoutHeight(){
     const card=document.querySelector('.card'); 
@@ -742,12 +744,7 @@ function fixLayoutHeight(){
     
     if(!scrollBody||!header||!nav||!topContainer) return;
     
-    // Calculate exact available space
-    // Used scrollHeight to measure the actual expanded or collapsed height of the top block
-    const topHeight = topContainer.scrollHeight;
-    
-    const avail = card.clientHeight - header.offsetHeight - topHeight - nav.offsetHeight - 16; 
-    
+    const avail = card.clientHeight - header.offsetHeight - topContainer.scrollHeight - nav.offsetHeight - 16; 
     scrollBody.style.height = Math.max(100, avail) + 'px';
 }
 
@@ -878,7 +875,8 @@ function toggleFilters(){
     filterOpen=!filterOpen; 
     $('filter-container').classList.toggle('open', filterOpen); 
     $('filter-toggle-label').textContent=filterOpen?'🔍 Hide Filters':'🔍 Show Filters'; 
-    setTimeout(fixLayoutHeight, 50); 
+    // FIX: Delay recalculation until CSS animation completes
+    setTimeout(fixLayoutHeight, 350); 
 }
 function applyFilters(){ renderFeed(); }
 
