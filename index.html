@@ -289,7 +289,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 
         <div class="location-row">
             <div class="location-input">
-                <input type="text" id="location-search" placeholder="📍 Location/PIN" oninput="searchLocation()">
+                <input type="text" id="location-search" placeholder="📍 Location/PIN" oninput="loadLocationSuggestions('location')">
                 <div class="location-search-wrapper"><div class="suggestions" id="location-suggestions"></div></div>
             </div>
             <div class="radius-select">
@@ -319,17 +319,17 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div class="filter-container open" id="filter-container">
             <div class="filter-row">
                 <div>
-                    <label>From PIN</label>
+                    <label>📍 From Location</label>
                     <div class="location-input" style="width:100%">
-                        <input type="text" id="filter-from" placeholder="Search PIN, District or State" oninput="searchFilterLocation('from')">
+                        <input type="text" id="filter-from" placeholder="Search PIN, District or State" oninput="loadLocationSuggestions('from')">
                         <div class="location-search-wrapper"><div class="suggestions" id="filter-from-suggestions"></div></div>
                         <input type="hidden" id="filter-from-hidden">
                     </div>
                 </div>
                 <div>
-                    <label>To PIN</label>
+                    <label>📍 To Location</label>
                     <div class="location-input" style="width:100%">
-                        <input type="text" id="filter-to" placeholder="Search PIN, District or State" oninput="searchFilterLocation('to')">
+                        <input type="text" id="filter-to" placeholder="Search PIN, District or State" oninput="loadLocationSuggestions('to')">
                         <div class="location-search-wrapper"><div class="suggestions" id="filter-to-suggestions"></div></div>
                         <input type="hidden" id="filter-to-hidden">
                     </div>
@@ -570,7 +570,7 @@ const STATIC_LOCATIONS = [
 ];
 
 // ============================================================
-// CONFIGURATION
+// CONFIGURATION & STATE
 // ============================================================
 const SUPABASE_URL = 'https://ghjoffovatgvhzxlupef.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
@@ -588,7 +588,7 @@ function $(id){return document.getElementById(id)}
 function showToast(msg){alert(msg)}
 
 // ============================================================
-// SHARED SEARCH FUNCTIONS
+// SHARED SEARCH FUNCTIONS (NO DUPLICATION)
 // ============================================================
 function findLocation(query) {
     const q = query.toLowerCase().trim();
@@ -614,45 +614,57 @@ function getDistance(lat1, lng1, lat2, lng2) {
 }
 
 // ============================================================
-// LOCATION SEARCH (Header)
+// UNIFIED SUGGESTION LOADER (Header, From, To all share this)
 // ============================================================
-function searchLocation(){
-    const input=$('location-search'); const suggestions=$('location-suggestions');
-    const results=findLocation(input.value);
-    if(results.length===0){ suggestions.classList.remove('show'); return; }
-    suggestions.innerHTML=results.map(l=>`<div class="item" onclick="selectLocation('${l.pin}')">${l.name}, ${l.district}, ${l.state} (${l.pin})</div>`).join('');
+function loadLocationSuggestions(context) {
+    let inputId, suggestionsId;
+    
+    if(context === 'location') { inputId = 'location-search'; suggestionsId = 'location-suggestions'; }
+    else if(context === 'from') { inputId = 'filter-from'; suggestionsId = 'filter-from-suggestions'; }
+    else if(context === 'to') { inputId = 'filter-to'; suggestionsId = 'filter-to-suggestions'; }
+    
+    const input = document.getElementById(inputId);
+    const suggestions = document.getElementById(suggestionsId);
+    
+    if(!input || !suggestions) return;
+    
+    const query = input.value;
+    const results = findLocation(query);
+    
+    if(results.length === 0) { suggestions.classList.remove('show'); return; }
+    
+    suggestions.innerHTML = results.map(l => {
+        const displayName = `${l.name}, ${l.district}, ${l.state} (${l.pin})`;
+        const idx = displayName.toLowerCase().indexOf(query.toLowerCase());
+        let html = displayName;
+        if(idx !== -1 && query) {
+            html = displayName.substring(0, idx) + '<span class="highlight">' + displayName.substring(idx, idx + query.length) + '</span>' + displayName.substring(idx + query.length);
+        }
+        return `<div class="item" onclick="selectLocationHelper('${context}','${l.pin}','${l.name}','${l.state}')">${html}</div>`;
+    }).join('');
+    
     suggestions.classList.add('show');
-}
-function selectLocation(pin){ 
-    $('location-search').value=getLocationName(pin); 
-    $('location-suggestions').classList.remove('show'); 
-    selectedLocation=pin; 
-    applyFilters(); 
 }
 
-// ============================================================
-// LOCATION SEARCH (Filter From/To)
-// ============================================================
-function searchFilterLocation(type){
-    const input = document.getElementById('filter-'+type);
-    const suggestions = document.getElementById('filter-'+type+'-suggestions');
-    const results=findLocation(input.value);
-    if(results.length===0){ suggestions.classList.remove('show'); return; }
-    suggestions.innerHTML=results.map(l=>`<div class="item" onclick="selectFilterLocation('${type}','${l.pin}')">${l.name}, ${l.district}, ${l.state} (${l.pin})</div>`).join('');
-    suggestions.classList.add('show');
-}
-function selectFilterLocation(type, pin){
-    const input = document.getElementById('filter-'+type);
-    const hidden = document.getElementById('filter-'+type+'-hidden');
-    const suggestions = document.getElementById('filter-'+type+'-suggestions');
-    input.value = getLocationName(pin);
-    hidden.value = pin;
-    suggestions.classList.remove('show');
+function selectLocationHelper(context, pin, name, state) {
+    let inputId, suggestionsId, hiddenId;
     
-    // Update state
-    if(type === 'from') filterFromLocation = getLocationByPin(pin);
-    if(type === 'to') filterToLocation = getLocationByPin(pin);
+    if(context === 'location') {
+        inputId = 'location-search'; suggestionsId = 'location-suggestions';
+        document.getElementById(inputId).value = `${name}, ${state} (${pin})`;
+        document.getElementById(suggestionsId).classList.remove('show');
+        selectedLocation = pin;
+        applyFilters();
+        return;
+    }
     
+    // For Filters
+    if(context === 'from') { inputId = 'filter-from'; hiddenId = 'filter-from-hidden'; suggestionsId = 'filter-from-suggestions'; filterFromLocation = getLocationByPin(pin); }
+    else if(context === 'to') { inputId = 'filter-to'; hiddenId = 'filter-to-hidden'; suggestionsId = 'filter-to-suggestions'; filterToLocation = getLocationByPin(pin); }
+    
+    document.getElementById(inputId).value = getLocationName(pin);
+    if(hiddenId) document.getElementById(hiddenId).value = pin;
+    document.getElementById(suggestionsId).classList.remove('show');
     applyFilters();
 }
 
@@ -664,7 +676,7 @@ document.addEventListener('click', function(e) {
 });
 
 // ============================================================
-// REUSABLE LOCATION SEARCH FOR FORMS
+// REUSABLE LOCATION SEARCH FOR FORMS (Post Load / Post Truck)
 // ============================================================
 function searchLocationInForm(context){
     const input=$(context+'-input'); const suggestions=$(context+'-suggestions');
