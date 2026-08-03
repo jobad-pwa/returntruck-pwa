@@ -67,7 +67,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .login-divider{display:flex;align-items:center;gap:12px;margin:16px 0}
 
 /* ============================================================
-   HOME UI (MOCKUP DESIGN)
+   HOME UI & FILTERS (FIXED CSS TOGGLE)
    ============================================================ */
 .location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
 .location-row .location-input{flex:2}
@@ -80,7 +80,11 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .type-tabs .inactive{background:transparent;color:#64748b}
 
 .filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:10px;font-weight:600;color:#64748b;border-top:1px solid #e2e8f0;margin-top:4px;user-select:none}
-.filter-container{overflow:hidden;transition:max-height .3s ease;max-height:400px} /* Default to open, no 0 max-height */
+
+/* FIXED CSS TOGGLE LOGIC */
+.filter-container{overflow:hidden;transition:max-height 0.3s ease;max-height:0;} /* Default is Closed */
+.filter-container.open{max-height:400px;} /* Expanded state */
+
 .filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;padding-top:6px}
 .filter-row label{font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
 .filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:11px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;outline:none}
@@ -113,7 +117,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .feed-card .stats-row .val{font-weight:600;color:#475569}
 
 /* ============================================================
-   BANNERS
+   BANNERS (Removed mobile/standalone restrictions)
    ============================================================ */
 .install-banner{flex-shrink:0;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;padding:8px 14px;border-radius:12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;min-height:40px;z-index:11}
 .install-banner .btn-install{background:#fff;color:#2563eb;border:none;padding:6px 16px;border-radius:8px;font-weight:600;font-size:12px;cursor:pointer}
@@ -275,6 +279,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 
     <!-- TOP STATIC BLOCK -->
     <div id="home-top" style="flex-shrink:0; padding-top:0;">
+        <!-- BANNER FORCES SHOW ON DESKTOP FOR TESTING -->
         <div class="install-banner" id="install-banner">
             <span class="text">📲 Install ReturnTruck app</span>
             <div>
@@ -306,10 +311,11 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         </div>
 
         <div class="filter-toggle" onclick="toggleFilters()">
-            <span id="filter-toggle-label">🔍 Hide Filters</span>
-            <span class="arrow" id="filter-arrow">▲</span>
+            <span id="filter-toggle-label">🔍 Show Filters</span>
+            <span class="arrow" id="filter-arrow">▼</span>
         </div>
         
+        <!-- FIXED CSS: Default max-height 0. Open class adds max-height 400px -->
         <div class="filter-container" id="filter-container">
             <div class="filter-row">
                 <div>
@@ -595,7 +601,7 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // ============================================================
-// INSTALL BANNER LOGIC (Added Console Logs for Debugging)
+// INSTALL BANNER LOGIC (SHOWS ON DESKTOP NOW)
 // ============================================================
 function dismissInstallBanner(){
     const b=$('install-banner');
@@ -603,7 +609,6 @@ function dismissInstallBanner(){
         b.classList.add('hidden');
         b.style.display='none';
         localStorage.setItem('rt_install_dismissed', 'true'); 
-        console.log('Install Banner Dismissed by User. Saved to LocalStorage.');
         setTimeout(fixLayoutHeight, 50);
     }
 }
@@ -612,28 +617,23 @@ function checkAndHandleInstallBanner(){
     const b=$('install-banner'); 
     if(!b) return;
     
-    console.log('Checking Install Banner...');
-    
     if(localStorage.getItem('rt_install_dismissed') === 'true') {
-        console.log('Install Banner Hidden: User dismissed it previously.');
         b.classList.add('hidden'); b.style.display='none'; return;
     }
     
+    // REMOVED ALL MOBILE/STANDALONE RESTRICTIONS. It will show on Desktop for testing.
     const isPWASupported='serviceWorker' in navigator && 'BeforeInstallPromptEvent' in window;
-    const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    
-    console.log(`Is PWA Supported? ${isPWASupported}. Is Mobile? ${isMobile}`);
-
-    if(isPWASupported||isMobile){
-        console.log('Install Banner SHOWING.');
+    if(isPWASupported){
         b.classList.remove('hidden');
         b.style.display='flex';
         const btn=$('install-btn');
         if(btn) btn.textContent=deferredPrompt?'📲 Install':'📲 Install';
     } else {
-        console.log('Install Banner Hidden: Not a mobile browser.');
-        b.classList.add('hidden');
-        b.style.display='none';
+        // Fallback to showing anyway if serviceWorker isn't supported, just for visibility
+        b.classList.remove('hidden');
+        b.style.display='flex';
+        const btn=$('install-btn');
+        if(btn) btn.textContent='📲 Install (Desktop)';
     }
 }
 
@@ -658,7 +658,6 @@ function installApp(){
 window.addEventListener('beforeinstallprompt',function(e){
     e.preventDefault();
     deferredPrompt=e;
-    console.log('BeforeInstallPrompt Event triggered!');
     if(localStorage.getItem('rt_install_dismissed') !== 'true'){
         const b=$('install-banner');
         if(b && b.style.display !== 'none'){ 
@@ -879,8 +878,8 @@ function closeDetail(){currentDetailData=null;goHome();}
 // ============================================================
 function setTab(tab){ currentTab=tab; document.querySelectorAll('.type-tabs button').forEach(b=>b.className='inactive'); const map={'ALL':'tab-all','LOAD':'tab-loads','TRUCK':'tab-trucks','AGENT':'tab-agents'}; const el=$(map[tab]); if(el) el.className='active'; renderFeed(); }
 
-// DEFAULT FILTER STATE IS NOW OPEN (TRUE)
-filterOpen = true; 
+// DEFAULT FILTER STATE IS NOW CLOSED
+filterOpen = false; 
 
 function toggleFilters(){ 
     filterOpen = !filterOpen; 
