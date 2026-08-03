@@ -851,12 +851,22 @@ $('pin').addEventListener('keydown', function(e) { if (e.key === 'Enter') { subm
 
 function logout() {
     if(confirm('Are you sure you want to logout?')) {
+        // 1. Immediately remove the keys
         localStorage.removeItem('rt_user');
         localStorage.removeItem('rt_install_dismissed'); 
+        
+        // 2. Update state variables immediately so the app knows it's logged out
         currentUser = null;
         isGuest = false;
         clearTimeout(logoutTimer);
-        resetForm(); 
+
+        // 3. THE CRITICAL FIX:
+        // 'requestAnimationFrame' forces the browser to wait for the next visual paint cycle.
+        // This guarantees the physical localStorage deletion is completed in system memory
+        // BEFORE we load the login screen.
+        requestAnimationFrame(() => {
+            resetForm(); 
+        });
     }
 }
 
