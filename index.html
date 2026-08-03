@@ -274,13 +274,10 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         </div>
     </div>
 
-    <!-- 
-        *********************************************************
-        TOP STATIC BLOCK (BANNERS, SEARCH, TABS, FILTERS) 
-        *********************************************************
-    -->
+    <!-- TOP STATIC BLOCK -->
     <div id="home-top" style="flex-shrink:0; padding-top:0;">
         
+        <!-- Banners placed here so their heights are included in the top section calculation -->
         <div class="install-banner" id="install-banner">
             <span class="text">📲 Install ReturnTruck app</span>
             <div>
@@ -601,7 +598,7 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // ============================================================
-// INSTALL BANNER LOGIC (PERSISTENT CLOSE)
+// INSTALL BANNER LOGIC (PERSISTENT STATE)
 // ============================================================
 function dismissInstallBanner(){
     const b=$('install-banner');
@@ -612,16 +609,21 @@ function dismissInstallBanner(){
         setTimeout(fixLayoutHeight, 50);
     }
 }
+
 function checkAndHandleInstallBanner(){
     const b=$('install-banner'); 
     if(!b) return;
-    // If user closed it previously, never show it again.
+    
+    // 1. If user dismissed it previously, return immediately.
     if(localStorage.getItem('rt_install_dismissed') === 'true') {
         b.classList.add('hidden'); b.style.display='none'; return;
     }
+    // 2. If app is running in standalone mode (installed), hide it.
     if(window.matchMedia('(display-mode: standalone)').matches){
         b.classList.add('hidden'); b.style.display='none'; return;
     }
+    
+    // 3. If on mobile browser, show it.
     const isPWASupported='serviceWorker' in navigator && 'BeforeInstallPromptEvent' in window;
     const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if(isPWASupported||isMobile){
@@ -634,6 +636,7 @@ function checkAndHandleInstallBanner(){
         b.style.display='none';
     }
 }
+
 let deferredPrompt=null;
 function installApp(){
     if(deferredPrompt){
@@ -743,16 +746,14 @@ function fixLayoutHeight(){
     const scrollBody=document.querySelector('.scroll-body:not(.hidden-page)');
     const header=document.querySelector('.header-fixed:not(.hidden-page)');
     const nav=document.querySelector('.nav-fixed:not(.hidden-page)');
+    const topContainer=document.getElementById('home-top'); 
     
-    if(!scrollBody||!header||!nav) return;
+    if(!scrollBody||!header||!nav||!topContainer) return;
     
-    // Uses getBoundingClientRect to get precise pixel positioning dynamic to banners/filters
-    const headerBottom = header.getBoundingClientRect().bottom;
-    const cardTop = card.getBoundingClientRect().top;
-    const topOffset = headerBottom - cardTop;
+    // EXACT MATHEMATICAL CALCULATION
+    // Total Card Height - (Header) - (HomeTop including banners/filters) - (Nav) - (Card Padding 16px)
+    const avail = card.clientHeight - header.offsetHeight - topContainer.offsetHeight - nav.offsetHeight - 16; 
     
-    const navHeight = nav.offsetHeight + 8;
-    const avail = card.clientHeight - topOffset - navHeight - 16; // 16 is card padding
     scrollBody.style.height = Math.max(100, avail) + 'px';
 }
 
@@ -768,7 +769,6 @@ function handleResize(){
 function updateGuestUI(){
     const b=$('guest-banner');
     if(b){
-        // If Guest is active, show banner. If user is logged in, hide it.
         if(isGuest){
             b.classList.remove('hidden');
             b.style.display='flex';
@@ -810,7 +810,7 @@ async function registerUser(){
     if(newUser){ 
         currentUser=newUser; 
         localStorage.setItem('rt_user', JSON.stringify({mobile: currentUser.mobile, user: currentUser}));
-        isGuest = false; // Explicitly turn off guest mode
+        isGuest = false; 
         showHome(); 
     }
 }
@@ -822,7 +822,7 @@ window.submitPin=async function(){
     if(user){ 
         currentUser=user; 
         localStorage.setItem('rt_user', JSON.stringify({mobile: currentUser.mobile, user: currentUser}));
-        isGuest = false; // Explicitly turn off guest mode
+        isGuest = false;
         showHome(); 
     } else {
         alert("Incorrect PIN. Please try again.");
