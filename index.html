@@ -621,7 +621,6 @@ function checkAndHandleInstallBanner(){
         return;
     }
 
-    // CRITICAL FIX: Force reset if logged out
     if (isGuest || !currentUser) {
         localStorage.removeItem('rt_install_dismissed');
         b.classList.remove('hidden');
@@ -749,8 +748,7 @@ document.addEventListener('click', function(e) {
 });
 
 // ============================================================
-// FIXED HEIGHT CALCULATION
-// ============================================================
+// FIXED HEIGHT CALCULATION// ============================================================
 function fixLayoutHeight(){
     const card=document.querySelector('.card'); 
     if(!card) return;
@@ -806,9 +804,16 @@ function showHome(){
     document.getElementById('login-screen').style.display='none'; 
     document.getElementById('home-page').classList.remove('hidden-page'); 
     updateGuestUI(); 
-    setTimeout(fixLayoutHeight, 50); 
-    renderFeed(); 
-    resetLogoutTimer();
+    
+    // THE FIX: Force the browser to fully paint the screen before checking the banner
+    requestAnimationFrame(() => {
+        setTimeout(() => {
+            fixLayoutHeight(); 
+            renderFeed(); 
+            resetLogoutTimer();
+            checkAndHandleInstallBanner(); // Executed ONLY after DOM paint
+        }, 50);
+    });
 }
 
 async function registerUser(){
@@ -987,7 +992,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('login-screen').style.display='flex';
         document.getElementById('home-page').classList.add('hidden-page');
     }
-    checkAndHandleInstallBanner();
 });
 </script>
 </body>
