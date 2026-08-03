@@ -67,7 +67,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .login-divider{display:flex;align-items:center;gap:12px;margin:16px 0}
 
 /* ============================================================
-   HOME UI & FILTERS (DEFAULT CLOSED)
+   HOME UI & FILTERS
    ============================================================ */
 .location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
 .location-row .location-input{flex:2}
@@ -80,8 +80,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .type-tabs .inactive{background:transparent;color:#64748b}
 
 .filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:10px;font-weight:600;color:#64748b;border-top:1px solid #e2e8f0;margin-top:4px;user-select:none}
-.filter-container{overflow:hidden;transition:max-height 0.3s ease;max-height:0;} /* Default is Closed */
-.filter-container.open{max-height:400px;} /* Expanded state */
+.filter-container{overflow:hidden;transition:max-height 0.3s ease;max-height:0;}
+.filter-container.open{max-height:400px;}
 
 .filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;padding-top:6px}
 .filter-row label{font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
@@ -294,8 +294,12 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
             <div class="radius-select">
                 <select id="radius-select" onchange="applyFilters()">
-                    <option value="5">5 KM</option><option value="10">10 KM</option><option value="25">25 KM</option>
-                    <option value="50" selected>50 KM</option><option value="100">100 KM</option><option value="200">200 KM</option>
+                    <option value="5">5 KM</option>
+                    <option value="10">10 KM</option>
+                    <option value="25">25 KM</option>
+                    <option value="50" selected>50 KM</option>
+                    <option value="100">100 KM</option>
+                    <option value="200">200 KM</option>
                 </select>
             </div>
         </div>
@@ -312,21 +316,22 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <span class="arrow open" id="filter-arrow">▲</span>
         </div>
         
-        <!-- Fixed: Hardcoded 'open' class added to start it Open by default -->
         <div class="filter-container open" id="filter-container">
             <div class="filter-row">
                 <div>
                     <label>From PIN</label>
                     <div class="location-input" style="width:100%">
-                        <input type="text" id="filter-from" placeholder="Search PIN, District or State" oninput="filterFromSearch()">
+                        <input type="text" id="filter-from" placeholder="Search PIN, District or State" oninput="searchFilterLocation('from')">
                         <div class="location-search-wrapper"><div class="suggestions" id="filter-from-suggestions"></div></div>
+                        <input type="hidden" id="filter-from-hidden">
                     </div>
                 </div>
                 <div>
                     <label>To PIN</label>
                     <div class="location-input" style="width:100%">
-                        <input type="text" id="filter-to" placeholder="Search PIN, District or State" oninput="filterToSearch()">
+                        <input type="text" id="filter-to" placeholder="Search PIN, District or State" oninput="searchFilterLocation('to')">
                         <div class="location-search-wrapper"><div class="suggestions" id="filter-to-suggestions"></div></div>
+                        <input type="hidden" id="filter-to-hidden">
                     </div>
                 </div>
             </div>
@@ -337,7 +342,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         </div>
 
         <div class="results-count"><span id="results-count">Showing 0 Records</span></div>
-        <!-- Separator Line -->
         <div style="width:100%;height:1px;background:#f1f5f9;margin-top:2px;margin-bottom:4px;flex-shrink:0"></div>
     </div>
 
@@ -536,7 +540,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 
 <script>
 // ============================================================
-// STATIC LOCATION DATA & CONFIG
+// STATIC LOCATION DATA
 // ============================================================
 const STATIC_LOCATIONS = [
   {pin:"110018", name:"Ashok Nagar", district:"NEW DELHI", state:"DH", lat:28.636587, lng:77.094466},
@@ -565,16 +569,111 @@ const STATIC_LOCATIONS = [
   {pin:"700001", name:"KOLKATA", district:"KOLKATA", state:"WB", lat:22.5736, lng:88.3483}
 ];
 
+// ============================================================
+// CONFIGURATION
+// ============================================================
 const SUPABASE_URL = 'https://ghjoffovatgvhzxlupef.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser=null, isGuest=false, currentTab='ALL', feedItems=[], currentDetailData=null;
-let otpTimerInterval=null, currentMobile='', selectedLocation=null, filterOpen=true; // JS default OPEN
+let otpTimerInterval=null, currentMobile='', selectedLocation=null, filterOpen=true;
 let logoutTimer = null;
+
+// Reusable State for Filter Locations
+let filterFromLocation = null;
+let filterToLocation = null;
 
 function $(id){return document.getElementById(id)}
 function showToast(msg){alert(msg)}
+
+// ============================================================
+// SHARED SEARCH FUNCTIONS
+// ============================================================
+function findLocation(query) {
+    const q = query.toLowerCase().trim();
+    if (!q) return [];
+    return STATIC_LOCATIONS.filter(l =>
+        l.name.toLowerCase().includes(q) ||
+        l.pin.includes(q) ||
+        l.district.toLowerCase().includes(q) ||
+        l.state.toLowerCase().includes(q)
+    ).slice(0, 8);
+}
+function getLocationByPin(pin) { return STATIC_LOCATIONS.find(l => l.pin === pin) || null; }
+function getLocationName(pin) {
+    const loc = getLocationByPin(pin);
+    return loc ? `${loc.name}, ${loc.district}, ${loc.state} (${loc.pin})` : pin || 'Unknown';
+}
+function getDistance(lat1, lng1, lat2, lng2) {
+    const R = 6371;
+    const dLat = (lat2-lat1) * Math.PI / 180;
+    const dLng = (lng2-lng1) * Math.PI / 180;
+    const a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ============================================================
+// LOCATION SEARCH (Header)
+// ============================================================
+function searchLocation(){
+    const input=$('location-search'); const suggestions=$('location-suggestions');
+    const results=findLocation(input.value);
+    if(results.length===0){ suggestions.classList.remove('show'); return; }
+    suggestions.innerHTML=results.map(l=>`<div class="item" onclick="selectLocation('${l.pin}')">${l.name}, ${l.district}, ${l.state} (${l.pin})</div>`).join('');
+    suggestions.classList.add('show');
+}
+function selectLocation(pin){ 
+    $('location-search').value=getLocationName(pin); 
+    $('location-suggestions').classList.remove('show'); 
+    selectedLocation=pin; 
+    applyFilters(); 
+}
+
+// ============================================================
+// LOCATION SEARCH (Filter From/To)
+// ============================================================
+function searchFilterLocation(type){
+    const input = document.getElementById('filter-'+type);
+    const suggestions = document.getElementById('filter-'+type+'-suggestions');
+    const results=findLocation(input.value);
+    if(results.length===0){ suggestions.classList.remove('show'); return; }
+    suggestions.innerHTML=results.map(l=>`<div class="item" onclick="selectFilterLocation('${type}','${l.pin}')">${l.name}, ${l.district}, ${l.state} (${l.pin})</div>`).join('');
+    suggestions.classList.add('show');
+}
+function selectFilterLocation(type, pin){
+    const input = document.getElementById('filter-'+type);
+    const hidden = document.getElementById('filter-'+type+'-hidden');
+    const suggestions = document.getElementById('filter-'+type+'-suggestions');
+    input.value = getLocationName(pin);
+    hidden.value = pin;
+    suggestions.classList.remove('show');
+    
+    // Update state
+    if(type === 'from') filterFromLocation = getLocationByPin(pin);
+    if(type === 'to') filterToLocation = getLocationByPin(pin);
+    
+    applyFilters();
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(e) {
+    document.querySelectorAll('.suggestions').forEach(s => {
+        if(!s.parentElement.contains(e.target)) s.classList.remove('show');
+    });
+});
+
+// ============================================================
+// REUSABLE LOCATION SEARCH FOR FORMS
+// ============================================================
+function searchLocationInForm(context){
+    const input=$(context+'-input'); const suggestions=$(context+'-suggestions');
+    const results=findLocation(input.value);
+    if(results.length===0){ suggestions.classList.remove('show'); return; }
+    suggestions.innerHTML=results.map(l=>`<div class="item" onclick="selectLocationInForm('${context}','${l.pin}')">${l.name}, ${l.district}, ${l.state} (${l.pin})</div>`).join('');
+    suggestions.classList.add('show');
+}
+function selectLocationInForm(context,pin){ $(context+'-input').value=getLocationName(pin); $(context+'-hidden').value=pin; $(context+'-suggestions').classList.remove('show'); }
 
 // ============================================================
 // IDLE LOGOUT TIMER (5 MINUTES)
@@ -675,74 +774,6 @@ window.addEventListener('beforeinstallprompt',function(e){
             if(btn) btn.textContent='📲 Install';
         }
     }
-});
-
-// ============================================================
-// LOCATION FUNCTIONS
-// ============================================================
-function findLocation(query) {
-    const q = query.toLowerCase().trim();
-    if (!q) return [];
-    return STATIC_LOCATIONS.filter(l =>
-        l.name.toLowerCase().includes(q) ||
-        l.pin.includes(q) ||
-        l.district.toLowerCase().includes(q) ||
-        l.state.toLowerCase().includes(q)
-    ).slice(0, 8);
-}
-function getLocationName(pin) {
-    const loc = STATIC_LOCATIONS.find(l => l.pin === pin);
-    return loc ? `${loc.name}, ${loc.district}, ${loc.state} (${loc.pin})` : pin || 'Unknown';
-}
-function searchLocation(){
-    const input=$('location-search'); const suggestions=$('location-suggestions');
-    const results=findLocation(input.value);
-    if(results.length===0){ suggestions.classList.remove('show'); return; }
-    suggestions.innerHTML=results.map(l=>`<div class="item" onclick="selectLocation('${l.pin}')">${l.name}, ${l.district}, ${l.state} (${l.pin})</div>`).join('');
-    suggestions.classList.add('show');
-}
-function selectLocation(pin){ 
-    $('location-search').value=getLocationName(pin); 
-    $('location-suggestions').classList.remove('show'); 
-    selectedLocation=pin; 
-    applyFilters(); 
-}
-function filterFromSearch(){
-    const input=$('filter-from'); const suggestions=$('filter-from-suggestions');
-    const results=findLocation(input.value);
-    if(results.length===0){ suggestions.classList.remove('show'); return; }
-    suggestions.innerHTML=results.map(l=>`<div class="item" onclick="selectFilterFrom('${l.pin}')">${l.name}, ${l.district}, ${l.state} (${l.pin})</div>`).join('');
-    suggestions.classList.add('show');
-}
-function selectFilterFrom(pin){ 
-    $('filter-from').value=pin; 
-    $('filter-from-suggestions').classList.remove('show'); 
-    applyFilters(); 
-}
-function filterToSearch(){
-    const input=$('filter-to'); const suggestions=$('filter-to-suggestions');
-    const results=findLocation(input.value);
-    if(results.length===0){ suggestions.classList.remove('show'); return; }
-    suggestions.innerHTML=results.map(l=>`<div class="item" onclick="selectFilterTo('${l.pin}')">${l.name}, ${l.district}, ${l.state} (${l.pin})</div>`).join('');
-    suggestions.classList.add('show');
-}
-function selectFilterTo(pin){ 
-    $('filter-to').value=pin; 
-    $('filter-to-suggestions').classList.remove('show'); 
-    applyFilters(); 
-}
-function searchLocationInForm(context){
-    const input=$(context+'-input'); const suggestions=$(context+'-suggestions');
-    const results=findLocation(input.value);
-    if(results.length===0){ suggestions.classList.remove('show'); return; }
-    suggestions.innerHTML=results.map(l=>`<div class="item" onclick="selectLocationInForm('${context}','${l.pin}')">${l.name}, ${l.district}, ${l.state} (${l.pin})</div>`).join('');
-    suggestions.classList.add('show');
-}
-function selectLocationInForm(context,pin){ $(context+'-input').value=getLocationName(pin); $(context+'-hidden').value=pin; $(context+'-suggestions').classList.remove('show'); }
-document.addEventListener('click', function(e) {
-    document.querySelectorAll('.suggestions').forEach(s => {
-        if(!s.parentElement.contains(e.target)) s.classList.remove('show');
-    });
 });
 
 // ============================================================
@@ -854,22 +885,15 @@ function logout() {
     if(confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('rt_user');
         localStorage.removeItem('rt_install_dismissed');
-        
-        // Instead of resetForm(), we simply reload the page.
-        // The browser takes care of resetting the UI for us.
         window.location.reload(); 
     }
 }
 
 // ============================================================
-// DROPDOWN
+// DROPDOWN & NAV
 // ============================================================
 function toggleDropdown(){document.querySelectorAll('.profile-dropdown').forEach(d=>d.classList.toggle('show'))}
 function closeDropdown(){document.querySelectorAll('.profile-dropdown').forEach(d=>d.classList.remove('show'))}
-
-// ============================================================
-// NAVIGATION
-// ============================================================
 function goHome(){
     ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.toggle('hidden-page',i!=='home-page'));
     document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
@@ -909,19 +933,67 @@ async function renderFeed(){
         feedItems=[...(loads||[]).map(l=>({type:'LOAD',title:l.material||'Cargo',company:l.company||'',from:l.pickup_pin||'',to:l.drop_pin||'',weight:l.weight||0,vehicle:l.vehicle_type||'',rate:l.rate||0,views:l.views||0,interests:(l.interests||[]).length,shares:l.shares||0,id:l.id})),...(trucks||[]).map(t=>({type:'TRUCK',title:t.truck_no||'Truck',company:t.company_name||'',pin:t.location_pin||'',vehicle:t.vehicle_type||'',rate:t.rate_km||0,views:t.views||0,interests:(t.interested||[]).length,shares:t.share||0,id:t.id}))];
         
         let filtered = [...feedItems];
+        
+        // 1. Apply RADIUS FILTER (If a location is selected in the header)
         if(selectedLocation) {
-            filtered = filtered.filter(i => i.from === selectedLocation || i.to === selectedLocation || i.pin === selectedLocation);
+            const centerLoc = getLocationByPin(selectedLocation);
+            const radius = parseInt(document.getElementById('radius-select').value) || 50;
+            
+            if(centerLoc) {
+                filtered = filtered.filter(i => {
+                    let targetLoc = null;
+                    if(i.type === 'LOAD') targetLoc = getLocationByPin(i.from);
+                    if(i.type === 'TRUCK') targetLoc = getLocationByPin(i.pin);
+                    
+                    if(targetLoc && centerLoc) {
+                        return getDistance(centerLoc.lat, centerLoc.lng, targetLoc.lat, targetLoc.lng) <= radius;
+                    }
+                    return false;
+                });
+            }
         }
+        
+        // 2. Apply TAB Filter
         if(currentTab==='LOAD') filtered=filtered.filter(i=>i.type==='LOAD');
         else if(currentTab==='TRUCK') filtered=filtered.filter(i=>i.type==='TRUCK');
         
-        const fromPin=$('filter-from')?.value.trim(); const toPin=$('filter-to')?.value.trim();
-        if(fromPin) filtered=filtered.filter(i=>i.from===fromPin); if(toPin) filtered=filtered.filter(i=>i.to===toPin);
-        const vehicle=$('filter-vehicle')?.value; if(vehicle&&vehicle!=='ALL') filtered=filtered.filter(i=>i.vehicle&&i.vehicle.toLowerCase().includes(vehicle));
+        // 3. Apply FROM/TO Filter with Radius Logic (Using Shared Search)
+        const radius = parseInt(document.getElementById('radius-select').value) || 50;
         
-        $('results-count').textContent=`Showing ${filtered.length} Records`;
+        // Filter FROM
+        if(filterFromLocation) {
+            filtered = filtered.filter(i => {
+                let targetLoc = null;
+                if(i.type === 'LOAD') targetLoc = getLocationByPin(i.from);
+                if(i.type === 'TRUCK') targetLoc = getLocationByPin(i.pin);
+                if(targetLoc && filterFromLocation) {
+                    return getDistance(filterFromLocation.lat, filterFromLocation.lng, targetLoc.lat, targetLoc.lng) <= radius;
+                }
+                return false;
+            });
+        }
+        
+        // Filter TO
+        if(filterToLocation) {
+            filtered = filtered.filter(i => {
+                let targetLoc = null;
+                if(i.type === 'LOAD') targetLoc = getLocationByPin(i.to);
+                if(targetLoc && filterToLocation) {
+                    return getDistance(filterToLocation.lat, filterToLocation.lng, targetLoc.lat, targetLoc.lng) <= radius;
+                }
+                return false;
+            });
+        }
+        
+        // 4. Apply Vehicle/Weight Filters
+        const vehicle=$('filter-vehicle')?.value; 
+        if(vehicle&&vehicle!=='ALL') filtered=filtered.filter(i=>i.vehicle&&i.vehicle.toLowerCase().includes(vehicle));
+        
+        // Update Results Display
+        $('results-count').textContent=`Showing ${filtered.length} Records within ${radius} KM`;
         if(filtered.length===0){ $('feed-container').innerHTML='<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>'; return; }
         
+        // RENDER CARDS
         $('feed-container').innerHTML=filtered.map(i=>{
             const badgeClass=i.type==='LOAD'?'load':'truck';
             const titleClass=i.type==='LOAD'?'load-title':'truck-title';
@@ -954,7 +1026,7 @@ async function renderFeed(){
                 </div>
             </div>`;
         }).join('');
-    }catch(e){ $('feed-container').innerHTML='<div style="padding:30px 0;color:#ef4444;text-align:center">Error loading feed. Check Supabase.</div>'; }
+    }catch(e){ $('feed-container').innerHTML='<div style="padding:30px 0;color:#ef4444;text-align:center">Error loading feed.</div>'; }
 }
 
 // ============================================================
