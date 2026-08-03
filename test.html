@@ -598,7 +598,7 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // ============================================================
-// INSTALL BANNER LOGIC
+// INSTALL BANNER LOGIC (SANITY CHECK IMPLEMENTED)
 // ============================================================
 function dismissInstallBanner(){
     const b=$('install-banner');
@@ -614,10 +614,25 @@ function checkAndHandleInstallBanner(){
     const b=$('install-banner'); 
     if(!b) return;
     
+    // START: SANITY CHECK
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    
+    // If the app is actually installed, reset the memory flag to false and hide the banner.
+    if (isStandalone) {
+        localStorage.setItem('rt_install_dismissed', 'false');
+        b.classList.add('hidden'); 
+        b.style.display='none'; 
+        console.log('PWA Installed. Banner removed.');
+        return;
+    }
+    // END: SANITY CHECK
+
+    // If not installed (Browser Mode), check local storage
     if(localStorage.getItem('rt_install_dismissed') === 'true') {
         b.classList.add('hidden'); b.style.display='none'; return;
     }
     
+    // If not installed and not dismissed, SHOW THE BANNER
     const isPWASupported='serviceWorker' in navigator && 'BeforeInstallPromptEvent' in window;
     if(isPWASupported){
         b.classList.remove('hidden');
@@ -834,7 +849,7 @@ $('pin').addEventListener('keydown', function(e) { if (e.key === 'Enter') { subm
 function logout() {
     if(confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('rt_user');
-        localStorage.removeItem('rt_install_dismissed'); // <--- FIX ADDED HERE
+        localStorage.removeItem('rt_install_dismissed'); 
         currentUser = null;
         isGuest = false;
         clearTimeout(logoutTimer);
