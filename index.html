@@ -69,7 +69,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 /* ============================================================
    HOME UI (MOCKUP DESIGN)
    ============================================================ */
-.home-top{flex-shrink:0;padding-bottom:6px;border-bottom:1px solid #f1f5f9;margin-bottom:6px}
+.home-top{flex-shrink:0;padding-bottom:0px;border-bottom:0px solid #f1f5f9;margin-bottom:0px}
 .location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
 .location-row .location-input{flex:2}
 .location-row .radius-select{flex:1}
@@ -126,7 +126,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .detail-actions button{width:100%;padding:10px;border-radius:10px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:10px}
 .btn-call{background:#16a34a}.btn-contact{background:#2563eb}.btn-bid{background:#8b5cf6}.btn-share{background:#25D366}
 
-/* INSTALL BANNER */
+/* INSTALL & GUEST BANNERS */
 .install-banner{flex-shrink:0;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;padding:8px 14px;border-radius:12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;min-height:40px}
 .install-banner .btn-install{background:#fff;color:#2563eb;border:none;padding:6px 16px;border-radius:8px;font-weight:600;font-size:12px;cursor:pointer}
 .install-banner .btn-close{background:0 0;border:none;color:rgba(255,255,255,.7);font-size:18px;cursor:pointer}
@@ -134,6 +134,9 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .guest-banner{background:#2563eb;color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-shrink:0}
 .guest-banner.hidden{display:none}
 .guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer}
+
+/* ---- IMPORTANT: Bottom Border Line Below Banners ---- */
+.home-top-border{width:100%;height:1px;background:#f1f5f9;margin-top:2px;margin-bottom:6px;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -272,17 +275,25 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         </div>
     </div>
 
-    <div class="install-banner" id="install-banner">
-        <span class="text">📲 Install ReturnTruck app</span>
-        <div>
-            <button class="btn-install" id="install-btn" onclick="installApp()">Install</button>
-            <button class="btn-close" onclick="dismissInstallBanner()">✕</button>
+    <!-- ============================================================
+         TOP STATIC BLOCK
+         CRITICAL: Banners MUST be inside home-top to calculate height!
+         ============================================================ -->
+    <div id="home-top" style="flex-shrink:0; padding-top:0;">
+        
+        <!-- Install Banner -->
+        <div class="install-banner" id="install-banner">
+            <span class="text">📲 Install ReturnTruck app</span>
+            <div>
+                <button class="btn-install" id="install-btn" onclick="installApp()">Install</button>
+                <button class="btn-close" onclick="dismissInstallBanner()">✕</button>
+            </div>
         </div>
-    </div>
 
-    <div id="guest-banner" class="guest-banner hidden"><span>👋 Welcome, Guest!</span><button class="btn-login" onclick="showLogin()">🔐 Login</button></div>
+        <!-- Guest Banner -->
+        <div id="guest-banner" class="guest-banner hidden"><span>👋 Welcome, Guest!</span><button class="btn-login" onclick="showLogin()">🔐 Login</button></div>
 
-    <div class="home-top">
+        <!-- Location Row -->
         <div class="location-row">
             <div class="location-input">
                 <input type="text" id="location-search" placeholder="📍 Location/PIN" oninput="searchLocation()">
@@ -296,6 +307,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
         </div>
 
+        <!-- Tabs -->
         <div class="type-tabs">
             <button id="tab-all" class="active" onclick="setTab('ALL')">All</button>
             <button id="tab-loads" class="inactive" onclick="setTab('LOAD')">Loads</button>
@@ -303,10 +315,13 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <button id="tab-agents" class="inactive" onclick="setTab('AGENT')">Agents</button>
         </div>
 
+        <!-- Filters Toggle -->
         <div class="filter-toggle" onclick="toggleFilters()">
             <span id="filter-toggle-label">🔍 Show Filters</span>
             <span class="arrow" id="filter-arrow">▼</span>
         </div>
+        
+        <!-- Filters Container -->
         <div class="filter-container" id="filter-container">
             <div class="filter-row">
                 <div>
@@ -329,11 +344,16 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <div><label>Weight (Kg)</label><select id="filter-weight" onchange="applyFilters()"><option value="ALL">All</option><option value="0-10000">0-10,000</option><option value="10000-20000">10k-20k</option><option value="20000-30000">20k-30k</option><option value="30000+">30k+</option></select></div>
             </div>
         </div>
+
+        <!-- Results Header & FIXED BOTTOM BORDER -->
         <div class="results-count"><span id="results-count">Showing 0 Records</span></div>
+        <div class="home-top-border"></div>
     </div>
 
+    <!-- 3. Dynamic Scroll Body (Results) -->
     <div class="scroll-body" id="home-scroll-body"><div id="feed-container" class="feed-container"></div></div>
     
+    <!-- 4. Fixed Bottom Nav -->
     <div class="nav-fixed">
         <button class="nav-item active" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
         <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Post Load</span></button>
@@ -561,7 +581,6 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser=null, isGuest=false, currentTab='ALL', feedItems=[], currentDetailData=null;
 let otpTimerInterval=null, currentMobile='', selectedLocation=null, filterOpen=false;
 let logoutTimer = null;
-let dismissInstallFlag = false;
 
 function $(id){return document.getElementById(id)}
 function showToast(msg){alert(msg)} // Fallback Alert
@@ -602,12 +621,16 @@ function dismissInstallBanner(){
         b.classList.add('hidden');
         b.style.display='none';
         localStorage.setItem('rt_install_dismissed', 'true');
+        // Fix Height Immediately
+        setTimeout(fixLayoutHeight, 50);
     }
-    setTimeout(fixLayoutHeight, 50);
 }
 
 function checkAndHandleInstallBanner(){
-    const b=$('install-banner'); if(!b)return;
+    const b=$('install-banner'); 
+    if(!b) return;
+    
+    // Reset display if hidden is removed by JS
     if(localStorage.getItem('rt_install_dismissed') === 'true') {
         b.classList.add('hidden'); b.style.display='none'; return;
     }
@@ -637,6 +660,7 @@ function installApp(){
                 const b=$('install-banner');
                 if(b){ b.classList.add('hidden'); b.style.display='none'; }
                 localStorage.setItem('rt_install_dismissed', 'true');
+                setTimeout(fixLayoutHeight, 50);
             }
             deferredPrompt=null;
         });
@@ -682,7 +706,12 @@ function searchLocation(){
     suggestions.innerHTML=results.map(l=>`<div class="item" onclick="selectLocation('${l.pin}')">${l.name}, ${l.district}, ${l.state} (${l.pin})</div>`).join('');
     suggestions.classList.add('show');
 }
-function selectLocation(pin){ $('location-search').value=getLocationName(pin); $('location-suggestions').classList.remove('show'); selectedLocation=pin; applyFilters(); }
+function selectLocation(pin){ 
+    $('location-search').value=getLocationName(pin); 
+    $('location-suggestions').classList.remove('show'); 
+    selectedLocation=pin; 
+    applyFilters(); 
+}
 
 // ============================================================
 // SEARCH FUNCTIONS FOR FILTER INPUTS (FROM & TO)
@@ -730,29 +759,33 @@ document.addEventListener('click', function(e) {
 });
 
 // ============================================================
-// JS HEIGHT CALCULATION (FIXED HEADER / FOOTER)
+// CRITICAL: JS HEIGHT CALCULATION (FIXED HEADER / FOOTER)
 // ============================================================
 function fixLayoutHeight(){
-    const card=document.querySelector('.card'); if(!card)return;
+    const card=document.querySelector('.card'); 
+    if(!card) return;
+    
     const scrollBody=document.querySelector('.scroll-body:not(.hidden-page)');
     const header=document.querySelector('.header-fixed:not(.hidden-page)');
     const nav=document.querySelector('.nav-fixed:not(.hidden-page)');
-    if(!scrollBody||!header||!nav)return;
+    // Target the home-top container by ID
+    const topContainer = document.getElementById('home-top'); 
+    
+    if(!scrollBody||!header||!nav) return;
     
     let topHeight = header.offsetHeight + 12;
-    const topContainer = document.querySelector('.home-top:not(.hidden-page)');
+    
+    // ONLY measure home-top when it is visible on the HOME PAGE
     if(topContainer && !topContainer.closest('.hidden-page')){
-        // Include the filter height dynamically
-        const filterContainer = document.getElementById('filter-container');
-        let filterHeight = 0;
-        if(filterContainer && filterContainer.classList.contains('open')){
-            filterHeight = filterContainer.scrollHeight;
-        }
-        topHeight += topContainer.offsetHeight + 8 + filterHeight;
+        // .offsetHeight automatically includes the Install Banner and Guest Banner because they are children!
+        topHeight += topContainer.offsetHeight + 8;
     }
+    
     const navHeight = nav.offsetHeight + 8;
+    
     // Calculate available height based on total card height
-    const avail = card.clientHeight - topHeight - navHeight - 16; // 16 is card padding
+    // 16 represents the card padding
+    const avail = card.clientHeight - topHeight - navHeight - 16; 
     scrollBody.style.height = Math.max(100, avail) + 'px';
 }
 
@@ -781,9 +814,11 @@ function resetForm(){
 function showHome(){
     document.getElementById('login-screen').style.display='none'; 
     document.getElementById('home-page').classList.remove('hidden-page'); 
-    // Guest banner is hidden manually when user logs in
+    // Hide Guest Banner explicitly on login/register
     document.getElementById('guest-banner').classList.add('hidden');
-    fixLayoutHeight(); renderFeed(); 
+    // IMPORTANT: Layout must be fixed after DOM paints
+    setTimeout(fixLayoutHeight, 50); 
+    renderFeed(); 
     resetLogoutTimer();
 }
 
@@ -795,8 +830,6 @@ async function registerUser(){
     if(newUser){ 
         currentUser=newUser; 
         localStorage.setItem('rt_user', JSON.stringify({mobile: currentUser.mobile, user: currentUser}));
-        // Hide guest banner explicitly for registered user
-        document.getElementById('guest-banner').classList.add('hidden');
         showHome(); 
     }
 }
@@ -808,8 +841,6 @@ window.submitPin=async function(){
     if(user){ 
         currentUser=user; 
         localStorage.setItem('rt_user', JSON.stringify({mobile: currentUser.mobile, user: currentUser}));
-        // Hide guest banner explicitly for logged in user
-        document.getElementById('guest-banner').classList.add('hidden');
         showHome(); 
     } else {
         alert("Incorrect PIN. Please try again.");
@@ -851,13 +882,13 @@ function goHome(){
     ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.toggle('hidden-page',i!=='home-page'));
     document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
     document.querySelectorAll('.nav-fixed .nav-item')[0].classList.add('active');
-    fixLayoutHeight(); renderFeed(); resetLogoutTimer();
+    setTimeout(fixLayoutHeight, 50); renderFeed(); resetLogoutTimer();
 }
 function switchPage(id, idx){
     ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.toggle('hidden-page',i!==id));
     document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
     document.querySelectorAll('.nav-fixed .nav-item')[idx].classList.add('active');
-    fixLayoutHeight(); resetLogoutTimer();
+    setTimeout(fixLayoutHeight, 50); resetLogoutTimer();
 }
 function goPostLoad(){ if(isGuest||!currentUser){showLogin();return;} switchPage('postload-page',1); }
 function goPostTruck(){ if(isGuest||!currentUser){showLogin();return;} switchPage('posttruck-page',2); }
@@ -873,8 +904,8 @@ function toggleFilters(){
     filterOpen=!filterOpen; 
     $('filter-container').classList.toggle('open', filterOpen); 
     $('filter-toggle-label').textContent=filterOpen?'🔍 Hide Filters':'🔍 Show Filters'; 
-    // Recalculate layout because filters height changed
-    setTimeout(fixLayoutHeight, 350);
+    // CRITICAL: Force height recalculation immediately when filter opens
+    setTimeout(fixLayoutHeight, 50); 
 }
 function applyFilters(){ renderFeed(); }
 
@@ -960,7 +991,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const sessionData = JSON.parse(savedSession);
         if (sessionData.guest) { isGuest = true; currentUser = null; } 
         else if (sessionData.user) { currentUser = sessionData.user; isGuest = false; }
-        // If user is already logged in or guest, hide the guest banner explicitly
         document.getElementById('guest-banner').classList.add('hidden');
         showHome();
     } else {
