@@ -67,7 +67,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .login-divider{display:flex;align-items:center;gap:12px;margin:16px 0}
 
 /* ============================================================
-   HOME UI & FILTERS (FIXED CSS TOGGLE)
+   HOME UI & FILTERS (DEFAULT CLOSED)
    ============================================================ */
 .location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
 .location-row .location-input{flex:2}
@@ -80,8 +80,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .type-tabs .inactive{background:transparent;color:#64748b}
 
 .filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:10px;font-weight:600;color:#64748b;border-top:1px solid #e2e8f0;margin-top:4px;user-select:none}
-
-/* FIXED CSS TOGGLE LOGIC */
 .filter-container{overflow:hidden;transition:max-height 0.3s ease;max-height:0;} /* Default is Closed */
 .filter-container.open{max-height:400px;} /* Expanded state */
 
@@ -117,7 +115,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .feed-card .stats-row .val{font-weight:600;color:#475569}
 
 /* ============================================================
-   BANNERS (Removed mobile/standalone restrictions)
+   BANNERS
    ============================================================ */
 .install-banner{flex-shrink:0;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;padding:8px 14px;border-radius:12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;min-height:40px;z-index:11}
 .install-banner .btn-install{background:#fff;color:#2563eb;border:none;padding:6px 16px;border-radius:8px;font-weight:600;font-size:12px;cursor:pointer}
@@ -279,7 +277,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 
     <!-- TOP STATIC BLOCK -->
     <div id="home-top" style="flex-shrink:0; padding-top:0;">
-        <!-- BANNER FORCES SHOW ON DESKTOP FOR TESTING -->
         <div class="install-banner" id="install-banner">
             <span class="text">📲 Install ReturnTruck app</span>
             <div>
@@ -315,7 +312,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <span class="arrow" id="filter-arrow">▼</span>
         </div>
         
-        <!-- FIXED CSS: Default max-height 0. Open class adds max-height 400px -->
+        <!-- Default max-height 0. Open class adds max-height 400px -->
         <div class="filter-container" id="filter-container">
             <div class="filter-row">
                 <div>
@@ -601,7 +598,7 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // ============================================================
-// INSTALL BANNER LOGIC (SHOWS ON DESKTOP NOW)
+// INSTALL BANNER LOGIC
 // ============================================================
 function dismissInstallBanner(){
     const b=$('install-banner');
@@ -617,11 +614,27 @@ function checkAndHandleInstallBanner(){
     const b=$('install-banner'); 
     if(!b) return;
     
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    if (isStandalone) {
+        b.classList.add('hidden'); 
+        b.style.display='none'; 
+        return;
+    }
+
+    // CRITICAL FIX: Force reset if logged out
+    if (isGuest || !currentUser) {
+        localStorage.removeItem('rt_install_dismissed');
+        b.classList.remove('hidden');
+        b.style.display='flex';
+        return;
+    }
+
     if(localStorage.getItem('rt_install_dismissed') === 'true') {
-        b.classList.add('hidden'); b.style.display='none'; return;
+        b.classList.add('hidden'); 
+        b.style.display='none'; 
+        return;
     }
     
-    // REMOVED ALL MOBILE/STANDALONE RESTRICTIONS. It will show on Desktop for testing.
     const isPWASupported='serviceWorker' in navigator && 'BeforeInstallPromptEvent' in window;
     if(isPWASupported){
         b.classList.remove('hidden');
@@ -629,7 +642,6 @@ function checkAndHandleInstallBanner(){
         const btn=$('install-btn');
         if(btn) btn.textContent=deferredPrompt?'📲 Install':'📲 Install';
     } else {
-        // Fallback to showing anyway if serviceWorker isn't supported, just for visibility
         b.classList.remove('hidden');
         b.style.display='flex';
         const btn=$('install-btn');
@@ -839,10 +851,11 @@ $('pin').addEventListener('keydown', function(e) { if (e.key === 'Enter') { subm
 function logout() {
     if(confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('rt_user');
+        localStorage.removeItem('rt_install_dismissed'); 
         currentUser = null;
         isGuest = false;
         clearTimeout(logoutTimer);
-        resetForm();
+        resetForm(); 
     }
 }
 
@@ -878,15 +891,14 @@ function closeDetail(){currentDetailData=null;goHome();}
 // ============================================================
 function setTab(tab){ currentTab=tab; document.querySelectorAll('.type-tabs button').forEach(b=>b.className='inactive'); const map={'ALL':'tab-all','LOAD':'tab-loads','TRUCK':'tab-trucks','AGENT':'tab-agents'}; const el=$(map[tab]); if(el) el.className='active'; renderFeed(); }
 
-// DEFAULT FILTER STATE IS NOW CLOSED
-filterOpen = false; 
+filterOpen = false; // Default closed
 
 function toggleFilters(){ 
     filterOpen = !filterOpen; 
     $('filter-container').classList.toggle('open', filterOpen); 
     $('filter-toggle-label').textContent=filterOpen?'🔍 Hide Filters':'🔍 Show Filters'; 
     $('filter-arrow').className = filterOpen ? 'arrow open' : 'arrow closed';
-    setTimeout(fixLayoutHeight, 350); // Wait for CSS animation
+    setTimeout(fixLayoutHeight, 350); 
 }
 function applyFilters(){ renderFeed(); }
 
