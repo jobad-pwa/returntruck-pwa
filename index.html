@@ -67,7 +67,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .login-divider{display:flex;align-items:center;gap:12px;margin:16px 0}
 
 /* ============================================================
-   HOME UI & FILTERS (NOW DEFAULT OPEN)
+   HOME UI & FILTERS (DEFAULT CLOSED)
    ============================================================ */
 .location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
 .location-row .location-input{flex:2}
@@ -80,8 +80,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .type-tabs .inactive{background:transparent;color:#64748b}
 
 .filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:10px;font-weight:600;color:#64748b;border-top:1px solid #e2e8f0;margin-top:4px;user-select:none}
-.filter-container{overflow:hidden;transition:max-height 0.3s ease;max-height:400px;} /* Default is OPEN now */
-.filter-container.open{max-height:400px;} /* Stay OPEN */
+.filter-container{overflow:hidden;transition:max-height 0.3s ease;max-height:0;} /* Default is Closed */
+.filter-container.open{max-height:400px;} /* Expanded state */
 
 .filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;padding-top:6px}
 .filter-row label{font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
@@ -312,7 +312,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <span class="arrow open" id="filter-arrow">▲</span>
         </div>
         
-        <div class="filter-container" id="filter-container">
+        <!-- Fixed: Hardcoded 'open' class added to start it Open by default -->
+        <div class="filter-container open" id="filter-container">
             <div class="filter-row">
                 <div>
                     <label>From PIN</label>
@@ -434,7 +435,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     <div class="nav-fixed">
         <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
         <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Post Load</span></button>
-        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Post Truck</span></button>
+        <button class="nav-item active" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Post Truck</span></button>
         <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
     </div>
 </div>
@@ -489,7 +490,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
         <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Post Load</span></button>
         <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Post Truck</span></button>
-        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+        <button class="nav-item active" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
     </div>
 </div>
 
@@ -569,7 +570,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser=null, isGuest=false, currentTab='ALL', feedItems=[], currentDetailData=null;
-let otpTimerInterval=null, currentMobile='', selectedLocation=null, filterOpen=true; // CHANGED DEFAULT TO TRUE
+let otpTimerInterval=null, currentMobile='', selectedLocation=null, filterOpen=true; // JS default OPEN
 let logoutTimer = null;
 
 function $(id){return document.getElementById(id)}
