@@ -147,6 +147,12 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .modal-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:200;border-radius:24px}
 .modal-overlay.show{display:flex}
 .modal-box{background:#fff;border-radius:20px;padding:24px;max-width:340px;width:90%}
+
+/* Install Banner Style */
+.install-banner{flex-shrink:0;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;padding:8px 14px;border-radius:12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;min-height:40px}
+.install-banner .btn-install{background:#fff;color:#2563eb;border:none;padding:6px 16px;border-radius:8px;font-weight:600;font-size:12px;cursor:pointer}
+.install-banner .btn-close{background:0 0;border:none;color:rgba(255,255,255,.7);font-size:18px;cursor:pointer}
+.install-banner.hidden{display:none}
 </style>
 </head>
 <body>
@@ -286,6 +292,17 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
         </div>
     </div>
+
+    <!-- Install Banner (Persistent Dismissal Logic) -->
+    <div class="install-banner" id="install-banner">
+        <span class="text">📲 Install ReturnTruck app</span>
+        <div>
+            <button class="btn-install" id="install-btn" onclick="installApp()">Install</button>
+            <button class="btn-close" onclick="dismissInstallBanner()">✕</button>
+        </div>
+    </div>
+
+    <div id="guest-banner" class="guest-banner hidden"><span>👋 Welcome, Guest!</span><button class="btn-login" onclick="showLogin()">🔐 Login</button></div>
 
     <!-- 2. Top Static UI (Search, Tabs, Filters) -->
     <div class="home-top">
@@ -568,12 +585,106 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser=null, isGuest=false, currentTab='ALL', feedItems=[], currentDetailData=null;
 let otpTimerInterval=null, currentMobile='', selectedLocation=null, filterOpen=false;
+let logoutTimer = null;
+let dismissInstallFlag = false;
 
 function $(id){return document.getElementById(id)}
 function showToast(msg){alert(msg)} // Fallback Alert
 
 // ============================================================
-// LOCATION FUNCTIONS (UPDATED TO SEARCH DISTRICT & STATE)
+// IDLE LOGOUT TIMER (5 MINUTES)
+// ============================================================
+function resetLogoutTimer() {
+    if (logoutTimer) clearTimeout(logoutTimer);
+    if (!currentUser && !isGuest) return;
+    logoutTimer = setTimeout(() => {
+        if (currentUser || isGuest) {
+            alert("You have been automatically logged out due to 5 minutes of inactivity.");
+            logout();
+        }
+    }, 5 * 60 * 1000);
+}
+
+// Listen to browser activity
+document.addEventListener('click', resetLogoutTimer);
+document.addEventListener('keydown', resetLogoutTimer);
+document.addEventListener('touchstart', resetLogoutTimer);
+document.addEventListener('scroll', resetLogoutTimer);
+
+// Listen to tab visibility change
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+        resetLogoutTimer();
+    }
+});
+
+// ============================================================
+// INSTALL BANNER LOGIC
+// ============================================================
+function dismissInstallBanner(){
+    const b=$('install-banner');
+    if(b){
+        b.classList.add('hidden');
+        b.style.display='none';
+        localStorage.setItem('rt_install_dismissed', 'true');
+    }
+    setTimeout(fixLayoutHeight, 50);
+}
+
+function checkAndHandleInstallBanner(){
+    const b=$('install-banner'); if(!b)return;
+    if(localStorage.getItem('rt_install_dismissed') === 'true') {
+        b.classList.add('hidden'); b.style.display='none'; return;
+    }
+    if(window.matchMedia('(display-mode: standalone)').matches){
+        b.classList.add('hidden'); b.style.display='none'; return;
+    }
+    const isPWASupported='serviceWorker' in navigator && 'BeforeInstallPromptEvent' in window;
+    const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if(isPWASupported||isMobile){
+        b.classList.remove('hidden');
+        b.style.display='flex';
+        const btn=$('install-btn');
+        if(btn) btn.textContent=deferredPrompt?'📲 Install':'📲 Install';
+    } else {
+        b.classList.add('hidden');
+        b.style.display='none';
+    }
+}
+
+let deferredPrompt=null;
+function installApp(){
+    if(deferredPrompt){
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(function(r){
+            if(r.outcome==='accepted'){
+                showToast('✅ App installed!');
+                const b=$('install-banner');
+                if(b){ b.classList.add('hidden'); b.style.display='none'; }
+                localStorage.setItem('rt_install_dismissed', 'true');
+            }
+            deferredPrompt=null;
+        });
+        return;
+    }
+    showToast('📱 Tap share button → "Add to Home Screen"');
+}
+
+window.addEventListener('beforeinstallprompt',function(e){
+    e.preventDefault();
+    deferredPrompt=e;
+    if(!window.matchMedia('(display-mode: standalone)').matches && localStorage.getItem('rt_install_dismissed') !== 'true'){
+        const b=$('install-banner');
+        if(b && b.style.display !== 'none'){ 
+            b.classList.remove('hidden'); b.style.display='flex'; 
+            const btn=$('install-btn');
+            if(btn) btn.textContent='📲 Install';
+        }
+    }
+});
+
+// ============================================================
+// LOCATION FUNCTIONS
 // ============================================================
 function findLocation(query) {
     const q = query.toLowerCase().trim();
@@ -652,31 +763,53 @@ function fixLayoutHeight(){
     const header=document.querySelector('.header-fixed:not(.hidden-page)');
     const nav=document.querySelector('.nav-fixed:not(.hidden-page)');
     if(!scrollBody||!header||!nav)return;
+    
     let topHeight = header.offsetHeight + 12;
     const topContainer = document.querySelector('.home-top:not(.hidden-page)');
-    if(topContainer && !topContainer.closest('.hidden-page')) topHeight += topContainer.offsetHeight + 8;
+    if(topContainer && !topContainer.closest('.hidden-page')){
+        // Include the filter height dynamically
+        const filterContainer = document.getElementById('filter-container');
+        let filterHeight = 0;
+        if(filterContainer && filterContainer.classList.contains('open')){
+            filterHeight = filterContainer.scrollHeight;
+        }
+        topHeight += topContainer.offsetHeight + 8 + filterHeight;
+    }
     const navHeight = nav.offsetHeight + 8;
     // Calculate available height based on total card height
     const avail = card.clientHeight - topHeight - navHeight - 16; // 16 is card padding
     scrollBody.style.height = Math.max(100, avail) + 'px';
 }
-let resizeTimer; function handleResize(){ clearTimeout(resizeTimer); resizeTimer=setTimeout(fixLayoutHeight, 200); }
+
+let resizeTimer; 
+function handleResize(){ 
+    clearTimeout(resizeTimer); 
+    resizeTimer=setTimeout(fixLayoutHeight, 200); 
+}
 
 // ============================================================
 // SESSION & AUTH
 // ============================================================
-function continueAsGuest(){isGuest=true; localStorage.setItem('rt_user', JSON.stringify({guest: true})); showHome(); }
+function continueAsGuest(){
+    isGuest=true; 
+    localStorage.setItem('rt_user', JSON.stringify({guest: true}));
+    showHome(); 
+}
 function showLogin(){resetForm(); $('mobile').focus();}
 function resetForm(){
     ['step2','step3','step4'].forEach(i=>$(i).classList.add('hidden')); 
     $('step1').classList.remove('hidden'); 
     document.getElementById('login-screen').style.display='flex'; 
     ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.add('hidden-page')); 
+    clearTimeout(logoutTimer);
 }
 function showHome(){
     document.getElementById('login-screen').style.display='none'; 
     document.getElementById('home-page').classList.remove('hidden-page'); 
+    // Guest banner is hidden manually when user logs in
+    document.getElementById('guest-banner').classList.add('hidden');
     fixLayoutHeight(); renderFeed(); 
+    resetLogoutTimer();
 }
 
 async function registerUser(){
@@ -687,6 +820,8 @@ async function registerUser(){
     if(newUser){ 
         currentUser=newUser; 
         localStorage.setItem('rt_user', JSON.stringify({mobile: currentUser.mobile, user: currentUser}));
+        // Hide guest banner explicitly for registered user
+        document.getElementById('guest-banner').classList.add('hidden');
         showHome(); 
     }
 }
@@ -698,6 +833,8 @@ window.submitPin=async function(){
     if(user){ 
         currentUser=user; 
         localStorage.setItem('rt_user', JSON.stringify({mobile: currentUser.mobile, user: currentUser}));
+        // Hide guest banner explicitly for logged in user
+        document.getElementById('guest-banner').classList.add('hidden');
         showHome(); 
     } else {
         alert("Incorrect PIN. Please try again.");
@@ -721,6 +858,7 @@ function logout() {
         localStorage.removeItem('rt_user');
         currentUser = null;
         isGuest = false;
+        clearTimeout(logoutTimer);
         resetForm();
     }
 }
@@ -738,17 +876,17 @@ function goHome(){
     ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.toggle('hidden-page',i!=='home-page'));
     document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
     document.querySelectorAll('.nav-fixed .nav-item')[0].classList.add('active');
-    fixLayoutHeight(); renderFeed();
+    fixLayoutHeight(); renderFeed(); resetLogoutTimer();
 }
 function switchPage(id, idx){
     ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.toggle('hidden-page',i!==id));
     document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
     document.querySelectorAll('.nav-fixed .nav-item')[idx].classList.add('active');
-    fixLayoutHeight();
+    fixLayoutHeight(); resetLogoutTimer();
 }
 function goPostLoad(){ if(isGuest||!currentUser){showLogin();return;} switchPage('postload-page',1); }
 function goPostTruck(){ if(isGuest||!currentUser){showLogin();return;} switchPage('posttruck-page',2); }
-function goToProfile(){ if(isGuest||!currentUser){showLogin();return;} switchPage('profile-page',3); loadProfile(); }
+function goToProfile(){ if(isGuest||!currentUser){showLogin();return;} switchPage('profile-page',3); loadProfile(); resetLogoutTimer();}
 function cancelPost(){goHome();}
 function closeDetail(){currentDetailData=null;goHome();}
 
@@ -756,7 +894,13 @@ function closeDetail(){currentDetailData=null;goHome();}
 // TABS, FILTERS & FEED
 // ============================================================
 function setTab(tab){ currentTab=tab; document.querySelectorAll('.type-tabs button').forEach(b=>b.className='inactive'); const map={'ALL':'tab-all','LOAD':'tab-loads','TRUCK':'tab-trucks','AGENT':'tab-agents'}; const el=$(map[tab]); if(el) el.className='active'; renderFeed(); }
-function toggleFilters(){ filterOpen=!filterOpen; $('filter-container').classList.toggle('open', filterOpen); $('filter-toggle-label').textContent=filterOpen?'🔍 Hide Filters':'🔍 Show Filters'; }
+function toggleFilters(){ 
+    filterOpen=!filterOpen; 
+    $('filter-container').classList.toggle('open', filterOpen); 
+    $('filter-toggle-label').textContent=filterOpen?'🔍 Hide Filters':'🔍 Show Filters'; 
+    // Recalculate layout because filters height changed
+    setTimeout(fixLayoutHeight, 350);
+}
 function applyFilters(){ renderFeed(); }
 
 async function renderFeed(){
@@ -841,11 +985,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const sessionData = JSON.parse(savedSession);
         if (sessionData.guest) { isGuest = true; currentUser = null; } 
         else if (sessionData.user) { currentUser = sessionData.user; isGuest = false; }
+        // If user is already logged in or guest, hide the guest banner explicitly
+        document.getElementById('guest-banner').classList.add('hidden');
         showHome();
     } else {
         document.getElementById('login-screen').style.display='flex';
         document.getElementById('home-page').classList.add('hidden-page');
     }
+    checkAndHandleInstallBanner();
 });
 </script>
 </body>
