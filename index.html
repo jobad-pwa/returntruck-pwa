@@ -892,7 +892,7 @@ function closeDetail(){currentDetailData=null;goHome();}
 // ============================================================
 function setTab(tab){ currentTab=tab; document.querySelectorAll('.type-tabs button').forEach(b=>b.className='inactive'); const map={'ALL':'tab-all','LOAD':'tab-loads','TRUCK':'tab-trucks','AGENT':'tab-agents'}; const el=$(map[tab]); if(el) el.className='active'; renderFeed(); }
 
-filterOpen = false; // Default closed
+filterOpen = true; // Default open
 
 function toggleFilters(){ 
     filterOpen = !filterOpen; 
