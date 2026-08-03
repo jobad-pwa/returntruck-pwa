@@ -80,8 +80,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .type-tabs .inactive{background:transparent;color:#64748b}
 
 .filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:10px;font-weight:600;color:#64748b;border-top:1px solid #e2e8f0;margin-top:4px;user-select:none}
-.filter-container{overflow:hidden;transition:max-height .3s ease;max-height:0}
-.filter-container.open{max-height:400px}
+.filter-container{overflow:hidden;transition:max-height .3s ease;max-height:400px} /* Default to open, no 0 max-height */
 .filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;padding-top:6px}
 .filter-row label{font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
 .filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:11px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;outline:none}
@@ -307,8 +306,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         </div>
 
         <div class="filter-toggle" onclick="toggleFilters()">
-            <span id="filter-toggle-label">🔍 Show Filters</span>
-            <span class="arrow" id="filter-arrow">▼</span>
+            <span id="filter-toggle-label">🔍 Hide Filters</span>
+            <span class="arrow" id="filter-arrow">▲</span>
         </div>
         
         <div class="filter-container" id="filter-container">
@@ -596,7 +595,7 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // ============================================================
-// INSTALL BANNER LOGIC (FIXED: NO 'standalone' CHECK)
+// INSTALL BANNER LOGIC (Added Console Logs for Debugging)
 // ============================================================
 function dismissInstallBanner(){
     const b=$('install-banner');
@@ -604,6 +603,7 @@ function dismissInstallBanner(){
         b.classList.add('hidden');
         b.style.display='none';
         localStorage.setItem('rt_install_dismissed', 'true'); 
+        console.log('Install Banner Dismissed by User. Saved to LocalStorage.');
         setTimeout(fixLayoutHeight, 50);
     }
 }
@@ -612,20 +612,26 @@ function checkAndHandleInstallBanner(){
     const b=$('install-banner'); 
     if(!b) return;
     
+    console.log('Checking Install Banner...');
+    
     if(localStorage.getItem('rt_install_dismissed') === 'true') {
+        console.log('Install Banner Hidden: User dismissed it previously.');
         b.classList.add('hidden'); b.style.display='none'; return;
     }
     
-    // Note: The critical check 'window.matchMedia(...standalone)' has been REMOVED
-    // so the banner will show on mobile browsers regardless of Vercel's environment.
     const isPWASupported='serviceWorker' in navigator && 'BeforeInstallPromptEvent' in window;
     const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    
+    console.log(`Is PWA Supported? ${isPWASupported}. Is Mobile? ${isMobile}`);
+
     if(isPWASupported||isMobile){
+        console.log('Install Banner SHOWING.');
         b.classList.remove('hidden');
         b.style.display='flex';
         const btn=$('install-btn');
         if(btn) btn.textContent=deferredPrompt?'📲 Install':'📲 Install';
     } else {
+        console.log('Install Banner Hidden: Not a mobile browser.');
         b.classList.add('hidden');
         b.style.display='none';
     }
@@ -652,6 +658,7 @@ function installApp(){
 window.addEventListener('beforeinstallprompt',function(e){
     e.preventDefault();
     deferredPrompt=e;
+    console.log('BeforeInstallPrompt Event triggered!');
     if(localStorage.getItem('rt_install_dismissed') !== 'true'){
         const b=$('install-banner');
         if(b && b.style.display !== 'none'){ 
@@ -871,12 +878,16 @@ function closeDetail(){currentDetailData=null;goHome();}
 // TABS, FILTERS & FEED
 // ============================================================
 function setTab(tab){ currentTab=tab; document.querySelectorAll('.type-tabs button').forEach(b=>b.className='inactive'); const map={'ALL':'tab-all','LOAD':'tab-loads','TRUCK':'tab-trucks','AGENT':'tab-agents'}; const el=$(map[tab]); if(el) el.className='active'; renderFeed(); }
+
+// DEFAULT FILTER STATE IS NOW OPEN (TRUE)
+filterOpen = true; 
+
 function toggleFilters(){ 
-    filterOpen=!filterOpen; 
+    filterOpen = !filterOpen; 
     $('filter-container').classList.toggle('open', filterOpen); 
     $('filter-toggle-label').textContent=filterOpen?'🔍 Hide Filters':'🔍 Show Filters'; 
-    // FIX: Delay recalculation until CSS animation completes
-    setTimeout(fixLayoutHeight, 350); 
+    $('filter-arrow').className = filterOpen ? 'arrow open' : 'arrow closed';
+    setTimeout(fixLayoutHeight, 350); // Wait for CSS animation
 }
 function applyFilters(){ renderFeed(); }
 
