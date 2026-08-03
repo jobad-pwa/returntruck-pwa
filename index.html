@@ -8,7 +8,7 @@
 
 <style>
 /* ============================================================
-   RESET
+   RESET & LAYOUT
    ============================================================ */
 *{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
 body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
@@ -17,17 +17,14 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .hidden{display:none !important}
 
 /* ============================================================
-   FIXED HEADER & NAV (USING JS HEIGHT CALC)
+   FIXED AREAS (HEADER & NAV)
    ============================================================ */
 .header-fixed{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #f1f5f9;background:#fff;z-index:10;width:100%;min-height:50px}
-
-/* Updated Logo CSS using new SVG */
 .logo{font-size:22px;font-weight:900;color:#2563eb;cursor:pointer;display:flex;align-items:center}
 .logo-svg{height:40px;width:auto;margin-right:6px;display:block}
-
 .header-right{display:flex;align-items:center;gap:8px;position:relative}
 
-/* AVATAR */
+/* AVATAR & DROPDOWN */
 .avatar-btn{width:36px;height:36px;border-radius:50%;border:2px solid #e2e8f0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;background:#94a3b8;transition:all .2s}
 .avatar-btn.guest{background:#64748b}
 .profile-dropdown{position:absolute;top:45px;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:160px;z-index:100;display:none}
@@ -37,7 +34,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .dropdown-divider{height:1px;background:#e2e8f0;margin:4px 12px}
 
 /* ============================================================
-   BOTTOM NAV (FIXED VIA JS)
+   BOTTOM NAV (FIXED)
    ============================================================ */
 .nav-fixed{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e2e8f0;background:#fff;position:relative;z-index:10;min-height:65px;width:100%;padding-bottom:5px}
 .nav-item{display:flex;flex-direction:column;align-items:center;color:#94a3b8;font-size:9px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px}
@@ -53,7 +50,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .scroll-body::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
 
 /* ============================================================
-   LOGIN
+   LOGIN SCREEN
    ============================================================ */
 #login-screen{display:flex;flex-direction:column;height:100%;width:100%;overflow-y:auto;padding:4px 0}
 .login-stats-container{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:12px;margin-bottom:16px;border:1px solid #bfdbfe}
@@ -73,20 +70,16 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
    HOME UI (MOCKUP DESIGN)
    ============================================================ */
 .home-top{flex-shrink:0;padding-bottom:6px;border-bottom:1px solid #f1f5f9;margin-bottom:6px}
-
-/* Location Input & Radius Row */
 .location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
 .location-row .location-input{flex:2}
 .location-row .radius-select{flex:1}
 .location-input input,.radius-select select{width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;background:#fff}
 
-/* Tabs */
 .type-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;background:#e2e8f0;padding:3px;border-radius:10px;margin-bottom:6px}
 .type-tabs button{padding:6px 4px;font-size:11px;font-weight:700;border:none;border-radius:8px;cursor:pointer}
 .type-tabs .active{background:#fff;color:#1e293b}
 .type-tabs .inactive{background:transparent;color:#64748b}
 
-/* Filters Toggle & Container */
 .filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:10px;font-weight:600;color:#64748b;border-top:1px solid #e2e8f0;margin-top:4px;user-select:none}
 .filter-container{overflow:hidden;transition:max-height .3s ease;max-height:0}
 .filter-container.open{max-height:400px}
@@ -94,7 +87,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .filter-row label{font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
 .filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:11px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;outline:none}
 
-/* Search Autocomplete */
 .location-search-wrapper{position:relative;width:100%}
 .location-search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:50;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
 .location-search-wrapper .suggestions.show{display:block}
@@ -102,38 +94,28 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .location-search-wrapper .suggestions .item:hover{background:#f8fafc}
 .location-search-wrapper .suggestions .item .highlight{background:#dbeafe;font-weight:600}
 
-/* Results Header */
 .results-count{display:flex;justify-content:space-between;padding-bottom:4px;margin-bottom:6px;font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
 
 /* ============================================================
-   FEED CARDS (VISUALLY APPEALING)
+   FEED CARDS
    ============================================================ */
 .feed-container{display:flex;flex-direction:column;gap:10px}
 .feed-card{border:1px solid #e2e8f0;border-radius:12px;padding:12px;cursor:pointer;background:#fff;transition:all .2s}
 .feed-card:hover{border-color:#3b82f6;background:#f8faff}
-
-/* Load / Truck Title Row */
 .feed-card .header-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
 .feed-card .title{font-weight:700;font-size:15px;color:#0f172a;flex:1}
 .feed-card .type-badge{flex-shrink:0;font-size:8px;padding:2px 8px;border-radius:4px;font-weight:700;text-transform:uppercase}
 .feed-card .type-badge.load{background:#dbeafe;color:#1e40af}
 .feed-card .type-badge.truck{background:#dcfce7;color:#166534}
-
-/* Company and Sub details */
 .feed-card .company{font-size:12px;color:#2563eb;font-weight:600;margin-bottom:2px}
-
-/* Meta Data Rows */
 .feed-card .meta{font-size:11px;color:#475569;margin-top:3px;display:flex;align-items:center;gap:4px}
 .feed-card .meta .sep{color:#d1d5db;margin:0 4px}
-.feed-card .meta .highlight{color:#2563eb;font-weight:500}
-
-/* Stats Row (Views, Interests, etc) */
 .feed-card .stats-row{margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9;display:flex;gap:12px;font-size:10px;color:#94a3b8}
 .feed-card .stats-row span{display:flex;align-items:center;gap:3px}
 .feed-card .stats-row .val{font-weight:600;color:#475569}
 
 /* ============================================================
-   PROFILE & DETAILS
+   OTHER FORMS & PROFILES
    ============================================================ */
 .profile-header-card{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:12px;padding:16px;color:#fff;margin-bottom:16px}
 .profile-section{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px}
@@ -144,15 +126,14 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .detail-actions button{width:100%;padding:10px;border-radius:10px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:10px}
 .btn-call{background:#16a34a}.btn-contact{background:#2563eb}.btn-bid{background:#8b5cf6}.btn-share{background:#25D366}
 
-.modal-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:200;border-radius:24px}
-.modal-overlay.show{display:flex}
-.modal-box{background:#fff;border-radius:20px;padding:24px;max-width:340px;width:90%}
-
-/* Install Banner Style */
+/* INSTALL BANNER */
 .install-banner{flex-shrink:0;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;padding:8px 14px;border-radius:12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;min-height:40px}
 .install-banner .btn-install{background:#fff;color:#2563eb;border:none;padding:6px 16px;border-radius:8px;font-weight:600;font-size:12px;cursor:pointer}
 .install-banner .btn-close{background:0 0;border:none;color:rgba(255,255,255,.7);font-size:18px;cursor:pointer}
 .install-banner.hidden{display:none}
+.guest-banner{background:#2563eb;color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-shrink:0}
+.guest-banner.hidden{display:none}
+.guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer}
 </style>
 </head>
 <body>
@@ -162,7 +143,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
      LOGIN SCREEN
      ============================================================ -->
 <div id="login-screen">
-    <!-- PERFECTLY RECREATED SVG LOGO -->
     <div class="logo" style="font-size:32px;font-weight:900;color:#2563eb;text-align:center;margin-bottom:4px;justify-content:center">
         <svg class="logo-svg" style="height:48px;" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="50" cy="48" r="50" fill="#ffffff"/>
@@ -256,10 +236,9 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 </div>
 
 <!-- ============================================================
-     HOME PAGE (MOCKUP DESIGN)
+     HOME PAGE
      ============================================================ -->
 <div id="home-page" class="hidden-page">
-    <!-- 1. Fixed Header -->
     <div class="header-fixed">
         <div class="logo" onclick="goHome()">
             <svg class="logo-svg" style="height:38px;" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -293,7 +272,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         </div>
     </div>
 
-    <!-- Install Banner (Persistent Dismissal Logic) -->
     <div class="install-banner" id="install-banner">
         <span class="text">📲 Install ReturnTruck app</span>
         <div>
@@ -304,7 +282,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 
     <div id="guest-banner" class="guest-banner hidden"><span>👋 Welcome, Guest!</span><button class="btn-login" onclick="showLogin()">🔐 Login</button></div>
 
-    <!-- 2. Top Static UI (Search, Tabs, Filters) -->
     <div class="home-top">
         <div class="location-row">
             <div class="location-input">
@@ -355,10 +332,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div class="results-count"><span id="results-count">Showing 0 Records</span></div>
     </div>
 
-    <!-- 3. Dynamic Scroll Body (Results) -->
     <div class="scroll-body" id="home-scroll-body"><div id="feed-container" class="feed-container"></div></div>
     
-    <!-- 4. Fixed Bottom Nav -->
     <div class="nav-fixed">
         <button class="nav-item active" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
         <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Post Load</span></button>
@@ -710,7 +685,7 @@ function searchLocation(){
 function selectLocation(pin){ $('location-search').value=getLocationName(pin); $('location-suggestions').classList.remove('show'); selectedLocation=pin; applyFilters(); }
 
 // ============================================================
-// NEW: SEARCH FUNCTIONS FOR FILTER INPUTS (FROM & TO)
+// SEARCH FUNCTIONS FOR FILTER INPUTS (FROM & TO)
 // ============================================================
 function filterFromSearch(){
     const input=$('filter-from'); const suggestions=$('filter-from-suggestions');
