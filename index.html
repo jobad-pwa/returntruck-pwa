@@ -156,37 +156,24 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
      LOGIN SCREEN
      ============================================================ -->
 <div id="login-screen">
-    <!-- PERFECTLY RECREATED SVG LOGO (Circular, Navy Arrows, Teal Truck, Text) -->
+    <!-- PERFECTLY RECREATED SVG LOGO -->
     <div class="logo" style="font-size:32px;font-weight:900;color:#2563eb;text-align:center;margin-bottom:4px;justify-content:center">
         <svg class="logo-svg" style="height:48px;" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- White Circle Background -->
             <circle cx="50" cy="48" r="50" fill="#ffffff"/>
-            
-            <!-- Top Navy Return Arrow -->
             <path d="M45 36 C45 36 57 34 67 36 C75 40 79 46 79 48 C79 54 75 58 65 58 L20 58" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
             <path d="M75 50 L80 42 L85 50" fill="#0f2b53"/>
-            
-            <!-- Bottom Navy Return Arrow -->
             <path d="M55 62 C55 62 43 64 33 62 C25 58 21 52 21 50 C21 44 25 40 35 40 L80 40" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
             <path d="M25 48 L20 56 L15 48" fill="#0f2b53"/>
-
-            <!-- Teal Truck Body -->
             <path d="M45 58 L50 40 L78 40 L78 50 L65 50 L60 58 Z" fill="#429b9d"/>
             <path d="M50 40 L41 40 L32 42 L31 58 L45 58 Z" fill="#429b9d"/>
-            <!-- Truck Window -->
             <rect x="37" y="44" width="7" height="6" rx="1" fill="#ffffff"/>
-            
-            <!-- Truck Wheels -->
             <circle cx="43" cy="59" r="4" fill="#0f2b53"/>
             <circle cx="43" cy="59" r="1.8" fill="#e2e8f0"/>
             <circle cx="56" cy="59" r="4" fill="#0f2b53"/>
             <circle cx="56" cy="59" r="1.8" fill="#e2e8f0"/>
             <circle cx="68" cy="59" r="4" fill="#0f2b53"/>
             <circle cx="68" cy="59" r="1.8" fill="#e2e8f0"/>
-
-            <!-- RETURN Text -->
             <text x="50" y="82" font-family="Arial, sans-serif" font-weight="900" font-size="12" fill="#0f2b53" text-anchor="middle" letter-spacing="1">RETURN</text>
-            <!-- TRUCK Text -->
             <text x="50" y="95" font-family="Arial, sans-serif" font-weight="900" font-size="10" fill="#0f2b53" text-anchor="middle" letter-spacing="1">TRUCK</text>
         </svg>
         ReturnTruck
@@ -268,7 +255,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 <div id="home-page" class="hidden-page">
     <!-- 1. Fixed Header -->
     <div class="header-fixed">
-        <!-- PERFECTLY RECREATED SVG LOGO -->
         <div class="logo" onclick="goHome()">
             <svg class="logo-svg" style="height:38px;" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="50" cy="48" r="50" fill="#ffffff"/>
@@ -329,8 +315,20 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         </div>
         <div class="filter-container" id="filter-container">
             <div class="filter-row">
-                <div><label>From PIN</label><input type="text" id="filter-from" placeholder="e.g. 500001" oninput="applyFilters()"></div>
-                <div><label>To PIN</label><input type="text" id="filter-to" placeholder="e.g. 533401" oninput="applyFilters()"></div>
+                <div>
+                    <label>From PIN</label>
+                    <div class="location-input" style="width:100%">
+                        <input type="text" id="filter-from" placeholder="Search PIN, District or State" oninput="filterFromSearch()">
+                        <div class="location-search-wrapper"><div class="suggestions" id="filter-from-suggestions"></div></div>
+                    </div>
+                </div>
+                <div>
+                    <label>To PIN</label>
+                    <div class="location-input" style="width:100%">
+                        <input type="text" id="filter-to" placeholder="Search PIN, District or State" oninput="filterToSearch()">
+                        <div class="location-search-wrapper"><div class="suggestions" id="filter-to-suggestions"></div></div>
+                    </div>
+                </div>
             </div>
             <div class="filter-row">
                 <div><label>Vehicle Type</label><select id="filter-vehicle" onchange="applyFilters()"><option value="ALL">All</option><option value="highbed">Highbed 40x8x8</option><option value="lowbed">Lowbed 40x10x10</option><option value="container">Container 22x8x8</option><option value="odc">ODC</option></select></div>
@@ -599,6 +597,36 @@ function searchLocation(){
     suggestions.classList.add('show');
 }
 function selectLocation(pin){ $('location-search').value=getLocationName(pin); $('location-suggestions').classList.remove('show'); selectedLocation=pin; applyFilters(); }
+
+// ============================================================
+// NEW: SEARCH FUNCTIONS FOR FILTER INPUTS (FROM & TO)
+// ============================================================
+function filterFromSearch(){
+    const input=$('filter-from'); const suggestions=$('filter-from-suggestions');
+    const results=findLocation(input.value);
+    if(results.length===0){ suggestions.classList.remove('show'); return; }
+    suggestions.innerHTML=results.map(l=>`<div class="item" onclick="selectFilterFrom('${l.pin}')">${l.name}, ${l.district}, ${l.state} (${l.pin})</div>`).join('');
+    suggestions.classList.add('show');
+}
+function selectFilterFrom(pin){ 
+    $('filter-from').value=pin; 
+    $('filter-from-suggestions').classList.remove('show'); 
+    applyFilters(); 
+}
+
+function filterToSearch(){
+    const input=$('filter-to'); const suggestions=$('filter-to-suggestions');
+    const results=findLocation(input.value);
+    if(results.length===0){ suggestions.classList.remove('show'); return; }
+    suggestions.innerHTML=results.map(l=>`<div class="item" onclick="selectFilterTo('${l.pin}')">${l.name}, ${l.district}, ${l.state} (${l.pin})</div>`).join('');
+    suggestions.classList.add('show');
+}
+function selectFilterTo(pin){ 
+    $('filter-to').value=pin; 
+    $('filter-to-suggestions').classList.remove('show'); 
+    applyFilters(); 
+}
+
 function searchLocationInForm(context){
     const input=$(context+'-input'); const suggestions=$(context+'-suggestions');
     const results=findLocation(input.value);
@@ -607,6 +635,13 @@ function searchLocationInForm(context){
     suggestions.classList.add('show');
 }
 function selectLocationInForm(context,pin){ $(context+'-input').value=getLocationName(pin); $(context+'-hidden').value=pin; $(context+'-suggestions').classList.remove('show'); }
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(e) {
+    document.querySelectorAll('.suggestions').forEach(s => {
+        if(!s.parentElement.contains(e.target)) s.classList.remove('show');
+    });
+});
 
 // ============================================================
 // JS HEIGHT CALCULATION (FIXED HEADER / FOOTER)
