@@ -312,7 +312,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <span class="arrow" id="filter-arrow">▼</span>
         </div>
         
-        <!-- Default max-height 0. Open class adds max-height 400px -->
         <div class="filter-container" id="filter-container">
             <div class="filter-row">
                 <div>
@@ -606,7 +605,6 @@ function dismissInstallBanner(){
         b.classList.add('hidden');
         b.style.display='none';
         localStorage.setItem('rt_install_dismissed', 'true'); 
-        setTimeout(fixLayoutHeight, 50);
     }
 }
 
@@ -658,7 +656,6 @@ function installApp(){
                 const b=$('install-banner');
                 if(b){ b.classList.add('hidden'); b.style.display='none'; }
                 localStorage.setItem('rt_install_dismissed', 'true');
-                setTimeout(fixLayoutHeight, 50);
             }
             deferredPrompt=null;
         });
@@ -805,13 +802,12 @@ function showHome(){
     document.getElementById('home-page').classList.remove('hidden-page'); 
     updateGuestUI(); 
     
-    // THE FIX: Force the browser to fully paint the screen before checking the banner
     requestAnimationFrame(() => {
         setTimeout(() => {
             fixLayoutHeight(); 
             renderFeed(); 
             resetLogoutTimer();
-            checkAndHandleInstallBanner(); // Executed ONLY after DOM paint
+            // REMOVED: checkAndHandleInstallBanner() duplicate call
         }, 50);
     });
 }
@@ -992,6 +988,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('login-screen').style.display='flex';
         document.getElementById('home-page').classList.add('hidden-page');
     }
+    checkAndHandleInstallBanner();
 });
 </script>
 </body>
