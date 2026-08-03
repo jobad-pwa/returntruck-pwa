@@ -598,7 +598,7 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // ============================================================
-// INSTALL BANNER LOGIC
+// INSTALL BANNER LOGIC (THE DEFINITIVE FIX)
 // ============================================================
 function dismissInstallBanner(){
     const b=$('install-banner');
@@ -614,16 +614,28 @@ function checkAndHandleInstallBanner(){
     const b=$('install-banner'); 
     if(!b) return;
     
+    // 1. If the app is actually installed, completely ignore the banner logic
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
     if (isStandalone) {
-        localStorage.setItem('rt_install_dismissed', 'false');
         b.classList.add('hidden'); 
         b.style.display='none'; 
         return;
     }
 
+    // 2. CRITICAL FIX: If the user is not logged in, force delete the flag and show the banner.
+    // This overrides the race condition created by resetForm()
+    if (isGuest || !currentUser) {
+        localStorage.removeItem('rt_install_dismissed');
+        b.classList.remove('hidden');
+        b.style.display='flex';
+        return;
+    }
+
+    // 3. Standard logic for logged in users
     if(localStorage.getItem('rt_install_dismissed') === 'true') {
-        b.classList.add('hidden'); b.style.display='none'; return;
+        b.classList.add('hidden'); 
+        b.style.display='none'; 
+        return;
     }
     
     const isPWASupported='serviceWorker' in navigator && 'BeforeInstallPromptEvent' in window;
@@ -842,14 +854,11 @@ $('pin').addEventListener('keydown', function(e) { if (e.key === 'Enter') { subm
 function logout() {
     if(confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('rt_user');
-        localStorage.removeItem('rt_install_dismissed'); 
+        localStorage.removeItem('rt_install_dismissed'); // Clean wipe here
         currentUser = null;
         isGuest = false;
         clearTimeout(logoutTimer);
-        // FIX: Delay resetForm to allow localStorage deletion to settle before login screen re-initializes
-        setTimeout(() => {
-            resetForm();
-        }, 250);
+        resetForm(); // This resets the UI, but checkAndHandleInstallBanner will now force the flag to delete.
     }
 }
 
