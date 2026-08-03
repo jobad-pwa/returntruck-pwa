@@ -116,7 +116,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 /* ============================================================
    BANNERS
    ============================================================ */
-.install-banner{flex-shrink:0;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;padding:8px 14px;border-radius:12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;min-height:40px}
+.install-banner{flex-shrink:0;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;padding:8px 14px;border-radius:12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;min-height:40px;z-index:11}
 .install-banner .btn-install{background:#fff;color:#2563eb;border:none;padding:6px 16px;border-radius:8px;font-weight:600;font-size:12px;cursor:pointer}
 .install-banner .btn-close{background:0 0;border:none;color:rgba(255,255,255,.7);font-size:18px;cursor:pointer}
 .install-banner.hidden{display:none}
@@ -276,8 +276,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 
     <!-- TOP STATIC BLOCK -->
     <div id="home-top" style="flex-shrink:0; padding-top:0;">
-        
-        <!-- Banners placed here so their heights are included in the top section calculation -->
         <div class="install-banner" id="install-banner">
             <span class="text">📲 Install ReturnTruck app</span>
             <div>
@@ -598,7 +596,7 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // ============================================================
-// INSTALL BANNER LOGIC (PERSISTENT STATE)
+// INSTALL BANNER LOGIC
 // ============================================================
 function dismissInstallBanner(){
     const b=$('install-banner');
@@ -614,16 +612,10 @@ function checkAndHandleInstallBanner(){
     const b=$('install-banner'); 
     if(!b) return;
     
-    // 1. If user dismissed it previously, return immediately.
     if(localStorage.getItem('rt_install_dismissed') === 'true') {
         b.classList.add('hidden'); b.style.display='none'; return;
     }
-    // 2. If app is running in standalone mode (installed), hide it.
-    if(window.matchMedia('(display-mode: standalone)').matches){
-        b.classList.add('hidden'); b.style.display='none'; return;
-    }
-    
-    // 3. If on mobile browser, show it.
+    // Removed the standalone check so it always shows on mobile browsers for installation
     const isPWASupported='serviceWorker' in navigator && 'BeforeInstallPromptEvent' in window;
     const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if(isPWASupported||isMobile){
@@ -658,7 +650,7 @@ function installApp(){
 window.addEventListener('beforeinstallprompt',function(e){
     e.preventDefault();
     deferredPrompt=e;
-    if(!window.matchMedia('(display-mode: standalone)').matches && localStorage.getItem('rt_install_dismissed') !== 'true'){
+    if(localStorage.getItem('rt_install_dismissed') !== 'true'){
         const b=$('install-banner');
         if(b && b.style.display !== 'none'){ 
             b.classList.remove('hidden'); b.style.display='flex'; 
@@ -737,7 +729,7 @@ document.addEventListener('click', function(e) {
 });
 
 // ============================================================
-// CRITICAL HEIGHT CALCULATION (FIXED BOTTOM NAV)
+// FIXED HEIGHT CALCULATION (USING scrollHeight FOR ACCURACY)
 // ============================================================
 function fixLayoutHeight(){
     const card=document.querySelector('.card'); 
@@ -750,9 +742,11 @@ function fixLayoutHeight(){
     
     if(!scrollBody||!header||!nav||!topContainer) return;
     
-    // EXACT MATHEMATICAL CALCULATION
-    // Total Card Height - (Header) - (HomeTop including banners/filters) - (Nav) - (Card Padding 16px)
-    const avail = card.clientHeight - header.offsetHeight - topContainer.offsetHeight - nav.offsetHeight - 16; 
+    // Calculate exact available space
+    // Used scrollHeight to measure the actual expanded or collapsed height of the top block
+    const topHeight = topContainer.scrollHeight;
+    
+    const avail = card.clientHeight - header.offsetHeight - topHeight - nav.offsetHeight - 16; 
     
     scrollBody.style.height = Math.max(100, avail) + 'px';
 }
@@ -796,7 +790,7 @@ function resetForm(){
 function showHome(){
     document.getElementById('login-screen').style.display='none'; 
     document.getElementById('home-page').classList.remove('hidden-page'); 
-    updateGuestUI(); // Ensure guest banner visibility is correct on load
+    updateGuestUI(); 
     setTimeout(fixLayoutHeight, 50); 
     renderFeed(); 
     resetLogoutTimer();
@@ -884,7 +878,6 @@ function toggleFilters(){
     filterOpen=!filterOpen; 
     $('filter-container').classList.toggle('open', filterOpen); 
     $('filter-toggle-label').textContent=filterOpen?'🔍 Hide Filters':'🔍 Show Filters'; 
-    // Recalculate layout immediately because the visual height has changed
     setTimeout(fixLayoutHeight, 50); 
 }
 function applyFilters(){ renderFeed(); }
