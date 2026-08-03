@@ -3,167 +3,974 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ReturnTruck - Install Test</title>
+<title>ReturnTruck - Find Loads & Trucks</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-/* Minimal reset for testing */
-body{font-family:system-ui,sans-serif;background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
-.card{max-width:420px;width:100%;background:#fff;border-radius:24px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);display:flex;flex-direction:column;position:relative;min-height:600px}
-h1{color:#2563eb;text-align:center}
-p{color:#475569;text-align:center;margin-bottom:20px}
+/* ============================================================
+   RESET & LAYOUT
+   ============================================================ */
+*{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
+body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
+.card{max-width:420px;width:100%;background:#fff;border-radius:24px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);display:flex;flex-direction:column;height:95vh;max-height:800px;position:relative;overflow:hidden}
+.hidden-page{display:none !important}
+.hidden{display:none !important}
 
-/* BANNER LOGIC TESTING */
-.install-banner{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;padding:12px 16px;border-radius:12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+/* ============================================================
+   FIXED AREAS (HEADER & NAV)
+   ============================================================ */
+.header-fixed{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #f1f5f9;background:#fff;z-index:10;width:100%;min-height:50px}
+.logo{font-size:22px;font-weight:900;color:#2563eb;cursor:pointer;display:flex;align-items:center}
+.logo-svg{height:40px;width:auto;margin-right:6px;display:block}
+.header-right{display:flex;align-items:center;gap:8px;position:relative}
+
+/* AVATAR & DROPDOWN */
+.avatar-btn{width:36px;height:36px;border-radius:50%;border:2px solid #e2e8f0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;background:#94a3b8;transition:all .2s}
+.avatar-btn.guest{background:#64748b}
+.profile-dropdown{position:absolute;top:45px;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:160px;z-index:100;display:none}
+.profile-dropdown.show{display:block}
+.dropdown-item{padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:#1e293b;cursor:pointer;border:none;background:transparent;width:100%}
+.dropdown-item:hover{background:#f8fafc}
+.dropdown-divider{height:1px;background:#e2e8f0;margin:4px 12px}
+
+/* ============================================================
+   BOTTOM NAV (FIXED)
+   ============================================================ */
+.nav-fixed{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e2e8f0;background:#fff;position:relative;z-index:10;min-height:65px;width:100%;padding-bottom:5px}
+.nav-item{display:flex;flex-direction:column;align-items:center;color:#94a3b8;font-size:9px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px}
+.nav-item.active{color:#2563eb}
+.nav-item .icon{font-size:22px;margin-bottom:2px}
+.nav-item .label{font-size:9px;text-transform:uppercase;letter-spacing:.05em}
+
+/* ============================================================
+   SCROLL BODY (JS CALCULATES HEIGHT)
+   ============================================================ */
+.scroll-body{overflow-y:auto;padding:8px 0;-webkit-overflow-scrolling:touch;display:block;width:100%}
+.scroll-body::-webkit-scrollbar{width:4px}
+.scroll-body::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
+
+/* ============================================================
+   LOGIN SCREEN
+   ============================================================ */
+#login-screen{display:flex;flex-direction:column;height:100%;width:100%;overflow-y:auto;padding:4px 0}
+.login-stats-container{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:12px;margin-bottom:16px;border:1px solid #bfdbfe}
+.login-stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
+.login-stat-item{text-align:center}
+.login-stat-item .number{font-size:18px;font-weight:800;color:#1d4ed8;display:block;line-height:1.2}
+.login-stat-item .label{font-size:8px;font-weight:600;color:#475569;display:block;text-transform:uppercase}
+.login-step-container{flex:1;display:flex;flex-direction:column;justify-content:center}
+.input-field{width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;background:#fff;margin-bottom:12px}
+.input-field:focus{border-color:#2563eb;outline:none}
+.btn-primary{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px}
+.btn-primary:hover{background:#1d4ed8}
+.btn-back{width:100%;padding:14px;background:#6b7280;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer}
+.login-divider{display:flex;align-items:center;gap:12px;margin:16px 0}
+
+/* ============================================================
+   HOME UI & FILTERS (DEFAULT CLOSED)
+   ============================================================ */
+.location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.location-row .location-input{flex:2}
+.location-row .radius-select{flex:1}
+.location-input input,.radius-select select{width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;background:#fff}
+
+.type-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;background:#e2e8f0;padding:3px;border-radius:10px;margin-bottom:6px}
+.type-tabs button{padding:6px 4px;font-size:11px;font-weight:700;border:none;border-radius:8px;cursor:pointer}
+.type-tabs .active{background:#fff;color:#1e293b}
+.type-tabs .inactive{background:transparent;color:#64748b}
+
+.filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:10px;font-weight:600;color:#64748b;border-top:1px solid #e2e8f0;margin-top:4px;user-select:none}
+.filter-container{overflow:hidden;transition:max-height 0.3s ease;max-height:0;} /* Default is Closed */
+.filter-container.open{max-height:400px;} /* Expanded state */
+
+.filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;padding-top:6px}
+.filter-row label{font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
+.filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:11px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;outline:none}
+
+.location-search-wrapper{position:relative;width:100%}
+.location-search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:50;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.location-search-wrapper .suggestions.show{display:block}
+.location-search-wrapper .suggestions .item{padding:10px 16px;font-size:13px;color:#1e293b;cursor:pointer}
+.location-search-wrapper .suggestions .item:hover{background:#f8fafc}
+.location-search-wrapper .suggestions .item .highlight{background:#dbeafe;font-weight:600}
+
+.results-count{display:flex;justify-content:space-between;padding-bottom:4px;margin-bottom:6px;font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
+
+/* ============================================================
+   FEED CARDS
+   ============================================================ */
+.feed-container{display:flex;flex-direction:column;gap:10px}
+.feed-card{border:1px solid #e2e8f0;border-radius:12px;padding:12px;cursor:pointer;background:#fff;transition:all .2s}
+.feed-card:hover{border-color:#3b82f6;background:#f8faff}
+.feed-card .header-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+.feed-card .title{font-weight:700;font-size:15px;color:#0f172a;flex:1}
+.feed-card .type-badge{flex-shrink:0;font-size:8px;padding:2px 8px;border-radius:4px;font-weight:700;text-transform:uppercase}
+.feed-card .type-badge.load{background:#dbeafe;color:#1e40af}
+.feed-card .type-badge.truck{background:#dcfce7;color:#166534}
+.feed-card .company{font-size:12px;color:#2563eb;font-weight:600;margin-bottom:2px}
+.feed-card .meta{font-size:11px;color:#475569;margin-top:3px;display:flex;align-items:center;gap:4px}
+.feed-card .meta .sep{color:#d1d5db;margin:0 4px}
+.feed-card .stats-row{margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9;display:flex;gap:12px;font-size:10px;color:#94a3b8}
+.feed-card .stats-row span{display:flex;align-items:center;gap:3px}
+.feed-card .stats-row .val{font-weight:600;color:#475569}
+
+/* ============================================================
+   BANNERS
+   ============================================================ */
+.install-banner{flex-shrink:0;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;padding:8px 14px;border-radius:12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;min-height:40px;z-index:11}
 .install-banner .btn-install{background:#fff;color:#2563eb;border:none;padding:6px 16px;border-radius:8px;font-weight:600;font-size:12px;cursor:pointer}
-.install-banner .btn-close{background:transparent;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0 8px}
-.install-banner.hidden{display:none !important}
+.install-banner .btn-close{background:0 0;border:none;color:rgba(255,255,255,.7);font-size:18px;cursor:pointer}
+.install-banner.hidden{display:none}
 
-/* Status Dashboard */
-.status-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-top:20px}
-.status-box h3{font-size:14px;margin:0 0 10px 0;color:#1e293b}
-.status-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:13px}
-.status-row:last-child{border-bottom:none}
-.status-val{font-weight:600}
-.pass{color:#16a34a}
-.fail{color:#dc2626}
+.guest-banner{flex-shrink:0;background:#2563eb;color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.guest-banner.hidden{display:none}
+.guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer}
+
+/* ============================================================
+   OTHER FORMS & PROFILES
+   ============================================================ */
+.profile-header-card{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:12px;padding:16px;color:#fff;margin-bottom:16px}
+.profile-section{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px}
+.section-btn{padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer}
+.form-control{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;background:#fff;outline:none}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.detail-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:12px}
+.detail-actions button{width:100%;padding:10px;border-radius:10px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:10px}
+.btn-call{background:#16a34a}.btn-contact{background:#2563eb}.btn-bid{background:#8b5cf6}.btn-share{background:#25D366}
 </style>
 </head>
 <body>
+<div class="card" id="app-card">
 
-<div class="card">
-    <h1>🚚 Install Test</h1>
-    <p>Testing standalone PWA install logic.</p>
+<!-- ============================================================
+     LOGIN SCREEN
+     ============================================================ -->
+<div id="login-screen">
+    <div class="logo" style="font-size:32px;font-weight:900;color:#2563eb;text-align:center;margin-bottom:4px;justify-content:center">
+        <svg class="logo-svg" style="height:48px;" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="48" r="50" fill="#ffffff"/>
+            <path d="M45 36 C45 36 57 34 67 36 C75 40 79 46 79 48 C79 54 75 58 65 58 L20 58" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
+            <path d="M75 50 L80 42 L85 50" fill="#0f2b53"/>
+            <path d="M55 62 C55 62 43 64 33 62 C25 58 21 52 21 50 C21 44 25 40 35 40 L80 40" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
+            <path d="M25 48 L20 56 L15 48" fill="#0f2b53"/>
+            <path d="M45 58 L50 40 L78 40 L78 50 L65 50 L60 58 Z" fill="#429b9d"/>
+            <path d="M50 40 L41 40 L32 42 L31 58 L45 58 Z" fill="#429b9d"/>
+            <rect x="37" y="44" width="7" height="6" rx="1" fill="#ffffff"/>
+            <circle cx="43" cy="59" r="4" fill="#0f2b53"/>
+            <circle cx="43" cy="59" r="1.8" fill="#e2e8f0"/>
+            <circle cx="56" cy="59" r="4" fill="#0f2b53"/>
+            <circle cx="56" cy="59" r="1.8" fill="#e2e8f0"/>
+            <circle cx="68" cy="59" r="4" fill="#0f2b53"/>
+            <circle cx="68" cy="59" r="1.8" fill="#e2e8f0"/>
+            <text x="50" y="82" font-family="Arial, sans-serif" font-weight="900" font-size="12" fill="#0f2b53" text-anchor="middle" letter-spacing="1">RETURN</text>
+            <text x="50" y="95" font-family="Arial, sans-serif" font-weight="900" font-size="10" fill="#0f2b53" text-anchor="middle" letter-spacing="1">TRUCK</text>
+        </svg>
+        ReturnTruck
+    </div>
+    <div style="font-size:13px;color:#64748b;text-align:center;margin-bottom:16px">Find Loads • Post Trucks • Connect Agents</div>
 
-    <!-- ============================================================
-         THE INSTALL BANNER (DEPLOYED ON ALL PAGES)
-         ============================================================ -->
-    <div class="install-banner" id="install-banner">
-        <span>📲 Install ReturnTruck app</span>
-        <div>
-            <button class="btn-install" id="install-btn" onclick="installApp()">Install</button>
-            <button class="btn-close" onclick="dismissInstallBanner()">✕</button>
+    <div class="login-stats-container">
+        <div class="login-stats-grid" style="margin-bottom:6px">
+            <div class="login-stat-item"><span style="font-size:16px">📦</span><span class="number">0</span><span class="label">Load Givers</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">🚛</span><span class="number">0</span><span class="label">Fleet Ops</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">🤝</span><span class="number">0</span><span class="label">Agents</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">👤</span><span class="number">0</span><span class="label">Users</span></div>
+        </div>
+        <div class="login-stats-grid">
+            <div class="login-stat-item"><span style="font-size:16px">🚚</span><span class="number">0</span><span class="label">Trucks</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">📊</span><span class="number">0</span><span class="label">Loads</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">📱</span><span class="number">0</span><span class="label">Visits</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">⭐</span><span class="number">4.8</span><span class="label">Rating</span></div>
         </div>
     </div>
 
-    <!-- ============================================================
-         STATUS DASHBOARD (FOR TESTING VERIFICATION)
-         ============================================================ -->
-    <div class="status-box">
-        <h3>🛠️ Current State Verification</h3>
-        
-        <div class="status-row">
-            <span>1. Banner Visually Hidden?</span>
-            <span class="status-val" id="test-visual">Checking...</span>
-        </div>
-        
-        <div class="status-row">
-            <span>2. Dismissed Memory (LocalStorage)?</span>
-            <span class="status-val" id="test-memory">Checking...</span>
+    <div class="login-step-container">
+        <div id="step1">
+            <input type="tel" id="mobile" class="input-field" placeholder="Enter Mobile Number" maxlength="10" autofocus>
+            <div id="mobile-status" style="font-size:12px;color:#94a3b8;text-align:center;margin-top:4px"></div>
+            <div class="login-divider"><div style="flex:1;height:1px;background:#e2e8f0"></div><span style="font-size:10px;color:#94a3b8">or continue as</span><div style="flex:1;height:1px;background:#e2e8f0"></div></div>
+            <button style="width:100%;padding:12px;border:1.5px solid #8b5cf6;border-radius:12px;font-size:14px;font-weight:600;color:#8b5cf6;background:transparent;cursor:pointer" onclick="continueAsGuest()">👤 Guest</button>
         </div>
 
-        <div class="status-row">
-            <span>3. Standalone Mode (Installed)?</span>
-            <span class="status-val" id="test-standalone">Checking...</span>
+        <div id="step2" class="hidden">
+            <div style="text-align:center;margin-bottom:16px">
+                <div id="display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
+                <div style="font-size:14px;font-weight:500;color:#475569">Enter your 4-digit PIN</div>
+            </div>
+            <input type="password" id="pin" class="input-field" style="letter-spacing:4px;" placeholder="Enter 4-digit PIN" maxlength="4">
+            <div style="font-size:12px;text-align:center;margin-bottom:12px;color:#64748b">Forgot PIN? <span style="color:#2563eb;cursor:pointer;font-weight:600" onclick="resetPIN()">Reset PIN</span></div>
+            <button onclick="submitPin()" id="submitBtn" class="btn-primary" style="background:#16a34a">🔐 Login</button>
+            <button onclick="resetForm()" class="btn-back">← Change Number</button>
         </div>
 
-        <div class="status-row">
-            <span>4. BeforeInstallPrompt Triggered?</span>
-            <span class="status-val" id="test-prompt">Waiting...</span>
+        <div id="step3" class="hidden">
+            <div style="text-align:center;margin-bottom:16px">
+                <div id="wa-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
+                <div style="font-size:13px;color:#64748b">Enter OTP sent via WhatsApp</div>
+            </div>
+            <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
+                <input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
+                <input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
+                <input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
+                <input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
+                <input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
+                <input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
+            </div>
+            <div style="text-align:center;font-size:13px;color:#64748b;margin-bottom:12px">⏳ <span id="otp-timer">5:00</span></div>
+            <button onclick="verifyOTP()" id="verify-btn" class="btn-primary" style="background:#16a34a">✅ Verify</button>
+            <button onclick="resetForm()" class="btn-back">← Change Number</button>
+        </div>
+
+        <div id="step4" class="hidden">
+            <div style="text-align:center;margin-bottom:16px">
+                <div id="reg-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
+                <div style="font-size:13px;color:#64748b">Set your 4-digit PIN for login</div>
+            </div>
+            <input type="password" id="reg-pin" class="input-field" placeholder="New PIN (4 digits)" maxlength="4">
+            <input type="password" id="reg-pin-confirm" class="input-field" placeholder="Confirm PIN" maxlength="4">
+            <button onclick="registerUser()" id="register-btn" class="btn-primary" style="background:#16a34a">✅ Create Account</button>
+            <button onclick="resetForm()" class="btn-back">← Change Number</button>
         </div>
     </div>
+    <div style="flex-shrink:0;background:#fef3c7;border-left:4px solid #f59e0b;border-radius:8px;padding:12px 16px;margin-top:12px;font-size:10px;color:#92400e;line-height:1.5">
+        <div style="font-weight:700;font-size:11px;display:flex;align-items:center;gap:4px">⚠️ Disclaimer</div>
+        ReturnTruck is a FREE connecting platform. No charges from any party. Not responsible for financial or other losses.
+    </div>
+</div>
+
+<!-- ============================================================
+     HOME PAGE
+     ============================================================ -->
+<div id="home-page" class="hidden-page">
+    <div class="header-fixed">
+        <div class="logo" onclick="goHome()">
+            <svg class="logo-svg" style="height:38px;" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="48" r="50" fill="#ffffff"/>
+                <path d="M45 36 C45 36 57 34 67 36 C75 40 79 46 79 48 C79 54 75 58 65 58 L20 58" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
+                <path d="M75 50 L80 42 L85 50" fill="#0f2b53"/>
+                <path d="M55 62 C55 62 43 64 33 62 C25 58 21 52 21 50 C21 44 25 40 35 40 L80 40" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
+                <path d="M25 48 L20 56 L15 48" fill="#0f2b53"/>
+                <path d="M45 58 L50 40 L78 40 L78 50 L65 50 L60 58 Z" fill="#429b9d"/>
+                <path d="M50 40 L41 40 L32 42 L31 58 L45 58 Z" fill="#429b9d"/>
+                <rect x="37" y="44" width="7" height="6" rx="1" fill="#ffffff"/>
+                <circle cx="43" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="43" cy="59" r="1.8" fill="#e2e8f0"/>
+                <circle cx="56" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="56" cy="59" r="1.8" fill="#e2e8f0"/>
+                <circle cx="68" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="68" cy="59" r="1.8" fill="#e2e8f0"/>
+                <text x="50" y="82" font-family="Arial, sans-serif" font-weight="900" font-size="12" fill="#0f2b53" text-anchor="middle" letter-spacing="1">RETURN</text>
+                <text x="50" y="95" font-family="Arial, sans-serif" font-weight="900" font-size="10" fill="#0f2b53" text-anchor="middle" letter-spacing="1">TRUCK</text>
+            </svg>
+            ReturnTruck
+        </div>
+        <div class="header-right">
+            <button class="avatar-btn guest" id="avatar-btn" onclick="toggleDropdown()"><span id="avatar-initials">GU</span></button>
+            <div class="profile-dropdown" id="profile-dropdown">
+                <button class="dropdown-item" onclick="closeDropdown();goToProfile()">👤 View Profile</button>
+                <button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOP STATIC BLOCK -->
+    <div id="home-top" style="flex-shrink:0; padding-top:0;">
+        <div class="install-banner" id="install-banner">
+            <span class="text">📲 Install ReturnTruck app</span>
+            <div>
+                <button class="btn-install" id="install-btn" onclick="installApp()">Install</button>
+                <button class="btn-close" onclick="dismissInstallBanner()">✕</button>
+            </div>
+        </div>
+
+        <div id="guest-banner" class="guest-banner hidden"><span>👋 Welcome, Guest!</span><button class="btn-login" onclick="showLogin()">🔐 Login</button></div>
+
+        <div class="location-row">
+            <div class="location-input">
+                <input type="text" id="location-search" placeholder="📍 Location/PIN" oninput="searchLocation()">
+                <div class="location-search-wrapper"><div class="suggestions" id="location-suggestions"></div></div>
+            </div>
+            <div class="radius-select">
+                <select id="radius-select" onchange="applyFilters()">
+                    <option value="5">5 KM</option><option value="10">10 KM</option><option value="25">25 KM</option>
+                    <option value="50" selected>50 KM</option><option value="100">100 KM</option><option value="200">200 KM</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="type-tabs">
+            <button id="tab-all" class="active" onclick="setTab('ALL')">All</button>
+            <button id="tab-loads" class="inactive" onclick="setTab('LOAD')">Loads</button>
+            <button id="tab-trucks" class="inactive" onclick="setTab('TRUCK')">Trucks</button>
+            <button id="tab-agents" class="inactive" onclick="setTab('AGENT')">Agents</button>
+        </div>
+
+        <div class="filter-toggle" onclick="toggleFilters()">
+            <span id="filter-toggle-label">🔍 Show Filters</span>
+            <span class="arrow" id="filter-arrow">▼</span>
+        </div>
+        
+        <!-- Default max-height 0. Open class adds max-height 400px -->
+        <div class="filter-container" id="filter-container">
+            <div class="filter-row">
+                <div>
+                    <label>From PIN</label>
+                    <div class="location-input" style="width:100%">
+                        <input type="text" id="filter-from" placeholder="Search PIN, District or State" oninput="filterFromSearch()">
+                        <div class="location-search-wrapper"><div class="suggestions" id="filter-from-suggestions"></div></div>
+                    </div>
+                </div>
+                <div>
+                    <label>To PIN</label>
+                    <div class="location-input" style="width:100%">
+                        <input type="text" id="filter-to" placeholder="Search PIN, District or State" oninput="filterToSearch()">
+                        <div class="location-search-wrapper"><div class="suggestions" id="filter-to-suggestions"></div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="filter-row">
+                <div><label>Vehicle Type</label><select id="filter-vehicle" onchange="applyFilters()"><option value="ALL">All</option><option value="highbed">Highbed 40x8x8</option><option value="lowbed">Lowbed 40x10x10</option><option value="container">Container 22x8x8</option><option value="odc">ODC</option></select></div>
+                <div><label>Weight (Kg)</label><select id="filter-weight" onchange="applyFilters()"><option value="ALL">All</option><option value="0-10000">0-10,000</option><option value="10000-20000">10k-20k</option><option value="20000-30000">20k-30k</option><option value="30000+">30k+</option></select></div>
+            </div>
+        </div>
+
+        <div class="results-count"><span id="results-count">Showing 0 Records</span></div>
+        <!-- Separator Line -->
+        <div style="width:100%;height:1px;background:#f1f5f9;margin-top:2px;margin-bottom:4px;flex-shrink:0"></div>
+    </div>
+
+    <!-- 3. Dynamic Scroll Body -->
+    <div class="scroll-body" id="home-scroll-body"><div id="feed-container" class="feed-container"></div></div>
     
-    <div style="margin-top:auto;font-size:12px;color:#94a3b8;text-align:center;padding-top:20px">
-        <p>Refresh this page to reset the test.</p>
-        <p style="font-size:10px">If you close the banner, refresh to see 'Dismissed Memory' change to TRUE.</p>
+    <!-- 4. Fixed Bottom Nav -->
+    <div class="nav-fixed">
+        <button class="nav-item active" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Post Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Post Truck</span></button>
+        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+    </div>
+</div>
+
+<!-- ============================================================
+     POST LOAD PAGE
+     ============================================================ -->
+<div id="postload-page" class="hidden-page">
+    <div class="header-fixed">
+        <span class="logo" onclick="goHome()">
+            <svg class="logo-svg" style="height:38px;" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="48" r="50" fill="#ffffff"/>
+                <path d="M45 36 C45 36 57 34 67 36 C75 40 79 46 79 48 C79 54 75 58 65 58 L20 58" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
+                <path d="M75 50 L80 42 L85 50" fill="#0f2b53"/>
+                <path d="M55 62 C55 62 43 64 33 62 C25 58 21 52 21 50 C21 44 25 40 35 40 L80 40" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
+                <path d="M25 48 L20 56 L15 48" fill="#0f2b53"/>
+                <path d="M45 58 L50 40 L78 40 L78 50 L65 50 L60 58 Z" fill="#429b9d"/>
+                <path d="M50 40 L41 40 L32 42 L31 58 L45 58 Z" fill="#429b9d"/>
+                <rect x="37" y="44" width="7" height="6" rx="1" fill="#ffffff"/>
+                <circle cx="43" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="43" cy="59" r="1.8" fill="#e2e8f0"/>
+                <circle cx="56" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="56" cy="59" r="1.8" fill="#e2e8f0"/>
+                <circle cx="68" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="68" cy="59" r="1.8" fill="#e2e8f0"/>
+                <text x="50" y="82" font-family="Arial, sans-serif" font-weight="900" font-size="12" fill="#0f2b53" text-anchor="middle" letter-spacing="1">RETURN</text>
+                <text x="50" y="95" font-family="Arial, sans-serif" font-weight="900" font-size="10" fill="#0f2b53" text-anchor="middle" letter-spacing="1">TRUCK</text>
+            </svg>
+            ReturnTruck
+        </span>
+        <button class="back-btn" onclick="cancelPost()">Cancel</button>
+    </div>
+    <div class="scroll-body" id="postload-scroll">
+        <div class="form-group"><label class="form-label">Material Type *</label>
+            <select class="form-control" id="pl-material"><option value="">Select</option><option value="Steel Pipes">Steel Pipes</option><option value="Cement">Cement</option><option value="Other">Other</option></select></div>
+        <div class="grid-2"><div><label>Weight (Kg)</label><input class="form-control" type="number" id="pl-weight"></div><div><label>Dimensions (ft)</label><input class="form-control" type="text" id="pl-dim" placeholder="40x8x8"></div></div>
+        <div class="grid-2"><div><label>📍 Pickup</label><div class="location-search-wrapper"><input type="text" id="pl-pickup-input" placeholder="Search PIN..."><div class="suggestions" id="pl-pickup-suggestions"></div><input type="hidden" id="pl-pickup-hidden"></div></div><div><label>📍 Drop</label><div class="location-search-wrapper"><input type="text" id="pl-drop-input" placeholder="Search PIN..."><div class="suggestions" id="pl-drop-suggestions"></div><input type="hidden" id="pl-drop-hidden"></div></div></div>
+        <div class="grid-2"><div><label>Rate (₹)</label><input class="form-control" type="text" id="pl-rate"></div><div><label>Date</label><input class="form-control" type="date" id="pl-date"></div></div>
+        <button class="btn-primary" onclick="publishLoad()">📤 Publish Load</button>
+    </div>
+    <div class="nav-fixed">
+        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
+        <button class="nav-item active" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Post Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Post Truck</span></button>
+        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+    </div>
+</div>
+
+<!-- ============================================================
+     POST TRUCK PAGE
+     ============================================================ -->
+<div id="posttruck-page" class="hidden-page">
+    <div class="header-fixed">
+        <span class="logo" onclick="goHome()">
+            <svg class="logo-svg" style="height:38px;" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="48" r="50" fill="#ffffff"/>
+                <path d="M45 36 C45 36 57 34 67 36 C75 40 79 46 79 48 C79 54 75 58 65 58 L20 58" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
+                <path d="M75 50 L80 42 L85 50" fill="#0f2b53"/>
+                <path d="M55 62 C55 62 43 64 33 62 C25 58 21 52 21 50 C21 44 25 40 35 40 L80 40" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
+                <path d="M25 48 L20 56 L15 48" fill="#0f2b53"/>
+                <path d="M45 58 L50 40 L78 40 L78 50 L65 50 L60 58 Z" fill="#429b9d"/>
+                <path d="M50 40 L41 40 L32 42 L31 58 L45 58 Z" fill="#429b9d"/>
+                <rect x="37" y="44" width="7" height="6" rx="1" fill="#ffffff"/>
+                <circle cx="43" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="43" cy="59" r="1.8" fill="#e2e8f0"/>
+                <circle cx="56" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="56" cy="59" r="1.8" fill="#e2e8f0"/>
+                <circle cx="68" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="68" cy="59" r="1.8" fill="#e2e8f0"/>
+                <text x="50" y="82" font-family="Arial, sans-serif" font-weight="900" font-size="12" fill="#0f2b53" text-anchor="middle" letter-spacing="1">RETURN</text>
+                <text x="50" y="95" font-family="Arial, sans-serif" font-weight="900" font-size="10" fill="#0f2b53" text-anchor="middle" letter-spacing="1">TRUCK</text>
+            </svg>
+            ReturnTruck
+        </span>
+        <button class="back-btn" onclick="cancelPost()">Cancel</button>
+    </div>
+    <div class="scroll-body" id="posttruck-scroll">
+        <div class="form-group"><label>Vehicle Number</label><div style="display:flex;gap:8px"><input class="form-control" id="pt-number" style="flex:2"><button class="btn-primary" style="width:auto;padding:10px 16px" onclick="autoFetchVehicle()">🔍 Auto-Fetch</button></div></div>
+        <div class="form-group"><label>📍 Location</label><div class="location-search-wrapper"><input type="text" id="pt-location-input" placeholder="Search PIN..."><div class="suggestions" id="pt-location-suggestions"></div><input type="hidden" id="pt-location-hidden"></div></div>
+        <div class="grid-2"><div><label>Available From</label><input class="form-control" type="date" id="pt-available"></div><div><label>Rate / KM</label><input class="form-control" type="text" id="pt-rate-km"></div></div>
+        <div class="grid-2"><div><label>Driver Name</label><input class="form-control" id="pt-driver"></div><div><label>Driver Mobile</label><input class="form-control" id="pt-driver-mobile" maxlength="10"></div></div>
+        <button class="btn-primary" onclick="publishTruck()">📤 List Truck</button>
+    </div>
+    <div class="nav-fixed">
+        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Post Load</span></button>
+        <button class="nav-item active" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Post Truck</span></button>
+        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+    </div>
+</div>
+
+<!-- ============================================================
+     PROFILE PAGE
+     ============================================================ -->
+<div id="profile-page" class="hidden-page">
+    <div class="header-fixed">
+        <div class="logo" onclick="goHome()">
+            <svg class="logo-svg" style="height:38px;" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="48" r="50" fill="#ffffff"/>
+                <path d="M45 36 C45 36 57 34 67 36 C75 40 79 46 79 48 C79 54 75 58 65 58 L20 58" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
+                <path d="M75 50 L80 42 L85 50" fill="#0f2b53"/>
+                <path d="M55 62 C55 62 43 64 33 62 C25 58 21 52 21 50 C21 44 25 40 35 40 L80 40" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
+                <path d="M25 48 L20 56 L15 48" fill="#0f2b53"/>
+                <path d="M45 58 L50 40 L78 40 L78 50 L65 50 L60 58 Z" fill="#429b9d"/>
+                <path d="M50 40 L41 40 L32 42 L31 58 L45 58 Z" fill="#429b9d"/>
+                <rect x="37" y="44" width="7" height="6" rx="1" fill="#ffffff"/>
+                <circle cx="43" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="43" cy="59" r="1.8" fill="#e2e8f0"/>
+                <circle cx="56" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="56" cy="59" r="1.8" fill="#e2e8f0"/>
+                <circle cx="68" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="68" cy="59" r="1.8" fill="#e2e8f0"/>
+                <text x="50" y="82" font-family="Arial, sans-serif" font-weight="900" font-size="12" fill="#0f2b53" text-anchor="middle" letter-spacing="1">RETURN</text>
+                <text x="50" y="95" font-family="Arial, sans-serif" font-weight="900" font-size="10" fill="#0f2b53" text-anchor="middle" letter-spacing="1">TRUCK</text>
+            </svg>
+            ReturnTruck
+        </div>
+        <div class="header-right">
+            <button class="back-btn" onclick="goHome()">← Back</button>
+            <button class="avatar-btn guest" id="avatar-btn-profile" onclick="toggleDropdown()"><span id="avatar-initials-profile">GU</span></button>
+            <div class="profile-dropdown" id="profile-dropdown-profile">
+                <button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button>
+            </div>
+        </div>
+    </div>
+    <div class="scroll-body" id="profile-scroll">
+        <div class="profile-header-card"><div style="font-size:11px;opacity:.8;font-weight:500;text-transform:uppercase">Welcome,</div><div class="mobile" id="profile-mobile">--</div><span style="font-size:10px;background:rgba(255,255,255,.2);padding:2px 12px;border-radius:12px;display:inline-block">⭐ Member</span></div>
+        <div class="profile-section"><div class="section-header"><span class="section-title">📦 Load Giver</span><span id="loadgiver-badge" style="font-size:9px;background:#fef3c7;color:#d97706;padding:2px 10px;border-radius:12px;font-weight:700">⚠️ Required</span></div>
+        <div id="loadgiver-input-area"><input class="form-control" style="margin-bottom:8px" type="text" id="lg-company" placeholder="Company Name"><button class="section-btn" onclick="saveLoadGiverProfile()">💾 Save</button></div>
+        <div id="loadgiver-active-area" style="display:none"><p><strong id="lg-display-company">--</strong></p><button class="section-btn" onclick="editLoadGiver()">✏️ Edit</button></div></div>
+        <div class="profile-section"><div class="section-header"><span class="section-title">🚛 Fleet Operator</span><span id="fleet-badge" style="font-size:9px;background:#fef3c7;color:#d97706;padding:2px 10px;border-radius:12px;font-weight:700">⚠️ Required</span></div>
+        <div id="fleet-input-area"><input class="form-control" style="margin-bottom:8px" type="text" id="fo-company" placeholder="Company Name"><button class="section-btn" onclick="saveFleetProfile()">💾 Save</button></div>
+        <div id="fleet-active-area" style="display:none"><p><strong id="fo-display-company">--</strong></p><button class="section-btn" onclick="editFleet()">✏️ Edit</button><div id="my-trucks-list" style="margin-top:12px"></div></div></div>
+        <div><p style="font-size:11px;font-weight:600;color:#1e293b;margin:0 0 8px 0">📦 My Loads</p><div id="my-loads-container"></div></div>
+    </div>
+    <div class="nav-fixed">
+        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Post Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Post Truck</span></button>
+        <button class="nav-item active" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+    </div>
+</div>
+
+<!-- ============================================================
+     DETAIL PAGE
+     ============================================================ -->
+<div id="detail-page" class="hidden-page">
+    <div class="header-fixed">
+        <span class="logo" onclick="goHome()">
+            <svg class="logo-svg" style="height:38px;" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="48" r="50" fill="#ffffff"/>
+                <path d="M45 36 C45 36 57 34 67 36 C75 40 79 46 79 48 C79 54 75 58 65 58 L20 58" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
+                <path d="M75 50 L80 42 L85 50" fill="#0f2b53"/>
+                <path d="M55 62 C55 62 43 64 33 62 C25 58 21 52 21 50 C21 44 25 40 35 40 L80 40" stroke="#0f2b53" stroke-width="10" stroke-linecap="round"/>
+                <path d="M25 48 L20 56 L15 48" fill="#0f2b53"/>
+                <path d="M45 58 L50 40 L78 40 L78 50 L65 50 L60 58 Z" fill="#429b9d"/>
+                <path d="M50 40 L41 40 L32 42 L31 58 L45 58 Z" fill="#429b9d"/>
+                <rect x="37" y="44" width="7" height="6" rx="1" fill="#ffffff"/>
+                <circle cx="43" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="43" cy="59" r="1.8" fill="#e2e8f0"/>
+                <circle cx="56" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="56" cy="59" r="1.8" fill="#e2e8f0"/>
+                <circle cx="68" cy="59" r="4" fill="#0f2b53"/>
+                <circle cx="68" cy="59" r="1.8" fill="#e2e8f0"/>
+                <text x="50" y="82" font-family="Arial, sans-serif" font-weight="900" font-size="12" fill="#0f2b53" text-anchor="middle" letter-spacing="1">RETURN</text>
+                <text x="50" y="95" font-family="Arial, sans-serif" font-weight="900" font-size="10" fill="#0f2b53" text-anchor="middle" letter-spacing="1">TRUCK</text>
+            </svg>
+            ReturnTruck
+        </span>
+        <button class="back-btn" onclick="closeDetail()">Cancel</button>
+    </div>
+    <div class="scroll-body" id="detail-scroll">
+        <div style="margin-bottom:12px"><div style="font-size:17px;font-weight:700" id="detail-title">Title</div><div id="detail-company" style="font-size:13px;color:#2563eb">Company</div></div>
+        <div class="detail-actions"><button class="btn-call" onclick="makeCall()">📞 Call</button><button class="btn-contact" onclick="contactUser()">✉️ Contact</button><button class="btn-bid" onclick="expressInterest()">🤝 Interest</button><button class="btn-share" onclick="handleShareClick()">↗️ Share</button></div>
+    </div>
+    <div class="nav-fixed">
+        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Post Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Post Truck</span></button>
+        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
     </div>
 </div>
 
 <script>
 // ============================================================
-// TEST LOGIC - NO DATABASE, NO LOGIN
+// STATIC LOCATION DATA & CONFIG
 // ============================================================
+const STATIC_LOCATIONS = [
+  {pin:"110018", name:"Ashok Nagar", district:"NEW DELHI", state:"DH", lat:28.636587, lng:77.094466},
+  {pin:"182141", name:"Chenani", district:"UDHAMPUR", state:"JK", lat:33.0389444, lng:75.2846944},
+  {pin:"400001", name:"Mumbai", district:"MUMBAI", state:"MH", lat:18.9391667, lng:72.8375556},
+  {pin:"516362", name:"Khadarabad", district:"Y.S.R.", state:"AP", lat:14.7626487, lng:78.6336605},
+  {pin:"517501", name:"Tirupati", district:"Tirupati", state:"AP", lat:13.6322875, lng:79.4226094},
+  {pin:"518001", name:"Kurnool", district:"KURNOOL", state:"AP", lat:15.833006, lng:78.047822},
+  {pin:"521202", name:"Hanumanthunigudem", district:"Eluru", state:"AP", lat:16.784728, lng:80.849867},
+  {pin:"522301", name:"Anantavaram", district:"GUNTUR", state:"AP", lat:16.02644444, lng:80.16291667},
+  {pin:"522603", name:"Ravipadu", district:"Palnadu", state:"AP", lat:16.2233, lng:79.9719},
+  {pin:"522616", name:"Chilakaluripet", district:"GUNTUR", state:"AP", lat:16.087918, lng:80.266533},
+  {pin:"523253", name:"Uppalapadu", district:"PRAKASAM", state:"AP", lat:15.621921, lng:79.700266},
+  {pin:"524223", name:"Jaladanki", district:"SPSR NELLORE", state:"AP", lat:14.853108, lng:79.84613},
+  {pin:"530001", name:"Visakhapatnam", district:"VISAKHAPATANAM", state:"AP", lat:17.70402479, lng:83.29639357},
+  {pin:"531111", name:"Chintapalli", district:"Alluri Sitharama Raju", state:"AP", lat:17.980066, lng:82.41334},
+  {pin:"531118", name:"Rajupakalu", district:"VISAKHAPATANAM", state:"AP", lat:17.608616, lng:82.632208},
+  {pin:"531162", name:"Chittivalasa", district:"VISAKHAPATANAM", state:"AP", lat:17.936293, lng:83.49369},
+  {pin:"533001", name:"Kakinada", district:"Kakinada", state:"AP", lat:16.9550556, lng:82.2354722},
+  {pin:"533101", name:"Rajahmundry", district:"EAST GODAVARI", state:"AP", lat:16.9920339, lng:81.7779721},
+  {pin:"533406", name:"Annavaram", district:"Kakinada", state:"AP", lat:17.2830278, lng:82.4064444},
+  {pin:"534202", name:"Gollalakoderu", district:"WEST GODAVARI", state:"AP", lat:16.545316, lng:81.513696},
+  {pin:"560002", name:"Bengaluru City", district:"BENGALURU URBAN", state:"KA", lat:12.839909, lng:77.662968},
+  {pin:"570001", name:"Mysuru", district:"MYSURU", state:"KA", lat:12.31416667, lng:76.65655556},
+  {pin:"671314", name:"Bengalam", district:"KASARAGOD", state:"KL", lat:12.2949717, lng:75.154531},
+  {pin:"700001", name:"KOLKATA", district:"KOLKATA", state:"WB", lat:22.5736, lng:88.3483}
+];
 
-const banner = document.getElementById('install-banner');
-const installBtn = document.getElementById('install-btn');
-let deferredPrompt = null;
+const SUPABASE_URL = 'https://ghjoffovatgvhzxlupef.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 1. Dismiss Logic (Saves to LocalStorage)
-function dismissInstallBanner() {
-    banner.classList.add('hidden');
-    localStorage.setItem('rt_install_dismissed', 'true');
-    updateStatusDashboard();
-    console.log('✅ TEST: Banner dismissed and saved to LocalStorage.');
+let currentUser=null, isGuest=false, currentTab='ALL', feedItems=[], currentDetailData=null;
+let otpTimerInterval=null, currentMobile='', selectedLocation=null, filterOpen=false;
+let logoutTimer = null;
+
+function $(id){return document.getElementById(id)}
+function showToast(msg){alert(msg)}
+
+// ============================================================
+// IDLE LOGOUT TIMER (5 MINUTES)
+// ============================================================
+function resetLogoutTimer() {
+    if (logoutTimer) clearTimeout(logoutTimer);
+    if (!currentUser && !isGuest) return;
+    logoutTimer = setTimeout(() => {
+        if (currentUser || isGuest) {
+            alert("You have been automatically logged out due to 5 minutes of inactivity.");
+            logout();
+        }
+    }, 5 * 60 * 1000);
 }
-
-// 2. Install Logic (Uses the beforeinstallprompt event)
-function installApp() {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(function(result) {
-            if (result.outcome === 'accepted') {
-                console.log('✅ TEST: User accepted the install prompt.');
-                banner.classList.add('hidden');
-                localStorage.setItem('rt_install_dismissed', 'true');
-            } else {
-                console.log('⛔ TEST: User dismissed the install prompt.');
-            }
-            deferredPrompt = null;
-            updateStatusDashboard();
-        });
-    } else {
-        // Fallback if event hasn't fired yet or browser blocks it
-        alert('📱 PWA Install Prompt not triggered automatically yet. If on mobile, try tapping the browser menu (3 dots) -> "Add to Home Screen".');
-    }
-}
-
-// 3. The BeforeInstallPrompt Event Listener
-window.addEventListener('beforeinstallprompt', function(e) {
-    e.preventDefault(); // Prevent the automatic mini-infobar
-    deferredPrompt = e;
-    console.log('✅ TEST: beforeinstallprompt event FIRED!');
-    
-    // Update UI
-    document.getElementById('test-prompt').innerHTML = '<span class="pass">✅ Fired</span>';
-    document.getElementById('test-prompt').style.color = '#16a34a';
-    installBtn.textContent = '📲 Install';
-    installBtn.disabled = false;
-    
-    // If memory says it's not dismissed, show the banner
-    if (localStorage.getItem('rt_install_dismissed') !== 'true') {
-        banner.classList.remove('hidden');
-    }
-    updateStatusDashboard();
+document.addEventListener('click', resetLogoutTimer);
+document.addEventListener('keydown', resetLogoutTimer);
+document.addEventListener('touchstart', resetLogoutTimer);
+document.addEventListener('scroll', resetLogoutTimer);
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') resetLogoutTimer();
 });
 
-// 4. Status Dashboard Updater
-function updateStatusDashboard() {
-    // Check if the banner is hidden by CSS
-    const isHidden = banner.classList.contains('hidden') || window.getComputedStyle(banner).display === 'none';
-    document.getElementById('test-visual').innerHTML = isHidden ? '<span class="pass">✅ True (Hidden)</span>' : '<span class="fail">⛔ False (Showing)</span>';
-    
-    // Check LocalStorage
-    const isDismissed = localStorage.getItem('rt_install_dismissed') === 'true';
-    document.getElementById('test-memory').innerHTML = isDismissed ? '<span class="pass">✅ True (Saved)</span>' : '<span class="fail">⛔ False (Empty)</span>';
-    
-    // Check Standalone Mode (If installed, display-mode is 'standalone')
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-    document.getElementById('test-standalone').innerHTML = isStandalone ? '<span class="pass">✅ True (App Installed)</span>' : '<span class="fail">⛔ False (Browser)</span>';
+// ============================================================
+// INSTALL BANNER LOGIC
+// ============================================================
+function dismissInstallBanner(){
+    const b=$('install-banner');
+    if(b){
+        b.classList.add('hidden');
+        b.style.display='none';
+        localStorage.setItem('rt_install_dismissed', 'true'); 
+        setTimeout(fixLayoutHeight, 50);
+    }
 }
 
-// 5. Initialization on Load
+function checkAndHandleInstallBanner(){
+    const b=$('install-banner'); 
+    if(!b) return;
+    
+    if(localStorage.getItem('rt_install_dismissed') === 'true') {
+        b.classList.add('hidden'); b.style.display='none'; return;
+    }
+    
+    const isPWASupported='serviceWorker' in navigator && 'BeforeInstallPromptEvent' in window;
+    if(isPWASupported){
+        b.classList.remove('hidden');
+        b.style.display='flex';
+        const btn=$('install-btn');
+        if(btn) btn.textContent=deferredPrompt?'📲 Install':'📲 Install';
+    } else {
+        b.classList.remove('hidden');
+        b.style.display='flex';
+        const btn=$('install-btn');
+        if(btn) btn.textContent='📲 Install (Desktop)';
+    }
+}
+
+let deferredPrompt=null;
+function installApp(){
+    if(deferredPrompt){
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(function(r){
+            if(r.outcome==='accepted'){
+                showToast('✅ App installed!');
+                const b=$('install-banner');
+                if(b){ b.classList.add('hidden'); b.style.display='none'; }
+                localStorage.setItem('rt_install_dismissed', 'true');
+                setTimeout(fixLayoutHeight, 50);
+            }
+            deferredPrompt=null;
+        });
+        return;
+    }
+    showToast('📱 Tap share button → "Add to Home Screen"');
+}
+window.addEventListener('beforeinstallprompt',function(e){
+    e.preventDefault();
+    deferredPrompt=e;
+    if(localStorage.getItem('rt_install_dismissed') !== 'true'){
+        const b=$('install-banner');
+        if(b && b.style.display !== 'none'){ 
+            b.classList.remove('hidden'); b.style.display='flex'; 
+            const btn=$('install-btn');
+            if(btn) btn.textContent='📲 Install';
+        }
+    }
+});
+
+// ============================================================
+// LOCATION FUNCTIONS
+// ============================================================
+function findLocation(query) {
+    const q = query.toLowerCase().trim();
+    if (!q) return [];
+    return STATIC_LOCATIONS.filter(l =>
+        l.name.toLowerCase().includes(q) ||
+        l.pin.includes(q) ||
+        l.district.toLowerCase().includes(q) ||
+        l.state.toLowerCase().includes(q)
+    ).slice(0, 8);
+}
+function getLocationName(pin) {
+    const loc = STATIC_LOCATIONS.find(l => l.pin === pin);
+    return loc ? `${loc.name}, ${loc.district}, ${loc.state} (${loc.pin})` : pin || 'Unknown';
+}
+function searchLocation(){
+    const input=$('location-search'); const suggestions=$('location-suggestions');
+    const results=findLocation(input.value);
+    if(results.length===0){ suggestions.classList.remove('show'); return; }
+    suggestions.innerHTML=results.map(l=>`<div class="item" onclick="selectLocation('${l.pin}')">${l.name}, ${l.district}, ${l.state} (${l.pin})</div>`).join('');
+    suggestions.classList.add('show');
+}
+function selectLocation(pin){ 
+    $('location-search').value=getLocationName(pin); 
+    $('location-suggestions').classList.remove('show'); 
+    selectedLocation=pin; 
+    applyFilters(); 
+}
+function filterFromSearch(){
+    const input=$('filter-from'); const suggestions=$('filter-from-suggestions');
+    const results=findLocation(input.value);
+    if(results.length===0){ suggestions.classList.remove('show'); return; }
+    suggestions.innerHTML=results.map(l=>`<div class="item" onclick="selectFilterFrom('${l.pin}')">${l.name}, ${l.district}, ${l.state} (${l.pin})</div>`).join('');
+    suggestions.classList.add('show');
+}
+function selectFilterFrom(pin){ 
+    $('filter-from').value=pin; 
+    $('filter-from-suggestions').classList.remove('show'); 
+    applyFilters(); 
+}
+function filterToSearch(){
+    const input=$('filter-to'); const suggestions=$('filter-to-suggestions');
+    const results=findLocation(input.value);
+    if(results.length===0){ suggestions.classList.remove('show'); return; }
+    suggestions.innerHTML=results.map(l=>`<div class="item" onclick="selectFilterTo('${l.pin}')">${l.name}, ${l.district}, ${l.state} (${l.pin})</div>`).join('');
+    suggestions.classList.add('show');
+}
+function selectFilterTo(pin){ 
+    $('filter-to').value=pin; 
+    $('filter-to-suggestions').classList.remove('show'); 
+    applyFilters(); 
+}
+function searchLocationInForm(context){
+    const input=$(context+'-input'); const suggestions=$(context+'-suggestions');
+    const results=findLocation(input.value);
+    if(results.length===0){ suggestions.classList.remove('show'); return; }
+    suggestions.innerHTML=results.map(l=>`<div class="item" onclick="selectLocationInForm('${context}','${l.pin}')">${l.name}, ${l.district}, ${l.state} (${l.pin})</div>`).join('');
+    suggestions.classList.add('show');
+}
+function selectLocationInForm(context,pin){ $(context+'-input').value=getLocationName(pin); $(context+'-hidden').value=pin; $(context+'-suggestions').classList.remove('show'); }
+document.addEventListener('click', function(e) {
+    document.querySelectorAll('.suggestions').forEach(s => {
+        if(!s.parentElement.contains(e.target)) s.classList.remove('show');
+    });
+});
+
+// ============================================================
+// FIXED HEIGHT CALCULATION
+// ============================================================
+function fixLayoutHeight(){
+    const card=document.querySelector('.card'); 
+    if(!card) return;
+    
+    const scrollBody=document.querySelector('.scroll-body:not(.hidden-page)');
+    const header=document.querySelector('.header-fixed:not(.hidden-page)');
+    const nav=document.querySelector('.nav-fixed:not(.hidden-page)');
+    const topContainer=document.getElementById('home-top'); 
+    
+    if(!scrollBody||!header||!nav||!topContainer) return;
+    
+    const avail = card.clientHeight - header.offsetHeight - topContainer.scrollHeight - nav.offsetHeight - 16; 
+    scrollBody.style.height = Math.max(100, avail) + 'px';
+}
+
+let resizeTimer; 
+function handleResize(){ 
+    clearTimeout(resizeTimer); 
+    resizeTimer=setTimeout(fixLayoutHeight, 200); 
+}
+
+// ============================================================
+// SESSION & AUTH
+// ============================================================
+function updateGuestUI(){
+    const b=$('guest-banner');
+    if(b){
+        if(isGuest){
+            b.classList.remove('hidden');
+            b.style.display='flex';
+        } else {
+            b.classList.add('hidden');
+            b.style.display='none';
+        }
+        setTimeout(fixLayoutHeight, 50);
+    }
+}
+
+function continueAsGuest(){
+    isGuest=true; 
+    localStorage.setItem('rt_user', JSON.stringify({guest: true}));
+    showHome(); 
+}
+function showLogin(){resetForm(); $('mobile').focus();}
+function resetForm(){
+    ['step2','step3','step4'].forEach(i=>$(i).classList.add('hidden')); 
+    $('step1').classList.remove('hidden'); 
+    document.getElementById('login-screen').style.display='flex'; 
+    ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.add('hidden-page')); 
+    clearTimeout(logoutTimer);
+}
+function showHome(){
+    document.getElementById('login-screen').style.display='none'; 
+    document.getElementById('home-page').classList.remove('hidden-page'); 
+    updateGuestUI(); 
+    setTimeout(fixLayoutHeight, 50); 
+    renderFeed(); 
+    resetLogoutTimer();
+}
+
+async function registerUser(){
+    const pin=$('reg-pin').value.trim();
+    const encoder=new TextEncoder(); const hashBuffer=await crypto.subtle.digest('SHA-256',encoder.encode(pin));
+    const pinhash=Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    const {data:newUser}=await sb.from('active_users').insert({mobile:currentMobile,pinhash}).select().single();
+    if(newUser){ 
+        currentUser=newUser; 
+        localStorage.setItem('rt_user', JSON.stringify({mobile: currentUser.mobile, user: currentUser}));
+        isGuest = false; 
+        showHome(); 
+    }
+}
+window.submitPin=async function(){
+    const pin=$('pin').value.trim();
+    const encoder=new TextEncoder(); const hashBuffer=await crypto.subtle.digest('SHA-256',encoder.encode(pin));
+    const pinhash=Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    const {data:user}=await sb.from('active_users').select('*').eq('mobile',currentMobile).eq('pinhash',pinhash).single();
+    if(user){ 
+        currentUser=user; 
+        localStorage.setItem('rt_user', JSON.stringify({mobile: currentUser.mobile, user: currentUser}));
+        isGuest = false;
+        showHome(); 
+    } else {
+        alert("Incorrect PIN. Please try again.");
+    }
+};
+$('mobile').addEventListener('input', function(e) {
+    const m = this.value.trim();
+    if (m.length === 10) {
+        currentMobile = m; 
+        $('step1').classList.add('hidden'); 
+        $('step2').classList.remove('hidden'); 
+        $('display-mobile').textContent = m;
+    }
+});
+$('pin').addEventListener('keydown', function(e) { if (e.key === 'Enter') { submitPin(); } });
+
+function logout() {
+    if(confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('rt_user');
+        localStorage.removeItem('rt_install_dismissed'); // <--- FIX ADDED HERE
+        currentUser = null;
+        isGuest = false;
+        clearTimeout(logoutTimer);
+        resetForm();
+    }
+}
+
+// ============================================================
+// DROPDOWN
+// ============================================================
+function toggleDropdown(){document.querySelectorAll('.profile-dropdown').forEach(d=>d.classList.toggle('show'))}
+function closeDropdown(){document.querySelectorAll('.profile-dropdown').forEach(d=>d.classList.remove('show'))}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function goHome(){
+    ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.toggle('hidden-page',i!=='home-page'));
+    document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+    document.querySelectorAll('.nav-fixed .nav-item')[0].classList.add('active');
+    setTimeout(fixLayoutHeight, 50); renderFeed(); resetLogoutTimer();
+}
+function switchPage(id, idx){
+    ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.toggle('hidden-page',i!==id));
+    document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+    document.querySelectorAll('.nav-fixed .nav-item')[idx].classList.add('active');
+    setTimeout(fixLayoutHeight, 50); resetLogoutTimer();
+}
+function goPostLoad(){ if(isGuest||!currentUser){showLogin();return;} switchPage('postload-page',1); }
+function goPostTruck(){ if(isGuest||!currentUser){showLogin();return;} switchPage('posttruck-page',2); }
+function goToProfile(){ if(isGuest||!currentUser){showLogin();return;} switchPage('profile-page',3); loadProfile(); resetLogoutTimer();}
+function cancelPost(){goHome();}
+function closeDetail(){currentDetailData=null;goHome();}
+
+// ============================================================
+// TABS, FILTERS & FEED
+// ============================================================
+function setTab(tab){ currentTab=tab; document.querySelectorAll('.type-tabs button').forEach(b=>b.className='inactive'); const map={'ALL':'tab-all','LOAD':'tab-loads','TRUCK':'tab-trucks','AGENT':'tab-agents'}; const el=$(map[tab]); if(el) el.className='active'; renderFeed(); }
+
+filterOpen = false; // Default closed
+
+function toggleFilters(){ 
+    filterOpen = !filterOpen; 
+    $('filter-container').classList.toggle('open', filterOpen); 
+    $('filter-toggle-label').textContent=filterOpen?'🔍 Hide Filters':'🔍 Show Filters'; 
+    $('filter-arrow').className = filterOpen ? 'arrow open' : 'arrow closed';
+    setTimeout(fixLayoutHeight, 350); 
+}
+function applyFilters(){ renderFeed(); }
+
+async function renderFeed(){
+    try{
+        const {data:loads}=await sb.from('active_loads').select('*').eq('status',1);
+        const {data:trucks}=await sb.from('active_trucks').select('*').eq('status',1);
+        feedItems=[...(loads||[]).map(l=>({type:'LOAD',title:l.material||'Cargo',company:l.company||'',from:l.pickup_pin||'',to:l.drop_pin||'',weight:l.weight||0,vehicle:l.vehicle_type||'',rate:l.rate||0,views:l.views||0,interests:(l.interests||[]).length,shares:l.shares||0,id:l.id})),...(trucks||[]).map(t=>({type:'TRUCK',title:t.truck_no||'Truck',company:t.company_name||'',pin:t.location_pin||'',vehicle:t.vehicle_type||'',rate:t.rate_km||0,views:t.views||0,interests:(t.interested||[]).length,shares:t.share||0,id:t.id}))];
+        
+        let filtered = [...feedItems];
+        if(selectedLocation) {
+            filtered = filtered.filter(i => i.from === selectedLocation || i.to === selectedLocation || i.pin === selectedLocation);
+        }
+        if(currentTab==='LOAD') filtered=filtered.filter(i=>i.type==='LOAD');
+        else if(currentTab==='TRUCK') filtered=filtered.filter(i=>i.type==='TRUCK');
+        
+        const fromPin=$('filter-from')?.value.trim(); const toPin=$('filter-to')?.value.trim();
+        if(fromPin) filtered=filtered.filter(i=>i.from===fromPin); if(toPin) filtered=filtered.filter(i=>i.to===toPin);
+        const vehicle=$('filter-vehicle')?.value; if(vehicle&&vehicle!=='ALL') filtered=filtered.filter(i=>i.vehicle&&i.vehicle.toLowerCase().includes(vehicle));
+        
+        $('results-count').textContent=`Showing ${filtered.length} Records`;
+        if(filtered.length===0){ $('feed-container').innerHTML='<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>'; return; }
+        
+        $('feed-container').innerHTML=filtered.map(i=>{
+            const badgeClass=i.type==='LOAD'?'load':'truck';
+            const titleClass=i.type==='LOAD'?'load-title':'truck-title';
+            let loc='', sub='', rate='', stats='';
+            if(i.type==='LOAD'){
+                loc=`📍 ${getLocationName(i.from)} → ${getLocationName(i.to)}`;
+                sub=`💼 ${i.company}`;
+                rate=`💰 ₹${(i.rate||0).toLocaleString()}`;
+                stats=`⚖️ ${i.weight||0} Kg • 🚛 ${i.vehicle}`;
+            } else {
+                loc=`📍 ${getLocationName(i.pin)}`;
+                sub=`💼 ${i.company}`;
+                rate=`💰 ₹${(i.rate||0)}/km`;
+                stats=`🚛 ${i.vehicle}`;
+            }
+            return `
+            <div class="feed-card" onclick="openDetail('${i.type}','${i.id}')">
+                <div class="header-row">
+                    <div class="title ${titleClass}">${i.title}</div>
+                    <span class="type-badge ${badgeClass}">${i.type}</span>
+                </div>
+                <div class="company">${sub}</div>
+                <div class="meta">${loc}</div>
+                <div class="meta">${rate}</div>
+                <div class="meta">${stats}</div>
+                <div class="stats-row">
+                    <span>👁️ <span class="val">${i.views}</span></span>
+                    <span>🤝 <span class="val">${i.interests}</span></span>
+                    <span>📨 <span class="val">${i.shares}</span></span>
+                </div>
+            </div>`;
+        }).join('');
+    }catch(e){ $('feed-container').innerHTML='<div style="padding:30px 0;color:#ef4444;text-align:center">Error loading feed. Check Supabase.</div>'; }
+}
+
+// ============================================================
+// PROFILE & DETAILS
+// ============================================================
+async function loadProfile(){ if(!currentUser)return; $('profile-mobile').textContent=currentUser.mobile||'--'; }
+async function saveLoadGiverProfile(){ const c=$('lg-company').value.trim(); if(!c)return showToast('⚠️ Enter company name'); await sb.from('active_users').update({company_name:c}).eq('mobile',currentUser.mobile); currentUser.company_name=c; showToast('✅ Saved!'); loadProfile(); }
+async function saveFleetProfile(){ const c=$('fo-company').value.trim(); if(!c)return showToast('⚠️ Enter company name'); await sb.from('active_users').update({fleet_company:c}).eq('mobile',currentUser.mobile); currentUser.fleet_company=c; showToast('✅ Saved!'); loadProfile(); }
+function editLoadGiver(){$('loadgiver-active-area').style.display='none'; $('loadgiver-input-area').style.display='block';}
+function editFleet(){$('fleet-active-area').style.display='none'; $('fleet-input-area').style.display='block';}
+async function openDetail(type,id){ const {data}=await sb.from(type==='LOAD'?'active_loads':'active_trucks').select('*').eq('id',id).single(); if(data){currentDetailData=data;switchPage('detail-page',0);$('detail-title').textContent=data.material||data.truck_no||'Details';$('detail-company').textContent=data.company||data.company_name||'N/A';}}
+function makeCall(){ if(currentDetailData){const num=currentDetailData.mobile||currentDetailData.driver_mobile; if(num)window.location.href=`tel:${num}`;}}
+function expressInterest(){ showToast('✅ Interest expressed!'); }
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('resize', handleResize);
 document.addEventListener('DOMContentLoaded', function() {
-    updateStatusDashboard();
-    
-    // Check memory immediately
-    if (localStorage.getItem('rt_install_dismissed') === 'true') {
-        banner.classList.add('hidden');
-        console.log('ℹ️ TEST: Banner hidden because LocalStorage says it was dismissed.');
+    const savedSession = localStorage.getItem('rt_user');
+    if (savedSession) {
+        const sessionData = JSON.parse(savedSession);
+        if (sessionData.guest) { 
+            isGuest = true; currentUser = null; 
+        } else if (sessionData.user) { 
+            currentUser = sessionData.user; isGuest = false; 
+        }
+        showHome();
+    } else {
+        document.getElementById('login-screen').style.display='flex';
+        document.getElementById('home-page').classList.add('hidden-page');
     }
-    
-    // If standalone, verify banner stays hidden regardless of memory
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-        banner.classList.add('hidden');
-        console.log('ℹ️ TEST: Banner hidden because user is in standalone mode (Installed).');
-    }
+    checkAndHandleInstallBanner();
 });
 </script>
 </body>
