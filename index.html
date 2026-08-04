@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -593,18 +593,23 @@ function $(id){return document.getElementById(id)}
 function showToast(msg){alert(msg)}
 
 // ============================================================
-// SERVICE WORKER REGISTRATION
+// SERVICE WORKER REGISTRATION - FIXED
 // ============================================================
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-        navigator.serviceWorker.register('sw.js')
+        navigator.serviceWorker.register('/sw.js')
             .then(function(registration) {
-                console.log('Service Worker registered successfully:', registration);
+                console.log('Service Worker registered successfully with scope:', registration.scope);
+                // Check if the install banner should show
+                checkAndHandleInstallBanner();
             })
             .catch(function(error) {
                 console.log('Service Worker registration failed:', error);
             });
     });
+} else {
+    // Service workers not supported
+    console.log('Service Workers not supported');
 }
 
 // ============================================================
@@ -634,7 +639,7 @@ function getDistance(lat1, lng1, lat2, lng2) {
 }
 
 // ============================================================
-// UNIFIED SUGGESTION LOADER (FIXED LOGIC)
+// UNIFIED SUGGESTION LOADER
 // ============================================================
 function loadLocationSuggestions(context) {
     let inputId, suggestionsId;
@@ -648,16 +653,13 @@ function loadLocationSuggestions(context) {
     
     if(!input || !suggestions) return;
     
-    const query = input.value.trim(); // Fix: Get the actual search term
+    const query = input.value.trim();
     const results = findLocation(query);
     
     if(results.length === 0) { suggestions.classList.remove('show'); return; }
     
-    // Loop through ALL results and map them correctly
     suggestions.innerHTML = results.map(l => {
-        // Construct the display string like the header
         const displayName = `${l.name}, ${l.district}, ${l.state} (${l.pin})`;
-        // Highlight the matched letters in the string
         const idx = displayName.toLowerCase().indexOf(query.toLowerCase());
         let html = displayName;
         if(idx !== -1 && query) {
@@ -731,7 +733,7 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // ============================================================
-// INSTALL BANNER LOGIC
+// INSTALL BANNER LOGIC - FIXED
 // ============================================================
 function dismissInstallBanner(){
     const b=$('install-banner');
@@ -766,12 +768,12 @@ function checkAndHandleInstallBanner(){
         return;
     }
     
-    const isPWASupported='serviceWorker' in navigator && 'BeforeInstallPromptEvent' in window;
+    const isPWASupported = 'serviceWorker' in navigator;
     if(isPWASupported){
         b.classList.remove('hidden');
         b.style.display='flex';
         const btn=$('install-btn');
-        if(btn) btn.textContent=deferredPrompt?'📲 Install':'📲 Install';
+        if(btn) btn.textContent = deferredPrompt ? '📲 Install' : '📲 Install';
     } else {
         b.classList.remove('hidden');
         b.style.display='flex';
@@ -874,6 +876,7 @@ function showHome(){
             fixLayoutHeight(); 
             renderFeed(); 
             resetLogoutTimer();
+            checkAndHandleInstallBanner(); // Check banner after login
         }, 50);
     });
 }
@@ -1088,7 +1091,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('login-screen').style.display='flex';
         document.getElementById('home-page').classList.add('hidden-page');
     }
-    checkAndHandleInstallBanner();
+    // Check banner after DOM is loaded
+    setTimeout(checkAndHandleInstallBanner, 500);
 });
 </script>
 </body>
