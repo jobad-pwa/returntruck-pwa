@@ -6,6 +6,12 @@
 <title>ReturnTruck - Find Loads & Trucks</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<!-- PWA META TAGS -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
 <style>
 /* ============================================================
    RESET & LAYOUT
@@ -585,6 +591,21 @@ let filterToLocation = null;
 
 function $(id){return document.getElementById(id)}
 function showToast(msg){alert(msg)}
+
+// ============================================================
+// SERVICE WORKER REGISTRATION
+// ============================================================
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('sw.js')
+            .then(function(registration) {
+                console.log('Service Worker registered successfully:', registration);
+            })
+            .catch(function(error) {
+                console.log('Service Worker registration failed:', error);
+            });
+    });
+}
 
 // ============================================================
 // SHARED SEARCH FUNCTIONS
