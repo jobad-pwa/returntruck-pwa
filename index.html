@@ -11,9 +11,6 @@
 <meta name="theme-color" content="#2563eb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-transparent">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 
 <style>
 /* ============================================================
@@ -138,6 +135,38 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .install-banner .btn-close{background:0 0;border:none;color:rgba(255,255,255,.7);font-size:18px;cursor:pointer}
 .install-banner.hidden{display:none}
 
+/* FLOATING INSTALL BUTTON - VISIBLE ON MOBILE */
+.floating-install-btn {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    animation: pulse 2s infinite;
+}
+
+.floating-install-btn.show {
+    display: flex;
+}
+
+@keyframes pulse {
+    0% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.05); }
+    100% { transform: translateX(-50%) scale(1); }
+}
+
 .guest-banner{flex-shrink:0;background:#2563eb;color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .guest-banner.hidden{display:none}
 .guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer}
@@ -244,23 +273,21 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
      HOME PAGE
      ============================================================ -->
 <div id="home-page" class="hidden-page">
-   <div class="header-fixed">
-       <div class="logo" onclick="goHome()" style="display:flex;align-items:center;gap:6px;cursor:pointer;">
-           <span style="font-size:28px;">🚛</span>
-           <span style="font-size:22px;font-weight:900;color:#2563eb;">ReturnTruck</span>
-       </div>
-       <div class="header-right">
-           <button class="avatar-btn guest" id="avatar-btn" onclick="toggleDropdown()">
-               <span id="avatar-initials">GU</span>
-           </button>
-           <div class="profile-dropdown" id="profile-dropdown">
-               <button class="dropdown-item" onclick="closeDropdown();goToProfile()">👤 View Profile</button>
-               <button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button>
-               <div class="dropdown-divider"></div>
-               <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button>
-           </div>
-       </div>
-   </div>
+    <div class="header-fixed">
+        <div class="logo" onclick="goHome()">
+            <span class="logo-icon">🚛</span>
+            <span class="logo-text">ReturnTruck</span>
+        </div>
+        <div class="header-right">
+            <button class="avatar-btn guest" id="avatar-btn" onclick="toggleDropdown()"><span id="avatar-initials">GU</span></button>
+            <div class="profile-dropdown" id="profile-dropdown">
+                <button class="dropdown-item" onclick="closeDropdown();goToProfile()">👤 View Profile</button>
+                <button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button>
+            </div>
+        </div>
+    </div>
 
     <!-- TOP STATIC BLOCK -->
     <div id="home-top" style="flex-shrink:0; padding-top:0;">
@@ -271,6 +298,11 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <button class="btn-close" onclick="dismissInstallBanner()">✕</button>
             </div>
         </div>
+
+        <!-- FLOATING INSTALL BUTTON -->
+        <button class="floating-install-btn" id="floating-install-btn" onclick="forceInstall()">
+            📲 Install App
+        </button>
 
         <div id="guest-banner" class="guest-banner hidden"><span>👋 Welcome, Guest!</span><button class="btn-login" onclick="showLogin()">🔐 Login</button></div>
 
@@ -510,7 +542,7 @@ function showToast(msg){alert(msg)}
 // ============================================================
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-        navigator.serviceWorker.register('sw.js')
+        navigator.serviceWorker.register('sw.js', { scope: '/' })
             .then(function(registration) {
                 console.log('Service Worker registered successfully:', registration);
             })
@@ -519,6 +551,94 @@ if ('serviceWorker' in navigator) {
             });
     });
 }
+
+// ============================================================
+// PWA INSTALL HANDLING
+// ============================================================
+let deferredPrompt = null;
+let isAppInstalled = false;
+
+// Check if already installed
+if (window.matchMedia('(display-mode: standalone)').matches) {
+    isAppInstalled = true;
+}
+
+// Listen for beforeinstallprompt
+window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    console.log('✅ Install prompt captured');
+    
+    // Show floating install button
+    const floatingBtn = document.getElementById('floating-install-btn');
+    if (floatingBtn) {
+        floatingBtn.classList.add('show');
+    }
+    
+    // Show banner
+    const banner = document.getElementById('install-banner');
+    if (banner) {
+        banner.classList.remove('hidden');
+        banner.style.display = 'flex';
+    }
+});
+
+// Listen for successful installation
+window.addEventListener('appinstalled', function() {
+    isAppInstalled = true;
+    deferredPrompt = null;
+    console.log('✅ App installed successfully!');
+    
+    // Hide all install buttons
+    const floatingBtn = document.getElementById('floating-install-btn');
+    if (floatingBtn) {
+        floatingBtn.classList.remove('show');
+    }
+    const banner = document.getElementById('install-banner');
+    if (banner) {
+        banner.classList.add('hidden');
+        banner.style.display = 'none';
+    }
+    
+    showToast('🎉 ReturnTruck installed successfully!');
+});
+
+function forceInstall() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(function(choiceResult) {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('✅ User accepted the install prompt');
+                showToast('🎉 Installing ReturnTruck...');
+            } else {
+                console.log('❌ User dismissed the install prompt');
+                showToast('Installation cancelled');
+            }
+            deferredPrompt = null;
+        });
+    } else {
+        // Fallback for browsers without beforeinstallprompt
+        if (navigator.userAgent.match(/Android/i)) {
+            showToast('📱 Tap Chrome menu → "Install app"');
+        } else if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+            showToast('📱 Tap Share → "Add to Home Screen"');
+        } else {
+            showToast('📱 Open this page in Chrome on your phone');
+        }
+    }
+}
+
+// Show floating button on mobile after 3 seconds if no prompt
+setTimeout(function() {
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile && !isAppInstalled) {
+        const floatingBtn = document.getElementById('floating-install-btn');
+        if (floatingBtn && !deferredPrompt) {
+            floatingBtn.classList.add('show');
+            floatingBtn.textContent = '📲 Install App';
+        }
+    }
+}, 3000);
 
 // ============================================================
 // SHARED SEARCH FUNCTIONS
@@ -547,7 +667,7 @@ function getDistance(lat1, lng1, lat2, lng2) {
 }
 
 // ============================================================
-// UNIFIED SUGGESTION LOADER (FIXED LOGIC)
+// UNIFIED SUGGESTION LOADER
 // ============================================================
 function loadLocationSuggestions(context) {
     let inputId, suggestionsId;
@@ -561,16 +681,13 @@ function loadLocationSuggestions(context) {
     
     if(!input || !suggestions) return;
     
-    const query = input.value.trim(); // Fix: Get the actual search term
+    const query = input.value.trim();
     const results = findLocation(query);
     
     if(results.length === 0) { suggestions.classList.remove('show'); return; }
     
-    // Loop through ALL results and map them correctly
     suggestions.innerHTML = results.map(l => {
-        // Construct the display string like the header
         const displayName = `${l.name}, ${l.district}, ${l.state} (${l.pin})`;
-        // Highlight the matched letters in the string
         const idx = displayName.toLowerCase().indexOf(query.toLowerCase());
         let html = displayName;
         if(idx !== -1 && query) {
@@ -666,34 +783,23 @@ function checkAndHandleInstallBanner(){
         return;
     }
 
-    if (isGuest || !currentUser) {
-        localStorage.removeItem('rt_install_dismissed');
-        b.classList.remove('hidden');
-        b.style.display='flex';
-        return;
-    }
-
+    // Don't show if user dismissed
     if(localStorage.getItem('rt_install_dismissed') === 'true') {
         b.classList.add('hidden'); 
         b.style.display='none'; 
         return;
     }
     
-    const isPWASupported='serviceWorker' in navigator && 'BeforeInstallPromptEvent' in window;
-    if(isPWASupported){
+    // Only show on mobile
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if(isMobile && !isAppInstalled) {
         b.classList.remove('hidden');
         b.style.display='flex';
         const btn=$('install-btn');
-        if(btn) btn.textContent=deferredPrompt?'📲 Install':'📲 Install';
-    } else {
-        b.classList.remove('hidden');
-        b.style.display='flex';
-        const btn=$('install-btn');
-        if(btn) btn.textContent='📲 Install (Desktop)';
+        if(btn) btn.textContent='📲 Install';
     }
 }
 
-let deferredPrompt=null;
 function installApp(){
     if(deferredPrompt){
         deferredPrompt.prompt();
@@ -708,20 +814,15 @@ function installApp(){
         });
         return;
     }
-    showToast('📱 Tap share button → "Add to Home Screen"');
-}
-window.addEventListener('beforeinstallprompt',function(e){
-    e.preventDefault();
-    deferredPrompt=e;
-    if(localStorage.getItem('rt_install_dismissed') !== 'true'){
-        const b=$('install-banner');
-        if(b && b.style.display !== 'none'){ 
-            b.classList.remove('hidden'); b.style.display='flex'; 
-            const btn=$('install-btn');
-            if(btn) btn.textContent='📲 Install';
-        }
+    // Fallback
+    if (navigator.userAgent.match(/Android/i)) {
+        showToast('📱 Tap Chrome menu → "Install app"');
+    } else if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+        showToast('📱 Tap Share → "Add to Home Screen"');
+    } else {
+        showToast('📱 Open this page in Chrome on your phone');
     }
-});
+}
 
 // ============================================================
 // FIXED HEIGHT CALCULATION
@@ -1019,6 +1120,17 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('home-page').classList.add('hidden-page');
     }
     checkAndHandleInstallBanner();
+    
+    // Show floating button on mobile
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile && !isAppInstalled) {
+        setTimeout(() => {
+            const floatingBtn = document.getElementById('floating-install-btn');
+            if (floatingBtn) {
+                floatingBtn.classList.add('show');
+            }
+        }, 4000);
+    }
 });
 </script>
 </body>
