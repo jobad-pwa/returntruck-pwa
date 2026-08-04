@@ -7,27 +7,22 @@ const urlsToCache = [
   '/launchericon-512x512.png'
 ];
 
-self.addEventListener('install', function(event) {
+self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(function(cache) {
+      .then(cache => {
         console.log('✅ Cache opened');
-        return cache.addAll(urlsToCache).catch(function(err) {
-          console.log('❌ Cache error:', err);
-        });
+        return cache.addAll(urlsToCache);
       })
-      .then(function() {
-        console.log('✅ All assets cached');
-        return self.skipWaiting();
-      })
+      .then(() => self.skipWaiting())
   );
 });
 
-self.addEventListener('activate', function(event) {
+self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(function(cacheNames) {
+    caches.keys().then(cacheNames => {
       return Promise.all(
-        cacheNames.map(function(cacheName) {
+        cacheNames.map(cacheName => {
           if (cacheName !== CACHE_NAME) {
             console.log('🗑️ Deleting old cache:', cacheName);
             return caches.delete(cacheName);
@@ -35,33 +30,31 @@ self.addEventListener('activate', function(event) {
         })
       );
     })
-    .then(function() {
-      console.log('✅ Service Worker activated');
-      return self.clients.claim();
-    })
+    .then(() => self.clients.claim())
   );
 });
 
-self.addEventListener('fetch', function(event) {
+self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
-      .then(function(response) {
+      .then(response => {
         if (response) {
           return response;
         }
-        return fetch(event.request).then(function(response) {
-          if (!response || response.status !== 200) {
+        return fetch(event.request)
+          .then(response => {
+            if (!response || response.status !== 200) {
+              return response;
+            }
+            const responseToCache = response.clone();
+            if (event.request.method === 'GET') {
+              caches.open(CACHE_NAME)
+                .then(cache => {
+                  cache.put(event.request, responseToCache);
+                });
+            }
             return response;
-          }
-          var responseToCache = response.clone();
-          if (event.request.method === 'GET' && event.request.url.indexOf('supabase') === -1) {
-            caches.open(CACHE_NAME)
-              .then(function(cache) {
-                cache.put(event.request, responseToCache);
-              });
-          }
-          return response;
-        });
+          });
       })
   );
 });
