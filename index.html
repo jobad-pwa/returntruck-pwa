@@ -580,7 +580,6 @@ let currentUser=null, isGuest=false, currentTab='ALL', feedItems=[], currentDeta
 let otpTimerInterval=null, currentMobile='', selectedLocation=null, filterOpen=true;
 let logoutTimer = null;
 
-// Reusable State for Filter Locations
 let filterFromLocation = null;
 let filterToLocation = null;
 
@@ -588,7 +587,7 @@ function $(id){return document.getElementById(id)}
 function showToast(msg){alert(msg)}
 
 // ============================================================
-// SHARED SEARCH FUNCTIONS (NO DUPLICATION)
+// SHARED SEARCH FUNCTIONS
 // ============================================================
 function findLocation(query) {
     const q = query.toLowerCase().trim();
@@ -614,7 +613,7 @@ function getDistance(lat1, lng1, lat2, lng2) {
 }
 
 // ============================================================
-// UNIFIED SUGGESTION LOADER (Header, From, To all share this)
+// UNIFIED SUGGESTION LOADER (FIXED LOGIC)
 // ============================================================
 function loadLocationSuggestions(context) {
     let inputId, suggestionsId;
@@ -628,13 +627,16 @@ function loadLocationSuggestions(context) {
     
     if(!input || !suggestions) return;
     
-    const query = input.value;
+    const query = input.value.trim(); // Fix: Get the actual search term
     const results = findLocation(query);
     
     if(results.length === 0) { suggestions.classList.remove('show'); return; }
     
+    // Loop through ALL results and map them correctly
     suggestions.innerHTML = results.map(l => {
+        // Construct the display string like the header
         const displayName = `${l.name}, ${l.district}, ${l.state} (${l.pin})`;
+        // Highlight the matched letters in the string
         const idx = displayName.toLowerCase().indexOf(query.toLowerCase());
         let html = displayName;
         if(idx !== -1 && query) {
@@ -658,7 +660,6 @@ function selectLocationHelper(context, pin, name, state) {
         return;
     }
     
-    // For Filters
     if(context === 'from') { inputId = 'filter-from'; hiddenId = 'filter-from-hidden'; suggestionsId = 'filter-from-suggestions'; filterFromLocation = getLocationByPin(pin); }
     else if(context === 'to') { inputId = 'filter-to'; hiddenId = 'filter-to-hidden'; suggestionsId = 'filter-to-suggestions'; filterToLocation = getLocationByPin(pin); }
     
@@ -676,7 +677,7 @@ document.addEventListener('click', function(e) {
 });
 
 // ============================================================
-// REUSABLE LOCATION SEARCH FOR FORMS (Post Load / Post Truck)
+// REUSABLE LOCATION SEARCH FOR POST LOAD / POST TRUCK FORMS
 // ============================================================
 function searchLocationInForm(context){
     const input=$(context+'-input'); const suggestions=$(context+'-suggestions');
@@ -969,10 +970,9 @@ async function renderFeed(){
         if(currentTab==='LOAD') filtered=filtered.filter(i=>i.type==='LOAD');
         else if(currentTab==='TRUCK') filtered=filtered.filter(i=>i.type==='TRUCK');
         
-        // 3. Apply FROM/TO Filter with Radius Logic (Using Shared Search)
+        // 3. Apply FROM/TO Filter with Radius Logic
         const radius = parseInt(document.getElementById('radius-select').value) || 50;
         
-        // Filter FROM
         if(filterFromLocation) {
             filtered = filtered.filter(i => {
                 let targetLoc = null;
@@ -985,7 +985,6 @@ async function renderFeed(){
             });
         }
         
-        // Filter TO
         if(filterToLocation) {
             filtered = filtered.filter(i => {
                 let targetLoc = null;
@@ -997,15 +996,12 @@ async function renderFeed(){
             });
         }
         
-        // 4. Apply Vehicle/Weight Filters
         const vehicle=$('filter-vehicle')?.value; 
         if(vehicle&&vehicle!=='ALL') filtered=filtered.filter(i=>i.vehicle&&i.vehicle.toLowerCase().includes(vehicle));
         
-        // Update Results Display
         $('results-count').textContent=`Showing ${filtered.length} Records within ${radius} KM`;
         if(filtered.length===0){ $('feed-container').innerHTML='<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>'; return; }
         
-        // RENDER CARDS
         $('feed-container').innerHTML=filtered.map(i=>{
             const badgeClass=i.type==='LOAD'?'load':'truck';
             const titleClass=i.type==='LOAD'?'load-title':'truck-title';
