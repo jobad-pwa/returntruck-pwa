@@ -2,59 +2,43 @@ const CACHE_NAME = 'returntruck-v1';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/manifest.json',
-  '/launchericon-192x192.png',
-  '/launchericon-512x512.png'
+  '/manifest.json'
 ];
 
-self.addEventListener('install', event => {
+self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('✅ Cache opened');
+      .then(function(cache) {
         return cache.addAll(urlsToCache);
       })
-      .then(() => self.skipWaiting())
+      .then(function() {
+        return self.skipWaiting();
+      })
   );
 });
 
-self.addEventListener('activate', event => {
+self.addEventListener('activate', function(event) {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
+    caches.keys().then(function(cacheNames) {
       return Promise.all(
-        cacheNames.map(cacheName => {
+        cacheNames.map(function(cacheName) {
           if (cacheName !== CACHE_NAME) {
-            console.log('🗑️ Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     })
-    .then(() => self.clients.claim())
+    .then(function() {
+      return self.clients.claim();
+    })
   );
 });
 
-self.addEventListener('fetch', event => {
+self.addEventListener('fetch', function(event) {
   event.respondWith(
     caches.match(event.request)
-      .then(response => {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request)
-          .then(response => {
-            if (!response || response.status !== 200) {
-              return response;
-            }
-            const responseToCache = response.clone();
-            if (event.request.method === 'GET') {
-              caches.open(CACHE_NAME)
-                .then(cache => {
-                  cache.put(event.request, responseToCache);
-                });
-            }
-            return response;
-          });
+      .then(function(response) {
+        return response || fetch(event.request);
       })
   );
 });
