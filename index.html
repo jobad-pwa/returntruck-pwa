@@ -244,21 +244,23 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
      HOME PAGE
      ============================================================ -->
 <div id="home-page" class="hidden-page">
-    <div class="header-fixed">
-        <div class="logo" onclick="goHome()">
-            <span class="logo-icon">🚛</span>
-            <span class="logo-text">ReturnTruck</span>
-        </div>
-        <div class="header-right">
-            <button class="avatar-btn guest" id="avatar-btn" onclick="toggleDropdown()"><span id="avatar-initials">GU</span></button>
-            <div class="profile-dropdown" id="profile-dropdown">
-                <button class="dropdown-item" onclick="closeDropdown();goToProfile()">👤 View Profile</button>
-                <button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button>
-                <div class="dropdown-divider"></div>
-                <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button>
-            </div>
-        </div>
-    </div>
+   <div class="header-fixed">
+       <div class="logo" onclick="goHome()" style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+           <span style="font-size:28px;">🚛</span>
+           <span style="font-size:22px;font-weight:900;color:#2563eb;">ReturnTruck</span>
+       </div>
+       <div class="header-right">
+           <button class="avatar-btn guest" id="avatar-btn" onclick="toggleDropdown()">
+               <span id="avatar-initials">GU</span>
+           </button>
+           <div class="profile-dropdown" id="profile-dropdown">
+               <button class="dropdown-item" onclick="closeDropdown();goToProfile()">👤 View Profile</button>
+               <button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button>
+               <div class="dropdown-divider"></div>
+               <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button>
+           </div>
+       </div>
+   </div>
 
     <!-- TOP STATIC BLOCK -->
     <div id="home-top" style="flex-shrink:0; padding-top:0;">
