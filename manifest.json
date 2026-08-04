@@ -7,15 +7,17 @@
   "background_color": "#2563eb",
   "theme_color": "#2563eb",
   "orientation": "portrait",
+  "scope": "/",
+  "id": "/",
   "icons": [
     {
-      "src": "https://via.placeholder.com/192x192/2563eb/ffffff?text=RT",
+      "src": "launchericon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://via.placeholder.com/512x512/2563eb/ffffff?text=RT",
+      "src": "launchericon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
