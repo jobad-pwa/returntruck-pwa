@@ -135,37 +135,9 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .install-banner .btn-close{background:0 0;border:none;color:rgba(255,255,255,.7);font-size:18px;cursor:pointer}
 .install-banner.hidden{display:none}
 
-/* FLOATING INSTALL BUTTON - VISIBLE ON MOBILE */
-.floating-install-btn {
-    position: fixed;
-    bottom: 80px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #2563eb;
-    color: #fff;
-    border: none;
-    border-radius: 50px;
-    padding: 12px 24px;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
-    z-index: 1000;
-    display: none;
-    align-items: center;
-    gap: 10px;
-    animation: pulse 2s infinite;
-}
-
-.floating-install-btn.show {
-    display: flex;
-}
-
-@keyframes pulse {
-    0% { transform: translateX(-50%) scale(1); }
-    50% { transform: translateX(-50%) scale(1.05); }
-    100% { transform: translateX(-50%) scale(1); }
-}
+.floating-install-btn{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#2563eb;color:#fff;border:none;border-radius:50px;padding:12px 24px;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(37,99,235,0.4);z-index:1000;display:none;align-items:center;gap:10px;animation:pulse 2s infinite}
+.floating-install-btn.show{display:flex}
+@keyframes pulse{0%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.05)}100%{transform:translateX(-50%) scale(1)}}
 
 .guest-banner{flex-shrink:0;background:#2563eb;color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .guest-banner.hidden{display:none}
@@ -182,7 +154,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .detail-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:12px}
 .detail-actions button{width:100%;padding:10px;border-radius:10px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:10px}
 .btn-call{background:#16a34a}.btn-contact{background:#2563eb}.btn-bid{background:#8b5cf6}.btn-share{background:#25D366}
-
 .back-btn{background:transparent;border:none;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;padding:4px 8px}
 .back-btn:hover{color:#2563eb}
 </style>
@@ -190,16 +161,12 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 <body>
 <div class="card" id="app-card">
 
-<!-- ============================================================
-     LOGIN SCREEN
-     ============================================================ -->
 <div id="login-screen">
     <div class="login-logo">
         <span class="logo-icon">🚛</span>
         <span class="logo-text">ReturnTruck</span>
     </div>
     <div style="font-size:13px;color:#64748b;text-align:center;margin-bottom:16px">Find Loads • Post Trucks • Connect Agents</div>
-
     <div class="login-stats-container">
         <div class="login-stats-grid" style="margin-bottom:6px">
             <div class="login-stat-item"><span style="font-size:16px">📦</span><span class="number">0</span><span class="label">Load Givers</span></div>
@@ -214,7 +181,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div class="login-stat-item"><span style="font-size:16px">⭐</span><span class="number">4.8</span><span class="label">Rating</span></div>
         </div>
     </div>
-
     <div class="login-step-container">
         <div id="step1">
             <input type="tel" id="mobile" class="input-field" placeholder="Enter Mobile Number" maxlength="10" autofocus>
@@ -222,23 +188,15 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div class="login-divider"><div style="flex:1;height:1px;background:#e2e8f0"></div><span style="font-size:10px;color:#94a3b8">or continue as</span><div style="flex:1;height:1px;background:#e2e8f0"></div></div>
             <button style="width:100%;padding:12px;border:1.5px solid #8b5cf6;border-radius:12px;font-size:14px;font-weight:600;color:#8b5cf6;background:transparent;cursor:pointer" onclick="continueAsGuest()">👤 Guest</button>
         </div>
-
         <div id="step2" class="hidden">
-            <div style="text-align:center;margin-bottom:16px">
-                <div id="display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
-                <div style="font-size:14px;font-weight:500;color:#475569">Enter your 4-digit PIN</div>
-            </div>
+            <div style="text-align:center;margin-bottom:16px"><div id="display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div><div style="font-size:14px;font-weight:500;color:#475569">Enter your 4-digit PIN</div></div>
             <input type="password" id="pin" class="input-field" style="letter-spacing:4px;" placeholder="Enter 4-digit PIN" maxlength="4">
             <div style="font-size:12px;text-align:center;margin-bottom:12px;color:#64748b">Forgot PIN? <span style="color:#2563eb;cursor:pointer;font-weight:600" onclick="resetPIN()">Reset PIN</span></div>
             <button onclick="submitPin()" id="submitBtn" class="btn-primary" style="background:#16a34a">🔐 Login</button>
             <button onclick="resetForm()" class="btn-back">← Change Number</button>
         </div>
-
         <div id="step3" class="hidden">
-            <div style="text-align:center;margin-bottom:16px">
-                <div id="wa-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
-                <div style="font-size:13px;color:#64748b">Enter OTP sent via WhatsApp</div>
-            </div>
+            <div style="text-align:center;margin-bottom:16px"><div id="wa-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div><div style="font-size:13px;color:#64748b">Enter OTP sent via WhatsApp</div></div>
             <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
                 <input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
                 <input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
@@ -251,12 +209,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <button onclick="verifyOTP()" id="verify-btn" class="btn-primary" style="background:#16a34a">✅ Verify</button>
             <button onclick="resetForm()" class="btn-back">← Change Number</button>
         </div>
-
         <div id="step4" class="hidden">
-            <div style="text-align:center;margin-bottom:16px">
-                <div id="reg-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
-                <div style="font-size:13px;color:#64748b">Set your 4-digit PIN for login</div>
-            </div>
+            <div style="text-align:center;margin-bottom:16px"><div id="reg-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div><div style="font-size:13px;color:#64748b">Set your 4-digit PIN for login</div></div>
             <input type="password" id="reg-pin" class="input-field" placeholder="New PIN (4 digits)" maxlength="4">
             <input type="password" id="reg-pin-confirm" class="input-field" placeholder="Confirm PIN" maxlength="4">
             <button onclick="registerUser()" id="register-btn" class="btn-primary" style="background:#16a34a">✅ Create Account</button>
@@ -269,9 +223,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
-<!-- ============================================================
-     HOME PAGE
-     ============================================================ -->
 <div id="home-page" class="hidden-page">
     <div class="header-fixed">
         <div class="logo" onclick="goHome()">
@@ -288,8 +239,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
         </div>
     </div>
-
-    <!-- TOP STATIC BLOCK -->
     <div id="home-top" style="flex-shrink:0; padding-top:0;">
         <div class="install-banner" id="install-banner">
             <span class="text">📲 Install ReturnTruck app</span>
@@ -298,14 +247,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <button class="btn-close" onclick="dismissInstallBanner()">✕</button>
             </div>
         </div>
-
-        <!-- FLOATING INSTALL BUTTON -->
-        <button class="floating-install-btn" id="floating-install-btn" onclick="forceInstall()">
-            📲 Install App
-        </button>
-
+        <button class="floating-install-btn" id="floating-install-btn" onclick="forceInstall()">📲 Install App</button>
         <div id="guest-banner" class="guest-banner hidden"><span>👋 Welcome, Guest!</span><button class="btn-login" onclick="showLogin()">🔐 Login</button></div>
-
         <div class="location-row">
             <div class="location-input">
                 <input type="text" id="location-search" placeholder="📍 Location/PIN" oninput="loadLocationSuggestions('location')">
@@ -322,19 +265,16 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 </select>
             </div>
         </div>
-
         <div class="type-tabs">
             <button id="tab-all" class="active" onclick="setTab('ALL')">All</button>
             <button id="tab-loads" class="inactive" onclick="setTab('LOAD')">Loads</button>
             <button id="tab-trucks" class="inactive" onclick="setTab('TRUCK')">Trucks</button>
             <button id="tab-agents" class="inactive" onclick="setTab('AGENT')">Agents</button>
         </div>
-
         <div class="filter-toggle" onclick="toggleFilters()">
             <span id="filter-toggle-label">🔍 Hide Filters</span>
             <span class="arrow open" id="filter-arrow">▲</span>
         </div>
-        
         <div class="filter-container open" id="filter-container">
             <div class="filter-row">
                 <div>
@@ -359,15 +299,10 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <div><label>Weight (Kg)</label><select id="filter-weight" onchange="applyFilters()"><option value="ALL">All</option><option value="0-10000">0-10,000</option><option value="10000-20000">10k-20k</option><option value="20000-30000">20k-30k</option><option value="30000+">30k+</option></select></div>
             </div>
         </div>
-
         <div class="results-count"><span id="results-count">Showing 0 Records</span></div>
         <div style="width:100%;height:1px;background:#f1f5f9;margin-top:2px;margin-bottom:4px;flex-shrink:0"></div>
     </div>
-
-    <!-- 3. Dynamic Scroll Body -->
     <div class="scroll-body" id="home-scroll-body"><div id="feed-container" class="feed-container"></div></div>
-    
-    <!-- 4. Fixed Bottom Nav -->
     <div class="nav-fixed">
         <button class="nav-item active" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
         <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Post Load</span></button>
@@ -376,9 +311,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
-<!-- ============================================================
-     POST LOAD PAGE
-     ============================================================ -->
 <div id="postload-page" class="hidden-page">
     <div class="header-fixed">
         <span class="logo" onclick="goHome()">
@@ -403,9 +335,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
-<!-- ============================================================
-     POST TRUCK PAGE
-     ============================================================ -->
 <div id="posttruck-page" class="hidden-page">
     <div class="header-fixed">
         <span class="logo" onclick="goHome()">
@@ -429,9 +358,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
-<!-- ============================================================
-     PROFILE PAGE
-     ============================================================ -->
 <div id="profile-page" class="hidden-page">
     <div class="header-fixed">
         <div class="logo" onclick="goHome()">
@@ -466,9 +392,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
-<!-- ============================================================
-     DETAIL PAGE
-     ============================================================ -->
 <div id="detail-page" class="hidden-page">
     <div class="header-fixed">
         <span class="logo" onclick="goHome()">
@@ -530,7 +453,6 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser=null, isGuest=false, currentTab='ALL', feedItems=[], currentDetailData=null;
 let otpTimerInterval=null, currentMobile='', selectedLocation=null, filterOpen=true;
 let logoutTimer = null;
-
 let filterFromLocation = null;
 let filterToLocation = null;
 
@@ -544,10 +466,10 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
         navigator.serviceWorker.register('sw.js', { scope: '/' })
             .then(function(registration) {
-                console.log('Service Worker registered successfully:', registration);
+                console.log('✅ Service Worker registered successfully');
             })
             .catch(function(error) {
-                console.log('Service Worker registration failed:', error);
+                console.log('❌ Service Worker registration failed:', error);
             });
     });
 }
@@ -558,24 +480,16 @@ if ('serviceWorker' in navigator) {
 let deferredPrompt = null;
 let isAppInstalled = false;
 
-// Check if already installed
 if (window.matchMedia('(display-mode: standalone)').matches) {
     isAppInstalled = true;
 }
 
-// Listen for beforeinstallprompt
 window.addEventListener('beforeinstallprompt', function(e) {
     e.preventDefault();
     deferredPrompt = e;
     console.log('✅ Install prompt captured');
-    
-    // Show floating install button
     const floatingBtn = document.getElementById('floating-install-btn');
-    if (floatingBtn) {
-        floatingBtn.classList.add('show');
-    }
-    
-    // Show banner
+    if (floatingBtn) floatingBtn.classList.add('show');
     const banner = document.getElementById('install-banner');
     if (banner) {
         banner.classList.remove('hidden');
@@ -583,23 +497,17 @@ window.addEventListener('beforeinstallprompt', function(e) {
     }
 });
 
-// Listen for successful installation
 window.addEventListener('appinstalled', function() {
     isAppInstalled = true;
     deferredPrompt = null;
     console.log('✅ App installed successfully!');
-    
-    // Hide all install buttons
     const floatingBtn = document.getElementById('floating-install-btn');
-    if (floatingBtn) {
-        floatingBtn.classList.remove('show');
-    }
+    if (floatingBtn) floatingBtn.classList.remove('show');
     const banner = document.getElementById('install-banner');
     if (banner) {
         banner.classList.add('hidden');
         banner.style.display = 'none';
     }
-    
     showToast('🎉 ReturnTruck installed successfully!');
 });
 
@@ -617,7 +525,6 @@ function forceInstall() {
             deferredPrompt = null;
         });
     } else {
-        // Fallback for browsers without beforeinstallprompt
         if (navigator.userAgent.match(/Android/i)) {
             showToast('📱 Tap Chrome menu → "Install app"');
         } else if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
@@ -628,7 +535,6 @@ function forceInstall() {
     }
 }
 
-// Show floating button on mobile after 3 seconds if no prompt
 setTimeout(function() {
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (isMobile && !isAppInstalled) {
@@ -666,26 +572,17 @@ function getDistance(lat1, lng1, lat2, lng2) {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
-// ============================================================
-// UNIFIED SUGGESTION LOADER
-// ============================================================
 function loadLocationSuggestions(context) {
     let inputId, suggestionsId;
-    
     if(context === 'location') { inputId = 'location-search'; suggestionsId = 'location-suggestions'; }
     else if(context === 'from') { inputId = 'filter-from'; suggestionsId = 'filter-from-suggestions'; }
     else if(context === 'to') { inputId = 'filter-to'; suggestionsId = 'filter-to-suggestions'; }
-    
     const input = document.getElementById(inputId);
     const suggestions = document.getElementById(suggestionsId);
-    
     if(!input || !suggestions) return;
-    
     const query = input.value.trim();
     const results = findLocation(query);
-    
     if(results.length === 0) { suggestions.classList.remove('show'); return; }
-    
     suggestions.innerHTML = results.map(l => {
         const displayName = `${l.name}, ${l.district}, ${l.state} (${l.pin})`;
         const idx = displayName.toLowerCase().indexOf(query.toLowerCase());
@@ -695,13 +592,11 @@ function loadLocationSuggestions(context) {
         }
         return `<div class="item" onclick="selectLocationHelper('${context}','${l.pin}','${l.name}','${l.state}')">${html}</div>`;
     }).join('');
-    
     suggestions.classList.add('show');
 }
 
 function selectLocationHelper(context, pin, name, state) {
     let inputId, suggestionsId, hiddenId;
-    
     if(context === 'location') {
         inputId = 'location-search'; suggestionsId = 'location-suggestions';
         document.getElementById(inputId).value = `${name}, ${state} (${pin})`;
@@ -710,26 +605,20 @@ function selectLocationHelper(context, pin, name, state) {
         applyFilters();
         return;
     }
-    
     if(context === 'from') { inputId = 'filter-from'; hiddenId = 'filter-from-hidden'; suggestionsId = 'filter-from-suggestions'; filterFromLocation = getLocationByPin(pin); }
     else if(context === 'to') { inputId = 'filter-to'; hiddenId = 'filter-to-hidden'; suggestionsId = 'filter-to-suggestions'; filterToLocation = getLocationByPin(pin); }
-    
     document.getElementById(inputId).value = getLocationName(pin);
     if(hiddenId) document.getElementById(hiddenId).value = pin;
     document.getElementById(suggestionsId).classList.remove('show');
     applyFilters();
 }
 
-// Close dropdowns when clicking outside
 document.addEventListener('click', function(e) {
     document.querySelectorAll('.suggestions').forEach(s => {
         if(!s.parentElement.contains(e.target)) s.classList.remove('show');
     });
 });
 
-// ============================================================
-// REUSABLE LOCATION SEARCH FOR POST LOAD / POST TRUCK FORMS
-// ============================================================
 function searchLocationInForm(context){
     const input=$(context+'-input'); const suggestions=$(context+'-suggestions');
     const results=findLocation(input.value);
@@ -739,9 +628,6 @@ function searchLocationInForm(context){
 }
 function selectLocationInForm(context,pin){ $(context+'-input').value=getLocationName(pin); $(context+'-hidden').value=pin; $(context+'-suggestions').classList.remove('show'); }
 
-// ============================================================
-// IDLE LOGOUT TIMER (5 MINUTES)
-// ============================================================
 function resetLogoutTimer() {
     if (logoutTimer) clearTimeout(logoutTimer);
     if (!currentUser && !isGuest) return;
@@ -760,9 +646,6 @@ document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') resetLogoutTimer();
 });
 
-// ============================================================
-// INSTALL BANNER LOGIC
-// ============================================================
 function dismissInstallBanner(){
     const b=$('install-banner');
     if(b){
@@ -775,22 +658,17 @@ function dismissInstallBanner(){
 function checkAndHandleInstallBanner(){
     const b=$('install-banner'); 
     if(!b) return;
-    
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
     if (isStandalone) {
         b.classList.add('hidden'); 
         b.style.display='none'; 
         return;
     }
-
-    // Don't show if user dismissed
     if(localStorage.getItem('rt_install_dismissed') === 'true') {
         b.classList.add('hidden'); 
         b.style.display='none'; 
         return;
     }
-    
-    // Only show on mobile
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if(isMobile && !isAppInstalled) {
         b.classList.remove('hidden');
@@ -814,7 +692,6 @@ function installApp(){
         });
         return;
     }
-    // Fallback
     if (navigator.userAgent.match(/Android/i)) {
         showToast('📱 Tap Chrome menu → "Install app"');
     } else if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
@@ -824,20 +701,14 @@ function installApp(){
     }
 }
 
-// ============================================================
-// FIXED HEIGHT CALCULATION
-// ============================================================
 function fixLayoutHeight(){
     const card=document.querySelector('.card'); 
     if(!card) return;
-    
     const scrollBody=document.querySelector('.scroll-body:not(.hidden-page)');
     const header=document.querySelector('.header-fixed:not(.hidden-page)');
     const nav=document.querySelector('.nav-fixed:not(.hidden-page)');
     const topContainer=document.getElementById('home-top'); 
-    
     if(!scrollBody||!header||!nav||!topContainer) return;
-    
     const avail = card.clientHeight - header.offsetHeight - topContainer.scrollHeight - nav.offsetHeight - 16; 
     scrollBody.style.height = Math.max(100, avail) + 'px';
 }
@@ -848,9 +719,6 @@ function handleResize(){
     resizeTimer=setTimeout(fixLayoutHeight, 200); 
 }
 
-// ============================================================
-// SESSION & AUTH
-// ============================================================
 function updateGuestUI(){
     const b=$('guest-banner');
     if(b){
@@ -882,7 +750,6 @@ function showHome(){
     document.getElementById('login-screen').style.display='none'; 
     document.getElementById('home-page').classList.remove('hidden-page'); 
     updateGuestUI(); 
-    
     requestAnimationFrame(() => {
         setTimeout(() => {
             fixLayoutHeight(); 
@@ -937,9 +804,6 @@ function logout() {
     }
 }
 
-// ============================================================
-// DROPDOWN & NAV
-// ============================================================
 function toggleDropdown(){document.querySelectorAll('.profile-dropdown').forEach(d=>d.classList.toggle('show'))}
 function closeDropdown(){document.querySelectorAll('.profile-dropdown').forEach(d=>d.classList.remove('show'))}
 function goHome(){
@@ -960,9 +824,6 @@ function goToProfile(){ if(isGuest||!currentUser){showLogin();return;} switchPag
 function cancelPost(){goHome();}
 function closeDetail(){currentDetailData=null;goHome();}
 
-// ============================================================
-// TABS, FILTERS & FEED
-// ============================================================
 function setTab(tab){ currentTab=tab; document.querySelectorAll('.type-tabs button').forEach(b=>b.className='inactive'); const map={'ALL':'tab-all','LOAD':'tab-loads','TRUCK':'tab-trucks','AGENT':'tab-agents'}; const el=$(map[tab]); if(el) el.className='active'; renderFeed(); }
 
 function toggleFilters(){ 
@@ -979,20 +840,15 @@ async function renderFeed(){
         const {data:loads}=await sb.from('active_loads').select('*').eq('status',1);
         const {data:trucks}=await sb.from('active_trucks').select('*').eq('status',1);
         feedItems=[...(loads||[]).map(l=>({type:'LOAD',title:l.material||'Cargo',company:l.company||'',from:l.pickup_pin||'',to:l.drop_pin||'',weight:l.weight||0,vehicle:l.vehicle_type||'',rate:l.rate||0,views:l.views||0,interests:(l.interests||[]).length,shares:l.shares||0,id:l.id})),...(trucks||[]).map(t=>({type:'TRUCK',title:t.truck_no||'Truck',company:t.company_name||'',pin:t.location_pin||'',vehicle:t.vehicle_type||'',rate:t.rate_km||0,views:t.views||0,interests:(t.interested||[]).length,shares:t.share||0,id:t.id}))];
-        
         let filtered = [...feedItems];
-        
-        // 1. Apply RADIUS FILTER (If a location is selected in the header)
         if(selectedLocation) {
             const centerLoc = getLocationByPin(selectedLocation);
             const radius = parseInt(document.getElementById('radius-select').value) || 50;
-            
             if(centerLoc) {
                 filtered = filtered.filter(i => {
                     let targetLoc = null;
                     if(i.type === 'LOAD') targetLoc = getLocationByPin(i.from);
                     if(i.type === 'TRUCK') targetLoc = getLocationByPin(i.pin);
-                    
                     if(targetLoc && centerLoc) {
                         return getDistance(centerLoc.lat, centerLoc.lng, targetLoc.lat, targetLoc.lng) <= radius;
                     }
@@ -1000,14 +856,9 @@ async function renderFeed(){
                 });
             }
         }
-        
-        // 2. Apply TAB Filter
         if(currentTab==='LOAD') filtered=filtered.filter(i=>i.type==='LOAD');
         else if(currentTab==='TRUCK') filtered=filtered.filter(i=>i.type==='TRUCK');
-        
-        // 3. Apply FROM/TO Filter with Radius Logic
         const radius = parseInt(document.getElementById('radius-select').value) || 50;
-        
         if(filterFromLocation) {
             filtered = filtered.filter(i => {
                 let targetLoc = null;
@@ -1019,7 +870,6 @@ async function renderFeed(){
                 return false;
             });
         }
-        
         if(filterToLocation) {
             filtered = filtered.filter(i => {
                 let targetLoc = null;
@@ -1030,16 +880,12 @@ async function renderFeed(){
                 return false;
             });
         }
-        
         const vehicle=$('filter-vehicle')?.value; 
         if(vehicle&&vehicle!=='ALL') filtered=filtered.filter(i=>i.vehicle&&i.vehicle.toLowerCase().includes(vehicle));
-        
         $('results-count').textContent=`Showing ${filtered.length} Records within ${radius} KM`;
         if(filtered.length===0){ $('feed-container').innerHTML='<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>'; return; }
-        
         $('feed-container').innerHTML=filtered.map(i=>{
             const badgeClass=i.type==='LOAD'?'load':'truck';
-            const titleClass=i.type==='LOAD'?'load-title':'truck-title';
             let loc='', sub='', rate='', stats='';
             if(i.type==='LOAD'){
                 loc=`📍 ${getLocationName(i.from)} → ${getLocationName(i.to)}`;
@@ -1055,7 +901,7 @@ async function renderFeed(){
             return `
             <div class="feed-card" onclick="openDetail('${i.type}','${i.id}')">
                 <div class="header-row">
-                    <div class="title ${titleClass}">${i.title}</div>
+                    <div class="title">${i.title}</div>
                     <span class="type-badge ${badgeClass}">${i.type}</span>
                 </div>
                 <div class="company">${sub}</div>
@@ -1072,9 +918,6 @@ async function renderFeed(){
     }catch(e){ $('feed-container').innerHTML='<div style="padding:30px 0;color:#ef4444;text-align:center">Error loading feed.</div>'; }
 }
 
-// ============================================================
-// PROFILE & DETAILS
-// ============================================================
 async function loadProfile(){ if(!currentUser)return; $('profile-mobile').textContent=currentUser.mobile||'--'; }
 async function saveLoadGiverProfile(){ const c=$('lg-company').value.trim(); if(!c)return showToast('⚠️ Enter company name'); await sb.from('active_users').update({company_name:c}).eq('mobile',currentUser.mobile); currentUser.company_name=c; showToast('✅ Saved!'); loadProfile(); }
 async function saveFleetProfile(){ const c=$('fo-company').value.trim(); if(!c)return showToast('⚠️ Enter company name'); await sb.from('active_users').update({fleet_company:c}).eq('mobile',currentUser.mobile); currentUser.fleet_company=c; showToast('✅ Saved!'); loadProfile(); }
@@ -1101,9 +944,6 @@ function publishLoad(){ showToast('📦 Load published successfully!'); }
 function publishTruck(){ showToast('🚛 Truck listed successfully!'); }
 function openChangePin(){ showToast('🔑 PIN change feature coming soon!'); }
 
-// ============================================================
-// INIT
-// ============================================================
 window.addEventListener('resize', handleResize);
 document.addEventListener('DOMContentLoaded', function() {
     const savedSession = localStorage.getItem('rt_user');
@@ -1120,8 +960,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('home-page').classList.add('hidden-page');
     }
     checkAndHandleInstallBanner();
-    
-    // Show floating button on mobile
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (isMobile && !isAppInstalled) {
         setTimeout(() => {
