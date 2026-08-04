@@ -1,3 +1,4 @@
+// ReturnTruck Service Worker
 const CACHE_NAME = 'returntruck-v1';
 const urlsToCache = [
   '/',
@@ -8,6 +9,7 @@ const urlsToCache = [
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
 ];
 
+// Install event
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -19,9 +21,13 @@ self.addEventListener('install', event => {
         console.log('✅ All assets cached');
         return self.skipWaiting();
       })
+      .catch(err => {
+        console.log('❌ Cache error:', err);
+      })
   );
 });
 
+// Activate event
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
@@ -41,27 +47,45 @@ self.addEventListener('activate', event => {
   );
 });
 
+// Fetch event
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
+        // Cache hit - return response
         if (response) {
           return response;
         }
+        
+        // Clone the request
         const fetchRequest = event.request.clone();
+        
         return fetch(fetchRequest)
           .then(response => {
+            // Check if we received a valid response
             if (!response || response.status !== 200 || response.type !== 'basic') {
               return response;
             }
+            
+            // Clone the response
             const responseToCache = response.clone();
+            
+            // Only cache successful GET requests
             if (event.request.method === 'GET') {
               caches.open(CACHE_NAME)
                 .then(cache => {
                   cache.put(event.request, responseToCache);
+                })
+                .catch(err => {
+                  console.log('⚠️ Cache put error:', err);
                 });
             }
+            
             return response;
+          })
+          .catch(() => {
+            // Offline fallback
+            console.log('⚠️ Offline - using cached version');
           });
       })
   );
