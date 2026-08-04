@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Test - ReturnTruck</title>
+    
+    <!-- PWA Requirements -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-transparent">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        body {
+            background: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .logo {
+            font-size: 60px;
+            margin-bottom: 10px;
+        }
+        h1 {
+            color: #2563eb;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        .status-box {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        .status-label {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 14px;
+        }
+        .status-value {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .pass { color: #16a34a; }
+        .fail { color: #dc2626; }
+        .pending { color: #f59e0b; }
+        
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 12px;
+        }
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: scale(1.02);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+        .btn-outline {
+            background: transparent;
+            color: #2563eb;
+            border: 2px solid #2563eb;
+        }
+        .btn-outline:hover {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .log-box {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 11px;
+            max-height: 150px;
+            overflow-y: auto;
+            text-align: left;
+            margin-top: 12px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .log-box .success { color: #4ade80; }
+        .log-box .error { color: #f87171; }
+        .log-box .info { color: #60a5fa; }
+        .log-box .warn { color: #fbbf24; }
+        
+        .hidden { display: none; }
+        .mt-12 { margin-top: 12px; }
+        .mb-12 { margin-bottom: 12px; }
+        
+        .install-banner {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .install-banner.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-success { background: #dcfce7; color: #166534; }
+        .badge-error { background: #fee2e2; color: #991b1b; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🚛</div>
+        <h1>ReturnTruck PWA Test</h1>
+        <p class="subtitle">Testing PWA installation capabilities</p>
+
+        <!-- Install Banner -->
+        <div id="install-banner" class="install-banner">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span>📲 Ready to install!</span>
+                <button onclick="dismissBanner()" style="background:transparent;border:none;color:white;font-size:20px;cursor:pointer;">✕</button>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div class="status-box">
+            <div class="status-item">
+                <span class="status-label">🔒 HTTPS</span>
+                <span class="status-value" id="https-status">Checking...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">📄 Manifest</span>
+                <span class="status-value" id="manifest-status">Checking...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">⚙️ Service Worker</span>
+                <span class="status-value" id="sw-status">Checking...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">📱 Install Ready</span>
+                <span class="status-value" id="install-status">Waiting...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">📦 Installed</span>
+                <span class="status-value" id="installed-status">Checking...</span>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <button class="btn btn-primary" id="install-btn" onclick="triggerInstall()">
+            📲 Install ReturnTruck
+        </button>
+        
+        <button class="btn btn-success" onclick="registerSW()">
+            🔄 Register Service Worker
+        </button>
+        
+        <button class="btn btn-warning" onclick="clearAllCache()">
+            🗑️ Clear Cache & Reset
+        </button>
+        
+        <button class="btn btn-outline" onclick="refreshStatus()">
+            🔄 Refresh Status
+        </button>
+
+        <!-- Log -->
+        <div style="margin-top:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-weight:600;font-size:14px;color:#1e293b;">📝 Log</span>
+                <button onclick="clearLog()" style="background:transparent;border:none;color:#64748b;cursor:pointer;font-size:12px;">Clear</button>
+            </div>
+            <div class="log-box" id="log-box">
+                ⏳ Initializing PWA test...
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div style="margin-top:16px;padding:16px;background:#f8fafc;border-radius:12px;text-align:left;font-size:13px;color:#475569;">
+            <strong style="color:#1e293b;">📱 Manual Installation:</strong>
+            <ul style="margin:8px 0 0 16px;padding:0;">
+                <li><strong>Android Chrome:</strong> Tap ⋮ menu → "Install app"</li>
+                <li><strong>iOS Safari:</strong> Tap Share → "Add to Home Screen"</li>
+                <li><strong>If button doesn't work:</strong> The browser may not support automatic installation</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // CONFIG
+        // ============================================================
+        let deferredPrompt = null;
+        let isInstalled = false;
+        let swRegistration = null;
+
+        // ============================================================
+        // LOGGING
+        // ============================================================
+        function addLog(message, type = 'info') {
+            const logBox = document.getElementById('log-box');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                success: 'success',
+                error: 'error',
+                info: 'info',
+                warn: 'warn'
+            };
+            const color = colors[type] || 'info';
+            const entry = `[${timestamp}] <span class="${color}">${message}</span>\n`;
+            logBox.innerHTML += entry;
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log-box').innerHTML = '';
+            addLog('Log cleared', 'info');
+        }
+
+        // ============================================================
+        // STATUS UPDATES
+        // ============================================================
+        function updateStatus(id, status, message) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            
+            const statusMap = {
+                pass: { class: 'pass', icon: '✅' },
+                fail: { class: 'fail', icon: '❌' },
+                pending: { class: 'pending', icon: '⏳' },
+                info: { class: 'pass', icon: 'ℹ️' }
+            };
+            
+            const s = statusMap[status] || statusMap['pending'];
+            el.className = 'status-value ' + s.class;
+            el.textContent = `${s.icon} ${message || status}`;
+        }
+
+        function refreshStatus() {
+            addLog('Refreshing status...', 'info');
+            checkHTTPS();
+            checkManifest();
+            checkServiceWorker();
+            checkInstallReady();
+            checkInstalled();
+        }
+
+        // ============================================================
+        // CHECKS
+        // ============================================================
+        function checkHTTPS() {
+            const isHTTPS = window.location.protocol === 'https:';
+            if (isHTTPS) {
+                updateStatus('https-status', 'pass', 'Secure');
+                addLog('✅ HTTPS: Secure connection', 'success');
+            } else {
+                updateStatus('https-status', 'fail', 'Not secure!');
+                addLog('❌ HTTPS: NOT secure - PWA requires HTTPS!', 'error');
+            }
+            return isHTTPS;
+        }
+
+        async function checkManifest() {
+            try {
+                const response = await fetch('manifest.json');
+                if (response.ok) {
+                    const manifest = await response.json();
+                    updateStatus('manifest-status', 'pass', 'Loaded');
+                    addLog('✅ Manifest loaded successfully', 'success');
+                    
+                    // Check icons
+                    if (manifest.icons && manifest.icons.length > 0) {
+                        addLog(`   Found ${manifest.icons.length} icons`, 'info');
+                    }
+                    return true;
+                } else {
+                    updateStatus('manifest-status', 'fail', 'Not found (404)');
+                    addLog('❌ Manifest not found - HTTP 404', 'error');
+                    return false;
+                }
+            } catch (e) {
+                updateStatus('manifest-status', 'fail', 'Error');
+                addLog(`❌ Manifest error: ${e.message}`, 'error');
+                return false;
+            }
+        }
+
+        function checkServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistration().then(reg => {
+                    if (reg) {
+                        swRegistration = reg;
+                        updateStatus('sw-status', 'pass', 'Active');
+                        addLog('✅ Service Worker is active', 'success');
+                        addLog(`   Scope: ${reg.scope}`, 'info');
+                    } else {
+                        updateStatus('sw-status', 'pending', 'Not registered');
+                        addLog('⏳ Service Worker not registered, attempting...', 'warn');
+                        registerSW();
+                    }
+                });
+            } else {
+                updateStatus('sw-status', 'fail', 'Not supported');
+                addLog('❌ Service Workers not supported', 'error');
+            }
+        }
+
+        function checkInstallReady() {
+            if (deferredPrompt) {
+                updateStatus('install-status', 'pass', 'Ready!');
+                addLog('✅ Install prompt is ready!', 'success');
+                document.getElementById('install-banner').classList.add('show');
+                document.getElementById('install-btn').disabled = false;
+            } else {
+                updateStatus('install-status', 'pending', 'Waiting...');
+                addLog('⏳ Waiting for install prompt event...', 'warn');
+            }
+        }
+
+        function checkInstalled() {
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+            if (isStandalone) {
+                isInstalled = true;
+                updateStatus('installed-status', 'pass', 'INSTALLED! 🎉');
+                addLog('🎉 App is already installed!', 'success');
+                document.getElementById('install-btn').disabled = true;
+                document.getElementById('install-btn').textContent = '✅ Already Installed';
+            } else {
+                updateStatus('installed-status', 'info', 'Not installed');
+                addLog('ℹ️ Running in browser mode', 'info');
+            }
+        }
+
+        // ============================================================
+        // SERVICE WORKER
+        // ============================================================
+        function registerSW() {
+            if ('serviceWorker' in navigator) {
+                addLog('📦 Registering Service Worker...', 'info');
+                navigator.serviceWorker.register('sw.js', { scope: '/' })
+                    .then(reg => {
+                        swRegistration = reg;
+                        updateStatus('sw-status', 'pass', 'Active');
+                        addLog('✅ Service Worker registered!', 'success');
+                        addLog(`   Scope: ${reg.scope}`, 'info');
+                    })
+                    .catch(err => {
+                        updateStatus('sw-status', 'fail', 'Error');
+                        addLog(`❌ SW registration failed: ${err.message}`, 'error');
+                    });
+            } else {
+                addLog('❌ Service Workers not supported', 'error');
+            }
+        }
+
+        // ============================================================
+        // INSTALL
+        // ============================================================
+        function triggerInstall() {
+            addLog('📲 Triggering install...', 'info');
+            
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(choiceResult => {
+                    if (choiceResult.outcome === 'accepted') {
+                        addLog('✅ User accepted install! 🎉', 'success');
+                        updateStatus('install-status', 'pass', 'Installed!');
+                    } else {
+                        addLog('❌ User dismissed install', 'warn');
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('install-banner').classList.remove('show');
+                });
+            } else {
+                addLog('⚠️ No install prompt available', 'warn');
+                
+                // Show manual instructions based on device
+                if (navigator.userAgent.match(/Android/i)) {
+                    addLog('📱 Android: Tap Chrome menu ⋮ → "Install app"', 'info');
+                    alert('📱 Open Chrome menu (3 dots) and tap "Install app"');
+                } else if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+                    addLog('📱 iOS: Tap Share → "Add to Home Screen"', 'info');
+                    alert('📱 Tap Share button and select "Add to Home Screen"');
+                } else {
+                    addLog('💻 Desktop: PWA install may not be available', 'warn');
+                    alert('💻 Open this page on your phone to install');
+                }
+            }
+        }
+
+        function dismissBanner() {
+            document.getElementById('install-banner').classList.remove('show');
+            addLog('Install banner dismissed', 'info');
+        }
+
+        // ============================================================
+        // CACHE CLEAR
+        // ============================================================
+        function clearAllCache() {
+            if (confirm('This will clear all cached data. Continue?')) {
+                addLog('🗑️ Clearing all cache...', 'warn');
+                
+                // Clear caches
+                if ('caches' in window) {
+                    caches.keys().then(names => {
+                        names.forEach(name => {
+                            caches.delete(name);
+                            addLog(`   Deleted cache: ${name}`, 'info');
+                        });
+                    });
+                }
+                
+                // Clear storage
+                localStorage.clear();
+                sessionStorage.clear();
+                addLog('✅ LocalStorage cleared', 'success');
+                
+                // Unregister SW
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistration().then(reg => {
+                        if (reg) {
+                            reg.unregister();
+                            addLog('🗑️ Service Worker unregistered', 'info');
+                        }
+                    });
+                }
+                
+                addLog('🔄 Reloading page in 2 seconds...', 'info');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            }
+        }
+
+        // ============================================================
+        // EVENT LISTENERS
+        // ============================================================
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            addLog('✅ beforeinstallprompt event received!', 'success');
+            updateStatus('install-status', 'pass', 'Ready!');
+            document.getElementById('install-banner').classList.add('show');
+            document.getElementById('install-btn').disabled = false;
+        });
+
+        window.addEventListener('appinstalled', () => {
+            isInstalled = true;
+            addLog('🎉 App installed successfully!', 'success');
+            updateStatus('installed-status', 'pass', 'INSTALLED! 🎉');
+            document.getElementById('install-btn').disabled = true;
+            document.getElementById('install-btn').textContent = '✅ Already Installed';
+            document.getElementById('install-banner').classList.remove('show');
+        });
+
+        // ============================================================
+        // INIT
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            addLog('🚀 PWA Test initialized', 'info');
+            addLog(`📍 URL: ${window.location.href}`, 'info');
+            addLog(`🌐 Browser: ${navigator.userAgent}`, 'info');
+            
+            // Run checks
+            setTimeout(() => {
+                refreshStatus();
+                
+                // Show install button after delay if not ready
+                setTimeout(() => {
+                    if (!deferredPrompt && !isInstalled) {
+                        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+                        if (isMobile) {
+                            addLog('📱 Mobile detected - showing install instructions', 'info');
+                            document.getElementById('install-btn').textContent = '📲 Install (Manual)';
+                        }
+                    }
+                }, 5000);
+            }, 500);
+        });
+    </script>
+</body>
+</html>
