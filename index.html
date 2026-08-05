@@ -52,6 +52,13 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .nav-item .icon{font-size:22px;margin-bottom:2px}
 .nav-item .label{font-size:9px;text-transform:uppercase;letter-spacing:.05em}
 
+/* INSTALL NAV ITEM - Transparent, no background */
+.nav-item.install-nav{position:relative;color:#2563eb}
+.nav-item.install-nav .icon{font-size:24px}
+.nav-item.install-nav .label{color:#2563eb;font-weight:700}
+.nav-item.install-nav .install-badge{position:absolute;top:-4px;right:-6px;background:#ef4444;color:#fff;font-size:7px;font-weight:700;padding:1px 5px;border-radius:50%;min-width:16px;text-align:center;line-height:1.2;animation:pulse-badge 2s infinite}
+@keyframes pulse-badge{0%{transform:scale(1)}50%{transform:scale(1.1)}100%{transform:scale(1)}}
+
 /* ============================================================
    SCROLL BODY
    ============================================================ */
@@ -63,10 +70,13 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
    LOGIN SCREEN
    ============================================================ */
 #login-screen{display:flex;flex-direction:column;height:100%;width:100%;overflow-y:auto;padding:4px 0}
-.login-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:4px}
-.login-logo .logo-icon{font-size:40px}
+.login-icon-container{display:flex;justify-content:center;margin-bottom:4px}
+.login-icon-container img{width:80px;height:80px;border-radius:20px;box-shadow:0 4px 20px rgba(37,99,235,0.2)}
+.login-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:2px}
 .login-logo .logo-text{font-size:32px;font-weight:900;color:#2563eb}
-.login-stats-container{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:12px;margin-bottom:16px;border:1px solid #bfdbfe}
+.login-subtitle{font-size:13px;color:#64748b;text-align:center;margin-bottom:12px}
+
+.login-stats-container{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:12px;margin-bottom:12px;border:1px solid #bfdbfe}
 .login-stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
 .login-stat-item{text-align:center}
 .login-stat-item .number{font-size:18px;font-weight:800;color:#1d4ed8;display:block;line-height:1.2}
@@ -129,14 +139,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 /* ============================================================
    BANNERS
    ============================================================ */
-.install-banner{flex-shrink:0;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;padding:8px 14px;border-radius:12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;min-height:40px;z-index:11}
-.install-banner .btn-install{background:#fff;color:#2563eb;border:none;padding:6px 16px;border-radius:8px;font-weight:600;font-size:12px;cursor:pointer}
-.install-banner .btn-close{background:0 0;border:none;color:rgba(255,255,255,.7);font-size:18px;cursor:pointer}
-.install-banner.hidden{display:none}
-
-.floating-install-btn{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#2563eb;color:#fff;border:none;border-radius:50px;padding:12px 24px;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(37,99,235,0.4);z-index:1000;display:none;align-items:center;gap:10px;animation:pulse 2s infinite}
-.floating-install-btn.show{display:flex}
-@keyframes pulse{0%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.05)}100%{transform:translateX(-50%) scale(1)}}
+/* Top install banner - REMOVED as requested */
+.install-banner{display:none !important}
 
 .guest-banner{flex-shrink:0;background:#2563eb;color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .guest-banner.hidden{display:none}
@@ -155,6 +159,9 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .btn-call{background:#16a34a}.btn-contact{background:#2563eb}.btn-bid{background:#8b5cf6}.btn-share{background:#25D366}
 .back-btn{background:transparent;border:none;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;padding:4px 8px}
 .back-btn:hover{color:#2563eb}
+
+/* Floating install button - REMOVED as requested */
+.floating-install-btn{display:none !important}
 </style>
 </head>
 <body>
@@ -162,24 +169,27 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 
 <!-- LOGIN SCREEN -->
 <div id="login-screen">
+    <!-- App Icon at top of login page -->
+    <div class="login-icon-container">
+        <img src="launchericon-192x192.png" alt="ReturnTruck" width="80" height="80">
+    </div>
     <div class="login-logo">
-        <span class="logo-icon">🚛</span>
         <span class="logo-text">ReturnTruck</span>
     </div>
-    <div style="font-size:13px;color:#64748b;text-align:center;margin-bottom:16px">Find Loads • Post Trucks • Connect Agents</div>
+    <div class="login-subtitle">Find Loads • Post Trucks • Connect Agents</div>
 
     <div class="login-stats-container">
         <div class="login-stats-grid" style="margin-bottom:6px">
-            <div class="login-stat-item"><span style="font-size:16px">📦</span><span class="number">0</span><span class="label">Load Givers</span></div>
-            <div class="login-stat-item"><span style="font-size:16px">🚛</span><span class="number">0</span><span class="label">Fleet Ops</span></div>
-            <div class="login-stat-item"><span style="font-size:16px">🤝</span><span class="number">0</span><span class="label">Agents</span></div>
-            <div class="login-stat-item"><span style="font-size:16px">👤</span><span class="number">0</span><span class="label">Users</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">📦</span><span class="number" id="stat-loadgivers">0</span><span class="label">Load Givers</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">🚛</span><span class="number" id="stat-fleetops">0</span><span class="label">Fleet Ops</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">🤝</span><span class="number" id="stat-agents">0</span><span class="label">Agents</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">👤</span><span class="number" id="stat-users">0</span><span class="label">Users</span></div>
         </div>
         <div class="login-stats-grid">
-            <div class="login-stat-item"><span style="font-size:16px">🚚</span><span class="number">0</span><span class="label">Trucks</span></div>
-            <div class="login-stat-item"><span style="font-size:16px">📊</span><span class="number">0</span><span class="label">Loads</span></div>
-            <div class="login-stat-item"><span style="font-size:16px">📱</span><span class="number">0</span><span class="label">Visits</span></div>
-            <div class="login-stat-item"><span style="font-size:16px">⭐</span><span class="number">4.8</span><span class="label">Rating</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">🚚</span><span class="number" id="stat-trucks">0</span><span class="label">Trucks</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">📊</span><span class="number" id="stat-loads">0</span><span class="label">Loads</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">📱</span><span class="number" id="stat-installs">0</span><span class="label">Installs</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">📱</span><span class="number" id="stat-visits">0</span><span class="label">Visits</span></div>
         </div>
     </div>
 
@@ -253,15 +263,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 
     <div id="home-top" style="flex-shrink:0; padding-top:0;">
-        <div class="install-banner" id="install-banner">
-            <span class="text">📲 Install ReturnTruck app</span>
-            <div>
-                <button class="btn-install" id="install-btn" onclick="installApp()">Install</button>
-                <button class="btn-close" onclick="dismissInstallBanner()">✕</button>
-            </div>
-        </div>
-
-        <button class="floating-install-btn" id="floating-install-btn" onclick="forceInstall()">📲 Install App</button>
+        <!-- Install banner removed -->
 
         <div id="guest-banner" class="guest-banner hidden"><span>👋 Welcome, Guest!</span><button class="btn-login" onclick="showLogin()">🔐 Login</button></div>
 
@@ -327,9 +329,15 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 
     <div class="nav-fixed">
         <button class="nav-item active" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
-        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Post Load</span></button>
-        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Post Truck</span></button>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
         <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+        <!-- Install button integrated into nav bar - transparent background -->
+        <button class="nav-item install-nav" id="nav-install-btn" onclick="forceInstall()" style="display:none;">
+            <span class="icon">📲</span>
+            <span class="label">Install</span>
+            <span class="install-badge">NEW</span>
+        </button>
     </div>
 </div>
 
@@ -352,9 +360,14 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
     <div class="nav-fixed">
         <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
-        <button class="nav-item active" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Post Load</span></button>
-        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Post Truck</span></button>
+        <button class="nav-item active" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
         <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+        <button class="nav-item install-nav" id="nav-install-btn2" onclick="forceInstall()" style="display:none;">
+            <span class="icon">📲</span>
+            <span class="label">Install</span>
+            <span class="install-badge">NEW</span>
+        </button>
     </div>
 </div>
 
@@ -376,9 +389,14 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
     <div class="nav-fixed">
         <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
-        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Post Load</span></button>
-        <button class="nav-item active" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Post Truck</span></button>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item active" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
         <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+        <button class="nav-item install-nav" id="nav-install-btn3" onclick="forceInstall()" style="display:none;">
+            <span class="icon">📲</span>
+            <span class="label">Install</span>
+            <span class="install-badge">NEW</span>
+        </button>
     </div>
 </div>
 
@@ -411,9 +429,14 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
     <div class="nav-fixed">
         <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
-        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Post Load</span></button>
-        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Post Truck</span></button>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
         <button class="nav-item active" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+        <button class="nav-item install-nav" id="nav-install-btn4" onclick="forceInstall()" style="display:none;">
+            <span class="icon">📲</span>
+            <span class="label">Install</span>
+            <span class="install-badge">NEW</span>
+        </button>
     </div>
 </div>
 
@@ -432,9 +455,14 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
     <div class="nav-fixed">
         <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
-        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Post Load</span></button>
-        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Post Truck</span></button>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
         <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+        <button class="nav-item install-nav" id="nav-install-btn5" onclick="forceInstall()" style="display:none;">
+            <span class="icon">📲</span>
+            <span class="label">Install</span>
+            <span class="install-badge">NEW</span>
+        </button>
     </div>
 </div>
 
@@ -488,19 +516,9 @@ function $(id){return document.getElementById(id)}
 function showToast(msg){alert(msg)}
 
 // ============================================================
-// SERVICE WORKER REGISTRATION
+// SERVICE WORKER REGISTRATION - Auto-detect (no manual registration)
 // ============================================================
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-        navigator.serviceWorker.register('sw.js', { scope: '/' })
-            .then(function(registration) {
-                console.log('✅ Service Worker registered successfully');
-            })
-            .catch(function(error) {
-                console.log('❌ Service Worker registration failed:', error);
-            });
-    });
-}
+// Service worker is auto-detected from sw.js in root
 
 // ============================================================
 // PWA INSTALL HANDLING
@@ -509,30 +527,30 @@ if (window.matchMedia('(display-mode: standalone)').matches) {
     isAppInstalled = true;
 }
 
+// Show/hide install nav button
+function updateInstallNavButton() {
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const showInstall = isMobile && !isAppInstalled && !window.matchMedia('(display-mode: standalone)').matches;
+    
+    document.querySelectorAll('.nav-item.install-nav').forEach(el => {
+        el.style.display = showInstall ? 'flex' : 'none';
+    });
+}
+
 window.addEventListener('beforeinstallprompt', function(e) {
     e.preventDefault();
     deferredPrompt = e;
     console.log('✅ Install prompt captured');
-    const floatingBtn = document.getElementById('floating-install-btn');
-    if (floatingBtn) floatingBtn.classList.add('show');
-    const banner = document.getElementById('install-banner');
-    if (banner) {
-        banner.classList.remove('hidden');
-        banner.style.display = 'flex';
-    }
+    updateInstallNavButton();
 });
 
 window.addEventListener('appinstalled', function() {
     isAppInstalled = true;
     deferredPrompt = null;
     console.log('✅ App installed successfully!');
-    const floatingBtn = document.getElementById('floating-install-btn');
-    if (floatingBtn) floatingBtn.classList.remove('show');
-    const banner = document.getElementById('install-banner');
-    if (banner) {
-        banner.classList.add('hidden');
-        banner.style.display = 'none';
-    }
+    updateInstallNavButton();
+    // Increment install count
+    incrementInstallCount();
     showToast('🎉 ReturnTruck installed successfully!');
 });
 
@@ -548,6 +566,7 @@ function forceInstall() {
                 showToast('Installation cancelled');
             }
             deferredPrompt = null;
+            updateInstallNavButton();
         });
     } else {
         if (navigator.userAgent.match(/Android/i)) {
@@ -560,16 +579,69 @@ function forceInstall() {
     }
 }
 
+// Show install nav button after 3 seconds on mobile
 setTimeout(function() {
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (isMobile && !isAppInstalled) {
-        const floatingBtn = document.getElementById('floating-install-btn');
-        if (floatingBtn && !deferredPrompt) {
-            floatingBtn.classList.add('show');
-            floatingBtn.textContent = '📲 Install App';
-        }
+        updateInstallNavButton();
     }
 }, 3000);
+
+// ============================================================
+// INCREMENT INSTALL COUNT
+// ============================================================
+async function incrementInstallCount() {
+    try {
+        const {data, error} = await sb.from('platform_stats').select('total_installs').maybeSingle();
+        if (error) throw error;
+        const current = data?.total_installs || 0;
+        await sb.from('platform_stats').upsert({id: 1, total_installs: current + 1});
+        loadPlatformStats();
+    } catch(err) {
+        console.error('Error incrementing install count:', err);
+    }
+}
+
+// ============================================================
+// PLATFORM STATS
+// ============================================================
+async function loadPlatformStats() {
+    try {
+        const {data: stats, error: statsError} = await sb.from('platform_stats').select('*').maybeSingle();
+        if (statsError) throw statsError;
+        
+        const installs = stats?.total_installs || 0;
+        const visits = stats?.total_visits || 0;
+        
+        // Count users by type
+        const {data: users, error: usersError} = await sb.from('active_users').select('mobile, company_name');
+        if (usersError) throw usersError;
+        
+        const loadGivers = users ? users.filter(u => u.company_name && u.company_name.trim() !== '').length : 0;
+        const fleetOps = users ? users.filter(u => u.fleet_company && u.fleet_company.trim() !== '').length : 0;
+        const totalUsers = users ? users.length : 0;
+        
+        // Count trucks and loads
+        const {data: trucks, error: trucksError} = await sb.from('active_trucks').select('id').eq('status', 1);
+        const {data: loads, error: loadsError} = await sb.from('active_loads').select('id').eq('status', 1);
+        
+        const truckCount = trucks ? trucks.length : 0;
+        const loadCount = loads ? loads.length : 0;
+        
+        // Update login page stats
+        document.getElementById('stat-loadgivers').textContent = loadGivers.toLocaleString();
+        document.getElementById('stat-fleetops').textContent = fleetOps.toLocaleString();
+        document.getElementById('stat-agents').textContent = 0;
+        document.getElementById('stat-users').textContent = totalUsers.toLocaleString();
+        document.getElementById('stat-trucks').textContent = truckCount.toLocaleString();
+        document.getElementById('stat-loads').textContent = loadCount.toLocaleString();
+        document.getElementById('stat-installs').textContent = installs.toLocaleString();
+        document.getElementById('stat-visits').textContent = visits.toLocaleString();
+        
+    } catch(err) {
+        console.error('Error loading platform stats:', err);
+    }
+}
 
 // ============================================================
 // SHARED SEARCH FUNCTIONS
@@ -681,10 +753,15 @@ function showHome(){
     document.getElementById('login-screen').style.display='none';
     document.getElementById('home-page').classList.remove('hidden-page');
     updateGuestUI();
+    // Clear search field on home page load - remove previous entry remember
+    const searchInput = document.getElementById('location-search');
+    if(searchInput) searchInput.value = '';
     setTimeout(function() {
         fixLayoutHeight();
         renderFeed();
         resetLogoutTimer();
+        updateInstallNavButton();
+        loadPlatformStats();
     }, 50);
 }
 
@@ -708,9 +785,13 @@ function goHome(){
     ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.toggle('hidden-page',i!=='home-page'));
     document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
     document.querySelectorAll('.nav-fixed .nav-item')[0].classList.add('active');
+    // Clear search field - remove previous entry remember
+    const searchInput = document.getElementById('location-search');
+    if(searchInput) searchInput.value = '';
     setTimeout(fixLayoutHeight, 50);
     renderFeed();
     resetLogoutTimer();
+    updateInstallNavButton();
 }
 
 function switchPage(id, idx){
@@ -719,6 +800,7 @@ function switchPage(id, idx){
     document.querySelectorAll('.nav-fixed .nav-item')[idx].classList.add('active');
     setTimeout(fixLayoutHeight, 50);
     resetLogoutTimer();
+    updateInstallNavButton();
 }
 
 function goPostLoad(){ if(isGuest||!currentUser){showLogin();return;} switchPage('postload-page',1); }
@@ -889,67 +971,6 @@ function publishTruck(){ showToast('🚛 Truck listed successfully!'); }
 function openChangePin(){ showToast('🔑 PIN change feature coming soon!'); }
 
 // ============================================================
-// INSTALL BANNER
-// ============================================================
-function dismissInstallBanner(){
-    const b=$('install-banner');
-    if(b){
-        b.classList.add('hidden');
-        b.style.display='none';
-        localStorage.setItem('rt_install_dismissed', 'true');
-    }
-}
-
-function installApp(){
-    if(deferredPrompt){
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(function(r){
-            if(r.outcome==='accepted'){
-                showToast('✅ App installed!');
-                const b=$('install-banner');
-                if(b){ b.classList.add('hidden'); b.style.display='none'; }
-                localStorage.setItem('rt_install_dismissed', 'true');
-            }
-            deferredPrompt=null;
-        });
-        return;
-    }
-    if (navigator.userAgent.match(/Android/i)) {
-        showToast('📱 Tap Chrome menu → "Install app"');
-    } else if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
-        showToast('📱 Tap Share → "Add to Home Screen"');
-    } else {
-        showToast('📱 Open this page in Chrome on your phone');
-    }
-}
-
-function checkAndHandleInstallBanner(){
-    const b=$('install-banner');
-    if(!b) return;
-    
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-    if (isStandalone) {
-        b.classList.add('hidden');
-        b.style.display='none';
-        return;
-    }
-    
-    if(localStorage.getItem('rt_install_dismissed') === 'true') {
-        b.classList.add('hidden');
-        b.style.display='none';
-        return;
-    }
-    
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if(isMobile && !isAppInstalled) {
-        b.classList.remove('hidden');
-        b.style.display='flex';
-        const btn=$('install-btn');
-        if(btn) btn.textContent='📲 Install';
-    }
-}
-
-// ============================================================
 // IDLE LOGOUT TIMER
 // ============================================================
 function resetLogoutTimer() {
@@ -1066,16 +1087,19 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         document.getElementById('login-screen').style.display='flex';
         document.getElementById('home-page').classList.add('hidden-page');
+        // Clear any previous search entry
+        const searchInput = document.getElementById('location-search');
+        if(searchInput) searchInput.value = '';
     }
-    checkAndHandleInstallBanner();
     
+    // Load platform stats
+    loadPlatformStats();
+    
+    // Show install nav button on mobile
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (isMobile && !isAppInstalled) {
         setTimeout(() => {
-            const floatingBtn = document.getElementById('floating-install-btn');
-            if (floatingBtn) {
-                floatingBtn.classList.add('show');
-            }
+            updateInstallNavButton();
         }, 4000);
     }
 });
