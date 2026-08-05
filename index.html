@@ -71,7 +71,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
    ============================================================ */
 #login-screen{display:flex;flex-direction:column;height:100%;width:100%;overflow-y:auto;padding:4px 0}
 .login-icon-container{display:flex;justify-content:center;margin-bottom:0}
-.login-icon-container img{width:240px;height:240px;border-radius:30px;box-shadow:0 4px 20px rgba(37,99,235,0.25);background:#fff;padding:8px}
+.login-icon-container img{width:120px;height:120px;border-radius:30px;box-shadow:0 4px 20px rgba(37,99,235,0.25);background:#fff;padding:8px}
 .login-subtitle{font-size:13px;color:#64748b;text-align:center;margin-bottom:12px;margin-top:4px}
 
 .login-stats-container{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:12px;margin-bottom:12px;border:1px solid #bfdbfe}
@@ -164,11 +164,10 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 
 <!-- LOGIN SCREEN -->
 <div id="login-screen">
-    <!-- App Icon at top of login page - BIGGER (240px) -->
+    <!-- App Icon at top of login page - BIGGER (120px) -->
     <div class="login-icon-container">
-        <img src="launchericon-192x192.png" alt="ReturnTruck" width="240" height="240">
+        <img src="launchericon-192x192.png" alt="ReturnTruck" width="120" height="120">
     </div>
-    <!-- No "ReturnTruck" text here - logo already has it -->
     <div class="login-subtitle">Find Loads • Post Trucks • Connect Agents</div>
 
     <div class="login-stats-container">
@@ -260,7 +259,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 
         <div class="location-row">
             <div class="location-input">
-                <input type="text" id="location-search" placeholder="📍 Location/PIN" oninput="loadLocationSuggestions('location')">
+                <input type="text" id="location-search" placeholder="📍 Location/PIN" oninput="loadLocationSuggestions('location')" autocomplete="off">
                 <div class="location-search-wrapper"><div class="suggestions" id="location-suggestions"></div></div>
             </div>
             <div class="radius-select">
@@ -292,7 +291,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <div>
                     <label>📍 From Location</label>
                     <div class="location-input" style="width:100%">
-                        <input type="text" id="filter-from" placeholder="Search PIN, District or State" oninput="loadLocationSuggestions('from')">
+                        <input type="text" id="filter-from" placeholder="Search PIN, District or State" oninput="loadLocationSuggestions('from')" autocomplete="off">
                         <div class="location-search-wrapper"><div class="suggestions" id="filter-from-suggestions"></div></div>
                         <input type="hidden" id="filter-from-hidden">
                     </div>
@@ -300,7 +299,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <div>
                     <label>📍 To Location</label>
                     <div class="location-input" style="width:100%">
-                        <input type="text" id="filter-to" placeholder="Search PIN, District or State" oninput="loadLocationSuggestions('to')">
+                        <input type="text" id="filter-to" placeholder="Search PIN, District or State" oninput="loadLocationSuggestions('to')" autocomplete="off">
                         <div class="location-search-wrapper"><div class="suggestions" id="filter-to-suggestions"></div></div>
                         <input type="hidden" id="filter-to-hidden">
                     </div>
@@ -323,6 +322,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
         <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
         <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+        <!-- Install button integrated into nav bar -->
         <button class="nav-item install-nav" id="nav-install-btn" onclick="forceInstall()" style="display:none;">
             <span class="icon">📲</span>
             <span class="label">Install</span>
@@ -520,9 +520,10 @@ if (window.matchMedia('(display-mode: standalone)').matches) {
 // Show/hide install nav button
 function updateInstallNavButton() {
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const showInstall = isMobile && !isAppInstalled && !window.matchMedia('(display-mode: standalone)').matches;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    const showInstall = isMobile && !isStandalone && !isAppInstalled;
     
-    document.querySelectorAll('.nav-item.install-nav').forEach(el => {
+    document.querySelectorAll('.nav-item.install-nav').forEach(function(el) {
         el.style.display = showInstall ? 'flex' : 'none';
     });
 }
@@ -539,7 +540,6 @@ window.addEventListener('appinstalled', function() {
     deferredPrompt = null;
     console.log('✅ App installed successfully!');
     updateInstallNavButton();
-    // Increment install count
     incrementInstallCount();
     showToast('🎉 ReturnTruck installed successfully!');
 });
@@ -577,6 +577,13 @@ setTimeout(function() {
     }
 }, 3000);
 
+// Also show on window load
+window.addEventListener('load', function() {
+    setTimeout(function() {
+        updateInstallNavButton();
+    }, 1000);
+});
+
 // ============================================================
 // INCREMENT INSTALL COUNT
 // ============================================================
@@ -603,7 +610,6 @@ async function loadPlatformStats() {
         const installs = stats?.total_installs || 0;
         const visits = stats?.total_visits || 0;
         
-        // Count users by type
         const {data: users, error: usersError} = await sb.from('active_users').select('mobile, company_name, fleet_company');
         if (usersError) throw usersError;
         
@@ -611,14 +617,12 @@ async function loadPlatformStats() {
         const fleetOps = users ? users.filter(u => u.fleet_company && u.fleet_company.trim() !== '').length : 0;
         const totalUsers = users ? users.length : 0;
         
-        // Count trucks and loads
         const {data: trucks, error: trucksError} = await sb.from('active_trucks').select('id').eq('status', 1);
         const {data: loads, error: loadsError} = await sb.from('active_loads').select('id').eq('status', 1);
         
         const truckCount = trucks ? trucks.length : 0;
         const loadCount = loads ? loads.length : 0;
         
-        // Update login page stats
         document.getElementById('stat-loadgivers').textContent = loadGivers.toLocaleString();
         document.getElementById('stat-fleetops').textContent = fleetOps.toLocaleString();
         document.getElementById('stat-agents').textContent = 0;
@@ -743,20 +747,9 @@ function showHome(){
     document.getElementById('login-screen').style.display='none';
     document.getElementById('home-page').classList.remove('hidden-page');
     updateGuestUI();
-    // Clear search field on home page load - remove previous entry remember
-    const searchInput = document.getElementById('location-search');
-    if(searchInput) searchInput.value = '';
-    // Clear filter search fields too
-    const filterFrom = document.getElementById('filter-from');
-    const filterTo = document.getElementById('filter-to');
-    if(filterFrom) filterFrom.value = '';
-    if(filterTo) filterTo.value = '';
-    // Clear filter hidden fields
-    document.getElementById('filter-from-hidden').value = '';
-    document.getElementById('filter-to-hidden').value = '';
-    // Reset filter locations
-    filterFromLocation = null;
-    filterToLocation = null;
+    
+    // Force clear search fields - with delay for desktop
+    clearSearchFields();
     
     setTimeout(function() {
         fixLayoutHeight();
@@ -765,6 +758,36 @@ function showHome(){
         updateInstallNavButton();
         loadPlatformStats();
     }, 50);
+}
+
+function clearSearchFields() {
+    // Clear location search
+    const searchInput = document.getElementById('location-search');
+    if(searchInput) {
+        searchInput.value = '';
+        searchInput.blur();
+    }
+    // Clear filter fields
+    const filterFrom = document.getElementById('filter-from');
+    const filterTo = document.getElementById('filter-to');
+    if(filterFrom) {
+        filterFrom.value = '';
+        filterFrom.blur();
+    }
+    if(filterTo) {
+        filterTo.value = '';
+        filterTo.blur();
+    }
+    // Clear hidden fields
+    document.getElementById('filter-from-hidden').value = '';
+    document.getElementById('filter-to-hidden').value = '';
+    // Reset filter locations
+    filterFromLocation = null;
+    filterToLocation = null;
+    // Close suggestions
+    document.querySelectorAll('.suggestions').forEach(function(s) {
+        s.classList.remove('show');
+    });
 }
 
 function updateGuestUI(){
@@ -787,18 +810,9 @@ function goHome(){
     ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.toggle('hidden-page',i!=='home-page'));
     document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
     document.querySelectorAll('.nav-fixed .nav-item')[0].classList.add('active');
-    // Clear search field - remove previous entry remember
-    const searchInput = document.getElementById('location-search');
-    if(searchInput) searchInput.value = '';
-    // Clear filter fields
-    const filterFrom = document.getElementById('filter-from');
-    const filterTo = document.getElementById('filter-to');
-    if(filterFrom) filterFrom.value = '';
-    if(filterTo) filterTo.value = '';
-    document.getElementById('filter-from-hidden').value = '';
-    document.getElementById('filter-to-hidden').value = '';
-    filterFromLocation = null;
-    filterToLocation = null;
+    
+    // Clear search fields with delay for desktop
+    clearSearchFields();
     
     setTimeout(fixLayoutHeight, 50);
     renderFeed();
@@ -1100,8 +1114,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('login-screen').style.display='flex';
         document.getElementById('home-page').classList.add('hidden-page');
         // Clear any previous search entry
-        const searchInput = document.getElementById('location-search');
-        if(searchInput) searchInput.value = '';
+        clearSearchFields();
     }
     
     // Load platform stats
@@ -1110,10 +1123,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show install nav button on mobile
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (isMobile && !isAppInstalled) {
-        setTimeout(() => {
+        setTimeout(function() {
             updateInstallNavButton();
         }, 4000);
     }
+    
+    // Extra attempt to clear search on desktop after full load
+    setTimeout(function() {
+        clearSearchFields();
+    }, 1000);
 });
 </script>
 </body>
