@@ -44,20 +44,63 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .dropdown-divider{height:1px;background:#e2e8f0;margin:4px 12px}
 
 /* ============================================================
-   BOTTOM NAV (FIXED)
+   BOTTOM NAV (FIXED) - UPDATED FOR INSTALL BUTTON
    ============================================================ */
 .nav-fixed{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e2e8f0;background:#fff;position:relative;z-index:10;min-height:65px;width:100%;padding-bottom:5px}
-.nav-item{display:flex;flex-direction:column;align-items:center;color:#94a3b8;font-size:9px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px}
+.nav-item{display:flex;flex-direction:column;align-items:center;color:#94a3b8;font-size:9px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px;position:relative;z-index:2}
 .nav-item.active{color:#2563eb}
 .nav-item .icon{font-size:22px;margin-bottom:2px}
 .nav-item .label{font-size:9px;text-transform:uppercase;letter-spacing:.05em}
 
-/* INSTALL NAV ITEM - Transparent, no background */
-.nav-item.install-nav{position:relative;color:#2563eb}
-.nav-item.install-nav .icon{font-size:24px}
-.nav-item.install-nav .label{color:#2563eb;font-weight:700}
-.nav-item.install-nav .install-badge{position:absolute;top:-4px;right:-6px;background:#ef4444;color:#fff;font-size:7px;font-weight:700;padding:1px 5px;border-radius:50%;min-width:16px;text-align:center;line-height:1.2;animation:pulse-badge 2s infinite}
-@keyframes pulse-badge{0%{transform:scale(1)}50%{transform:scale(1.1)}100%{transform:scale(1)}}
+/* INSTALL BUTTON - CENTERED ABOVE NAV */
+.nav-install-wrapper {
+    position: absolute;
+    left: 50%;
+    top: -18px;
+    transform: translateX(-50%);
+    z-index: 5;
+    display: none;
+}
+.nav-install-wrapper.show {
+    display: block;
+}
+.nav-install-btn {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    padding: 6px 18px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    animation: pulse-install 2s infinite;
+    letter-spacing: 0.3px;
+}
+.nav-install-btn .install-icon {
+    font-size: 14px;
+}
+.nav-install-btn .install-badge {
+    background: #ef4444;
+    color: #fff;
+    font-size: 7px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 10px;
+    margin-left: 2px;
+}
+@keyframes pulse-install {
+    0% { transform: scale(1); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); }
+    50% { transform: scale(1.05); box-shadow: 0 4px 25px rgba(37, 99, 235, 0.6); }
+    100% { transform: scale(1); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); }
+}
+.nav-install-btn:hover {
+    transform: scale(1.05);
+}
 
 /* ============================================================
    SCROLL BODY
@@ -71,7 +114,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
    ============================================================ */
 #login-screen{display:flex;flex-direction:column;height:100%;width:100%;overflow-y:auto;padding:4px 0}
 .login-icon-container{display:flex;justify-content:center;margin-bottom:0}
-.login-icon-container img{width:120px;height:120px;border-radius:30px;box-shadow:0 4px 20px rgba(37,99,235,0.25);background:#fff;padding:8px}
+.login-icon-container img{width:240px;height:240px;border-radius:40px;box-shadow:0 4px 20px rgba(37,99,235,0.25);background:#fff;padding:8px;max-width:100%}
 .login-subtitle{font-size:13px;color:#64748b;text-align:center;margin-bottom:12px;margin-top:4px}
 
 .login-stats-container{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:12px;margin-bottom:12px;border:1px solid #bfdbfe}
@@ -164,9 +207,9 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 
 <!-- LOGIN SCREEN -->
 <div id="login-screen">
-    <!-- App Icon at top of login page - BIGGER (120px) -->
+    <!-- App Icon at top - 240x240 -->
     <div class="login-icon-container">
-        <img src="launchericon-192x192.png" alt="ReturnTruck" width="120" height="120">
+        <img src="launchericon-192x192.png" alt="ReturnTruck" width="240" height="240">
     </div>
     <div class="login-subtitle">Find Loads • Post Trucks • Connect Agents</div>
 
@@ -317,17 +360,21 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 
     <div class="scroll-body" id="home-scroll-body"><div id="feed-container" class="feed-container"></div></div>
 
-    <div class="nav-fixed">
+    <div class="nav-fixed" id="bottom-nav">
+        <!-- Nav Items -->
         <button class="nav-item active" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
         <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
         <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
         <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
-        <!-- Install button integrated into nav bar -->
-        <button class="nav-item install-nav" id="nav-install-btn" onclick="forceInstall()" style="display:none;">
-            <span class="icon">📲</span>
-            <span class="label">Install</span>
-            <span class="install-badge">NEW</span>
-        </button>
+
+        <!-- CENTERED INSTALL BUTTON - Above nav, not increasing height -->
+        <div class="nav-install-wrapper" id="nav-install-wrapper">
+            <button class="nav-install-btn" id="nav-install-btn" onclick="forceInstall()">
+                <span class="install-icon">📲</span>
+                Install
+                <span class="install-badge">NEW</span>
+            </button>
+        </div>
     </div>
 </div>
 
@@ -348,16 +395,18 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div class="grid-2"><div><label>Rate (₹)</label><input class="form-control" type="text" id="pl-rate"></div><div><label>Date</label><input class="form-control" type="date" id="pl-date"></div></div>
         <button class="btn-primary" onclick="publishLoad()">📤 Publish Load</button>
     </div>
-    <div class="nav-fixed">
+    <div class="nav-fixed" id="bottom-nav2">
         <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
         <button class="nav-item active" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
         <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
         <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
-        <button class="nav-item install-nav" id="nav-install-btn2" onclick="forceInstall()" style="display:none;">
-            <span class="icon">📲</span>
-            <span class="label">Install</span>
-            <span class="install-badge">NEW</span>
-        </button>
+        <div class="nav-install-wrapper" id="nav-install-wrapper2">
+            <button class="nav-install-btn" onclick="forceInstall()">
+                <span class="install-icon">📲</span>
+                Install
+                <span class="install-badge">NEW</span>
+            </button>
+        </div>
     </div>
 </div>
 
@@ -377,16 +426,18 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div class="grid-2"><div><label>Driver Name</label><input class="form-control" id="pt-driver"></div><div><label>Driver Mobile</label><input class="form-control" id="pt-driver-mobile" maxlength="10"></div></div>
         <button class="btn-primary" onclick="publishTruck()">📤 List Truck</button>
     </div>
-    <div class="nav-fixed">
+    <div class="nav-fixed" id="bottom-nav3">
         <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
         <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
         <button class="nav-item active" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
         <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
-        <button class="nav-item install-nav" id="nav-install-btn3" onclick="forceInstall()" style="display:none;">
-            <span class="icon">📲</span>
-            <span class="label">Install</span>
-            <span class="install-badge">NEW</span>
-        </button>
+        <div class="nav-install-wrapper" id="nav-install-wrapper3">
+            <button class="nav-install-btn" onclick="forceInstall()">
+                <span class="install-icon">📲</span>
+                Install
+                <span class="install-badge">NEW</span>
+            </button>
+        </div>
     </div>
 </div>
 
@@ -417,16 +468,18 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div id="fleet-active-area" style="display:none"><p><strong id="fo-display-company">--</strong></p><button class="section-btn" onclick="editFleet()">✏️ Edit</button><div id="my-trucks-list" style="margin-top:12px"></div></div></div>
         <div><p style="font-size:11px;font-weight:600;color:#1e293b;margin:0 0 8px 0">📦 My Loads</p><div id="my-loads-container"></div></div>
     </div>
-    <div class="nav-fixed">
+    <div class="nav-fixed" id="bottom-nav4">
         <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
         <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
         <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
         <button class="nav-item active" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
-        <button class="nav-item install-nav" id="nav-install-btn4" onclick="forceInstall()" style="display:none;">
-            <span class="icon">📲</span>
-            <span class="label">Install</span>
-            <span class="install-badge">NEW</span>
-        </button>
+        <div class="nav-install-wrapper" id="nav-install-wrapper4">
+            <button class="nav-install-btn" onclick="forceInstall()">
+                <span class="install-icon">📲</span>
+                Install
+                <span class="install-badge">NEW</span>
+            </button>
+        </div>
     </div>
 </div>
 
@@ -443,16 +496,18 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div style="margin-bottom:12px"><div style="font-size:17px;font-weight:700" id="detail-title">Title</div><div id="detail-company" style="font-size:13px;color:#2563eb">Company</div></div>
         <div class="detail-actions"><button class="btn-call" onclick="makeCall()">📞 Call</button><button class="btn-contact" onclick="contactUser()">✉️ Contact</button><button class="btn-bid" onclick="expressInterest()">🤝 Interest</button><button class="btn-share" onclick="handleShareClick()">↗️ Share</button></div>
     </div>
-    <div class="nav-fixed">
+    <div class="nav-fixed" id="bottom-nav5">
         <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
         <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
         <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
         <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
-        <button class="nav-item install-nav" id="nav-install-btn5" onclick="forceInstall()" style="display:none;">
-            <span class="icon">📲</span>
-            <span class="label">Install</span>
-            <span class="install-badge">NEW</span>
-        </button>
+        <div class="nav-install-wrapper" id="nav-install-wrapper5">
+            <button class="nav-install-btn" onclick="forceInstall()">
+                <span class="install-icon">📲</span>
+                Install
+                <span class="install-badge">NEW</span>
+            </button>
+        </div>
     </div>
 </div>
 
@@ -506,7 +561,7 @@ function $(id){return document.getElementById(id)}
 function showToast(msg){alert(msg)}
 
 // ============================================================
-// SERVICE WORKER REGISTRATION - Auto-detect (no manual registration)
+// SERVICE WORKER REGISTRATION - Auto-detect
 // ============================================================
 // Service worker is auto-detected from sw.js in root
 
@@ -517,14 +572,14 @@ if (window.matchMedia('(display-mode: standalone)').matches) {
     isAppInstalled = true;
 }
 
-// Show/hide install nav button
+// Show/hide install nav button (centered above nav)
 function updateInstallNavButton() {
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
     const showInstall = isMobile && !isStandalone && !isAppInstalled;
     
-    document.querySelectorAll('.nav-item.install-nav').forEach(function(el) {
-        el.style.display = showInstall ? 'flex' : 'none';
+    document.querySelectorAll('.nav-install-wrapper').forEach(function(el) {
+        el.classList.toggle('show', showInstall);
     });
 }
 
@@ -748,7 +803,6 @@ function showHome(){
     document.getElementById('home-page').classList.remove('hidden-page');
     updateGuestUI();
     
-    // Force clear search fields - with delay for desktop
     clearSearchFields();
     
     setTimeout(function() {
@@ -761,13 +815,11 @@ function showHome(){
 }
 
 function clearSearchFields() {
-    // Clear location search
     const searchInput = document.getElementById('location-search');
     if(searchInput) {
         searchInput.value = '';
         searchInput.blur();
     }
-    // Clear filter fields
     const filterFrom = document.getElementById('filter-from');
     const filterTo = document.getElementById('filter-to');
     if(filterFrom) {
@@ -778,13 +830,10 @@ function clearSearchFields() {
         filterTo.value = '';
         filterTo.blur();
     }
-    // Clear hidden fields
     document.getElementById('filter-from-hidden').value = '';
     document.getElementById('filter-to-hidden').value = '';
-    // Reset filter locations
     filterFromLocation = null;
     filterToLocation = null;
-    // Close suggestions
     document.querySelectorAll('.suggestions').forEach(function(s) {
         s.classList.remove('show');
     });
@@ -811,7 +860,6 @@ function goHome(){
     document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
     document.querySelectorAll('.nav-fixed .nav-item')[0].classList.add('active');
     
-    // Clear search fields with delay for desktop
     clearSearchFields();
     
     setTimeout(fixLayoutHeight, 50);
@@ -1113,14 +1161,11 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         document.getElementById('login-screen').style.display='flex';
         document.getElementById('home-page').classList.add('hidden-page');
-        // Clear any previous search entry
         clearSearchFields();
     }
     
-    // Load platform stats
     loadPlatformStats();
     
-    // Show install nav button on mobile
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (isMobile && !isAppInstalled) {
         setTimeout(function() {
@@ -1128,7 +1173,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 4000);
     }
     
-    // Extra attempt to clear search on desktop after full load
     setTimeout(function() {
         clearSearchFields();
     }, 1000);
