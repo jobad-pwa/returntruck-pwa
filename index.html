@@ -11,6 +11,7 @@
 <meta name="theme-color" content="#2563eb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-transparent">
+<link rel="apple-touch-icon" href="launchericon-192x192.png">
 
 <style>
 /* ============================================================
@@ -52,7 +53,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .nav-item .label{font-size:9px;text-transform:uppercase;letter-spacing:.05em}
 
 /* ============================================================
-   SCROLL BODY (JS CALCULATES HEIGHT)
+   SCROLL BODY
    ============================================================ */
 .scroll-body{overflow-y:auto;padding:8px 0;-webkit-overflow-scrolling:touch;display:block;width:100%}
 .scroll-body::-webkit-scrollbar{width:4px}
@@ -65,7 +66,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .login-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:4px}
 .login-logo .logo-icon{font-size:40px}
 .login-logo .logo-text{font-size:32px;font-weight:900;color:#2563eb}
-
 .login-stats-container{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:12px;margin-bottom:16px;border:1px solid #bfdbfe}
 .login-stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
 .login-stat-item{text-align:center}
@@ -93,9 +93,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .type-tabs .inactive{background:transparent;color:#64748b}
 
 .filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:10px;font-weight:600;color:#64748b;border-top:1px solid #e2e8f0;margin-top:4px;user-select:none}
-.filter-container{overflow:hidden;transition:max-height 0.3s ease;max-height:0;}
-.filter-container.open{max-height:400px;}
-
+.filter-container{overflow:hidden;transition:max-height 0.3s ease;max-height:0}
+.filter-container.open{max-height:400px}
 .filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;padding-top:6px}
 .filter-row label{font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
 .filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:11px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;outline:none}
@@ -161,12 +160,14 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 <body>
 <div class="card" id="app-card">
 
+<!-- LOGIN SCREEN -->
 <div id="login-screen">
     <div class="login-logo">
         <span class="logo-icon">🚛</span>
         <span class="logo-text">ReturnTruck</span>
     </div>
     <div style="font-size:13px;color:#64748b;text-align:center;margin-bottom:16px">Find Loads • Post Trucks • Connect Agents</div>
+
     <div class="login-stats-container">
         <div class="login-stats-grid" style="margin-bottom:6px">
             <div class="login-stat-item"><span style="font-size:16px">📦</span><span class="number">0</span><span class="label">Load Givers</span></div>
@@ -181,6 +182,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div class="login-stat-item"><span style="font-size:16px">⭐</span><span class="number">4.8</span><span class="label">Rating</span></div>
         </div>
     </div>
+
     <div class="login-step-container">
         <div id="step1">
             <input type="tel" id="mobile" class="input-field" placeholder="Enter Mobile Number" maxlength="10" autofocus>
@@ -189,14 +191,20 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <button style="width:100%;padding:12px;border:1.5px solid #8b5cf6;border-radius:12px;font-size:14px;font-weight:600;color:#8b5cf6;background:transparent;cursor:pointer" onclick="continueAsGuest()">👤 Guest</button>
         </div>
         <div id="step2" class="hidden">
-            <div style="text-align:center;margin-bottom:16px"><div id="display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div><div style="font-size:14px;font-weight:500;color:#475569">Enter your 4-digit PIN</div></div>
+            <div style="text-align:center;margin-bottom:16px">
+                <div id="display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
+                <div style="font-size:14px;font-weight:500;color:#475569">Enter your 4-digit PIN</div>
+            </div>
             <input type="password" id="pin" class="input-field" style="letter-spacing:4px;" placeholder="Enter 4-digit PIN" maxlength="4">
             <div style="font-size:12px;text-align:center;margin-bottom:12px;color:#64748b">Forgot PIN? <span style="color:#2563eb;cursor:pointer;font-weight:600" onclick="resetPIN()">Reset PIN</span></div>
             <button onclick="submitPin()" id="submitBtn" class="btn-primary" style="background:#16a34a">🔐 Login</button>
             <button onclick="resetForm()" class="btn-back">← Change Number</button>
         </div>
         <div id="step3" class="hidden">
-            <div style="text-align:center;margin-bottom:16px"><div id="wa-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div><div style="font-size:13px;color:#64748b">Enter OTP sent via WhatsApp</div></div>
+            <div style="text-align:center;margin-bottom:16px">
+                <div id="wa-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
+                <div style="font-size:13px;color:#64748b">Enter OTP sent via WhatsApp</div>
+            </div>
             <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
                 <input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
                 <input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
@@ -210,7 +218,10 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <button onclick="resetForm()" class="btn-back">← Change Number</button>
         </div>
         <div id="step4" class="hidden">
-            <div style="text-align:center;margin-bottom:16px"><div id="reg-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div><div style="font-size:13px;color:#64748b">Set your 4-digit PIN for login</div></div>
+            <div style="text-align:center;margin-bottom:16px">
+                <div id="reg-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
+                <div style="font-size:13px;color:#64748b">Set your 4-digit PIN for login</div>
+            </div>
             <input type="password" id="reg-pin" class="input-field" placeholder="New PIN (4 digits)" maxlength="4">
             <input type="password" id="reg-pin-confirm" class="input-field" placeholder="Confirm PIN" maxlength="4">
             <button onclick="registerUser()" id="register-btn" class="btn-primary" style="background:#16a34a">✅ Create Account</button>
@@ -223,6 +234,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
+<!-- HOME PAGE -->
 <div id="home-page" class="hidden-page">
     <div class="header-fixed">
         <div class="logo" onclick="goHome()">
@@ -239,6 +251,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
         </div>
     </div>
+
     <div id="home-top" style="flex-shrink:0; padding-top:0;">
         <div class="install-banner" id="install-banner">
             <span class="text">📲 Install ReturnTruck app</span>
@@ -247,8 +260,11 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <button class="btn-close" onclick="dismissInstallBanner()">✕</button>
             </div>
         </div>
+
         <button class="floating-install-btn" id="floating-install-btn" onclick="forceInstall()">📲 Install App</button>
+
         <div id="guest-banner" class="guest-banner hidden"><span>👋 Welcome, Guest!</span><button class="btn-login" onclick="showLogin()">🔐 Login</button></div>
+
         <div class="location-row">
             <div class="location-input">
                 <input type="text" id="location-search" placeholder="📍 Location/PIN" oninput="loadLocationSuggestions('location')">
@@ -265,16 +281,19 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 </select>
             </div>
         </div>
+
         <div class="type-tabs">
             <button id="tab-all" class="active" onclick="setTab('ALL')">All</button>
             <button id="tab-loads" class="inactive" onclick="setTab('LOAD')">Loads</button>
             <button id="tab-trucks" class="inactive" onclick="setTab('TRUCK')">Trucks</button>
             <button id="tab-agents" class="inactive" onclick="setTab('AGENT')">Agents</button>
         </div>
+
         <div class="filter-toggle" onclick="toggleFilters()">
             <span id="filter-toggle-label">🔍 Hide Filters</span>
             <span class="arrow open" id="filter-arrow">▲</span>
         </div>
+
         <div class="filter-container open" id="filter-container">
             <div class="filter-row">
                 <div>
@@ -299,10 +318,13 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <div><label>Weight (Kg)</label><select id="filter-weight" onchange="applyFilters()"><option value="ALL">All</option><option value="0-10000">0-10,000</option><option value="10000-20000">10k-20k</option><option value="20000-30000">20k-30k</option><option value="30000+">30k+</option></select></div>
             </div>
         </div>
+
         <div class="results-count"><span id="results-count">Showing 0 Records</span></div>
         <div style="width:100%;height:1px;background:#f1f5f9;margin-top:2px;margin-bottom:4px;flex-shrink:0"></div>
     </div>
+
     <div class="scroll-body" id="home-scroll-body"><div id="feed-container" class="feed-container"></div></div>
+
     <div class="nav-fixed">
         <button class="nav-item active" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
         <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Post Load</span></button>
@@ -311,6 +333,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
+<!-- POST LOAD PAGE -->
 <div id="postload-page" class="hidden-page">
     <div class="header-fixed">
         <span class="logo" onclick="goHome()">
@@ -335,6 +358,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
+<!-- POST TRUCK PAGE -->
 <div id="posttruck-page" class="hidden-page">
     <div class="header-fixed">
         <span class="logo" onclick="goHome()">
@@ -358,6 +382,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
+<!-- PROFILE PAGE -->
 <div id="profile-page" class="hidden-page">
     <div class="header-fixed">
         <div class="logo" onclick="goHome()">
@@ -392,6 +417,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
+<!-- DETAIL PAGE -->
 <div id="detail-page" class="hidden-page">
     <div class="header-fixed">
         <span class="logo" onclick="goHome()">
@@ -455,6 +481,8 @@ let otpTimerInterval=null, currentMobile='', selectedLocation=null, filterOpen=t
 let logoutTimer = null;
 let filterFromLocation = null;
 let filterToLocation = null;
+let deferredPrompt = null;
+let isAppInstalled = false;
 
 function $(id){return document.getElementById(id)}
 function showToast(msg){alert(msg)}
@@ -477,9 +505,6 @@ if ('serviceWorker' in navigator) {
 // ============================================================
 // PWA INSTALL HANDLING
 // ============================================================
-let deferredPrompt = null;
-let isAppInstalled = false;
-
 if (window.matchMedia('(display-mode: standalone)').matches) {
     isAppInstalled = true;
 }
@@ -559,11 +584,16 @@ function findLocation(query) {
         l.state.toLowerCase().includes(q)
     ).slice(0, 8);
 }
-function getLocationByPin(pin) { return STATIC_LOCATIONS.find(l => l.pin === pin) || null; }
+
+function getLocationByPin(pin) {
+    return STATIC_LOCATIONS.find(l => l.pin === pin) || null;
+}
+
 function getLocationName(pin) {
     const loc = getLocationByPin(pin);
     return loc ? `${loc.name}, ${loc.district}, ${loc.state} (${loc.pin})` : pin || 'Unknown';
 }
+
 function getDistance(lat1, lng1, lat2, lng2) {
     const R = 6371;
     const dLat = (lat2-lat1) * Math.PI / 180;
@@ -572,17 +602,23 @@ function getDistance(lat1, lng1, lat2, lng2) {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
+// ============================================================
+// SUGGESTION LOADER
+// ============================================================
 function loadLocationSuggestions(context) {
     let inputId, suggestionsId;
     if(context === 'location') { inputId = 'location-search'; suggestionsId = 'location-suggestions'; }
     else if(context === 'from') { inputId = 'filter-from'; suggestionsId = 'filter-from-suggestions'; }
     else if(context === 'to') { inputId = 'filter-to'; suggestionsId = 'filter-to-suggestions'; }
+    
     const input = document.getElementById(inputId);
     const suggestions = document.getElementById(suggestionsId);
     if(!input || !suggestions) return;
+    
     const query = input.value.trim();
     const results = findLocation(query);
     if(results.length === 0) { suggestions.classList.remove('show'); return; }
+    
     suggestions.innerHTML = results.map(l => {
         const displayName = `${l.name}, ${l.district}, ${l.state} (${l.pin})`;
         const idx = displayName.toLowerCase().indexOf(query.toLowerCase());
@@ -597,6 +633,7 @@ function loadLocationSuggestions(context) {
 
 function selectLocationHelper(context, pin, name, state) {
     let inputId, suggestionsId, hiddenId;
+    
     if(context === 'location') {
         inputId = 'location-search'; suggestionsId = 'location-suggestions';
         document.getElementById(inputId).value = `${name}, ${state} (${pin})`;
@@ -605,8 +642,10 @@ function selectLocationHelper(context, pin, name, state) {
         applyFilters();
         return;
     }
+    
     if(context === 'from') { inputId = 'filter-from'; hiddenId = 'filter-from-hidden'; suggestionsId = 'filter-from-suggestions'; filterFromLocation = getLocationByPin(pin); }
     else if(context === 'to') { inputId = 'filter-to'; hiddenId = 'filter-to-hidden'; suggestionsId = 'filter-to-suggestions'; filterToLocation = getLocationByPin(pin); }
+    
     document.getElementById(inputId).value = getLocationName(pin);
     if(hiddenId) document.getElementById(hiddenId).value = pin;
     document.getElementById(suggestionsId).classList.remove('show');
@@ -619,228 +658,108 @@ document.addEventListener('click', function(e) {
     });
 });
 
-function searchLocationInForm(context){
-    const input=$(context+'-input'); const suggestions=$(context+'-suggestions');
-    const results=findLocation(input.value);
-    if(results.length===0){ suggestions.classList.remove('show'); return; }
-    suggestions.innerHTML=results.map(l=>`<div class="item" onclick="selectLocationInForm('${context}','${l.pin}')">${l.name}, ${l.district}, ${l.state} (${l.pin})</div>`).join('');
-    suggestions.classList.add('show');
-}
-function selectLocationInForm(context,pin){ $(context+'-input').value=getLocationName(pin); $(context+'-hidden').value=pin; $(context+'-suggestions').classList.remove('show'); }
-
-function resetLogoutTimer() {
-    if (logoutTimer) clearTimeout(logoutTimer);
-    if (!currentUser && !isGuest) return;
-    logoutTimer = setTimeout(() => {
-        if (currentUser || isGuest) {
-            alert("You have been automatically logged out due to 5 minutes of inactivity.");
-            logout();
-        }
-    }, 5 * 60 * 1000);
-}
-document.addEventListener('click', resetLogoutTimer);
-document.addEventListener('keydown', resetLogoutTimer);
-document.addEventListener('touchstart', resetLogoutTimer);
-document.addEventListener('scroll', resetLogoutTimer);
-document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') resetLogoutTimer();
-});
-
-function dismissInstallBanner(){
-    const b=$('install-banner');
-    if(b){
-        b.classList.add('hidden');
-        b.style.display='none';
-        localStorage.setItem('rt_install_dismissed', 'true'); 
-    }
+// ============================================================
+// AUTH FUNCTIONS
+// ============================================================
+function continueAsGuest(){
+    isGuest=true;
+    localStorage.setItem('rt_user', JSON.stringify({guest: true}));
+    showHome();
 }
 
-function checkAndHandleInstallBanner(){
-    const b=$('install-banner'); 
-    if(!b) return;
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-    if (isStandalone) {
-        b.classList.add('hidden'); 
-        b.style.display='none'; 
-        return;
-    }
-    if(localStorage.getItem('rt_install_dismissed') === 'true') {
-        b.classList.add('hidden'); 
-        b.style.display='none'; 
-        return;
-    }
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if(isMobile && !isAppInstalled) {
-        b.classList.remove('hidden');
-        b.style.display='flex';
-        const btn=$('install-btn');
-        if(btn) btn.textContent='📲 Install';
-    }
+function showLogin(){resetForm(); $('mobile').focus();}
+
+function resetForm(){
+    ['step2','step3','step4'].forEach(i=>$(i).classList.add('hidden'));
+    $('step1').classList.remove('hidden');
+    document.getElementById('login-screen').style.display='flex';
+    ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.add('hidden-page'));
+    clearTimeout(logoutTimer);
 }
 
-function installApp(){
-    if(deferredPrompt){
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(function(r){
-            if(r.outcome==='accepted'){
-                showToast('✅ App installed!');
-                const b=$('install-banner');
-                if(b){ b.classList.add('hidden'); b.style.display='none'; }
-                localStorage.setItem('rt_install_dismissed', 'true');
-            }
-            deferredPrompt=null;
-        });
-        return;
-    }
-    if (navigator.userAgent.match(/Android/i)) {
-        showToast('📱 Tap Chrome menu → "Install app"');
-    } else if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
-        showToast('📱 Tap Share → "Add to Home Screen"');
-    } else {
-        showToast('📱 Open this page in Chrome on your phone');
-    }
-}
-
-function fixLayoutHeight(){
-    const card=document.querySelector('.card'); 
-    if(!card) return;
-    const scrollBody=document.querySelector('.scroll-body:not(.hidden-page)');
-    const header=document.querySelector('.header-fixed:not(.hidden-page)');
-    const nav=document.querySelector('.nav-fixed:not(.hidden-page)');
-    const topContainer=document.getElementById('home-top'); 
-    if(!scrollBody||!header||!nav||!topContainer) return;
-    const avail = card.clientHeight - header.offsetHeight - topContainer.scrollHeight - nav.offsetHeight - 16; 
-    scrollBody.style.height = Math.max(100, avail) + 'px';
-}
-
-let resizeTimer; 
-function handleResize(){ 
-    clearTimeout(resizeTimer); 
-    resizeTimer=setTimeout(fixLayoutHeight, 200); 
+function showHome(){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('home-page').classList.remove('hidden-page');
+    updateGuestUI();
+    setTimeout(function() {
+        fixLayoutHeight();
+        renderFeed();
+        resetLogoutTimer();
+    }, 50);
 }
 
 function updateGuestUI(){
     const b=$('guest-banner');
     if(b){
-        if(isGuest){
-            b.classList.remove('hidden');
-            b.style.display='flex';
-        } else {
-            b.classList.add('hidden');
-            b.style.display='none';
-        }
-        setTimeout(fixLayoutHeight, 50);
+        b.style.display = isGuest ? 'flex' : 'none';
+        if(isGuest) b.classList.remove('hidden');
+        else b.classList.add('hidden');
     }
+    setTimeout(fixLayoutHeight, 50);
 }
 
-function continueAsGuest(){
-    isGuest=true; 
-    localStorage.setItem('rt_user', JSON.stringify({guest: true}));
-    showHome(); 
-}
-function showLogin(){resetForm(); $('mobile').focus();}
-function resetForm(){
-    ['step2','step3','step4'].forEach(i=>$(i).classList.add('hidden')); 
-    $('step1').classList.remove('hidden'); 
-    document.getElementById('login-screen').style.display='flex'; 
-    ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.add('hidden-page')); 
-    clearTimeout(logoutTimer);
-}
-function showHome(){
-    document.getElementById('login-screen').style.display='none'; 
-    document.getElementById('home-page').classList.remove('hidden-page'); 
-    updateGuestUI(); 
-    requestAnimationFrame(() => {
-        setTimeout(() => {
-            fixLayoutHeight(); 
-            renderFeed(); 
-            resetLogoutTimer();
-        }, 50);
-    });
-}
+function toggleDropdown(){document.querySelectorAll('.profile-dropdown').forEach(d=>d.classList.toggle('show'));}
+function closeDropdown(){document.querySelectorAll('.profile-dropdown').forEach(d=>d.classList.remove('show'));}
 
-async function registerUser(){
-    const pin=$('reg-pin').value.trim();
-    const encoder=new TextEncoder(); const hashBuffer=await crypto.subtle.digest('SHA-256',encoder.encode(pin));
-    const pinhash=Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
-    const {data:newUser}=await sb.from('active_users').insert({mobile:currentMobile,pinhash}).select().single();
-    if(newUser){ 
-        currentUser=newUser; 
-        localStorage.setItem('rt_user', JSON.stringify({mobile: currentUser.mobile, user: currentUser}));
-        isGuest = false; 
-        showHome(); 
-    }
-}
-window.submitPin=async function(){
-    const pin=$('pin').value.trim();
-    const encoder=new TextEncoder(); const hashBuffer=await crypto.subtle.digest('SHA-256',encoder.encode(pin));
-    const pinhash=Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
-    const {data:user}=await sb.from('active_users').select('*').eq('mobile',currentMobile).eq('pinhash',pinhash).single();
-    if(user){ 
-        currentUser=user; 
-        localStorage.setItem('rt_user', JSON.stringify({mobile: currentUser.mobile, user: currentUser}));
-        isGuest = false;
-        showHome(); 
-    } else {
-        alert("Incorrect PIN. Please try again.");
-    }
-};
-$('mobile').addEventListener('input', function(e) {
-    const m = this.value.trim();
-    if (m.length === 10) {
-        currentMobile = m; 
-        $('step1').classList.add('hidden'); 
-        $('step2').classList.remove('hidden'); 
-        $('display-mobile').textContent = m;
-    }
-});
-$('pin').addEventListener('keydown', function(e) { if (e.key === 'Enter') { submitPin(); } });
-
-function logout() {
-    if(confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('rt_user');
-        localStorage.removeItem('rt_install_dismissed');
-        window.location.reload(); 
-    }
-}
-
-function toggleDropdown(){document.querySelectorAll('.profile-dropdown').forEach(d=>d.classList.toggle('show'))}
-function closeDropdown(){document.querySelectorAll('.profile-dropdown').forEach(d=>d.classList.remove('show'))}
+// ============================================================
+// NAVIGATION
+// ============================================================
 function goHome(){
     ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.toggle('hidden-page',i!=='home-page'));
     document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
     document.querySelectorAll('.nav-fixed .nav-item')[0].classList.add('active');
-    setTimeout(fixLayoutHeight, 50); renderFeed(); resetLogoutTimer();
+    setTimeout(fixLayoutHeight, 50);
+    renderFeed();
+    resetLogoutTimer();
 }
+
 function switchPage(id, idx){
     ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.toggle('hidden-page',i!==id));
     document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
     document.querySelectorAll('.nav-fixed .nav-item')[idx].classList.add('active');
-    setTimeout(fixLayoutHeight, 50); resetLogoutTimer();
+    setTimeout(fixLayoutHeight, 50);
+    resetLogoutTimer();
 }
+
 function goPostLoad(){ if(isGuest||!currentUser){showLogin();return;} switchPage('postload-page',1); }
 function goPostTruck(){ if(isGuest||!currentUser){showLogin();return;} switchPage('posttruck-page',2); }
 function goToProfile(){ if(isGuest||!currentUser){showLogin();return;} switchPage('profile-page',3); loadProfile(); resetLogoutTimer();}
 function cancelPost(){goHome();}
 function closeDetail(){currentDetailData=null;goHome();}
 
-function setTab(tab){ currentTab=tab; document.querySelectorAll('.type-tabs button').forEach(b=>b.className='inactive'); const map={'ALL':'tab-all','LOAD':'tab-loads','TRUCK':'tab-trucks','AGENT':'tab-agents'}; const el=$(map[tab]); if(el) el.className='active'; renderFeed(); }
-
-function toggleFilters(){ 
-    filterOpen = !filterOpen; 
-    $('filter-container').classList.toggle('open', filterOpen); 
-    $('filter-toggle-label').textContent=filterOpen?'🔍 Hide Filters':'🔍 Show Filters'; 
-    $('filter-arrow').className = filterOpen ? 'arrow open' : 'arrow closed';
-    setTimeout(fixLayoutHeight, 350); 
+// ============================================================
+// TABS & FILTERS
+// ============================================================
+function setTab(tab){
+    currentTab=tab;
+    document.querySelectorAll('.type-tabs button').forEach(b=>b.className='inactive');
+    const map={'ALL':'tab-all','LOAD':'tab-loads','TRUCK':'tab-trucks','AGENT':'tab-agents'};
+    const el=$(map[tab]);
+    if(el) el.className='active';
+    renderFeed();
 }
+
+function toggleFilters(){
+    filterOpen = !filterOpen;
+    $('filter-container').classList.toggle('open', filterOpen);
+    $('filter-toggle-label').textContent=filterOpen?'🔍 Hide Filters':'🔍 Show Filters';
+    $('filter-arrow').className = filterOpen ? 'arrow open' : 'arrow closed';
+    setTimeout(fixLayoutHeight, 350);
+}
+
 function applyFilters(){ renderFeed(); }
 
+// ============================================================
+// RENDER FEED
+// ============================================================
 async function renderFeed(){
     try{
         const {data:loads}=await sb.from('active_loads').select('*').eq('status',1);
         const {data:trucks}=await sb.from('active_trucks').select('*').eq('status',1);
         feedItems=[...(loads||[]).map(l=>({type:'LOAD',title:l.material||'Cargo',company:l.company||'',from:l.pickup_pin||'',to:l.drop_pin||'',weight:l.weight||0,vehicle:l.vehicle_type||'',rate:l.rate||0,views:l.views||0,interests:(l.interests||[]).length,shares:l.shares||0,id:l.id})),...(trucks||[]).map(t=>({type:'TRUCK',title:t.truck_no||'Truck',company:t.company_name||'',pin:t.location_pin||'',vehicle:t.vehicle_type||'',rate:t.rate_km||0,views:t.views||0,interests:(t.interested||[]).length,shares:t.share||0,id:t.id}))];
+        
         let filtered = [...feedItems];
+        
         if(selectedLocation) {
             const centerLoc = getLocationByPin(selectedLocation);
             const radius = parseInt(document.getElementById('radius-select').value) || 50;
@@ -856,9 +775,12 @@ async function renderFeed(){
                 });
             }
         }
+        
         if(currentTab==='LOAD') filtered=filtered.filter(i=>i.type==='LOAD');
         else if(currentTab==='TRUCK') filtered=filtered.filter(i=>i.type==='TRUCK');
+        
         const radius = parseInt(document.getElementById('radius-select').value) || 50;
+        
         if(filterFromLocation) {
             filtered = filtered.filter(i => {
                 let targetLoc = null;
@@ -870,6 +792,7 @@ async function renderFeed(){
                 return false;
             });
         }
+        
         if(filterToLocation) {
             filtered = filtered.filter(i => {
                 let targetLoc = null;
@@ -880,10 +803,13 @@ async function renderFeed(){
                 return false;
             });
         }
-        const vehicle=$('filter-vehicle')?.value; 
+        
+        const vehicle=$('filter-vehicle')?.value;
         if(vehicle&&vehicle!=='ALL') filtered=filtered.filter(i=>i.vehicle&&i.vehicle.toLowerCase().includes(vehicle));
+        
         $('results-count').textContent=`Showing ${filtered.length} Records within ${radius} KM`;
         if(filtered.length===0){ $('feed-container').innerHTML='<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>'; return; }
+        
         $('feed-container').innerHTML=filtered.map(i=>{
             const badgeClass=i.type==='LOAD'?'load':'truck';
             let loc='', sub='', rate='', stats='';
@@ -918,16 +844,33 @@ async function renderFeed(){
     }catch(e){ $('feed-container').innerHTML='<div style="padding:30px 0;color:#ef4444;text-align:center">Error loading feed.</div>'; }
 }
 
+// ============================================================
+// PROFILE & DETAILS
+// ============================================================
 async function loadProfile(){ if(!currentUser)return; $('profile-mobile').textContent=currentUser.mobile||'--'; }
+
 async function saveLoadGiverProfile(){ const c=$('lg-company').value.trim(); if(!c)return showToast('⚠️ Enter company name'); await sb.from('active_users').update({company_name:c}).eq('mobile',currentUser.mobile); currentUser.company_name=c; showToast('✅ Saved!'); loadProfile(); }
+
 async function saveFleetProfile(){ const c=$('fo-company').value.trim(); if(!c)return showToast('⚠️ Enter company name'); await sb.from('active_users').update({fleet_company:c}).eq('mobile',currentUser.mobile); currentUser.fleet_company=c; showToast('✅ Saved!'); loadProfile(); }
+
 function editLoadGiver(){$('loadgiver-active-area').style.display='none'; $('loadgiver-input-area').style.display='block';}
 function editFleet(){$('fleet-active-area').style.display='none'; $('fleet-input-area').style.display='block';}
-async function openDetail(type,id){ const {data}=await sb.from(type==='LOAD'?'active_loads':'active_trucks').select('*').eq('id',id).single(); if(data){currentDetailData=data;switchPage('detail-page',0);$('detail-title').textContent=data.material||data.truck_no||'Details';$('detail-company').textContent=data.company||data.company_name||'N/A';}}
+
+async function openDetail(type,id){
+    const {data}=await sb.from(type==='LOAD'?'active_loads':'active_trucks').select('*').eq('id',id).single();
+    if(data){
+        currentDetailData=data;
+        switchPage('detail-page',0);
+        $('detail-title').textContent=data.material||data.truck_no||'Details';
+        $('detail-company').textContent=data.company||data.company_name||'N/A';
+    }
+}
+
 function makeCall(){ if(currentDetailData){const num=currentDetailData.mobile||currentDetailData.driver_mobile; if(num)window.location.href=`tel:${num}`;}}
 function expressInterest(){ showToast('✅ Interest expressed!'); }
 function contactUser(){ showToast('📧 Contact details shared!'); }
-function handleShareClick(){ 
+
+function handleShareClick(){
     if(navigator.share){
         navigator.share({
             title: 'ReturnTruck',
@@ -938,21 +881,186 @@ function handleShareClick(){
         showToast('📋 Link copied to clipboard!');
     }
 }
+
 function resetPIN(){ showToast('📱 Contact support to reset PIN'); }
 function autoFetchVehicle(){ showToast('🔍 Vehicle details fetched!'); }
 function publishLoad(){ showToast('📦 Load published successfully!'); }
 function publishTruck(){ showToast('🚛 Truck listed successfully!'); }
 function openChangePin(){ showToast('🔑 PIN change feature coming soon!'); }
 
+// ============================================================
+// INSTALL BANNER
+// ============================================================
+function dismissInstallBanner(){
+    const b=$('install-banner');
+    if(b){
+        b.classList.add('hidden');
+        b.style.display='none';
+        localStorage.setItem('rt_install_dismissed', 'true');
+    }
+}
+
+function installApp(){
+    if(deferredPrompt){
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(function(r){
+            if(r.outcome==='accepted'){
+                showToast('✅ App installed!');
+                const b=$('install-banner');
+                if(b){ b.classList.add('hidden'); b.style.display='none'; }
+                localStorage.setItem('rt_install_dismissed', 'true');
+            }
+            deferredPrompt=null;
+        });
+        return;
+    }
+    if (navigator.userAgent.match(/Android/i)) {
+        showToast('📱 Tap Chrome menu → "Install app"');
+    } else if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+        showToast('📱 Tap Share → "Add to Home Screen"');
+    } else {
+        showToast('📱 Open this page in Chrome on your phone');
+    }
+}
+
+function checkAndHandleInstallBanner(){
+    const b=$('install-banner');
+    if(!b) return;
+    
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    if (isStandalone) {
+        b.classList.add('hidden');
+        b.style.display='none';
+        return;
+    }
+    
+    if(localStorage.getItem('rt_install_dismissed') === 'true') {
+        b.classList.add('hidden');
+        b.style.display='none';
+        return;
+    }
+    
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if(isMobile && !isAppInstalled) {
+        b.classList.remove('hidden');
+        b.style.display='flex';
+        const btn=$('install-btn');
+        if(btn) btn.textContent='📲 Install';
+    }
+}
+
+// ============================================================
+// IDLE LOGOUT TIMER
+// ============================================================
+function resetLogoutTimer() {
+    if (logoutTimer) clearTimeout(logoutTimer);
+    if (!currentUser && !isGuest) return;
+    logoutTimer = setTimeout(() => {
+        if (currentUser || isGuest) {
+            alert("You have been automatically logged out due to 5 minutes of inactivity.");
+            logout();
+        }
+    }, 5 * 60 * 1000);
+}
+
+document.addEventListener('click', resetLogoutTimer);
+document.addEventListener('keydown', resetLogoutTimer);
+document.addEventListener('touchstart', resetLogoutTimer);
+document.addEventListener('scroll', resetLogoutTimer);
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') resetLogoutTimer();
+});
+
+function logout() {
+    if(confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('rt_user');
+        localStorage.removeItem('rt_install_dismissed');
+        window.location.reload();
+    }
+}
+
+// ============================================================
+// HEIGHT CALCULATION
+// ============================================================
+function fixLayoutHeight(){
+    const card=document.querySelector('.card');
+    if(!card) return;
+    
+    const scrollBody=document.querySelector('.scroll-body:not(.hidden-page)');
+    const header=document.querySelector('.header-fixed:not(.hidden-page)');
+    const nav=document.querySelector('.nav-fixed:not(.hidden-page)');
+    const topContainer=document.getElementById('home-top');
+    
+    if(!scrollBody||!header||!nav||!topContainer) return;
+    
+    const avail = card.clientHeight - header.offsetHeight - topContainer.scrollHeight - nav.offsetHeight - 16;
+    scrollBody.style.height = Math.max(100, avail) + 'px';
+}
+
+let resizeTimer;
+function handleResize(){
+    clearTimeout(resizeTimer);
+    resizeTimer=setTimeout(fixLayoutHeight, 200);
+}
+
+// ============================================================
+// LOGIN FUNCTIONS
+// ============================================================
+$('mobile').addEventListener('input', function(e) {
+    const m = this.value.trim();
+    if (m.length === 10) {
+        currentMobile = m;
+        $('step1').classList.add('hidden');
+        $('step2').classList.remove('hidden');
+        $('display-mobile').textContent = m;
+    }
+});
+
+window.submitPin=async function(){
+    const pin=$('pin').value.trim();
+    const encoder=new TextEncoder();
+    const hashBuffer=await crypto.subtle.digest('SHA-256',encoder.encode(pin));
+    const pinhash=Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    const {data:user}=await sb.from('active_users').select('*').eq('mobile',currentMobile).eq('pinhash',pinhash).single();
+    if(user){
+        currentUser=user;
+        localStorage.setItem('rt_user', JSON.stringify({mobile: currentUser.mobile, user: currentUser}));
+        isGuest = false;
+        showHome();
+    } else {
+        alert("Incorrect PIN. Please try again.");
+    }
+};
+
+async function registerUser(){
+    const pin=$('reg-pin').value.trim();
+    const encoder=new TextEncoder();
+    const hashBuffer=await crypto.subtle.digest('SHA-256',encoder.encode(pin));
+    const pinhash=Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    const {data:newUser}=await sb.from('active_users').insert({mobile:currentMobile,pinhash}).select().single();
+    if(newUser){
+        currentUser=newUser;
+        localStorage.setItem('rt_user', JSON.stringify({mobile: currentUser.mobile, user: currentUser}));
+        isGuest = false;
+        showHome();
+    }
+}
+
+$('pin').addEventListener('keydown', function(e) { if (e.key === 'Enter') { submitPin(); } });
+
+// ============================================================
+// INIT
+// ============================================================
 window.addEventListener('resize', handleResize);
+
 document.addEventListener('DOMContentLoaded', function() {
     const savedSession = localStorage.getItem('rt_user');
     if (savedSession) {
         const sessionData = JSON.parse(savedSession);
-        if (sessionData.guest) { 
-            isGuest = true; currentUser = null; 
-        } else if (sessionData.user) { 
-            currentUser = sessionData.user; isGuest = false; 
+        if (sessionData.guest) {
+            isGuest = true; currentUser = null;
+        } else if (sessionData.user) {
+            currentUser = sessionData.user; isGuest = false;
         }
         showHome();
     } else {
@@ -960,6 +1068,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('home-page').classList.add('hidden-page');
     }
     checkAndHandleInstallBanner();
+    
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (isMobile && !isAppInstalled) {
         setTimeout(() => {
