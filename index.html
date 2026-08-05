@@ -44,7 +44,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .dropdown-divider{height:1px;background:#e2e8f0;margin:4px 12px}
 
 /* ============================================================
-   BOTTOM NAV (FIXED) - UPDATED FOR INSTALL BUTTON
+   BOTTOM NAV (FIXED) 
    ============================================================ */
 .nav-fixed{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e2e8f0;background:#fff;position:relative;z-index:10;min-height:65px;width:100%;padding-bottom:5px;margin-top:auto}
 .nav-item{display:flex;flex-direction:column;align-items:center;color:#94a3b8;font-size:9px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px;position:relative;z-index:2}
@@ -81,26 +81,10 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     animation: pulse-install 2s infinite;
     letter-spacing: 0.3px;
 }
-.nav-install-btn .install-icon {
-    font-size: 14px;
-}
-.nav-install-btn .install-badge {
-    background: #ef4444;
-    color: #fff;
-    font-size: 7px;
-    font-weight: 700;
-    padding: 1px 6px;
-    border-radius: 10px;
-    margin-left: 2px;
-}
-@keyframes pulse-install {
-    0% { transform: scale(1); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); }
-    50% { transform: scale(1.05); box-shadow: 0 4px 25px rgba(37, 99, 235, 0.6); }
-    100% { transform: scale(1); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); }
-}
-.nav-install-btn:hover {
-    transform: scale(1.05);
-}
+.nav-install-btn .install-icon {font-size:14px}
+.nav-install-btn .install-badge{background:#ef4444;color:#fff;font-size:7px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:2px}
+@keyframes pulse-install{0%{transform:scale(1);box-shadow:0 4px 15px rgba(37,99,235,0.4)}50%{transform:scale(1.05);box-shadow:0 4px 25px rgba(37,99,235,0.6)}100%{transform:scale(1);box-shadow:0 4px 15px rgba(37,99,235,0.4)}}
+.nav-install-btn:hover{transform:scale(1.05)}
 
 /* ============================================================
    SCROLL BODY
@@ -116,7 +100,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .login-icon-container{display:flex;justify-content:center;margin-bottom:0}
 .login-icon-container img{width:240px;height:240px;border-radius:40px;box-shadow:0 4px 20px rgba(37,99,235,0.25);background:#fff;padding:8px;max-width:100%}
 .login-subtitle{font-size:13px;color:#64748b;text-align:center;margin-bottom:12px;margin-top:4px}
-
 .login-stats-container{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:12px;margin-bottom:12px;border:1px solid #bfdbfe}
 .login-stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
 .login-stat-item{text-align:center}
@@ -150,12 +133,13 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .filter-row label{font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
 .filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:11px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;outline:none}
 
-.location-search-wrapper{position:relative;width:100%}
-.location-search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:50;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
-.location-search-wrapper .suggestions.show{display:block}
-.location-search-wrapper .suggestions .item{padding:10px 16px;font-size:13px;color:#1e293b;cursor:pointer}
-.location-search-wrapper .suggestions .item:hover{background:#f8fafc}
-.location-search-wrapper .suggestions .item .highlight{background:#dbeafe;font-weight:600}
+/* UNIFIED SEARCH WRAPPER - Used by ALL searches */
+.search-wrapper{position:relative;width:100%}
+.search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:50;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.search-wrapper .suggestions.show{display:block}
+.search-wrapper .suggestions .item{padding:10px 16px;font-size:13px;color:#1e293b;cursor:pointer}
+.search-wrapper .suggestions .item:hover{background:#f8fafc}
+.search-wrapper .suggestions .item .highlight{background:#dbeafe;font-weight:600}
 
 .results-count{display:flex;justify-content:space-between;padding-bottom:4px;margin-bottom:6px;font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
 
@@ -301,8 +285,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 
         <div class="location-row">
             <div class="location-input">
-                <input type="text" id="location-search" placeholder="📍 Location/PIN" oninput="loadLocationSuggestions('location')" autocomplete="off">
-                <div class="location-search-wrapper"><div class="suggestions" id="location-suggestions"></div></div>
+                <input type="text" id="search-home" placeholder="📍 Location/PIN" oninput="searchLocation('home')" autocomplete="off">
+                <div class="search-wrapper"><div class="suggestions" id="suggestions-home"></div></div>
             </div>
             <div class="radius-select">
                 <select id="radius-select" onchange="applyFilters()">
@@ -332,17 +316,17 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div class="filter-row">
                 <div>
                     <label>📍 From Location</label>
-                    <div class="location-input" style="width:100%">
-                        <input type="text" id="filter-from" placeholder="Search PIN, District or State" oninput="loadLocationSuggestions('from')" autocomplete="off">
-                        <div class="location-search-wrapper"><div class="suggestions" id="filter-from-suggestions"></div></div>
+                    <div style="position:relative;width:100%">
+                        <input type="text" id="search-from" placeholder="Search PIN, District or State" oninput="searchLocation('from')" autocomplete="off">
+                        <div class="search-wrapper"><div class="suggestions" id="suggestions-from"></div></div>
                         <input type="hidden" id="filter-from-hidden">
                     </div>
                 </div>
                 <div>
                     <label>📍 To Location</label>
-                    <div class="location-input" style="width:100%">
-                        <input type="text" id="filter-to" placeholder="Search PIN, District or State" oninput="loadLocationSuggestions('to')" autocomplete="off">
-                        <div class="location-search-wrapper"><div class="suggestions" id="filter-to-suggestions"></div></div>
+                    <div style="position:relative;width:100%">
+                        <input type="text" id="search-to" placeholder="Search PIN, District or State" oninput="searchLocation('to')" autocomplete="off">
+                        <div class="search-wrapper"><div class="suggestions" id="suggestions-to"></div></div>
                         <input type="hidden" id="filter-to-hidden">
                     </div>
                 </div>
@@ -366,9 +350,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
         <div class="nav-install-wrapper" id="nav-install-wrapper">
             <button class="nav-install-btn" id="nav-install-btn" onclick="forceInstall()">
-                <span class="install-icon">📲</span>
-                Install
-                <span class="install-badge">NEW</span>
+                <span class="install-icon">📲</span> Install <span class="install-badge">NEW</span>
             </button>
         </div>
     </div>
@@ -387,7 +369,22 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div class="form-group"><label class="form-label">Material Type *</label>
             <select class="form-control" id="pl-material"><option value="">Select</option><option value="Steel Pipes">Steel Pipes</option><option value="Cement">Cement</option><option value="Other">Other</option></select></div>
         <div class="grid-2"><div><label>Weight (Kg)</label><input class="form-control" type="number" id="pl-weight"></div><div><label>Dimensions (ft)</label><input class="form-control" type="text" id="pl-dim" placeholder="40x8x8"></div></div>
-        <div class="grid-2"><div><label>📍 Pickup</label><div class="location-search-wrapper"><input type="text" id="pl-pickup-input" placeholder="Search PIN..."><div class="suggestions" id="pl-pickup-suggestions"></div><input type="hidden" id="pl-pickup-hidden"></div></div><div><label>📍 Drop</label><div class="location-search-wrapper"><input type="text" id="pl-drop-input" placeholder="Search PIN..."><div class="suggestions" id="pl-drop-suggestions"></div><input type="hidden" id="pl-drop-hidden"></div></div></div>
+        <div class="grid-2">
+            <div><label>📍 Pickup</label>
+                <div style="position:relative;width:100%">
+                    <input type="text" id="search-pl-pickup" placeholder="Search PIN..." oninput="searchLocation('pl-pickup')" autocomplete="off">
+                    <div class="search-wrapper"><div class="suggestions" id="suggestions-pl-pickup"></div></div>
+                    <input type="hidden" id="pl-pickup-hidden">
+                </div>
+            </div>
+            <div><label>📍 Drop</label>
+                <div style="position:relative;width:100%">
+                    <input type="text" id="search-pl-drop" placeholder="Search PIN..." oninput="searchLocation('pl-drop')" autocomplete="off">
+                    <div class="search-wrapper"><div class="suggestions" id="suggestions-pl-drop"></div></div>
+                    <input type="hidden" id="pl-drop-hidden">
+                </div>
+            </div>
+        </div>
         <div class="grid-2"><div><label>Rate (₹)</label><input class="form-control" type="text" id="pl-rate"></div><div><label>Date</label><input class="form-control" type="date" id="pl-date"></div></div>
         <button class="btn-primary" onclick="publishLoad()">📤 Publish Load</button>
     </div>
@@ -398,9 +395,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
         <div class="nav-install-wrapper" id="nav-install-wrapper2">
             <button class="nav-install-btn" onclick="forceInstall()">
-                <span class="install-icon">📲</span>
-                Install
-                <span class="install-badge">NEW</span>
+                <span class="install-icon">📲</span> Install <span class="install-badge">NEW</span>
             </button>
         </div>
     </div>
@@ -417,7 +412,13 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
     <div class="scroll-body" id="posttruck-scroll">
         <div class="form-group"><label>Vehicle Number</label><div style="display:flex;gap:8px"><input class="form-control" id="pt-number" style="flex:2"><button class="btn-primary" style="width:auto;padding:10px 16px" onclick="autoFetchVehicle()">🔍 Auto-Fetch</button></div></div>
-        <div class="form-group"><label>📍 Location</label><div class="location-search-wrapper"><input type="text" id="pt-location-input" placeholder="Search PIN..."><div class="suggestions" id="pt-location-suggestions"></div><input type="hidden" id="pt-location-hidden"></div></div>
+        <div class="form-group"><label>📍 Location</label>
+            <div style="position:relative;width:100%">
+                <input type="text" id="search-pt-location" placeholder="Search PIN..." oninput="searchLocation('pt-location')" autocomplete="off">
+                <div class="search-wrapper"><div class="suggestions" id="suggestions-pt-location"></div></div>
+                <input type="hidden" id="pt-location-hidden">
+            </div>
+        </div>
         <div class="grid-2"><div><label>Available From</label><input class="form-control" type="date" id="pt-available"></div><div><label>Rate / KM</label><input class="form-control" type="text" id="pt-rate-km"></div></div>
         <div class="grid-2"><div><label>Driver Name</label><input class="form-control" id="pt-driver"></div><div><label>Driver Mobile</label><input class="form-control" id="pt-driver-mobile" maxlength="10"></div></div>
         <button class="btn-primary" onclick="publishTruck()">📤 List Truck</button>
@@ -429,9 +430,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
         <div class="nav-install-wrapper" id="nav-install-wrapper3">
             <button class="nav-install-btn" onclick="forceInstall()">
-                <span class="install-icon">📲</span>
-                Install
-                <span class="install-badge">NEW</span>
+                <span class="install-icon">📲</span> Install <span class="install-badge">NEW</span>
             </button>
         </div>
     </div>
@@ -471,9 +470,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <button class="nav-item active" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
         <div class="nav-install-wrapper" id="nav-install-wrapper4">
             <button class="nav-install-btn" onclick="forceInstall()">
-                <span class="install-icon">📲</span>
-                Install
-                <span class="install-badge">NEW</span>
+                <span class="install-icon">📲</span> Install <span class="install-badge">NEW</span>
             </button>
         </div>
     </div>
@@ -499,9 +496,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
         <div class="nav-install-wrapper" id="nav-install-wrapper5">
             <button class="nav-install-btn" onclick="forceInstall()">
-                <span class="install-icon">📲</span>
-                Install
-                <span class="install-badge">NEW</span>
+                <span class="install-icon">📲</span> Install <span class="install-badge">NEW</span>
             </button>
         </div>
     </div>
@@ -511,7 +506,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 // ============================================================
 // STATIC LOCATION DATA - SINGLE SOURCE OF TRUTH
 // ============================================================
-const STATIC_LOCATIONS = [
+var STATIC_LOCATIONS = [
   {pin:"110018", name:"Ashok Nagar", district:"NEW DELHI", state:"DH", lat:28.636587, lng:77.094466},
   {pin:"182141", name:"Chenani", district:"UDHAMPUR", state:"JK", lat:33.0389444, lng:75.2846944},
   {pin:"400001", name:"Mumbai", district:"MUMBAI", state:"MH", lat:18.9391667, lng:72.8375556},
@@ -541,75 +536,87 @@ const STATIC_LOCATIONS = [
 // ============================================================
 // CONFIGURATION & STATE
 // ============================================================
-const SUPABASE_URL = 'https://ghjoffovatgvhzxlupef.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+var SUPABASE_URL = 'https://ghjoffovatgvhzxlupef.supabase.co';
+var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
+var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let currentUser=null, isGuest=false, currentTab='ALL', feedItems=[], currentDetailData=null;
-let otpTimerInterval=null, currentMobile='', selectedLocation=null, filterOpen=true;
-let logoutTimer = null;
-let filterFromLocation = null;
-let filterToLocation = null;
-let deferredPrompt = null;
-let isAppInstalled = false;
+var currentUser=null, isGuest=false, currentTab='ALL', feedItems=[], currentDetailData=null;
+var otpTimerInterval=null, currentMobile='', selectedLocation=null, filterOpen=true;
+var logoutTimer = null;
+var filterFromLocation = null;
+var filterToLocation = null;
+var deferredPrompt = null;
+var isAppInstalled = false;
 
 function $(id){return document.getElementById(id)}
 function showToast(msg){alert(msg)}
 
 // ============================================================
-// SERVICE WORKER REGISTRATION - Auto-detect
+// SINGLE SEARCH FUNCTION - Used by ALL searches (home, filter, post load, post truck)
 // ============================================================
-// Service worker is auto-detected from sw.js in root
-
-// ============================================================
-// SINGLE findLocation FUNCTION - Used by ALL searches
-// ============================================================
-function findLocation(query) {
-    const q = query.toLowerCase().trim();
-    if (!q) return [];
-    return STATIC_LOCATIONS.filter(function(l) {
-        return l.name.toLowerCase().includes(q) ||
-               l.pin.includes(q) ||
-               l.district.toLowerCase().includes(q) ||
-               l.state.toLowerCase().includes(q);
-    }).slice(0, 8);
-}
-
-// ============================================================
-// SINGLE loadLocationSuggestions FUNCTION - Used by ALL searches
-// ============================================================
-function loadLocationSuggestions(context) {
-    let inputId, suggestionsId;
+function searchLocation(context) {
+    var inputId, suggestionsId, hiddenId;
     
-    // Map context to input and suggestions IDs
-    if(context === 'location') {
-        inputId = 'location-search';
-        suggestionsId = 'location-suggestions';
-    } else if(context === 'from') {
-        inputId = 'filter-from';
-        suggestionsId = 'filter-from-suggestions';
-    } else if(context === 'to') {
-        inputId = 'filter-to';
-        suggestionsId = 'filter-to-suggestions';
-    } else if(context === 'pl-pickup') {
-        inputId = 'pl-pickup-input';
-        suggestionsId = 'pl-pickup-suggestions';
-    } else if(context === 'pl-drop') {
-        inputId = 'pl-drop-input';
-        suggestionsId = 'pl-drop-suggestions';
-    } else if(context === 'pt-location') {
-        inputId = 'pt-location-input';
-        suggestionsId = 'pt-location-suggestions';
-    } else {
+    // Map context to element IDs
+    switch(context) {
+        case 'home':
+            inputId = 'search-home';
+            suggestionsId = 'suggestions-home';
+            break;
+        case 'from':
+            inputId = 'search-from';
+            suggestionsId = 'suggestions-from';
+            hiddenId = 'filter-from-hidden';
+            break;
+        case 'to':
+            inputId = 'search-to';
+            suggestionsId = 'suggestions-to';
+            hiddenId = 'filter-to-hidden';
+            break;
+        case 'pl-pickup':
+            inputId = 'search-pl-pickup';
+            suggestionsId = 'suggestions-pl-pickup';
+            hiddenId = 'pl-pickup-hidden';
+            break;
+        case 'pl-drop':
+            inputId = 'search-pl-drop';
+            suggestionsId = 'suggestions-pl-drop';
+            hiddenId = 'pl-drop-hidden';
+            break;
+        case 'pt-location':
+            inputId = 'search-pt-location';
+            suggestionsId = 'suggestions-pt-location';
+            hiddenId = 'pt-location-hidden';
+            break;
+        default:
+            return;
+    }
+    
+    var input = document.getElementById(inputId);
+    var suggestions = document.getElementById(suggestionsId);
+    if(!input || !suggestions) return;
+    
+    var query = input.value.trim();
+    
+    // If query is empty, hide suggestions and return
+    if(!query) {
+        suggestions.classList.remove('show');
         return;
     }
     
-    const input = document.getElementById(inputId);
-    const suggestions = document.getElementById(suggestionsId);
-    if(!input || !suggestions) return;
-    
-    const query = input.value.trim();
-    const results = findLocation(query);
+    // Search in STATIC_LOCATIONS
+    var results = [];
+    var q = query.toLowerCase();
+    for(var i = 0; i < STATIC_LOCATIONS.length; i++) {
+        var loc = STATIC_LOCATIONS[i];
+        if(loc.name.toLowerCase().includes(q) ||
+           loc.pin.includes(q) ||
+           loc.district.toLowerCase().includes(q) ||
+           loc.state.toLowerCase().includes(q)) {
+            results.push(loc);
+        }
+        if(results.length >= 8) break;
+    }
     
     if(results.length === 0) {
         suggestions.classList.remove('show');
@@ -617,83 +624,97 @@ function loadLocationSuggestions(context) {
     }
     
     // Build suggestions HTML
-    suggestions.innerHTML = results.map(function(l) {
-        const displayName = l.name + ', ' + l.district + ', ' + l.state + ' (' + l.pin + ')';
-        const idx = displayName.toLowerCase().indexOf(query.toLowerCase());
-        let html = displayName;
+    var html = '';
+    for(var j = 0; j < results.length; j++) {
+        var l = results[j];
+        var displayName = l.name + ', ' + l.district + ', ' + l.state + ' (' + l.pin + ')';
+        var idx = displayName.toLowerCase().indexOf(q);
+        var displayHtml = displayName;
         if(idx !== -1 && query) {
-            html = displayName.substring(0, idx) + 
-                   '<span class="highlight">' + 
-                   displayName.substring(idx, idx + query.length) + 
-                   '</span>' + 
-                   displayName.substring(idx + query.length);
+            displayHtml = displayName.substring(0, idx) + 
+                          '<span class="highlight">' + 
+                          displayName.substring(idx, idx + query.length) + 
+                          '</span>' + 
+                          displayName.substring(idx + query.length);
         }
-        return '<div class="item" onclick="selectLocationHelper(\'' + context + '\',\'' + l.pin + '\',\'' + l.name + '\',\'' + l.state + '\')">' + html + '</div>';
-    }).join('');
+        html += '<div class="item" onclick="selectLocation(\'' + context + '\',\'' + l.pin + '\',\'' + l.name + '\',\'' + l.state + '\')">' + displayHtml + '</div>';
+    }
     
+    suggestions.innerHTML = html;
     suggestions.classList.add('show');
 }
 
 // ============================================================
-// SINGLE selectLocationHelper - Used by ALL searches
+// SINGLE SELECT LOCATION FUNCTION - Used by ALL searches
 // ============================================================
-function selectLocationHelper(context, pin, name, state) {
-    let inputId, suggestionsId, hiddenId;
+function selectLocation(context, pin, name, state) {
+    var inputId, suggestionsId, hiddenId;
     
-    if(context === 'location') {
-        inputId = 'location-search';
-        suggestionsId = 'location-suggestions';
-        document.getElementById(inputId).value = name + ', ' + state + ' (' + pin + ')';
-        document.getElementById(suggestionsId).classList.remove('show');
+    switch(context) {
+        case 'home':
+            inputId = 'search-home';
+            suggestionsId = 'suggestions-home';
+            break;
+        case 'from':
+            inputId = 'search-from';
+            suggestionsId = 'suggestions-from';
+            hiddenId = 'filter-from-hidden';
+            break;
+        case 'to':
+            inputId = 'search-to';
+            suggestionsId = 'suggestions-to';
+            hiddenId = 'filter-to-hidden';
+            break;
+        case 'pl-pickup':
+            inputId = 'search-pl-pickup';
+            suggestionsId = 'suggestions-pl-pickup';
+            hiddenId = 'pl-pickup-hidden';
+            break;
+        case 'pl-drop':
+            inputId = 'search-pl-drop';
+            suggestionsId = 'suggestions-pl-drop';
+            hiddenId = 'pl-drop-hidden';
+            break;
+        case 'pt-location':
+            inputId = 'search-pt-location';
+            suggestionsId = 'suggestions-pt-location';
+            hiddenId = 'pt-location-hidden';
+            break;
+        default:
+            return;
+    }
+    
+    var displayName = name + ', ' + state + ' (' + pin + ')';
+    document.getElementById(inputId).value = displayName;
+    if(hiddenId) document.getElementById(hiddenId).value = pin;
+    document.getElementById(suggestionsId).classList.remove('show');
+    
+    // Handle different contexts
+    if(context === 'home') {
         selectedLocation = pin;
         applyFilters();
-        return;
-    }
-    
-    if(context === 'from') {
-        inputId = 'filter-from';
-        hiddenId = 'filter-from-hidden';
-        suggestionsId = 'filter-from-suggestions';
+    } else if(context === 'from') {
         filterFromLocation = getLocationByPin(pin);
+        applyFilters();
     } else if(context === 'to') {
-        inputId = 'filter-to';
-        hiddenId = 'filter-to-hidden';
-        suggestionsId = 'filter-to-suggestions';
         filterToLocation = getLocationByPin(pin);
-    } else if(context === 'pl-pickup') {
-        inputId = 'pl-pickup-input';
-        hiddenId = 'pl-pickup-hidden';
-        suggestionsId = 'pl-pickup-suggestions';
-    } else if(context === 'pl-drop') {
-        inputId = 'pl-drop-input';
-        hiddenId = 'pl-drop-hidden';
-        suggestionsId = 'pl-drop-suggestions';
-    } else if(context === 'pt-location') {
-        inputId = 'pt-location-input';
-        hiddenId = 'pt-location-hidden';
-        suggestionsId = 'pt-location-suggestions';
+        applyFilters();
+    } else if(context === 'pl-pickup' || context === 'pl-drop' || context === 'pt-location') {
+        // For post load/truck pages, just store the value
+        // No need to apply filters
     }
-    
-    document.getElementById(inputId).value = getLocationName(pin);
-    if(hiddenId) document.getElementById(hiddenId).value = pin;
-    if(suggestionsId) document.getElementById(suggestionsId).classList.remove('show');
-    applyFilters();
 }
-
-// Close suggestions when clicking outside
-document.addEventListener('click', function(e) {
-    document.querySelectorAll('.suggestions').forEach(function(s) {
-        if(!s.parentElement.contains(e.target)) {
-            s.classList.remove('show');
-        }
-    });
-});
 
 // ============================================================
 // HELPER FUNCTIONS
 // ============================================================
 function getLocationByPin(pin) {
-    return STATIC_LOCATIONS.find(function(l) { return l.pin === pin; }) || null;
+    for(var i = 0; i < STATIC_LOCATIONS.length; i++) {
+        if(STATIC_LOCATIONS[i].pin === pin) {
+            return STATIC_LOCATIONS[i];
+        }
+    }
+    return null;
 }
 
 function getLocationName(pin) {
@@ -708,6 +729,20 @@ function getDistance(lat1, lng1, lat2, lng2) {
     var a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
+
+// Close suggestions when clicking outside
+document.addEventListener('click', function(e) {
+    document.querySelectorAll('.suggestions').forEach(function(s) {
+        if(!s.parentElement.contains(e.target)) {
+            s.classList.remove('show');
+        }
+    });
+});
+
+// ============================================================
+// SERVICE WORKER - Auto-detect
+// ============================================================
+// Service worker is auto-detected from sw.js in root
 
 // ============================================================
 // PWA INSTALL HANDLING
@@ -873,28 +908,17 @@ function showHome(){
 }
 
 function clearSearchFields() {
-    var searchInput = document.getElementById('location-search');
-    if(searchInput) {
-        searchInput.value = '';
-        searchInput.blur();
-    }
-    var filterFrom = document.getElementById('filter-from');
-    var filterTo = document.getElementById('filter-to');
-    if(filterFrom) {
-        filterFrom.value = '';
-        filterFrom.blur();
-    }
-    if(filterTo) {
-        filterTo.value = '';
-        filterTo.blur();
-    }
+    var homeSearch = document.getElementById('search-home');
+    var fromSearch = document.getElementById('search-from');
+    var toSearch = document.getElementById('search-to');
+    if(homeSearch) { homeSearch.value = ''; homeSearch.blur(); }
+    if(fromSearch) { fromSearch.value = ''; fromSearch.blur(); }
+    if(toSearch) { toSearch.value = ''; toSearch.blur(); }
     document.getElementById('filter-from-hidden').value = '';
     document.getElementById('filter-to-hidden').value = '';
     filterFromLocation = null;
     filterToLocation = null;
-    document.querySelectorAll('.suggestions').forEach(function(s) {
-        s.classList.remove('show');
-    });
+    document.querySelectorAll('.suggestions').forEach(function(s) { s.classList.remove('show'); });
 }
 
 function updateGuestUI(){
@@ -1246,7 +1270,6 @@ document.addEventListener('DOMContentLoaded', function() {
         clearSearchFields();
     }, 1000);
     
-    // Force fix layout after everything loads
     setTimeout(fixLayoutHeight, 500);
 });
 </script>
