@@ -46,7 +46,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 /* ============================================================
    BOTTOM NAV (FIXED) - UPDATED FOR INSTALL BUTTON
    ============================================================ */
-.nav-fixed{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e2e8f0;background:#fff;position:relative;z-index:10;min-height:65px;width:100%;padding-bottom:5px}
+.nav-fixed{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e2e8f0;background:#fff;position:relative;z-index:10;min-height:65px;width:100%;padding-bottom:5px;margin-top:auto}
 .nav-item{display:flex;flex-direction:column;align-items:center;color:#94a3b8;font-size:9px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px;position:relative;z-index:2}
 .nav-item.active{color:#2563eb}
 .nav-item .icon{font-size:22px;margin-bottom:2px}
@@ -105,7 +105,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 /* ============================================================
    SCROLL BODY
    ============================================================ */
-.scroll-body{overflow-y:auto;padding:8px 0;-webkit-overflow-scrolling:touch;display:block;width:100%}
+.scroll-body{overflow-y:auto;padding:8px 0;-webkit-overflow-scrolling:touch;display:block;width:100%;flex:1}
 .scroll-body::-webkit-scrollbar{width:4px}
 .scroll-body::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
 
@@ -207,7 +207,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 
 <!-- LOGIN SCREEN -->
 <div id="login-screen">
-    <!-- App Icon at top - 240x240 -->
     <div class="login-icon-container">
         <img src="launchericon-192x192.png" alt="ReturnTruck" width="240" height="240">
     </div>
@@ -280,7 +279,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 </div>
 
 <!-- HOME PAGE -->
-<div id="home-page" class="hidden-page">
+<div id="home-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <div class="logo" onclick="goHome()">
             <span class="logo-icon">🚛</span>
@@ -361,13 +360,10 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     <div class="scroll-body" id="home-scroll-body"><div id="feed-container" class="feed-container"></div></div>
 
     <div class="nav-fixed" id="bottom-nav">
-        <!-- Nav Items -->
         <button class="nav-item active" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
         <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
         <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
         <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
-
-        <!-- CENTERED INSTALL BUTTON - Above nav, not increasing height -->
         <div class="nav-install-wrapper" id="nav-install-wrapper">
             <button class="nav-install-btn" id="nav-install-btn" onclick="forceInstall()">
                 <span class="install-icon">📲</span>
@@ -379,7 +375,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 </div>
 
 <!-- POST LOAD PAGE -->
-<div id="postload-page" class="hidden-page">
+<div id="postload-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <span class="logo" onclick="goHome()">
             <span class="logo-icon">🚛</span>
@@ -411,7 +407,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 </div>
 
 <!-- POST TRUCK PAGE -->
-<div id="posttruck-page" class="hidden-page">
+<div id="posttruck-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <span class="logo" onclick="goHome()">
             <span class="logo-icon">🚛</span>
@@ -442,7 +438,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 </div>
 
 <!-- PROFILE PAGE -->
-<div id="profile-page" class="hidden-page">
+<div id="profile-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <div class="logo" onclick="goHome()">
             <span class="logo-icon">🚛</span>
@@ -484,7 +480,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 </div>
 
 <!-- DETAIL PAGE -->
-<div id="detail-page" class="hidden-page">
+<div id="detail-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <span class="logo" onclick="goHome()">
             <span class="logo-icon">🚛</span>
@@ -513,7 +509,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 
 <script>
 // ============================================================
-// STATIC LOCATION DATA
+// STATIC LOCATION DATA - SINGLE SOURCE OF TRUTH
 // ============================================================
 const STATIC_LOCATIONS = [
   {pin:"110018", name:"Ashok Nagar", district:"NEW DELHI", state:"DH", lat:28.636587, lng:77.094466},
@@ -566,20 +562,171 @@ function showToast(msg){alert(msg)}
 // Service worker is auto-detected from sw.js in root
 
 // ============================================================
+// SINGLE findLocation FUNCTION - Used by ALL searches
+// ============================================================
+function findLocation(query) {
+    const q = query.toLowerCase().trim();
+    if (!q) return [];
+    return STATIC_LOCATIONS.filter(function(l) {
+        return l.name.toLowerCase().includes(q) ||
+               l.pin.includes(q) ||
+               l.district.toLowerCase().includes(q) ||
+               l.state.toLowerCase().includes(q);
+    }).slice(0, 8);
+}
+
+// ============================================================
+// SINGLE loadLocationSuggestions FUNCTION - Used by ALL searches
+// ============================================================
+function loadLocationSuggestions(context) {
+    let inputId, suggestionsId;
+    
+    // Map context to input and suggestions IDs
+    if(context === 'location') {
+        inputId = 'location-search';
+        suggestionsId = 'location-suggestions';
+    } else if(context === 'from') {
+        inputId = 'filter-from';
+        suggestionsId = 'filter-from-suggestions';
+    } else if(context === 'to') {
+        inputId = 'filter-to';
+        suggestionsId = 'filter-to-suggestions';
+    } else if(context === 'pl-pickup') {
+        inputId = 'pl-pickup-input';
+        suggestionsId = 'pl-pickup-suggestions';
+    } else if(context === 'pl-drop') {
+        inputId = 'pl-drop-input';
+        suggestionsId = 'pl-drop-suggestions';
+    } else if(context === 'pt-location') {
+        inputId = 'pt-location-input';
+        suggestionsId = 'pt-location-suggestions';
+    } else {
+        return;
+    }
+    
+    const input = document.getElementById(inputId);
+    const suggestions = document.getElementById(suggestionsId);
+    if(!input || !suggestions) return;
+    
+    const query = input.value.trim();
+    const results = findLocation(query);
+    
+    if(results.length === 0) {
+        suggestions.classList.remove('show');
+        return;
+    }
+    
+    // Build suggestions HTML
+    suggestions.innerHTML = results.map(function(l) {
+        const displayName = l.name + ', ' + l.district + ', ' + l.state + ' (' + l.pin + ')';
+        const idx = displayName.toLowerCase().indexOf(query.toLowerCase());
+        let html = displayName;
+        if(idx !== -1 && query) {
+            html = displayName.substring(0, idx) + 
+                   '<span class="highlight">' + 
+                   displayName.substring(idx, idx + query.length) + 
+                   '</span>' + 
+                   displayName.substring(idx + query.length);
+        }
+        return '<div class="item" onclick="selectLocationHelper(\'' + context + '\',\'' + l.pin + '\',\'' + l.name + '\',\'' + l.state + '\')">' + html + '</div>';
+    }).join('');
+    
+    suggestions.classList.add('show');
+}
+
+// ============================================================
+// SINGLE selectLocationHelper - Used by ALL searches
+// ============================================================
+function selectLocationHelper(context, pin, name, state) {
+    let inputId, suggestionsId, hiddenId;
+    
+    if(context === 'location') {
+        inputId = 'location-search';
+        suggestionsId = 'location-suggestions';
+        document.getElementById(inputId).value = name + ', ' + state + ' (' + pin + ')';
+        document.getElementById(suggestionsId).classList.remove('show');
+        selectedLocation = pin;
+        applyFilters();
+        return;
+    }
+    
+    if(context === 'from') {
+        inputId = 'filter-from';
+        hiddenId = 'filter-from-hidden';
+        suggestionsId = 'filter-from-suggestions';
+        filterFromLocation = getLocationByPin(pin);
+    } else if(context === 'to') {
+        inputId = 'filter-to';
+        hiddenId = 'filter-to-hidden';
+        suggestionsId = 'filter-to-suggestions';
+        filterToLocation = getLocationByPin(pin);
+    } else if(context === 'pl-pickup') {
+        inputId = 'pl-pickup-input';
+        hiddenId = 'pl-pickup-hidden';
+        suggestionsId = 'pl-pickup-suggestions';
+    } else if(context === 'pl-drop') {
+        inputId = 'pl-drop-input';
+        hiddenId = 'pl-drop-hidden';
+        suggestionsId = 'pl-drop-suggestions';
+    } else if(context === 'pt-location') {
+        inputId = 'pt-location-input';
+        hiddenId = 'pt-location-hidden';
+        suggestionsId = 'pt-location-suggestions';
+    }
+    
+    document.getElementById(inputId).value = getLocationName(pin);
+    if(hiddenId) document.getElementById(hiddenId).value = pin;
+    if(suggestionsId) document.getElementById(suggestionsId).classList.remove('show');
+    applyFilters();
+}
+
+// Close suggestions when clicking outside
+document.addEventListener('click', function(e) {
+    document.querySelectorAll('.suggestions').forEach(function(s) {
+        if(!s.parentElement.contains(e.target)) {
+            s.classList.remove('show');
+        }
+    });
+});
+
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+function getLocationByPin(pin) {
+    return STATIC_LOCATIONS.find(function(l) { return l.pin === pin; }) || null;
+}
+
+function getLocationName(pin) {
+    var loc = getLocationByPin(pin);
+    return loc ? loc.name + ', ' + loc.district + ', ' + loc.state + ' (' + loc.pin + ')' : pin || 'Unknown';
+}
+
+function getDistance(lat1, lng1, lat2, lng2) {
+    var R = 6371;
+    var dLat = (lat2-lat1) * Math.PI / 180;
+    var dLng = (lng2-lng1) * Math.PI / 180;
+    var a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ============================================================
 // PWA INSTALL HANDLING
 // ============================================================
 if (window.matchMedia('(display-mode: standalone)').matches) {
     isAppInstalled = true;
 }
 
-// Show/hide install nav button (centered above nav)
 function updateInstallNavButton() {
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-    const showInstall = isMobile && !isStandalone && !isAppInstalled;
+    var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    var isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    var showInstall = isMobile && !isStandalone && !isAppInstalled;
     
     document.querySelectorAll('.nav-install-wrapper').forEach(function(el) {
-        el.classList.toggle('show', showInstall);
+        if(showInstall) {
+            el.classList.add('show');
+        } else {
+            el.classList.remove('show');
+        }
     });
 }
 
@@ -626,13 +773,12 @@ function forceInstall() {
 
 // Show install nav button after 3 seconds on mobile
 setTimeout(function() {
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (isMobile && !isAppInstalled) {
         updateInstallNavButton();
     }
 }, 3000);
 
-// Also show on window load
 window.addEventListener('load', function() {
     setTimeout(function() {
         updateInstallNavButton();
@@ -644,9 +790,9 @@ window.addEventListener('load', function() {
 // ============================================================
 async function incrementInstallCount() {
     try {
-        const {data, error} = await sb.from('platform_stats').select('total_installs').maybeSingle();
+        var {data, error} = await sb.from('platform_stats').select('total_installs').maybeSingle();
         if (error) throw error;
-        const current = data?.total_installs || 0;
+        var current = data?.total_installs || 0;
         await sb.from('platform_stats').upsert({id: 1, total_installs: current + 1});
         loadPlatformStats();
     } catch(err) {
@@ -659,24 +805,24 @@ async function incrementInstallCount() {
 // ============================================================
 async function loadPlatformStats() {
     try {
-        const {data: stats, error: statsError} = await sb.from('platform_stats').select('*').maybeSingle();
+        var {data: stats, error: statsError} = await sb.from('platform_stats').select('*').maybeSingle();
         if (statsError) throw statsError;
         
-        const installs = stats?.total_installs || 0;
-        const visits = stats?.total_visits || 0;
+        var installs = stats?.total_installs || 0;
+        var visits = stats?.total_visits || 0;
         
-        const {data: users, error: usersError} = await sb.from('active_users').select('mobile, company_name, fleet_company');
+        var {data: users, error: usersError} = await sb.from('active_users').select('mobile, company_name, fleet_company');
         if (usersError) throw usersError;
         
-        const loadGivers = users ? users.filter(u => u.company_name && u.company_name.trim() !== '').length : 0;
-        const fleetOps = users ? users.filter(u => u.fleet_company && u.fleet_company.trim() !== '').length : 0;
-        const totalUsers = users ? users.length : 0;
+        var loadGivers = users ? users.filter(function(u) { return u.company_name && u.company_name.trim() !== ''; }).length : 0;
+        var fleetOps = users ? users.filter(function(u) { return u.fleet_company && u.fleet_company.trim() !== ''; }).length : 0;
+        var totalUsers = users ? users.length : 0;
         
-        const {data: trucks, error: trucksError} = await sb.from('active_trucks').select('id').eq('status', 1);
-        const {data: loads, error: loadsError} = await sb.from('active_loads').select('id').eq('status', 1);
+        var {data: trucks, error: trucksError} = await sb.from('active_trucks').select('id').eq('status', 1);
+        var {data: loads, error: loadsError} = await sb.from('active_loads').select('id').eq('status', 1);
         
-        const truckCount = trucks ? trucks.length : 0;
-        const loadCount = loads ? loads.length : 0;
+        var truckCount = trucks ? trucks.length : 0;
+        var loadCount = loads ? loads.length : 0;
         
         document.getElementById('stat-loadgivers').textContent = loadGivers.toLocaleString();
         document.getElementById('stat-fleetops').textContent = fleetOps.toLocaleString();
@@ -693,93 +839,6 @@ async function loadPlatformStats() {
 }
 
 // ============================================================
-// SHARED SEARCH FUNCTIONS
-// ============================================================
-function findLocation(query) {
-    const q = query.toLowerCase().trim();
-    if (!q) return [];
-    return STATIC_LOCATIONS.filter(l =>
-        l.name.toLowerCase().includes(q) ||
-        l.pin.includes(q) ||
-        l.district.toLowerCase().includes(q) ||
-        l.state.toLowerCase().includes(q)
-    ).slice(0, 8);
-}
-
-function getLocationByPin(pin) {
-    return STATIC_LOCATIONS.find(l => l.pin === pin) || null;
-}
-
-function getLocationName(pin) {
-    const loc = getLocationByPin(pin);
-    return loc ? `${loc.name}, ${loc.district}, ${loc.state} (${loc.pin})` : pin || 'Unknown';
-}
-
-function getDistance(lat1, lng1, lat2, lng2) {
-    const R = 6371;
-    const dLat = (lat2-lat1) * Math.PI / 180;
-    const dLng = (lng2-lng1) * Math.PI / 180;
-    const a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-}
-
-// ============================================================
-// SUGGESTION LOADER
-// ============================================================
-function loadLocationSuggestions(context) {
-    let inputId, suggestionsId;
-    if(context === 'location') { inputId = 'location-search'; suggestionsId = 'location-suggestions'; }
-    else if(context === 'from') { inputId = 'filter-from'; suggestionsId = 'filter-from-suggestions'; }
-    else if(context === 'to') { inputId = 'filter-to'; suggestionsId = 'filter-to-suggestions'; }
-    
-    const input = document.getElementById(inputId);
-    const suggestions = document.getElementById(suggestionsId);
-    if(!input || !suggestions) return;
-    
-    const query = input.value.trim();
-    const results = findLocation(query);
-    if(results.length === 0) { suggestions.classList.remove('show'); return; }
-    
-    suggestions.innerHTML = results.map(l => {
-        const displayName = `${l.name}, ${l.district}, ${l.state} (${l.pin})`;
-        const idx = displayName.toLowerCase().indexOf(query.toLowerCase());
-        let html = displayName;
-        if(idx !== -1 && query) {
-            html = displayName.substring(0, idx) + '<span class="highlight">' + displayName.substring(idx, idx + query.length) + '</span>' + displayName.substring(idx + query.length);
-        }
-        return `<div class="item" onclick="selectLocationHelper('${context}','${l.pin}','${l.name}','${l.state}')">${html}</div>`;
-    }).join('');
-    suggestions.classList.add('show');
-}
-
-function selectLocationHelper(context, pin, name, state) {
-    let inputId, suggestionsId, hiddenId;
-    
-    if(context === 'location') {
-        inputId = 'location-search'; suggestionsId = 'location-suggestions';
-        document.getElementById(inputId).value = `${name}, ${state} (${pin})`;
-        document.getElementById(suggestionsId).classList.remove('show');
-        selectedLocation = pin;
-        applyFilters();
-        return;
-    }
-    
-    if(context === 'from') { inputId = 'filter-from'; hiddenId = 'filter-from-hidden'; suggestionsId = 'filter-from-suggestions'; filterFromLocation = getLocationByPin(pin); }
-    else if(context === 'to') { inputId = 'filter-to'; hiddenId = 'filter-to-hidden'; suggestionsId = 'filter-to-suggestions'; filterToLocation = getLocationByPin(pin); }
-    
-    document.getElementById(inputId).value = getLocationName(pin);
-    if(hiddenId) document.getElementById(hiddenId).value = pin;
-    document.getElementById(suggestionsId).classList.remove('show');
-    applyFilters();
-}
-
-document.addEventListener('click', function(e) {
-    document.querySelectorAll('.suggestions').forEach(s => {
-        if(!s.parentElement.contains(e.target)) s.classList.remove('show');
-    });
-});
-
-// ============================================================
 // AUTH FUNCTIONS
 // ============================================================
 function continueAsGuest(){
@@ -791,10 +850,10 @@ function continueAsGuest(){
 function showLogin(){resetForm(); $('mobile').focus();}
 
 function resetForm(){
-    ['step2','step3','step4'].forEach(i=>$(i).classList.add('hidden'));
+    ['step2','step3','step4'].forEach(function(i) { $(i).classList.add('hidden'); });
     $('step1').classList.remove('hidden');
     document.getElementById('login-screen').style.display='flex';
-    ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.add('hidden-page'));
+    ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(function(i) { $(i).classList.add('hidden-page'); });
     clearTimeout(logoutTimer);
 }
 
@@ -802,7 +861,6 @@ function showHome(){
     document.getElementById('login-screen').style.display='none';
     document.getElementById('home-page').classList.remove('hidden-page');
     updateGuestUI();
-    
     clearSearchFields();
     
     setTimeout(function() {
@@ -815,13 +873,13 @@ function showHome(){
 }
 
 function clearSearchFields() {
-    const searchInput = document.getElementById('location-search');
+    var searchInput = document.getElementById('location-search');
     if(searchInput) {
         searchInput.value = '';
         searchInput.blur();
     }
-    const filterFrom = document.getElementById('filter-from');
-    const filterTo = document.getElementById('filter-to');
+    var filterFrom = document.getElementById('filter-from');
+    var filterTo = document.getElementById('filter-to');
     if(filterFrom) {
         filterFrom.value = '';
         filterFrom.blur();
@@ -840,7 +898,7 @@ function clearSearchFields() {
 }
 
 function updateGuestUI(){
-    const b=$('guest-banner');
+    var b = $('guest-banner');
     if(b){
         b.style.display = isGuest ? 'flex' : 'none';
         if(isGuest) b.classList.remove('hidden');
@@ -849,17 +907,20 @@ function updateGuestUI(){
     setTimeout(fixLayoutHeight, 50);
 }
 
-function toggleDropdown(){document.querySelectorAll('.profile-dropdown').forEach(d=>d.classList.toggle('show'));}
-function closeDropdown(){document.querySelectorAll('.profile-dropdown').forEach(d=>d.classList.remove('show'));}
+function toggleDropdown(){
+    document.querySelectorAll('.profile-dropdown').forEach(function(d) { d.classList.toggle('show'); });
+}
+function closeDropdown(){
+    document.querySelectorAll('.profile-dropdown').forEach(function(d) { d.classList.remove('show'); });
+}
 
 // ============================================================
 // NAVIGATION
 // ============================================================
 function goHome(){
-    ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.toggle('hidden-page',i!=='home-page'));
-    document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+    ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(function(i) { $(i).classList.toggle('hidden-page', i !== 'home-page'); });
+    document.querySelectorAll('.nav-item').forEach(function(e) { e.classList.remove('active'); });
     document.querySelectorAll('.nav-fixed .nav-item')[0].classList.add('active');
-    
     clearSearchFields();
     
     setTimeout(fixLayoutHeight, 50);
@@ -869,8 +930,8 @@ function goHome(){
 }
 
 function switchPage(id, idx){
-    ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(i=>$(i).classList.toggle('hidden-page',i!==id));
-    document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+    ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(function(i) { $(i).classList.toggle('hidden-page', i !== id); });
+    document.querySelectorAll('.nav-item').forEach(function(e) { e.classList.remove('active'); });
     document.querySelectorAll('.nav-fixed .nav-item')[idx].classList.add('active');
     setTimeout(fixLayoutHeight, 50);
     resetLogoutTimer();
@@ -888,9 +949,9 @@ function closeDetail(){currentDetailData=null;goHome();}
 // ============================================================
 function setTab(tab){
     currentTab=tab;
-    document.querySelectorAll('.type-tabs button').forEach(b=>b.className='inactive');
-    const map={'ALL':'tab-all','LOAD':'tab-loads','TRUCK':'tab-trucks','AGENT':'tab-agents'};
-    const el=$(map[tab]);
+    document.querySelectorAll('.type-tabs button').forEach(function(b) { b.className='inactive'; });
+    var map = {'ALL':'tab-all','LOAD':'tab-loads','TRUCK':'tab-trucks','AGENT':'tab-agents'};
+    var el = $(map[tab]);
     if(el) el.className='active';
     renderFeed();
 }
@@ -898,7 +959,7 @@ function setTab(tab){
 function toggleFilters(){
     filterOpen = !filterOpen;
     $('filter-container').classList.toggle('open', filterOpen);
-    $('filter-toggle-label').textContent=filterOpen?'🔍 Hide Filters':'🔍 Show Filters';
+    $('filter-toggle-label').textContent = filterOpen ? '🔍 Hide Filters' : '🔍 Show Filters';
     $('filter-arrow').className = filterOpen ? 'arrow open' : 'arrow closed';
     setTimeout(fixLayoutHeight, 350);
 }
@@ -910,18 +971,18 @@ function applyFilters(){ renderFeed(); }
 // ============================================================
 async function renderFeed(){
     try{
-        const {data:loads}=await sb.from('active_loads').select('*').eq('status',1);
-        const {data:trucks}=await sb.from('active_trucks').select('*').eq('status',1);
-        feedItems=[...(loads||[]).map(l=>({type:'LOAD',title:l.material||'Cargo',company:l.company||'',from:l.pickup_pin||'',to:l.drop_pin||'',weight:l.weight||0,vehicle:l.vehicle_type||'',rate:l.rate||0,views:l.views||0,interests:(l.interests||[]).length,shares:l.shares||0,id:l.id})),...(trucks||[]).map(t=>({type:'TRUCK',title:t.truck_no||'Truck',company:t.company_name||'',pin:t.location_pin||'',vehicle:t.vehicle_type||'',rate:t.rate_km||0,views:t.views||0,interests:(t.interested||[]).length,shares:t.share||0,id:t.id}))];
+        var {data:loads}=await sb.from('active_loads').select('*').eq('status',1);
+        var {data:trucks}=await sb.from('active_trucks').select('*').eq('status',1);
+        feedItems=[...(loads||[]).map(function(l) { return {type:'LOAD',title:l.material||'Cargo',company:l.company||'',from:l.pickup_pin||'',to:l.drop_pin||'',weight:l.weight||0,vehicle:l.vehicle_type||'',rate:l.rate||0,views:l.views||0,interests:(l.interests||[]).length,shares:l.shares||0,id:l.id}; }), ...(trucks||[]).map(function(t) { return {type:'TRUCK',title:t.truck_no||'Truck',company:t.company_name||'',pin:t.location_pin||'',vehicle:t.vehicle_type||'',rate:t.rate_km||0,views:t.views||0,interests:(t.interested||[]).length,shares:t.share||0,id:t.id}; })];
         
-        let filtered = [...feedItems];
+        var filtered = feedItems.slice();
         
         if(selectedLocation) {
-            const centerLoc = getLocationByPin(selectedLocation);
-            const radius = parseInt(document.getElementById('radius-select').value) || 50;
+            var centerLoc = getLocationByPin(selectedLocation);
+            var radius = parseInt(document.getElementById('radius-select').value) || 50;
             if(centerLoc) {
-                filtered = filtered.filter(i => {
-                    let targetLoc = null;
+                filtered = filtered.filter(function(i) {
+                    var targetLoc = null;
                     if(i.type === 'LOAD') targetLoc = getLocationByPin(i.from);
                     if(i.type === 'TRUCK') targetLoc = getLocationByPin(i.pin);
                     if(targetLoc && centerLoc) {
@@ -932,14 +993,14 @@ async function renderFeed(){
             }
         }
         
-        if(currentTab==='LOAD') filtered=filtered.filter(i=>i.type==='LOAD');
-        else if(currentTab==='TRUCK') filtered=filtered.filter(i=>i.type==='TRUCK');
+        if(currentTab==='LOAD') filtered = filtered.filter(function(i) { return i.type === 'LOAD'; });
+        else if(currentTab==='TRUCK') filtered = filtered.filter(function(i) { return i.type === 'TRUCK'; });
         
-        const radius = parseInt(document.getElementById('radius-select').value) || 50;
+        var radius = parseInt(document.getElementById('radius-select').value) || 50;
         
         if(filterFromLocation) {
-            filtered = filtered.filter(i => {
-                let targetLoc = null;
+            filtered = filtered.filter(function(i) {
+                var targetLoc = null;
                 if(i.type === 'LOAD') targetLoc = getLocationByPin(i.from);
                 if(i.type === 'TRUCK') targetLoc = getLocationByPin(i.pin);
                 if(targetLoc && filterFromLocation) {
@@ -950,8 +1011,8 @@ async function renderFeed(){
         }
         
         if(filterToLocation) {
-            filtered = filtered.filter(i => {
-                let targetLoc = null;
+            filtered = filtered.filter(function(i) {
+                var targetLoc = null;
                 if(i.type === 'LOAD') targetLoc = getLocationByPin(i.to);
                 if(targetLoc && filterToLocation) {
                     return getDistance(filterToLocation.lat, filterToLocation.lng, targetLoc.lat, targetLoc.lng) <= radius;
@@ -960,42 +1021,43 @@ async function renderFeed(){
             });
         }
         
-        const vehicle=$('filter-vehicle')?.value;
-        if(vehicle&&vehicle!=='ALL') filtered=filtered.filter(i=>i.vehicle&&i.vehicle.toLowerCase().includes(vehicle));
+        var vehicle = $('filter-vehicle')?.value;
+        if(vehicle && vehicle !== 'ALL') {
+            filtered = filtered.filter(function(i) { return i.vehicle && i.vehicle.toLowerCase().includes(vehicle); });
+        }
         
-        $('results-count').textContent=`Showing ${filtered.length} Records within ${radius} KM`;
-        if(filtered.length===0){ $('feed-container').innerHTML='<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>'; return; }
+        $('results-count').textContent = 'Showing ' + filtered.length + ' Records within ' + radius + ' KM';
+        if(filtered.length === 0){ $('feed-container').innerHTML='<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>'; return; }
         
-        $('feed-container').innerHTML=filtered.map(i=>{
-            const badgeClass=i.type==='LOAD'?'load':'truck';
-            let loc='', sub='', rate='', stats='';
-            if(i.type==='LOAD'){
-                loc=`📍 ${getLocationName(i.from)} → ${getLocationName(i.to)}`;
-                sub=`💼 ${i.company}`;
-                rate=`💰 ₹${(i.rate||0).toLocaleString()}`;
-                stats=`⚖️ ${i.weight||0} Kg • 🚛 ${i.vehicle}`;
+        $('feed-container').innerHTML = filtered.map(function(i) {
+            var badgeClass = i.type === 'LOAD' ? 'load' : 'truck';
+            var loc = '', sub = '', rate = '', stats = '';
+            if(i.type === 'LOAD'){
+                loc = '📍 ' + getLocationName(i.from) + ' → ' + getLocationName(i.to);
+                sub = '💼 ' + i.company;
+                rate = '💰 ₹' + (i.rate||0).toLocaleString();
+                stats = '⚖️ ' + (i.weight||0) + ' Kg • 🚛 ' + i.vehicle;
             } else {
-                loc=`📍 ${getLocationName(i.pin)}`;
-                sub=`💼 ${i.company}`;
-                rate=`💰 ₹${(i.rate||0)}/km`;
-                stats=`🚛 ${i.vehicle}`;
+                loc = '📍 ' + getLocationName(i.pin);
+                sub = '💼 ' + i.company;
+                rate = '💰 ₹' + (i.rate||0) + '/km';
+                stats = '🚛 ' + i.vehicle;
             }
-            return `
-            <div class="feed-card" onclick="openDetail('${i.type}','${i.id}')">
-                <div class="header-row">
-                    <div class="title">${i.title}</div>
-                    <span class="type-badge ${badgeClass}">${i.type}</span>
-                </div>
-                <div class="company">${sub}</div>
-                <div class="meta">${loc}</div>
-                <div class="meta">${rate}</div>
-                <div class="meta">${stats}</div>
-                <div class="stats-row">
-                    <span>👁️ <span class="val">${i.views}</span></span>
-                    <span>🤝 <span class="val">${i.interests}</span></span>
-                    <span>📨 <span class="val">${i.shares}</span></span>
-                </div>
-            </div>`;
+            return '<div class="feed-card" onclick="openDetail(\'' + i.type + '\',\'' + i.id + '\')">' +
+                '<div class="header-row">' +
+                    '<div class="title">' + i.title + '</div>' +
+                    '<span class="type-badge ' + badgeClass + '">' + i.type + '</span>' +
+                '</div>' +
+                '<div class="company">' + sub + '</div>' +
+                '<div class="meta">' + loc + '</div>' +
+                '<div class="meta">' + rate + '</div>' +
+                '<div class="meta">' + stats + '</div>' +
+                '<div class="stats-row">' +
+                    '<span>👁️ <span class="val">' + i.views + '</span></span>' +
+                    '<span>🤝 <span class="val">' + i.interests + '</span></span>' +
+                    '<span>📨 <span class="val">' + i.shares + '</span></span>' +
+                '</div>' +
+            '</div>';
         }).join('');
     }catch(e){ $('feed-container').innerHTML='<div style="padding:30px 0;color:#ef4444;text-align:center">Error loading feed.</div>'; }
 }
@@ -1005,15 +1067,15 @@ async function renderFeed(){
 // ============================================================
 async function loadProfile(){ if(!currentUser)return; $('profile-mobile').textContent=currentUser.mobile||'--'; }
 
-async function saveLoadGiverProfile(){ const c=$('lg-company').value.trim(); if(!c)return showToast('⚠️ Enter company name'); await sb.from('active_users').update({company_name:c}).eq('mobile',currentUser.mobile); currentUser.company_name=c; showToast('✅ Saved!'); loadProfile(); }
+async function saveLoadGiverProfile(){ var c = $('lg-company').value.trim(); if(!c)return showToast('⚠️ Enter company name'); await sb.from('active_users').update({company_name:c}).eq('mobile',currentUser.mobile); currentUser.company_name=c; showToast('✅ Saved!'); loadProfile(); }
 
-async function saveFleetProfile(){ const c=$('fo-company').value.trim(); if(!c)return showToast('⚠️ Enter company name'); await sb.from('active_users').update({fleet_company:c}).eq('mobile',currentUser.mobile); currentUser.fleet_company=c; showToast('✅ Saved!'); loadProfile(); }
+async function saveFleetProfile(){ var c = $('fo-company').value.trim(); if(!c)return showToast('⚠️ Enter company name'); await sb.from('active_users').update({fleet_company:c}).eq('mobile',currentUser.mobile); currentUser.fleet_company=c; showToast('✅ Saved!'); loadProfile(); }
 
 function editLoadGiver(){$('loadgiver-active-area').style.display='none'; $('loadgiver-input-area').style.display='block';}
 function editFleet(){$('fleet-active-area').style.display='none'; $('fleet-input-area').style.display='block';}
 
 async function openDetail(type,id){
-    const {data}=await sb.from(type==='LOAD'?'active_loads':'active_trucks').select('*').eq('id',id).single();
+    var {data}=await sb.from(type==='LOAD'?'active_loads':'active_trucks').select('*').eq('id',id).single();
     if(data){
         currentDetailData=data;
         switchPage('detail-page',0);
@@ -1022,7 +1084,7 @@ async function openDetail(type,id){
     }
 }
 
-function makeCall(){ if(currentDetailData){const num=currentDetailData.mobile||currentDetailData.driver_mobile; if(num)window.location.href=`tel:${num}`;}}
+function makeCall(){ if(currentDetailData){var num=currentDetailData.mobile||currentDetailData.driver_mobile; if(num)window.location.href='tel:' + num;}}
 function expressInterest(){ showToast('✅ Interest expressed!'); }
 function contactUser(){ showToast('📧 Contact details shared!'); }
 
@@ -1050,7 +1112,7 @@ function openChangePin(){ showToast('🔑 PIN change feature coming soon!'); }
 function resetLogoutTimer() {
     if (logoutTimer) clearTimeout(logoutTimer);
     if (!currentUser && !isGuest) return;
-    logoutTimer = setTimeout(() => {
+    logoutTimer = setTimeout(function() {
         if (currentUser || isGuest) {
             alert("You have been automatically logged out due to 5 minutes of inactivity.");
             logout();
@@ -1062,7 +1124,7 @@ document.addEventListener('click', resetLogoutTimer);
 document.addEventListener('keydown', resetLogoutTimer);
 document.addEventListener('touchstart', resetLogoutTimer);
 document.addEventListener('scroll', resetLogoutTimer);
-document.addEventListener('visibilitychange', () => {
+document.addEventListener('visibilitychange', function() {
     if (document.visibilityState === 'visible') resetLogoutTimer();
 });
 
@@ -1078,31 +1140,38 @@ function logout() {
 // HEIGHT CALCULATION
 // ============================================================
 function fixLayoutHeight(){
-    const card=document.querySelector('.card');
+    var card = document.querySelector('.card');
     if(!card) return;
     
-    const scrollBody=document.querySelector('.scroll-body:not(.hidden-page)');
-    const header=document.querySelector('.header-fixed:not(.hidden-page)');
-    const nav=document.querySelector('.nav-fixed:not(.hidden-page)');
-    const topContainer=document.getElementById('home-top');
+    var scrollBody = document.querySelector('.scroll-body:not(.hidden-page)');
+    var header = document.querySelector('.header-fixed:not(.hidden-page)');
+    var nav = document.querySelector('.nav-fixed:not(.hidden-page)');
+    var topContainer = document.getElementById('home-top');
     
-    if(!scrollBody||!header||!nav||!topContainer) return;
+    if(!scrollBody || !header || !nav) return;
     
-    const avail = card.clientHeight - header.offsetHeight - topContainer.scrollHeight - nav.offsetHeight - 16;
-    scrollBody.style.height = Math.max(100, avail) + 'px';
+    var headerHeight = header.offsetHeight || 50;
+    var navHeight = nav.offsetHeight || 65;
+    var topHeight = topContainer ? topContainer.offsetHeight || 0 : 0;
+    
+    var avail = card.clientHeight - headerHeight - topHeight - navHeight - 20;
+    if(avail < 80) avail = 80;
+    scrollBody.style.height = avail + 'px';
+    scrollBody.style.maxHeight = avail + 'px';
+    scrollBody.style.overflowY = 'auto';
 }
 
-let resizeTimer;
+var resizeTimer;
 function handleResize(){
     clearTimeout(resizeTimer);
-    resizeTimer=setTimeout(fixLayoutHeight, 200);
+    resizeTimer = setTimeout(fixLayoutHeight, 200);
 }
 
 // ============================================================
 // LOGIN FUNCTIONS
 // ============================================================
 $('mobile').addEventListener('input', function(e) {
-    const m = this.value.trim();
+    var m = this.value.trim();
     if (m.length === 10) {
         currentMobile = m;
         $('step1').classList.add('hidden');
@@ -1111,12 +1180,12 @@ $('mobile').addEventListener('input', function(e) {
     }
 });
 
-window.submitPin=async function(){
-    const pin=$('pin').value.trim();
-    const encoder=new TextEncoder();
-    const hashBuffer=await crypto.subtle.digest('SHA-256',encoder.encode(pin));
-    const pinhash=Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
-    const {data:user}=await sb.from('active_users').select('*').eq('mobile',currentMobile).eq('pinhash',pinhash).single();
+window.submitPin = async function(){
+    var pin = $('pin').value.trim();
+    var encoder = new TextEncoder();
+    var hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(pin));
+    var pinhash = Array.from(new Uint8Array(hashBuffer)).map(function(b) { return b.toString(16).padStart(2,'0'); }).join('');
+    var {data:user} = await sb.from('active_users').select('*').eq('mobile',currentMobile).eq('pinhash',pinhash).single();
     if(user){
         currentUser=user;
         localStorage.setItem('rt_user', JSON.stringify({mobile: currentUser.mobile, user: currentUser}));
@@ -1128,11 +1197,11 @@ window.submitPin=async function(){
 };
 
 async function registerUser(){
-    const pin=$('reg-pin').value.trim();
-    const encoder=new TextEncoder();
-    const hashBuffer=await crypto.subtle.digest('SHA-256',encoder.encode(pin));
-    const pinhash=Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
-    const {data:newUser}=await sb.from('active_users').insert({mobile:currentMobile,pinhash}).select().single();
+    var pin = $('reg-pin').value.trim();
+    var encoder = new TextEncoder();
+    var hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(pin));
+    var pinhash = Array.from(new Uint8Array(hashBuffer)).map(function(b) { return b.toString(16).padStart(2,'0'); }).join('');
+    var {data:newUser} = await sb.from('active_users').insert({mobile:currentMobile,pinhash}).select().single();
     if(newUser){
         currentUser=newUser;
         localStorage.setItem('rt_user', JSON.stringify({mobile: currentUser.mobile, user: currentUser}));
@@ -1149,9 +1218,9 @@ $('pin').addEventListener('keydown', function(e) { if (e.key === 'Enter') { subm
 window.addEventListener('resize', handleResize);
 
 document.addEventListener('DOMContentLoaded', function() {
-    const savedSession = localStorage.getItem('rt_user');
+    var savedSession = localStorage.getItem('rt_user');
     if (savedSession) {
-        const sessionData = JSON.parse(savedSession);
+        var sessionData = JSON.parse(savedSession);
         if (sessionData.guest) {
             isGuest = true; currentUser = null;
         } else if (sessionData.user) {
@@ -1166,7 +1235,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     loadPlatformStats();
     
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (isMobile && !isAppInstalled) {
         setTimeout(function() {
             updateInstallNavButton();
@@ -1176,6 +1245,9 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(function() {
         clearSearchFields();
     }, 1000);
+    
+    // Force fix layout after everything loads
+    setTimeout(fixLayoutHeight, 500);
 });
 </script>
 </body>
