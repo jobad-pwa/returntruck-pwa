@@ -70,11 +70,9 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
    LOGIN SCREEN
    ============================================================ */
 #login-screen{display:flex;flex-direction:column;height:100%;width:100%;overflow-y:auto;padding:4px 0}
-.login-icon-container{display:flex;justify-content:center;margin-bottom:4px}
-.login-icon-container img{width:80px;height:80px;border-radius:20px;box-shadow:0 4px 20px rgba(37,99,235,0.2)}
-.login-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:2px}
-.login-logo .logo-text{font-size:32px;font-weight:900;color:#2563eb}
-.login-subtitle{font-size:13px;color:#64748b;text-align:center;margin-bottom:12px}
+.login-icon-container{display:flex;justify-content:center;margin-bottom:0}
+.login-icon-container img{width:120px;height:120px;border-radius:30px;box-shadow:0 4px 20px rgba(37,99,235,0.25);background:#fff;padding:8px}
+.login-subtitle{font-size:13px;color:#64748b;text-align:center;margin-bottom:12px;margin-top:4px}
 
 .login-stats-container{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:12px;margin-bottom:12px;border:1px solid #bfdbfe}
 .login-stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
@@ -139,8 +137,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 /* ============================================================
    BANNERS
    ============================================================ */
-/* Top install banner - REMOVED as requested */
 .install-banner{display:none !important}
+.floating-install-btn{display:none !important}
 
 .guest-banner{flex-shrink:0;background:#2563eb;color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .guest-banner.hidden{display:none}
@@ -159,9 +157,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .btn-call{background:#16a34a}.btn-contact{background:#2563eb}.btn-bid{background:#8b5cf6}.btn-share{background:#25D366}
 .back-btn{background:transparent;border:none;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;padding:4px 8px}
 .back-btn:hover{color:#2563eb}
-
-/* Floating install button - REMOVED as requested */
-.floating-install-btn{display:none !important}
 </style>
 </head>
 <body>
@@ -169,13 +164,11 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 
 <!-- LOGIN SCREEN -->
 <div id="login-screen">
-    <!-- App Icon at top of login page -->
+    <!-- App Icon at top of login page - BIGGER (120px) -->
     <div class="login-icon-container">
-        <img src="launchericon-192x192.png" alt="ReturnTruck" width="80" height="80">
+        <img src="launchericon-192x192.png" alt="ReturnTruck" width="120" height="120">
     </div>
-    <div class="login-logo">
-        <span class="logo-text">ReturnTruck</span>
-    </div>
+    <!-- No "ReturnTruck" text here - logo already has it -->
     <div class="login-subtitle">Find Loads • Post Trucks • Connect Agents</div>
 
     <div class="login-stats-container">
@@ -263,8 +256,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 
     <div id="home-top" style="flex-shrink:0; padding-top:0;">
-        <!-- Install banner removed -->
-
         <div id="guest-banner" class="guest-banner hidden"><span>👋 Welcome, Guest!</span><button class="btn-login" onclick="showLogin()">🔐 Login</button></div>
 
         <div class="location-row">
@@ -332,7 +323,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
         <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
         <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
-        <!-- Install button integrated into nav bar - transparent background -->
         <button class="nav-item install-nav" id="nav-install-btn" onclick="forceInstall()" style="display:none;">
             <span class="icon">📲</span>
             <span class="label">Install</span>
@@ -614,7 +604,7 @@ async function loadPlatformStats() {
         const visits = stats?.total_visits || 0;
         
         // Count users by type
-        const {data: users, error: usersError} = await sb.from('active_users').select('mobile, company_name');
+        const {data: users, error: usersError} = await sb.from('active_users').select('mobile, company_name, fleet_company');
         if (usersError) throw usersError;
         
         const loadGivers = users ? users.filter(u => u.company_name && u.company_name.trim() !== '').length : 0;
@@ -756,6 +746,18 @@ function showHome(){
     // Clear search field on home page load - remove previous entry remember
     const searchInput = document.getElementById('location-search');
     if(searchInput) searchInput.value = '';
+    // Clear filter search fields too
+    const filterFrom = document.getElementById('filter-from');
+    const filterTo = document.getElementById('filter-to');
+    if(filterFrom) filterFrom.value = '';
+    if(filterTo) filterTo.value = '';
+    // Clear filter hidden fields
+    document.getElementById('filter-from-hidden').value = '';
+    document.getElementById('filter-to-hidden').value = '';
+    // Reset filter locations
+    filterFromLocation = null;
+    filterToLocation = null;
+    
     setTimeout(function() {
         fixLayoutHeight();
         renderFeed();
@@ -788,6 +790,16 @@ function goHome(){
     // Clear search field - remove previous entry remember
     const searchInput = document.getElementById('location-search');
     if(searchInput) searchInput.value = '';
+    // Clear filter fields
+    const filterFrom = document.getElementById('filter-from');
+    const filterTo = document.getElementById('filter-to');
+    if(filterFrom) filterFrom.value = '';
+    if(filterTo) filterTo.value = '';
+    document.getElementById('filter-from-hidden').value = '';
+    document.getElementById('filter-to-hidden').value = '';
+    filterFromLocation = null;
+    filterToLocation = null;
+    
     setTimeout(fixLayoutHeight, 50);
     renderFeed();
     resetLogoutTimer();
