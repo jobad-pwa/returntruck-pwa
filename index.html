@@ -699,9 +699,6 @@ function selectLocation(context, pin, name, state) {
     } else if(context === 'to') {
         filterToLocation = getLocationByPin(pin);
         applyFilters();
-    } else if(context === 'pl-pickup' || context === 'pl-drop' || context === 'pt-location') {
-        // For post load/truck pages, just store the value
-        // No need to apply filters
     }
 }
 
