@@ -595,45 +595,73 @@ $('mobile').addEventListener('input', function(e) {
     if (m.length === 10) {
         mobile = m;
         
-        // Show loading status
+        // Show checking status
         setStatus('⏳ Checking...', 'blue');
         
+        // Check user using Edge Function
         checkUser(m).then(function(result) {
-            console.log('User check result:', result); // DEBUG
+            console.log('Check user result:', result); // Debug
             
             // Check if user exists (active or archived)
             if (result.exists === true || result.source === 'active' || result.source === 'archived') {
                 // ✅ EXISTING USER - Show PIN login
-                $('step1').classList.add('hidden');
-                $('step2').classList.remove('hidden');
-                $('step3').classList.add('hidden');
-                $('step4').classList.add('hidden');
-                $('display-mobile').textContent = m;
-                setStatus('✅ Existing user. Enter your PIN.', 'green');
-                $('pin').value = '';
-                $('pin').focus();
+                showPinLogin(m);
             } else {
                 // ✅ NEW USER - Show Registration
-                $('step1').classList.add('hidden');
-                $('step2').classList.add('hidden');
-                $('step3').classList.add('hidden');
-                $('step4').classList.remove('hidden');
-                $('reg-display-mobile').textContent = m;
-                setStatus('📱 New user. Set your PIN.', 'blue');
-                $('reg-pin').value = '';
-                $('reg-pin-confirm').value = '';
-                $('reg-pin').focus();
+                showRegistration(m);
             }
         }).catch(function(err) {
             console.error('Check user error:', err);
-            setStatus('⚠️ Error checking user. Please try again.', 'red');
-            // Fallback: Show step1 again
-            $('step1').classList.remove('hidden');
-            $('step2').classList.add('hidden');
-            $('step4').classList.add('hidden');
+            // Fallback: Directly check Supabase
+            sb.from('active_users')
+                .select('mobile')
+                .eq('mobile', m)
+                .maybeSingle()
+                .then(function({data}) {
+                    if (data) {
+                        showPinLogin(m);
+                    } else {
+                        sb.from('archived_users')
+                            .select('mobile')
+                            .eq('mobile', m)
+                            .maybeSingle()
+                            .then(function({data: archived}) {
+                                if (archived) {
+                                    showPinLogin(m);
+                                } else {
+                                    showRegistration(m);
+                                }
+                            });
+                    }
+                });
         });
     }
 });
+
+function showPinLogin(m) {
+    console.log('✅ Showing PIN login for:', m);
+    $('step1').classList.add('hidden');
+    $('step2').classList.remove('hidden');
+    $('step3').classList.add('hidden');
+    $('step4').classList.add('hidden');
+    $('display-mobile').textContent = m;
+    setStatus('✅ Existing user. Enter your PIN.', 'green');
+    $('pin').value = '';
+    $('pin').focus();
+}
+
+function showRegistration(m) {
+    console.log('📱 Showing registration for:', m);
+    $('step1').classList.add('hidden');
+    $('step2').classList.add('hidden');
+    $('step3').classList.add('hidden');
+    $('step4').classList.remove('hidden');
+    $('reg-display-mobile').textContent = m;
+    setStatus('📱 New user. Set your PIN.', 'blue');
+    $('reg-pin').value = '';
+    $('reg-pin-confirm').value = '';
+    $('reg-pin').focus();
+}
 
 function setStatus(msg, type) {
     var el = $('mobile-status');
