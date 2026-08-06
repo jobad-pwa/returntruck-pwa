@@ -133,7 +133,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .filter-row label{font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
 .filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:11px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;outline:none}
 
-/* UNIFIED SEARCH WRAPPER - Used by ALL searches */
+/* UNIFIED SEARCH WRAPPER */
 .search-wrapper{position:relative;width:100%}
 .search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:50;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
 .search-wrapper .suggestions.show{display:block}
@@ -315,14 +315,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div class="filter-container open" id="filter-container">
             <div class="filter-row">
                 <div>
-                    <label>📍 From Location</label>
-                    <div style="position:relative;width:100%">
-                        <input type="text" id="search-from" placeholder="Search PIN, District or State" oninput="searchLocation('from')" autocomplete="off">
-                        <div class="search-wrapper"><div class="suggestions" id="suggestions-from"></div></div>
-                        <input type="hidden" id="filter-from-hidden">
-                    </div>
-                </div>
-                <div>
                     <label>📍 To Location</label>
                     <div style="position:relative;width:100%">
                         <input type="text" id="search-to" placeholder="Search PIN, District or State" oninput="searchLocation('to')" autocomplete="off">
@@ -330,10 +322,16 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                         <input type="hidden" id="filter-to-hidden">
                     </div>
                 </div>
-            </div>
-            <div class="filter-row">
-                <div><label>Vehicle Type</label><select id="filter-vehicle" onchange="applyFilters()"><option value="ALL">All</option><option value="highbed">Highbed 40x8x8</option><option value="lowbed">Lowbed 40x10x10</option><option value="container">Container 22x8x8</option><option value="odc">ODC</option></select></div>
-                <div><label>Weight (Kg)</label><select id="filter-weight" onchange="applyFilters()"><option value="ALL">All</option><option value="0-10000">0-10,000</option><option value="10000-20000">10k-20k</option><option value="20000-30000">20k-30k</option><option value="30000+">30k+</option></select></div>
+                <div>
+                    <label>🚛 Vehicle Type</label>
+                    <select id="filter-vehicle" onchange="applyFilters()">
+                        <option value="ALL">All</option>
+                        <option value="highbed">Highbed 40x8x8</option>
+                        <option value="lowbed">Lowbed 40x10x10</option>
+                        <option value="container">Container 22x8x8</option>
+                        <option value="odc">ODC</option>
+                    </select>
+                </div>
             </div>
         </div>
 
@@ -543,7 +541,6 @@ var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 var currentUser=null, isGuest=false, currentTab='ALL', feedItems=[], currentDetailData=null;
 var otpTimerInterval=null, currentMobile='', selectedLocation=null, filterOpen=true;
 var logoutTimer = null;
-var filterFromLocation = null;
 var filterToLocation = null;
 var deferredPrompt = null;
 var isAppInstalled = false;
@@ -552,21 +549,93 @@ function $(id){return document.getElementById(id)}
 function showToast(msg){alert(msg)}
 
 // ============================================================
-// SINGLE SEARCH FUNCTION - Used by ALL searches (home, filter, post load, post truck)
+// AUTO-DETECT LOCATION
+// ============================================================
+function autoDetectLocation() {
+    var homeInput = document.getElementById('search-home');
+    if(!homeInput) return;
+    
+    // Check if location is already set (from localStorage)
+    var savedLocation = localStorage.getItem('rt_home_location');
+    if(savedLocation) {
+        try {
+            var loc = JSON.parse(savedLocation);
+            homeInput.value = loc.displayName;
+            selectedLocation = loc.pin;
+            applyFilters();
+            return;
+        } catch(e) {}
+    }
+    
+    // Try to get user's location
+    if(navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            var lat = position.coords.latitude;
+            var lng = position.coords.longitude;
+            
+            // Find nearest location from STATIC_LOCATIONS
+            var nearest = null;
+            var minDist = Infinity;
+            for(var i = 0; i < STATIC_LOCATIONS.length; i++) {
+                var loc = STATIC_LOCATIONS[i];
+                var dist = getDistance(lat, lng, loc.lat, loc.lng);
+                if(dist < minDist) {
+                    minDist = dist;
+                    nearest = loc;
+                }
+            }
+            
+            if(nearest && minDist < 100) { // Within 100KM
+                var displayName = nearest.name + ', ' + nearest.state + ' (' + nearest.pin + ')';
+                homeInput.value = displayName;
+                selectedLocation = nearest.pin;
+                localStorage.setItem('rt_home_location', JSON.stringify({
+                    pin: nearest.pin,
+                    displayName: displayName
+                }));
+                applyFilters();
+            }
+        }, function() {
+            // Geolocation failed - try IP based
+            fetch('https://ipapi.co/json/')
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    var city = data.city || '';
+                    var matched = null;
+                    for(var i = 0; i < STATIC_LOCATIONS.length; i++) {
+                        var loc = STATIC_LOCATIONS[i];
+                        if(loc.name.toLowerCase() === city.toLowerCase() ||
+                           loc.district.toLowerCase() === city.toLowerCase()) {
+                            matched = loc;
+                            break;
+                        }
+                    }
+                    if(matched) {
+                        var displayName = matched.name + ', ' + matched.state + ' (' + matched.pin + ')';
+                        homeInput.value = displayName;
+                        selectedLocation = matched.pin;
+                        localStorage.setItem('rt_home_location', JSON.stringify({
+                            pin: matched.pin,
+                            displayName: displayName
+                        }));
+                        applyFilters();
+                    }
+                })
+                .catch(function() {});
+        });
+    }
+}
+
+// ============================================================
+// SINGLE SEARCH FUNCTION - Used by ALL searches
 // ============================================================
 function searchLocation(context) {
     var inputId, suggestionsId, hiddenId;
     
-    // Map context to element IDs
     switch(context) {
         case 'home':
             inputId = 'search-home';
             suggestionsId = 'suggestions-home';
-            break;
-        case 'from':
-            inputId = 'search-from';
-            suggestionsId = 'suggestions-from';
-            hiddenId = 'filter-from-hidden';
             break;
         case 'to':
             inputId = 'search-to';
@@ -597,14 +666,11 @@ function searchLocation(context) {
     if(!input || !suggestions) return;
     
     var query = input.value.trim();
-    
-    // If query is empty, hide suggestions and return
     if(!query) {
         suggestions.classList.remove('show');
         return;
     }
     
-    // Search in STATIC_LOCATIONS
     var results = [];
     var q = query.toLowerCase();
     for(var i = 0; i < STATIC_LOCATIONS.length; i++) {
@@ -623,7 +689,6 @@ function searchLocation(context) {
         return;
     }
     
-    // Build suggestions HTML
     var html = '';
     for(var j = 0; j < results.length; j++) {
         var l = results[j];
@@ -645,7 +710,7 @@ function searchLocation(context) {
 }
 
 // ============================================================
-// SINGLE SELECT LOCATION FUNCTION - Used by ALL searches
+// SINGLE SELECT LOCATION FUNCTION
 // ============================================================
 function selectLocation(context, pin, name, state) {
     var inputId, suggestionsId, hiddenId;
@@ -654,11 +719,6 @@ function selectLocation(context, pin, name, state) {
         case 'home':
             inputId = 'search-home';
             suggestionsId = 'suggestions-home';
-            break;
-        case 'from':
-            inputId = 'search-from';
-            suggestionsId = 'suggestions-from';
-            hiddenId = 'filter-from-hidden';
             break;
         case 'to':
             inputId = 'search-to';
@@ -689,12 +749,12 @@ function selectLocation(context, pin, name, state) {
     if(hiddenId) document.getElementById(hiddenId).value = pin;
     document.getElementById(suggestionsId).classList.remove('show');
     
-    // Handle different contexts
     if(context === 'home') {
         selectedLocation = pin;
-        applyFilters();
-    } else if(context === 'from') {
-        filterFromLocation = getLocationByPin(pin);
+        localStorage.setItem('rt_home_location', JSON.stringify({
+            pin: pin,
+            displayName: displayName
+        }));
         applyFilters();
     } else if(context === 'to') {
         filterToLocation = getLocationByPin(pin);
@@ -803,7 +863,6 @@ function forceInstall() {
     }
 }
 
-// Show install nav button after 3 seconds on mobile
 setTimeout(function() {
     var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (isMobile && !isAppInstalled) {
@@ -901,19 +960,23 @@ function showHome(){
         resetLogoutTimer();
         updateInstallNavButton();
         loadPlatformStats();
+        autoDetectLocation();
     }, 50);
 }
 
 function clearSearchFields() {
     var homeSearch = document.getElementById('search-home');
-    var fromSearch = document.getElementById('search-from');
     var toSearch = document.getElementById('search-to');
-    if(homeSearch) { homeSearch.value = ''; homeSearch.blur(); }
-    if(fromSearch) { fromSearch.value = ''; fromSearch.blur(); }
-    if(toSearch) { toSearch.value = ''; toSearch.blur(); }
-    document.getElementById('filter-from-hidden').value = '';
+    if(homeSearch && !selectedLocation) { 
+        // Only clear if no location selected
+        homeSearch.value = ''; 
+        homeSearch.blur(); 
+    }
+    if(toSearch) { 
+        toSearch.value = ''; 
+        toSearch.blur(); 
+    }
     document.getElementById('filter-to-hidden').value = '';
-    filterFromLocation = null;
     filterToLocation = null;
     document.querySelectorAll('.suggestions').forEach(function(s) { s.classList.remove('show'); });
 }
@@ -988,60 +1051,54 @@ function toggleFilters(){
 function applyFilters(){ renderFeed(); }
 
 // ============================================================
-// RENDER FEED
+// RENDER FEED - Simplified with ONE radius for BOTH home and TO
 // ============================================================
 async function renderFeed(){
     try{
         var {data:loads}=await sb.from('active_loads').select('*').eq('status',1);
         var {data:trucks}=await sb.from('active_trucks').select('*').eq('status',1);
-        feedItems=[...(loads||[]).map(function(l) { return {type:'LOAD',title:l.material||'Cargo',company:l.company||'',from:l.pickup_pin||'',to:l.drop_pin||'',weight:l.weight||0,vehicle:l.vehicle_type||'',rate:l.rate||0,views:l.views||0,interests:(l.interests||[]).length,shares:l.shares||0,id:l.id}; }), ...(trucks||[]).map(function(t) { return {type:'TRUCK',title:t.truck_no||'Truck',company:t.company_name||'',pin:t.location_pin||'',vehicle:t.vehicle_type||'',rate:t.rate_km||0,views:t.views||0,interests:(t.interested||[]).length,shares:t.share||0,id:t.id}; })];
+        feedItems=[...(loads||[]).map(function(l) { return {type:'LOAD',title:l.material||'Cargo',company:l.company||'',from:l.pickup_pin||'',to:l.drop_pin||'',weight:l.weight||0,vehicle:l.vehicle_type||'',rate:l.rate||0,views:l.views||0,interests:(l.interests||[]).length,shares:l.shares||0,id:l.id}; }), ...(trucks||[]).map(function(t) { return {type:'TRUCK',title:t.truck_no||'Truck',company:t.company_name||'',pin:t.location_pin||'',to:t.destination_pin||'',vehicle:t.vehicle_type||'',rate:t.rate_km||0,views:t.views||0,interests:(t.interested||[]).length,shares:t.share||0,id:t.id}; })];
         
         var filtered = feedItems.slice();
+        var radius = parseInt(document.getElementById('radius-select').value) || 50;
         
+        // Step 1: Apply HOME location filter - find items within radius of home location
         if(selectedLocation) {
-            var centerLoc = getLocationByPin(selectedLocation);
-            var radius = parseInt(document.getElementById('radius-select').value) || 50;
-            if(centerLoc) {
+            var homeLoc = getLocationByPin(selectedLocation);
+            if(homeLoc) {
                 filtered = filtered.filter(function(i) {
                     var targetLoc = null;
                     if(i.type === 'LOAD') targetLoc = getLocationByPin(i.from);
                     if(i.type === 'TRUCK') targetLoc = getLocationByPin(i.pin);
-                    if(targetLoc && centerLoc) {
-                        return getDistance(centerLoc.lat, centerLoc.lng, targetLoc.lat, targetLoc.lng) <= radius;
+                    if(targetLoc && homeLoc) {
+                        return getDistance(homeLoc.lat, homeLoc.lng, targetLoc.lat, targetLoc.lng) <= radius;
                     }
                     return false;
                 });
             }
         }
         
+        // Step 2: Apply TAB filter
         if(currentTab==='LOAD') filtered = filtered.filter(function(i) { return i.type === 'LOAD'; });
         else if(currentTab==='TRUCK') filtered = filtered.filter(function(i) { return i.type === 'TRUCK'; });
         
-        var radius = parseInt(document.getElementById('radius-select').value) || 50;
-        
-        if(filterFromLocation) {
-            filtered = filtered.filter(function(i) {
-                var targetLoc = null;
-                if(i.type === 'LOAD') targetLoc = getLocationByPin(i.from);
-                if(i.type === 'TRUCK') targetLoc = getLocationByPin(i.pin);
-                if(targetLoc && filterFromLocation) {
-                    return getDistance(filterFromLocation.lat, filterFromLocation.lng, targetLoc.lat, targetLoc.lng) <= radius;
-                }
-                return false;
-            });
-        }
-        
+        // Step 3: Apply TO Location filter - SAME radius applies
         if(filterToLocation) {
-            filtered = filtered.filter(function(i) {
-                var targetLoc = null;
-                if(i.type === 'LOAD') targetLoc = getLocationByPin(i.to);
-                if(targetLoc && filterToLocation) {
-                    return getDistance(filterToLocation.lat, filterToLocation.lng, targetLoc.lat, targetLoc.lng) <= radius;
-                }
-                return false;
-            });
+            var toLoc = getLocationByPin(filterToLocation.pin);
+            if(toLoc) {
+                filtered = filtered.filter(function(i) {
+                    var destLoc = null;
+                    if(i.type === 'LOAD') destLoc = getLocationByPin(i.to);
+                    if(i.type === 'TRUCK') destLoc = getLocationByPin(i.to);
+                    if(destLoc && toLoc) {
+                        return getDistance(toLoc.lat, toLoc.lng, destLoc.lat, destLoc.lng) <= radius;
+                    }
+                    return false;
+                });
+            }
         }
         
+        // Step 4: Apply Vehicle Type filter
         var vehicle = $('filter-vehicle')?.value;
         if(vehicle && vehicle !== 'ALL') {
             filtered = filtered.filter(function(i) { return i.vehicle && i.vehicle.toLowerCase().includes(vehicle); });
@@ -1059,7 +1116,7 @@ async function renderFeed(){
                 rate = '💰 ₹' + (i.rate||0).toLocaleString();
                 stats = '⚖️ ' + (i.weight||0) + ' Kg • 🚛 ' + i.vehicle;
             } else {
-                loc = '📍 ' + getLocationName(i.pin);
+                loc = '📍 ' + getLocationName(i.pin) + ' → ' + (i.to ? getLocationName(i.to) : 'Any');
                 sub = '💼 ' + i.company;
                 rate = '💰 ₹' + (i.rate||0) + '/km';
                 stats = '🚛 ' + i.vehicle;
