@@ -5,25 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ReturnTruck - Find Loads & Trucks</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<!-- PWA META TAGS -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2563eb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-transparent">
 <link rel="apple-touch-icon" href="launchericon-192x192.png">
-
 <style>
 *{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
 body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
 .card{max-width:420px;width:100%;background:#fff;border-radius:24px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);display:flex;flex-direction:column;height:95vh;max-height:800px;position:relative;overflow:hidden}
-.hidden-page{display:none !important}
-.hidden{display:none !important}
+.hidden-page{display:none !important}.hidden{display:none !important}
 .header-fixed{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #f1f5f9;background:#fff;z-index:10;width:100%;min-height:50px}
 .logo{font-size:22px;font-weight:900;color:#2563eb;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none}
-.logo-icon{font-size:28px;line-height:1}
-.logo-text{font-size:22px;font-weight:900;color:#2563eb;letter-spacing:-0.5px}
-.logo:hover{opacity:0.8}
+.logo-icon{font-size:28px;line-height:1}.logo-text{font-size:22px;font-weight:900;color:#2563eb;letter-spacing:-0.5px}
 .header-right{display:flex;align-items:center;gap:8px;position:relative}
 .avatar-btn{width:36px;height:36px;border-radius:50%;border:2px solid #e2e8f0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;background:#94a3b8;transition:all .2s}
 .avatar-btn.guest{background:#64748b}
@@ -34,19 +28,15 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .dropdown-divider{height:1px;background:#e2e8f0;margin:4px 12px}
 .nav-fixed{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e2e8f0;background:#fff;position:relative;z-index:10;min-height:65px;width:100%;padding-bottom:5px;margin-top:auto}
 .nav-item{display:flex;flex-direction:column;align-items:center;color:#94a3b8;font-size:9px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px;position:relative;z-index:2}
-.nav-item.active{color:#2563eb}
-.nav-item .icon{font-size:22px;margin-bottom:2px}
-.nav-item .label{font-size:9px;text-transform:uppercase;letter-spacing:.05em}
+.nav-item.active{color:#2563eb}.nav-item .icon{font-size:22px;margin-bottom:2px}.nav-item .label{font-size:9px;text-transform:uppercase;letter-spacing:.05em}
 .nav-install-wrapper{position:absolute;left:50%;top:-18px;transform:translateX(-50%);z-index:5;display:none}
 .nav-install-wrapper.show{display:block}
 .nav-install-btn{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;border-radius:30px;padding:6px 18px;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 4px 15px rgba(37,99,235,0.4);display:flex;align-items:center;gap:6px;white-space:nowrap;animation:pulse-install 2s infinite;letter-spacing:0.3px}
 .nav-install-btn .install-icon{font-size:14px}
 .nav-install-btn .install-badge{background:#ef4444;color:#fff;font-size:7px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:2px}
 @keyframes pulse-install{0%{transform:scale(1);box-shadow:0 4px 15px rgba(37,99,235,0.4)}50%{transform:scale(1.05);box-shadow:0 4px 25px rgba(37,99,235,0.6)}100%{transform:scale(1);box-shadow:0 4px 15px rgba(37,99,235,0.4)}}
-.nav-install-btn:hover{transform:scale(1.05)}
 .scroll-body{overflow-y:auto;padding:8px 0;-webkit-overflow-scrolling:touch;display:block;width:100%;flex:1}
-.scroll-body::-webkit-scrollbar{width:4px}
-.scroll-body::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
+.scroll-body::-webkit-scrollbar{width:4px}.scroll-body::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
 #login-screen{display:flex;flex-direction:column;height:100%;width:100%;overflow-y:auto;padding:4px 0}
 .login-icon-container{display:flex;justify-content:center;margin-bottom:0}
 .login-icon-container img{width:240px;height:240px;border-radius:40px;box-shadow:0 4px 20px rgba(37,99,235,0.25);background:#fff;padding:8px;max-width:100%}
@@ -64,13 +54,11 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .btn-back{width:100%;padding:14px;background:#6b7280;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer}
 .login-divider{display:flex;align-items:center;gap:12px;margin:16px 0}
 .location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
-.location-row .location-input{flex:2}
-.location-row .radius-select{flex:1}
+.location-row .location-input{flex:2}.location-row .radius-select{flex:1}
 .location-input input,.radius-select select{width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;background:#fff}
 .type-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;background:#e2e8f0;padding:3px;border-radius:10px;margin-bottom:6px}
 .type-tabs button{padding:6px 4px;font-size:11px;font-weight:700;border:none;border-radius:8px;cursor:pointer}
-.type-tabs .active{background:#fff;color:#1e293b}
-.type-tabs .inactive{background:transparent;color:#64748b}
+.type-tabs .active{background:#fff;color:#1e293b}.type-tabs .inactive{background:transparent;color:#64748b}
 .filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:10px;font-weight:600;color:#64748b;border-top:1px solid #e2e8f0;margin-top:4px;user-select:none}
 .filter-container{overflow:hidden;transition:max-height 0.3s ease;max-height:0}
 .filter-container.open{max-height:400px}
@@ -98,8 +86,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .feed-card .stats-row{margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9;display:flex;gap:12px;font-size:10px;color:#94a3b8}
 .feed-card .stats-row span{display:flex;align-items:center;gap:3px}
 .feed-card .stats-row .val{font-weight:600;color:#475569}
-.install-banner{display:none !important}
-.floating-install-btn{display:none !important}
+.install-banner{display:none !important}.floating-install-btn{display:none !important}
 .guest-banner{flex-shrink:0;background:#2563eb;color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .guest-banner.hidden{display:none}
 .guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer}
@@ -111,8 +98,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .detail-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:12px}
 .detail-actions button{width:100%;padding:10px;border-radius:10px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:10px}
 .btn-call{background:#16a34a}.btn-contact{background:#2563eb}.btn-bid{background:#8b5cf6}.btn-share{background:#25D366}
-.back-btn{background:transparent;border:none;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;padding:4px 8px}
-.back-btn:hover{color:#2563eb}
+.back-btn{background:transparent;border:none;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;padding:4px 8px}.back-btn:hover{color:#2563eb}
 </style>
 </head>
 <body>
@@ -120,9 +106,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 
 <!-- LOGIN SCREEN -->
 <div id="login-screen">
-    <div class="login-icon-container">
-        <img src="launchericon-192x192.png" alt="ReturnTruck" width="240" height="240">
-    </div>
+    <div class="login-icon-container"><img src="launchericon-192x192.png" alt="ReturnTruck" width="240" height="240"></div>
     <div class="login-subtitle">Find Loads • Post Trucks • Connect Agents</div>
     <div class="login-stats-container">
         <div class="login-stats-grid" style="margin-bottom:6px">
@@ -146,20 +130,14 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <button style="width:100%;padding:12px;border:1.5px solid #8b5cf6;border-radius:12px;font-size:14px;font-weight:600;color:#8b5cf6;background:transparent;cursor:pointer" onclick="continueAsGuest()">👤 Guest</button>
         </div>
         <div id="step2" class="hidden">
-            <div style="text-align:center;margin-bottom:16px">
-                <div id="display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
-                <div style="font-size:14px;font-weight:500;color:#475569">Enter your 4-digit PIN</div>
-            </div>
+            <div style="text-align:center;margin-bottom:16px"><div id="display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div><div style="font-size:14px;font-weight:500;color:#475569">Enter your 4-digit PIN</div></div>
             <input type="password" id="pin" class="input-field" style="letter-spacing:4px;" placeholder="Enter 4-digit PIN" maxlength="4">
             <div style="font-size:12px;text-align:center;margin-bottom:12px;color:#64748b">Forgot PIN? <span style="color:#2563eb;cursor:pointer;font-weight:600" onclick="resetPIN()">Reset PIN</span></div>
             <button onclick="submitPin()" id="submitBtn" class="btn-primary" style="background:#16a34a">🔐 Login</button>
             <button onclick="resetForm()" class="btn-back">← Change Number</button>
         </div>
         <div id="step3" class="hidden">
-            <div style="text-align:center;margin-bottom:16px">
-                <div id="wa-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
-                <div style="font-size:13px;color:#64748b">Enter OTP sent via WhatsApp</div>
-            </div>
+            <div style="text-align:center;margin-bottom:16px"><div id="wa-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div><div style="font-size:13px;color:#64748b">Enter OTP sent via WhatsApp</div></div>
             <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
                 <input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
                 <input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
@@ -173,10 +151,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <button onclick="resetForm()" class="btn-back">← Change Number</button>
         </div>
         <div id="step4" class="hidden">
-            <div style="text-align:center;margin-bottom:16px">
-                <div id="reg-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
-                <div style="font-size:13px;color:#64748b">Set your 4-digit PIN for login</div>
-            </div>
+            <div style="text-align:center;margin-bottom:16px"><div id="reg-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div><div style="font-size:13px;color:#64748b">Set your 4-digit PIN for login</div></div>
             <input type="password" id="reg-pin" class="input-field" placeholder="New PIN (4 digits)" maxlength="4">
             <input type="password" id="reg-pin-confirm" class="input-field" placeholder="Confirm PIN" maxlength="4">
             <button onclick="registerUser()" id="register-btn" class="btn-primary" style="background:#16a34a">✅ Create Account</button>
@@ -212,12 +187,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
             <div class="radius-select">
                 <select id="radius-select" onchange="applyFilters()">
-                    <option value="5">5 KM</option>
-                    <option value="10">10 KM</option>
-                    <option value="25">25 KM</option>
-                    <option value="50" selected>50 KM</option>
-                    <option value="100">100 KM</option>
-                    <option value="200">200 KM</option>
+                    <option value="5">5 KM</option><option value="10">10 KM</option><option value="25">25 KM</option><option value="50" selected>50 KM</option><option value="100">100 KM</option><option value="200">200 KM</option>
                 </select>
             </div>
         </div>
@@ -406,7 +376,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 
 <script>
 // ============================================================
-// STATIC LOCATION DATA
+// STATIC LOCATION DATA - SINGLE SOURCE
 // ============================================================
 var LOCATIONS = [
   {pin:"110018", name:"Ashok Nagar", district:"NEW DELHI", state:"DH", lat:28.636587, lng:77.094466},
@@ -436,7 +406,7 @@ var LOCATIONS = [
 ];
 
 // ============================================================
-// CONFIG & STATE
+// CONFIG & STATE - COMPACT
 // ============================================================
 var SB_URL = 'https://ghjoffovatgvhzxlupef.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
@@ -461,523 +431,149 @@ function autoLocate(){var inp=$('search-home');if(!inp)return;var saved=localSto
 if(navigator.geolocation){navigator.geolocation.getCurrentPosition(function(p){var lat=p.coords.latitude,lng=p.coords.longitude,near=null,minD=Infinity;for(var i=0;i<LOCATIONS.length;i++){var l=LOCATIONS[i],d=dist(lat,lng,l.lat,l.lng);if(d<minD){minD=d;near=l}}if(near&&minD<100){var dn=near.name+', '+near.state+' ('+near.pin+')';inp.value=dn;homePin=near.pin;localStorage.setItem('rt_home_location',JSON.stringify({pin:near.pin,displayName:dn}));applyFilters()}},function(){fetch('https://ipapi.co/json/').then(function(r){return r.json()}).then(function(d){var city=d.city||'';for(var i=0;i<LOCATIONS.length;i++){var l=LOCATIONS[i];if(l.name.toLowerCase()===city.toLowerCase()||l.district.toLowerCase()===city.toLowerCase()){var dn=l.name+', '+l.state+' ('+l.pin+')';inp.value=dn;homePin=l.pin;localStorage.setItem('rt_home_location',JSON.stringify({pin:l.pin,displayName:dn}));applyFilters();break}}}).catch(function(){})})}}
 
 // ============================================================
-// SINGLE SEARCH FUNCTION - Works for ALL search inputs (home, to, pl-pickup, pl-drop, pt-location)
+// UNIFIED SEARCH - ONE FUNCTION FOR ALL CONTEXTS
 // ============================================================
-function searchLocation(context){
-    var inputId = 'search-' + context;
-    var suggestionsId = 'suggestions-' + context;
-    var input = $(inputId);
-    var suggestions = $(suggestionsId);
-    if(!input || !suggestions) return;
-    
-    var query = input.value.trim();
-    if(!query){ suggestions.classList.remove('show'); return; }
-    
-    var results = [];
-    var qLower = query.toLowerCase();
-    for(var i=0; i<LOCATIONS.length; i++){
-        var loc = LOCATIONS[i];
-        if(loc.name.toLowerCase().includes(qLower) ||
-           loc.pin.includes(query) ||
-           loc.district.toLowerCase().includes(qLower) ||
-           loc.state.toLowerCase().includes(qLower)){
-            results.push(loc);
+function searchLocation(ctx){
+    var inp=$(('search-'+ctx)), sug=$(('suggestions-'+ctx));
+    if(!inp||!sug)return;
+    var q=inp.value.trim();
+    if(!q){sug.classList.remove('show');return}
+    var res=[], ql=q.toLowerCase();
+    for(var i=0;i<LOCATIONS.length;i++){
+        var l=LOCATIONS[i];
+        if(l.name.toLowerCase().includes(ql)||l.pin.includes(q)||l.district.toLowerCase().includes(ql)||l.state.toLowerCase().includes(ql)){
+            res.push(l);
+            if(res.length>=8)break;
         }
-        if(results.length >= 8) break;
     }
-    
-    if(results.length === 0){ suggestions.classList.remove('show'); return; }
-    
-    var html = '';
-    for(var j=0; j<results.length; j++){
-        var loc = results[j];
-        var displayName = loc.name + ', ' + loc.district + ', ' + loc.state + ' (' + loc.pin + ')';
-        var idx = displayName.toLowerCase().indexOf(qLower);
-        var displayHtml = displayName;
-        if(idx !== -1){
-            displayHtml = displayName.substring(0, idx) + 
-                          '<span class="highlight">' + 
-                          displayName.substring(idx, idx + query.length) + 
-                          '</span>' + 
-                          displayName.substring(idx + query.length);
-        }
-        html += '<div class="item" onclick="selectLocation(\'' + context + '\',\'' + loc.pin + '\',\'' + loc.name + '\',\'' + loc.state + '\')">' + displayHtml + '</div>';
+    if(!res.length){sug.classList.remove('show');return}
+    var html='';
+    for(var j=0;j<res.length;j++){
+        var l=res[j], dn=l.name+', '+l.district+', '+l.state+' ('+l.pin+')', idx=dn.toLowerCase().indexOf(ql), dh=dn;
+        if(idx!==-1) dh=dn.substring(0,idx)+'<span class="highlight">'+dn.substring(idx,idx+q.length)+'</span>'+dn.substring(idx+q.length);
+        html+='<div class="item" onclick="selectLoc(\''+ctx+'\',\''+l.pin+'\',\''+l.name+'\',\''+l.state+'\')">'+dh+'</div>';
     }
-    suggestions.innerHTML = html;
-    suggestions.classList.add('show');
+    sug.innerHTML=html;sug.classList.add('show');
 }
 
 // ============================================================
-// SINGLE SELECT LOCATION FUNCTION - Works for ALL contexts
+// UNIFIED SELECT - ONE FUNCTION FOR ALL CONTEXTS
 // ============================================================
-function selectLocation(context, pin, name, state){
-    var displayName = name + ', ' + state + ' (' + pin + ')';
-    var inputId = 'search-' + context;
-    var suggestionsId = 'suggestions-' + context;
-    var hiddenId = null;
-    
-    if(context === 'to') hiddenId = 'filter-to-hidden';
-    else if(context === 'pl-pickup') hiddenId = 'pl-pickup-hidden';
-    else if(context === 'pl-drop') hiddenId = 'pl-drop-hidden';
-    else if(context === 'pt-location') hiddenId = 'pt-location-hidden';
-    
-    $(inputId).value = displayName;
-    if(hiddenId) $(hiddenId).value = pin;
-    $(suggestionsId).classList.remove('show');
-    
-    if(context === 'home'){
-        homePin = pin;
-        localStorage.setItem('rt_home_location', JSON.stringify({pin: pin, displayName: displayName}));
-        applyFilters();
-    } else if(context === 'to'){
-        toPin = pin;
-        applyFilters();
-    }
+function selectLoc(ctx,pin,name,state){
+    var dn=name+', '+state+' ('+pin+')', hid=null;
+    if(ctx==='to') hid='filter-to-hidden';
+    else if(ctx==='pl-pickup') hid='pl-pickup-hidden';
+    else if(ctx==='pl-drop') hid='pl-drop-hidden';
+    else if(ctx==='pt-location') hid='pt-location-hidden';
+    $('search-'+ctx).value=dn;
+    if(hid) $(hid).value=pin;
+    $('suggestions-'+ctx).classList.remove('show');
+    if(ctx==='home'){homePin=pin;localStorage.setItem('rt_home_location',JSON.stringify({pin:pin,displayName:dn}));applyFilters()}
+    else if(ctx==='to'){toPin=pin;applyFilters()}
 }
 
-// Close suggestions on outside click
-document.addEventListener('click', function(e){
-    document.querySelectorAll('.suggestions').forEach(function(s){
-        if(!s.parentElement.contains(e.target)) s.classList.remove('show');
-    });
-});
+// Close suggestions
+document.addEventListener('click',function(e){document.querySelectorAll('.suggestions').forEach(function(s){if(!s.parentElement.contains(e.target))s.classList.remove('show')})});
 
 // ============================================================
 // PWA INSTALL
 // ============================================================
-if(window.matchMedia('(display-mode: standalone)').matches) installed = true;
-
-function updateInstall(){
-    var mobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    var show = mobile && !window.matchMedia('(display-mode: standalone)').matches && !installed;
-    document.querySelectorAll('.nav-install-wrapper').forEach(function(el){
-        el.classList.toggle('show', show);
-    });
-}
-
-window.addEventListener('beforeinstallprompt', function(e){
-    e.preventDefault();
-    prompt = e;
-    updateInstall();
-});
-
-window.addEventListener('appinstalled', function(){
-    installed = true;
-    prompt = null;
-    updateInstall();
-    toast('🎉 ReturnTruck installed!');
-});
-
-function forceInstall(){
-    if(prompt){
-        prompt.prompt();
-        prompt.userChoice.then(function(c){
-            if(c.outcome === 'accepted') toast('🎉 Installing...');
-            prompt = null;
-            updateInstall();
-        });
-    } else {
-        if(navigator.userAgent.match(/Android/i)) toast('📱 Tap Chrome menu → "Install app"');
-        else if(navigator.userAgent.match(/iPhone|iPad|iPod/i)) toast('📱 Tap Share → "Add to Home Screen"');
-        else toast('📱 Open this page in Chrome on your phone');
-    }
-}
-
-setTimeout(updateInstall, 3000);
+if(window.matchMedia('(display-mode: standalone)').matches) installed=true;
+function updateInstall(){var m=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);var s=m&&!window.matchMedia('(display-mode: standalone)').matches&&!installed;document.querySelectorAll('.nav-install-wrapper').forEach(function(e){e.classList.toggle('show',s)})}
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();prompt=e;updateInstall()});
+window.addEventListener('appinstalled',function(){installed=true;prompt=null;updateInstall();toast('🎉 ReturnTruck installed!')});
+function forceInstall(){if(prompt){prompt.prompt();prompt.userChoice.then(function(c){if(c.outcome==='accepted')toast('🎉 Installing...');prompt=null;updateInstall()})}else{if(navigator.userAgent.match(/Android/i))toast('📱 Tap Chrome menu → "Install app"');else if(navigator.userAgent.match(/iPhone|iPad|iPod/i))toast('📱 Tap Share → "Add to Home Screen"');else toast('📱 Open this page in Chrome on your phone')}}
+setTimeout(updateInstall,3000);
 
 // ============================================================
 // RENDER FEED
 // ============================================================
 async function renderFeed(){
-    try {
-        var {data:loads} = await sb.from('active_loads').select('*').eq('status', 1);
-        var {data:trucks} = await sb.from('active_trucks').select('*').eq('status', 1);
-        
-        items = [];
-        for(var l=0; l<(loads||[]).length; l++){
-            var ld = loads[l];
-            items.push({
-                type: 'LOAD',
-                title: ld.material || 'Cargo',
-                company: ld.company || '',
-                from: ld.pickup_pin || '',
-                to: ld.drop_pin || '',
-                weight: ld.weight || 0,
-                vehicle: ld.vehicle_type || '',
-                rate: ld.rate || 0,
-                views: ld.views || 0,
-                interests: (ld.interests || []).length,
-                shares: ld.shares || 0,
-                id: ld.id
-            });
-        }
-        
-        for(var t=0; t<(trucks||[]).length; t++){
-            var tk = trucks[t];
-            items.push({
-                type: 'TRUCK',
-                title: tk.truck_no || 'Truck',
-                company: tk.company_name || '',
-                from: tk.location_pin || '',
-                to: tk.destination_pin || '',
-                vehicle: tk.vehicle_type || '',
-                rate: tk.rate_km || 0,
-                views: tk.views || 0,
-                interests: (tk.interested || []).length,
-                shares: tk.share || 0,
-                id: tk.id
-            });
-        }
-        
-        var filtered = items.slice();
-        var radius = parseInt($('radius-select').value) || 50;
-        
-        // Apply HOME location filter
-        if(homePin){
-            var homeLoc = getLoc(homePin);
-            if(homeLoc){
-                filtered = filtered.filter(function(i){
-                    var fromLoc = getLoc(i.from);
-                    return fromLoc ? dist(homeLoc.lat, homeLoc.lng, fromLoc.lat, fromLoc.lng) <= radius : false;
-                });
-            }
-        }
-        
-        // Apply TAB filter
-        if(tab === 'LOAD') filtered = filtered.filter(function(i){ return i.type === 'LOAD'; });
-        else if(tab === 'TRUCK') filtered = filtered.filter(function(i){ return i.type === 'TRUCK'; });
-        
-        // Apply TO location filter (uses SAME radius)
-        if(toPin){
-            var toLoc = getLoc(toPin);
-            if(toLoc){
-                filtered = filtered.filter(function(i){
-                    var toLocItem = getLoc(i.to);
-                    return toLocItem ? dist(toLoc.lat, toLoc.lng, toLocItem.lat, toLocItem.lng) <= radius : false;
-                });
-            }
-        }
-        
-        // Apply Vehicle Type filter
-        var vehicle = $('filter-vehicle')?.value;
-        if(vehicle && vehicle !== 'ALL'){
-            filtered = filtered.filter(function(i){
-                return i.vehicle && i.vehicle.toLowerCase().includes(vehicle);
-            });
-        }
-        
-        $('results-count').textContent = 'Showing ' + filtered.length + ' Records within ' + radius + ' KM';
-        
-        if(filtered.length === 0){
-            $('feed-container').innerHTML = '<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>';
-            return;
-        }
-        
-        $('feed-container').innerHTML = filtered.map(function(i){
-            var bc = i.type === 'LOAD' ? 'load' : 'truck';
-            var loc = '', sub = '', rate = '', stats = '';
-            if(i.type === 'LOAD'){
-                loc = '📍 ' + getLocName(i.from) + ' → ' + getLocName(i.to);
-                sub = '💼 ' + i.company;
-                rate = '💰 ₹' + (i.rate||0).toLocaleString();
-                stats = '⚖️ ' + (i.weight||0) + ' Kg • 🚛 ' + i.vehicle;
-            } else {
-                var td = i.to ? getLocName(i.to) : 'Any';
-                loc = '📍 ' + getLocName(i.from) + ' → ' + td;
-                sub = '💼 ' + i.company;
-                rate = '💰 ₹' + (i.rate||0) + '/km';
-                stats = '🚛 ' + i.vehicle;
-            }
-            return '<div class="feed-card" onclick="openDetail(\'' + i.type + '\',\'' + i.id + '\')">' +
-                '<div class="header-row"><div class="title">' + i.title + '</div><span class="type-badge ' + bc + '">' + i.type + '</span></div>' +
-                '<div class="company">' + sub + '</div>' +
-                '<div class="meta">' + loc + '</div>' +
-                '<div class="meta">' + rate + '</div>' +
-                '<div class="meta">' + stats + '</div>' +
-                '<div class="stats-row">' +
-                    '<span>👁️ <span class="val">' + i.views + '</span></span>' +
-                    '<span>🤝 <span class="val">' + i.interests + '</span></span>' +
-                    '<span>📨 <span class="val">' + i.shares + '</span></span>' +
-                '</div>' +
-            '</div>';
-        }).join('');
-        
-    } catch(e){
-        console.error('Render feed error:', e);
-        $('feed-container').innerHTML = '<div style="padding:30px 0;color:#ef4444;text-align:center">Error loading feed</div>';
-    }
-}
+try{
+var {data:loads}=await sb.from('active_loads').select('*').eq('status',1);
+var {data:trucks}=await sb.from('active_trucks').select('*').eq('status',1);
+items=[];
+for(var l=0;l<(loads||[]).length;l++){var ld=loads[l];items.push({type:'LOAD',title:ld.material||'Cargo',company:ld.company||'',from:ld.pickup_pin||'',to:ld.drop_pin||'',weight:ld.weight||0,vehicle:ld.vehicle_type||'',rate:ld.rate||0,views:ld.views||0,interests:(ld.interests||[]).length,shares:ld.shares||0,id:ld.id})}
+for(var t=0;t<(trucks||[]).length;t++){var tk=trucks[t];items.push({type:'TRUCK',title:tk.truck_no||'Truck',company:tk.company_name||'',from:tk.location_pin||'',to:tk.destination_pin||'',vehicle:tk.vehicle_type||'',rate:tk.rate_km||0,views:tk.views||0,interests:(tk.interested||[]).length,shares:tk.share||0,id:tk.id})}
+var filtered=items.slice(), radius=parseInt($('radius-select').value)||50;
+if(homePin){var hl=getLoc(homePin);if(hl){filtered=filtered.filter(function(i){var fl=getLoc(i.from);return fl?dist(hl.lat,hl.lng,fl.lat,fl.lng)<=radius:false})}}
+if(tab==='LOAD')filtered=filtered.filter(function(i){return i.type==='LOAD'});
+else if(tab==='TRUCK')filtered=filtered.filter(function(i){return i.type==='TRUCK'});
+if(toPin){var tl=getLoc(toPin);if(tl){filtered=filtered.filter(function(i){var tl2=getLoc(i.to);return tl2?dist(tl.lat,tl.lng,tl2.lat,tl2.lng)<=radius:false})}}
+var v=$('filter-vehicle')?.value;if(v&&v!=='ALL')filtered=filtered.filter(function(i){return i.vehicle&&i.vehicle.toLowerCase().includes(v)});
+$('results-count').textContent='Showing '+filtered.length+' Records within '+radius+' KM';
+if(!filtered.length){$('feed-container').innerHTML='<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>';return}
+$('feed-container').innerHTML=filtered.map(function(i){var bc=i.type==='LOAD'?'load':'truck',loc='',sub='',rate='',stats='';if(i.type==='LOAD'){loc='📍 '+getLocName(i.from)+' → '+getLocName(i.to);sub='💼 '+i.company;rate='💰 ₹'+(i.rate||0).toLocaleString();stats='⚖️ '+(i.weight||0)+' Kg • 🚛 '+i.vehicle}else{var td=i.to?getLocName(i.to):'Any';loc='📍 '+getLocName(i.from)+' → '+td;sub='💼 '+i.company;rate='💰 ₹'+(i.rate||0)+'/km';stats='🚛 '+i.vehicle}
+return'<div class="feed-card" onclick="openDetail(\''+i.type+'\',\''+i.id+'\')">'+
+'<div class="header-row"><div class="title">'+i.title+'</div><span class="type-badge '+bc+'">'+i.type+'</span></div>'+
+'<div class="company">'+sub+'</div><div class="meta">'+loc+'</div><div class="meta">'+rate+'</div><div class="meta">'+stats+'</div>'+
+'<div class="stats-row"><span>👁️ <span class="val">'+i.views+'</span></span><span>🤝 <span class="val">'+i.interests+'</span></span><span>📨 <span class="val">'+i.shares+'</span></span></div></div>'}).join('');
+}catch(e){$('feed-container').innerHTML='<div style="padding:30px 0;color:#ef4444;text-align:center">Error loading feed</div>'}}
 
-function applyFilters(){ renderFeed(); }
-
-function setTab(t){
-    tab = t;
-    document.querySelectorAll('.type-tabs button').forEach(function(b){ b.className = 'inactive'; });
-    var map = {'ALL':'tab-all','LOAD':'tab-loads','TRUCK':'tab-trucks','AGENT':'tab-agents'};
-    var el = $(map[t]);
-    if(el) el.className = 'active';
-    renderFeed();
-}
-
-function toggleFilters(){
-    filterOpen = !filterOpen;
-    $('filter-container').classList.toggle('open', filterOpen);
-    $('filter-toggle-label').textContent = filterOpen ? '🔍 Hide Filters' : '🔍 Show Filters';
-    $('filter-arrow').className = filterOpen ? 'arrow open' : 'arrow closed';
-    setTimeout(fixHeight, 350);
-}
+function applyFilters(){renderFeed()}
+function setTab(t){tab=t;document.querySelectorAll('.type-tabs button').forEach(function(b){b.className='inactive'});var map={'ALL':'tab-all','LOAD':'tab-loads','TRUCK':'tab-trucks','AGENT':'tab-agents'};var el=$(map[t]);if(el)el.className='active';renderFeed()}
+function toggleFilters(){filterOpen=!filterOpen;$('filter-container').classList.toggle('open',filterOpen);$('filter-toggle-label').textContent=filterOpen?'🔍 Hide Filters':'🔍 Show Filters';$('filter-arrow').className=filterOpen?'arrow open':'arrow closed';setTimeout(fixHeight,350)}
 
 // ============================================================
 // NAVIGATION
 // ============================================================
-function goHome(){
-    ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(function(i){
-        $(i).classList.toggle('hidden-page', i !== 'home-page');
-    });
-    document.querySelectorAll('.nav-item').forEach(function(e){ e.classList.remove('active'); });
-    document.querySelectorAll('.nav-fixed .nav-item')[0].classList.add('active');
-    setTimeout(fixHeight, 50);
-    renderFeed();
-}
-
-function switchPage(id, idx){
-    ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(function(i){
-        $(i).classList.toggle('hidden-page', i !== id);
-    });
-    document.querySelectorAll('.nav-item').forEach(function(e){ e.classList.remove('active'); });
-    document.querySelectorAll('.nav-fixed .nav-item')[idx].classList.add('active');
-    setTimeout(fixHeight, 50);
-}
-
-function goPostLoad(){ if(guest || !user){ showLogin(); return; } switchPage('postload-page', 1); }
-function goPostTruck(){ if(guest || !user){ showLogin(); return; } switchPage('posttruck-page', 2); }
-function goToProfile(){ if(guest || !user){ showLogin(); return; } switchPage('profile-page', 3); loadProfile(); }
-function cancelPost(){ goHome(); }
-function closeDetail(){ detail = null; goHome(); }
+function goHome(){['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(function(i){$(i).classList.toggle('hidden-page',i!=='home-page')});document.querySelectorAll('.nav-item').forEach(function(e){e.classList.remove('active')});document.querySelectorAll('.nav-fixed .nav-item')[0].classList.add('active');setTimeout(fixHeight,50);renderFeed()}
+function switchPage(id,idx){['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(function(i){$(i).classList.toggle('hidden-page',i!==id)});document.querySelectorAll('.nav-item').forEach(function(e){e.classList.remove('active')});document.querySelectorAll('.nav-fixed .nav-item')[idx].classList.add('active');setTimeout(fixHeight,50)}
+function goPostLoad(){if(guest||!user){showLogin();return}switchPage('postload-page',1)}
+function goPostTruck(){if(guest||!user){showLogin();return}switchPage('posttruck-page',2)}
+function goToProfile(){if(guest||!user){showLogin();return}switchPage('profile-page',3);loadProfile()}
+function cancelPost(){goHome()}function closeDetail(){detail=null;goHome()}
 
 // ============================================================
 // PROFILE
 // ============================================================
-function loadProfile(){ if(!user) return; $('profile-mobile').textContent = user.mobile || '--'; }
-
-function saveLoadGiverProfile(){
-    var c = $('lg-company').value.trim();
-    if(!c) return toast('⚠️ Enter company name');
-    sb.from('active_users').update({company_name: c}).eq('mobile', user.mobile).then(function(){
-        user.company_name = c;
-        toast('✅ Saved!');
-        loadProfile();
-    });
-}
-
-function saveFleetProfile(){
-    var c = $('fo-company').value.trim();
-    if(!c) return toast('⚠️ Enter company name');
-    sb.from('active_users').update({fleet_company: c}).eq('mobile', user.mobile).then(function(){
-        user.fleet_company = c;
-        toast('✅ Saved!');
-        loadProfile();
-    });
-}
-
-function editLoadGiver(){ $('loadgiver-active-area').style.display = 'none'; $('loadgiver-input-area').style.display = 'block'; }
-function editFleet(){ $('fleet-active-area').style.display = 'none'; $('fleet-input-area').style.display = 'block'; }
-
-function openDetail(type, id){
-    var table = type === 'LOAD' ? 'active_loads' : 'active_trucks';
-    sb.from(table).select('*').eq('id', id).single().then(function(r){
-        var d = r.data;
-        if(d){
-            detail = d;
-            switchPage('detail-page', 0);
-            $('detail-title').textContent = type === 'LOAD' ? (d.material || 'Details') : (d.truck_no || 'Details');
-            $('detail-company').textContent = type === 'LOAD' ? (d.company || 'N/A') : (d.company_name || 'N/A');
-        }
-    });
-}
-
-function makeCall(){ if(detail){ var num = detail.mobile || detail.driver_mobile; if(num) window.location.href = 'tel:' + num; } }
-function expressInterest(){ toast('✅ Interest expressed!'); }
-function contactUser(){ toast('📧 Contact details shared!'); }
-function handleShareClick(){
-    if(navigator.share){
-        navigator.share({ title: 'ReturnTruck', text: 'Check out this listing on ReturnTruck!', url: window.location.href });
-    } else {
-        toast('📋 Link copied!');
-    }
-}
-function resetPIN(){ toast('📱 Contact support to reset PIN'); }
-function autoFetchVehicle(){ toast('🔍 Vehicle details fetched!'); }
-function publishLoad(){ toast('📦 Load published!'); }
-function publishTruck(){ toast('🚛 Truck listed!'); }
-function openChangePin(){ toast('🔑 PIN change coming soon!'); }
+function loadProfile(){if(!user)return;$('profile-mobile').textContent=user.mobile||'--'}
+function saveLoadGiverProfile(){var c=$('lg-company').value.trim();if(!c)return toast('⚠️ Enter company name');sb.from('active_users').update({company_name:c}).eq('mobile',user.mobile).then(function(){user.company_name=c;toast('✅ Saved!');loadProfile()})}
+function saveFleetProfile(){var c=$('fo-company').value.trim();if(!c)return toast('⚠️ Enter company name');sb.from('active_users').update({fleet_company:c}).eq('mobile',user.mobile).then(function(){user.fleet_company=c;toast('✅ Saved!');loadProfile()})}
+function editLoadGiver(){$('loadgiver-active-area').style.display='none';$('loadgiver-input-area').style.display='block'}
+function editFleet(){$('fleet-active-area').style.display='none';$('fleet-input-area').style.display='block'}
+function openDetail(type,id){var table=type==='LOAD'?'active_loads':'active_trucks';sb.from(table).select('*').eq('id',id).single().then(function(r){var d=r.data;if(d){detail=d;switchPage('detail-page',0);$('detail-title').textContent=type==='LOAD'?d.material||'Details':d.truck_no||'Details';$('detail-company').textContent=type==='LOAD'?d.company||'N/A':d.company_name||'N/A'}})}
+function makeCall(){if(detail){var num=detail.mobile||detail.driver_mobile;if(num)window.location.href='tel:'+num}}
+function expressInterest(){toast('✅ Interest expressed!')}
+function contactUser(){toast('📧 Contact details shared!')}
+function handleShareClick(){if(navigator.share){navigator.share({title:'ReturnTruck',text:'Check out this listing on ReturnTruck!',url:window.location.href})}else{toast('📋 Link copied!')}}
+function resetPIN(){toast('📱 Contact support to reset PIN')}
+function autoFetchVehicle(){toast('🔍 Vehicle details fetched!')}
+function publishLoad(){toast('📦 Load published!')}
+function publishTruck(){toast('🚛 Truck listed!')}
+function openChangePin(){toast('🔑 PIN change coming soon!')}
 
 // ============================================================
-// AUTH - Fixed: Enter key for PIN login
+// AUTH
 // ============================================================
-function continueAsGuest(){
-    guest = true;
-    localStorage.setItem('rt_user', JSON.stringify({guest: true}));
-    showHome();
-}
-
-function showLogin(){ resetForm(); $('mobile').focus(); }
-
-function resetForm(){
-    ['step2','step3','step4'].forEach(function(i){ $(i).classList.add('hidden'); });
-    $('step1').classList.remove('hidden');
-    $('login-screen').style.display = 'flex';
-    ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(function(i){ $(i).classList.add('hidden-page'); });
-}
-
-function showHome(){
-    $('login-screen').style.display = 'none';
-    $('home-page').classList.remove('hidden-page');
-    updateGuestUI();
-    setTimeout(function(){ fixHeight(); renderFeed(); autoLocate(); }, 50);
-}
-
-function updateGuestUI(){
-    var b = $('guest-banner');
-    if(b){
-        b.style.display = guest ? 'flex' : 'none';
-        if(guest) b.classList.remove('hidden');
-        else b.classList.add('hidden');
-    }
-    setTimeout(fixHeight, 50);
-}
-
-function toggleDropdown(){ document.querySelectorAll('.profile-dropdown').forEach(function(d){ d.classList.toggle('show'); }); }
-function closeDropdown(){ document.querySelectorAll('.profile-dropdown').forEach(function(d){ d.classList.remove('show'); }); }
-
-// Enter key handler for mobile input
-$('mobile').addEventListener('input', function(e){
-    var m = this.value.trim();
-    if(m.length === 10){
-        mobile = m;
-        $('step1').classList.add('hidden');
-        $('step2').classList.remove('hidden');
-        $('display-mobile').textContent = m;
-    }
-});
-
-// === FIX 1: Enter key handler for PIN login ===
-$('pin').addEventListener('keydown', function(e){
-    if(e.key === 'Enter'){
-        submitPin();
-    }
-});
-
-// === FIX 2: Enter key handler for Reg PIN ===
-$('reg-pin').addEventListener('keydown', function(e){
-    if(e.key === 'Enter'){
-        $('reg-pin-confirm').focus();
-    }
-});
-
-$('reg-pin-confirm').addEventListener('keydown', function(e){
-    if(e.key === 'Enter'){
-        registerUser();
-    }
-});
-
-window.submitPin = async function(){
-    var pin = $('pin').value.trim();
-    if(!pin || pin.length !== 4){
-        toast('⚠️ Enter 4-digit PIN');
-        $('pin').focus();
-        return;
-    }
-    var enc = new TextEncoder();
-    var hash = await crypto.subtle.digest('SHA-256', enc.encode(pin));
-    var ph = Array.from(new Uint8Array(hash)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
-    var {data: u} = await sb.from('active_users').select('*').eq('mobile', mobile).eq('pinhash', ph).single();
-    if(u){
-        user = u;
-        localStorage.setItem('rt_user', JSON.stringify({mobile: user.mobile, user: user}));
-        guest = false;
-        showHome();
-    } else {
-        toast('❌ Incorrect PIN');
-        $('pin').value = '';
-        $('pin').focus();
-    }
-};
-
-async function registerUser(){
-    var pin = $('reg-pin').value.trim();
-    var confirm = $('reg-pin-confirm').value.trim();
-    if(!pin || pin.length !== 4){
-        toast('⚠️ Enter 4-digit PIN');
-        $('reg-pin').focus();
-        return;
-    }
-    if(pin !== confirm){
-        toast('⚠️ PINs do not match');
-        $('reg-pin-confirm').value = '';
-        $('reg-pin-confirm').focus();
-        return;
-    }
-    var enc = new TextEncoder();
-    var hash = await crypto.subtle.digest('SHA-256', enc.encode(pin));
-    var ph = Array.from(new Uint8Array(hash)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
-    var {data: nu} = await sb.from('active_users').insert({mobile: mobile, pinhash: ph}).select().single();
-    if(nu){
-        user = nu;
-        localStorage.setItem('rt_user', JSON.stringify({mobile: user.mobile, user: user}));
-        guest = false;
-        showHome();
-    }
-}
-
-function logout(){
-    if(confirm('Logout?')){
-        localStorage.removeItem('rt_user');
-        window.location.reload();
-    }
-}
+function continueAsGuest(){guest=true;localStorage.setItem('rt_user',JSON.stringify({guest:true}));showHome()}
+function showLogin(){resetForm();$('mobile').focus()}
+function resetForm(){['step2','step3','step4'].forEach(function(i){$(i).classList.add('hidden')});$('step1').classList.remove('hidden');$('login-screen').style.display='flex';['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(function(i){$(i).classList.add('hidden-page')})}
+function showHome(){$('login-screen').style.display='none';$('home-page').classList.remove('hidden-page');updateGuestUI();setTimeout(function(){fixHeight();renderFeed();autoLocate()},50)}
+function updateGuestUI(){var b=$('guest-banner');if(b){b.style.display=guest?'flex':'none';if(guest)b.classList.remove('hidden');else b.classList.add('hidden')}setTimeout(fixHeight,50)}
+function toggleDropdown(){document.querySelectorAll('.profile-dropdown').forEach(function(d){d.classList.toggle('show')})}
+function closeDropdown(){document.querySelectorAll('.profile-dropdown').forEach(function(d){d.classList.remove('show')})}
+$('mobile').addEventListener('input',function(e){var m=this.value.trim();if(m.length===10){mobile=m;$('step1').classList.add('hidden');$('step2').classList.remove('hidden');$('display-mobile').textContent=m}});
+$('pin').addEventListener('keydown',function(e){if(e.key==='Enter')submitPin()});
+$('reg-pin').addEventListener('keydown',function(e){if(e.key==='Enter')$('reg-pin-confirm').focus()});
+$('reg-pin-confirm').addEventListener('keydown',function(e){if(e.key==='Enter')registerUser()});
+window.submitPin=async function(){var pin=$('pin').value.trim();if(!pin||pin.length!==4){toast('⚠️ Enter 4-digit PIN');$('pin').focus();return}var enc=new TextEncoder();var hash=await crypto.subtle.digest('SHA-256',enc.encode(pin));var ph=Array.from(new Uint8Array(hash)).map(function(b){return b.toString(16).padStart(2,'0')}).join('');var {data:u}=await sb.from('active_users').select('*').eq('mobile',mobile).eq('pinhash',ph).single();if(u){user=u;localStorage.setItem('rt_user',JSON.stringify({mobile:user.mobile,user:user}));guest=false;showHome()}else{toast('❌ Incorrect PIN');$('pin').value='';$('pin').focus()}};
+async function registerUser(){var pin=$('reg-pin').value.trim(),conf=$('reg-pin-confirm').value.trim();if(!pin||pin.length!==4){toast('⚠️ Enter 4-digit PIN');$('reg-pin').focus();return}if(pin!==conf){toast('⚠️ PINs do not match');$('reg-pin-confirm').value='';$('reg-pin-confirm').focus();return}var enc=new TextEncoder();var hash=await crypto.subtle.digest('SHA-256',enc.encode(pin));var ph=Array.from(new Uint8Array(hash)).map(function(b){return b.toString(16).padStart(2,'0')}).join('');var {data:nu}=await sb.from('active_users').insert({mobile:mobile,pinhash:ph}).select().single();if(nu){user=nu;localStorage.setItem('rt_user',JSON.stringify({mobile:user.mobile,user:user}));guest=false;showHome()}}
+function logout(){if(confirm('Logout?')){localStorage.removeItem('rt_user');window.location.reload()}}
 
 // ============================================================
 // HEIGHT
 // ============================================================
-function fixHeight(){
-    var card = document.querySelector('.card');
-    if(!card) return;
-    var body = document.querySelector('.scroll-body:not(.hidden-page)');
-    var header = document.querySelector('.header-fixed:not(.hidden-page)');
-    var nav = document.querySelector('.nav-fixed:not(.hidden-page)');
-    var top = $('home-top');
-    if(!body || !header || !nav) return;
-    var hh = header.offsetHeight || 50;
-    var nh = nav.offsetHeight || 65;
-    var th = top ? top.offsetHeight || 0 : 0;
-    var av = card.clientHeight - hh - th - nh - 20;
-    if(av < 80) av = 80;
-    body.style.height = av + 'px';
-    body.style.maxHeight = av + 'px';
-    body.style.overflowY = 'auto';
-}
-
-window.addEventListener('resize', function(){
-    clearTimeout(window._rtResize);
-    window._rtResize = setTimeout(fixHeight, 200);
-});
+function fixHeight(){var card=document.querySelector('.card');if(!card)return;var body=document.querySelector('.scroll-body:not(.hidden-page)'),header=document.querySelector('.header-fixed:not(.hidden-page)'),nav=document.querySelector('.nav-fixed:not(.hidden-page)'),top=$('home-top');if(!body||!header||!nav)return;var hh=header.offsetHeight||50,nh=nav.offsetHeight||65,th=top?top.offsetHeight||0:0,av=card.clientHeight-hh-th-nh-20;if(av<80)av=80;body.style.height=av+'px';body.style.maxHeight=av+'px';body.style.overflowY='auto'}
+window.addEventListener('resize',function(){clearTimeout(window._rtResize);window._rtResize=setTimeout(fixHeight,200)});
 
 // ============================================================
 // INIT
 // ============================================================
-document.addEventListener('DOMContentLoaded', function(){
-    var saved = localStorage.getItem('rt_user');
-    if(saved){
-        var sd = JSON.parse(saved);
-        if(sd.guest){ guest = true; user = null; }
-        else if(sd.user){ user = sd.user; guest = false; }
-        showHome();
-    } else {
-        $('login-screen').style.display = 'flex';
-        $('home-page').classList.add('hidden-page');
-    }
-    setTimeout(function(){ fixHeight(); autoLocate(); }, 500);
+document.addEventListener('DOMContentLoaded',function(){
+var saved=localStorage.getItem('rt_user');
+if(saved){var sd=JSON.parse(saved);if(sd.guest){guest=true;user=null}else if(sd.user){user=sd.user;guest=false}showHome()}else{$('login-screen').style.display='flex';$('home-page').classList.add('hidden-page')}
+setTimeout(function(){fixHeight();autoLocate()},500)
 });
 </script>
 </body>
