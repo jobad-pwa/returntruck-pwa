@@ -436,7 +436,7 @@ if(navigator.geolocation){navigator.geolocation.getCurrentPosition(function(p){v
 // UNIFIED SEARCH - ONE FUNCTION FOR ALL CONTEXTS
 // ============================================================
 function searchLocation(ctx){
-    var inp=$(('search-'+ctx)), sug=$(('suggestions-'+ctx));
+    var inp=$('search-'+ctx), sug=$('suggestions-'+ctx);
     if(!inp||!sug)return;
     var q=inp.value.trim();
     if(!q){sug.classList.remove('show');return}
