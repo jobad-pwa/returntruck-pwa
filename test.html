@@ -1,206 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ReturnTruck - Debug</title>
-<style>
-*{box-sizing:border-box;font-family:system-ui,sans-serif}
-body{background:#f3f4f6;padding:20px;display:flex;justify-content:center}
-.container{max-width:420px;width:100%;background:#fff;border-radius:24px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
-h2{color:#2563eb;font-size:18px;margin:0 0 4px 0}
-.sub{font-size:12px;color:#64748b;margin-bottom:16px}
-.test-group{margin-bottom:16px}
-.test-group label{font-size:11px;font-weight:700;color:#1e293b;display:block;margin-bottom:4px}
-.search-wrapper{position:relative;width:100%}
-.search-wrapper input{width:100%;padding:10px 12px;border:2px solid #e2e8f0;border-radius:12px;font-size:14px;outline:none}
-.search-wrapper input:focus{border-color:#2563eb}
-.search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:50;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
-.search-wrapper .suggestions.show{display:block}
-.search-wrapper .suggestions .item{padding:10px 16px;font-size:13px;color:#1e293b;cursor:pointer}
-.search-wrapper .suggestions .item:hover{background:#f8fafc}
-.search-wrapper .suggestions .item .highlight{background:#dbeafe;font-weight:600}
-.log-box{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:12px;font-family:monospace;font-size:11px;max-height:200px;overflow-y:auto;margin-top:12px;white-space:pre-wrap;word-break:break-all}
-.log-box .ok{color:#4ade80}
-.log-box .err{color:#f87171}
-.log-box .info{color:#60a5fa}
-.btn-group{display:flex;gap:8px;margin-top:12px}
-.btn-group button{flex:1;padding:8px;border:none;border-radius:8px;font-weight:600;cursor:pointer}
-.btn-blue{background:#2563eb;color:#fff}
-.btn-red{background:#dc2626;color:#fff}
-.btn-gray{background:#6b7280;color:#fff}
-</style>
+<title>Simple Test</title>
 </head>
 <body>
-<div class="container">
-    <h2>🔍 Debug: Does TO Search Work?</h2>
-    <div class="sub">Type in each box and check the log below</div>
-
-    <!-- HOME SEARCH -->
-    <div class="test-group">
-        <label>📍 HOME SEARCH</label>
-        <div class="search-wrapper">
-            <input type="text" id="search-home" placeholder="Type 'kak'..." oninput="searchLocation('home')" autocomplete="off">
-            <div class="suggestions" id="suggestions-home"></div>
-        </div>
-    </div>
-
-    <!-- TO SEARCH -->
-    <div class="test-group">
-        <label>📍 TO LOCATION</label>
-        <div class="search-wrapper">
-            <input type="text" id="search-to" placeholder="Type 'kak'..." oninput="searchLocation('to')" autocomplete="off">
-            <div class="suggestions" id="suggestions-to"></div>
-        </div>
-    </div>
-
-    <!-- Status -->
-    <div style="background:#f8fafc;border-radius:12px;padding:12px;margin-top:12px;font-size:12px">
-        <div>🔹 Home: <span id="home-status" style="color:#f59e0b">Waiting...</span></div>
-        <div>🔹 TO: <span id="to-status" style="color:#f59e0b">Waiting...</span></div>
-        <div>🔹 Last Call: <span id="last-call" style="color:#f59e0b">None</span></div>
-    </div>
-
-    <!-- Log -->
-    <div class="log-box" id="log">⏳ Waiting for input...</div>
-
-    <!-- Buttons -->
-    <div class="btn-group">
-        <button class="btn-blue" onclick="testHome()">🏠 Test Home</button>
-        <button class="btn-red" onclick="testTo()">📍 Test TO</button>
-        <button class="btn-gray" onclick="clearAll()">🗑️ Clear</button>
-    </div>
-</div>
+<h2>Type in the box below</h2>
+<input type="text" id="myinput" placeholder="Type here..." oninput="testFunction()">
+<p id="output">Waiting...</p>
 
 <script>
-// LOCATIONS
-var LOCATIONS = [
-  {pin:"533001", name:"Kakinada", district:"Kakinada", state:"AP"},
-  {pin:"533406", name:"Annavaram", district:"Kakinada", state:"AP"},
-  {pin:"400001", name:"Mumbai", district:"MUMBAI", state:"MH"},
-  {pin:"530001", name:"Visakhapatnam", district:"VISAKHAPATANAM", state:"AP"},
-  {pin:"560002", name:"Bengaluru", district:"BENGALURU URBAN", state:"KA"}
-];
-
-function log(msg, type) {
-    var el = document.getElementById('log');
-    var time = new Date().toLocaleTimeString();
-    var colors = {ok:'ok', err:'err', info:'info'};
-    el.innerHTML += '[' + time + '] <span class="' + (colors[type]||'info') + '">' + msg + '</span>\n';
-    el.scrollTop = el.scrollHeight;
+function testFunction() {
+    var val = document.getElementById('myinput').value;
+    document.getElementById('output').textContent = 'You typed: ' + val;
+    console.log('Input changed to:', val);
 }
-
-// SEARCH FUNCTION WITH LOGGING
-function searchLocation(context) {
-    var input = document.getElementById('search-' + context);
-    var suggestions = document.getElementById('suggestions-' + context);
-    
-    log('➡️ searchLocation("' + context + '") CALLED', 'info');
-    document.getElementById('last-call').textContent = context;
-    
-    if(!input) {
-        log('❌ Input #search-' + context + ' NOT FOUND!', 'err');
-        return;
-    }
-    if(!suggestions) {
-        log('❌ Suggestions #suggestions-' + context + ' NOT FOUND!', 'err');
-        return;
-    }
-    
-    var query = input.value.trim();
-    log('📝 Query: "' + query + '"', 'info');
-    
-    if(!query) {
-        suggestions.classList.remove('show');
-        log('⏹️ Empty query, hiding suggestions', 'warn');
-        return;
-    }
-    
-    // Search
-    var results = [];
-    var ql = query.toLowerCase();
-    for(var i = 0; i < LOCATIONS.length; i++) {
-        var l = LOCATIONS[i];
-        if(l.name.toLowerCase().includes(ql) || l.pin.includes(query)) {
-            results.push(l);
-        }
-    }
-    
-    log('🔍 Found ' + results.length + ' results', 'info');
-    
-    if(results.length === 0) {
-        suggestions.classList.remove('show');
-        return;
-    }
-    
-    // Build HTML
-    var html = '';
-    for(var j = 0; j < results.length; j++) {
-        var l = results[j];
-        var displayName = l.name + ', ' + l.district + ', ' + l.state + ' (' + l.pin + ')';
-        html += '<div class="item" onclick="selectLocation(\'' + context + '\',\'' + l.pin + '\',\'' + l.name + '\',\'' + l.state + '\')">' + displayName + '</div>';
-    }
-    
-    suggestions.innerHTML = html;
-    suggestions.classList.add('show');
-    log('✅ Suggestions shown for ' + context + '!', 'ok');
-    
-    // Update status
-    var statusId = context === 'home' ? 'home-status' : 'to-status';
-    document.getElementById(statusId).textContent = '✅ ' + results.length + ' results';
-    document.getElementById(statusId).style.color = '#16a34a';
-}
-
-function selectLocation(context, pin, name, state) {
-    var displayName = name + ', ' + state + ' (' + pin + ')';
-    var input = document.getElementById('search-' + context);
-    var suggestions = document.getElementById('suggestions-' + context);
-    
-    input.value = displayName;
-    suggestions.classList.remove('show');
-    log('✅ Selected: ' + displayName, 'ok');
-}
-
-function testHome() {
-    log('🔵 Testing Home...', 'info');
-    var input = document.getElementById('search-home');
-    input.value = 'kak';
-    searchLocation('home');
-}
-
-function testTo() {
-    log('🔴 Testing TO...', 'info');
-    var input = document.getElementById('search-to');
-    input.value = 'kak';
-    searchLocation('to');
-}
-
-function clearAll() {
-    document.getElementById('search-home').value = '';
-    document.getElementById('search-to').value = '';
-    document.getElementById('suggestions-home').classList.remove('show');
-    document.getElementById('suggestions-to').classList.remove('show');
-    document.getElementById('log').innerHTML = '';
-    document.getElementById('home-status').textContent = 'Waiting...';
-    document.getElementById('home-status').style.color = '#f59e0b';
-    document.getElementById('to-status').textContent = 'Waiting...';
-    document.getElementById('to-status').style.color = '#f59e0b';
-    document.getElementById('last-call').textContent = 'None';
-    document.getElementById('last-call').style.color = '#f59e0b';
-    log('🗑️ Cleared', 'info');
-}
-
-document.addEventListener('click', function(e) {
-    document.querySelectorAll('.suggestions').forEach(function(s) {
-        if(!s.parentElement.contains(e.target)) {
-            s.classList.remove('show');
-        }
-    });
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-    log('🚀 Debug started. Type or click buttons.', 'info');
-});
 </script>
 </body>
 </html>
