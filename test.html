@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Search Debug Test</title>
+<title>Search Debug - ReturnTruck</title>
 <style>
 *{box-sizing:border-box;font-family:system-ui,sans-serif}
 body{background:#f3f4f6;padding:20px;display:flex;justify-content:center}
@@ -31,18 +31,19 @@ h2{color:#2563eb;font-size:18px;margin:0 0 4px 0}
 .status-box{background:#f8fafc;border-radius:12px;padding:12px;margin-top:12px;font-size:12px}
 .status-box .row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f1f5f9}
 .status-box .row:last-child{border-bottom:none}
-.btn-group{display:flex;gap:8px;margin-top:12px}
-.btn-group button{flex:1;padding:8px;border:none;border-radius:8px;font-weight:600;cursor:pointer}
+.btn-group{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.btn-group button{flex:1;min-width:80px;padding:10px 8px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px}
 .btn-blue{background:#2563eb;color:#fff}
 .btn-purple{background:#8b5cf6;color:#fff}
 .btn-gray{background:#6b7280;color:#fff}
 .btn-red{background:#dc2626;color:#fff}
+.btn-green{background:#16a34a;color:#fff}
 </style>
 </head>
 <body>
 <div class="container">
     <h2>🔍 Search Debug</h2>
-    <div class="sub">Checking why TO search doesn't work</div>
+    <div class="sub">Testing why TO search doesn't show suggestions</div>
 
     <!-- HOME SEARCH -->
     <div class="test-group">
@@ -69,16 +70,17 @@ h2{color:#2563eb;font-size:18px;margin:0 0 4px 0}
         <div class="row"><span>🔹 Function Called</span><span id="call-status" class="pending">⏳ Waiting...</span></div>
     </div>
 
-    <!-- Console -->
-    <div class="console-box" id="console">⏳ Waiting for input...</div>
-
     <!-- Buttons -->
     <div class="btn-group">
         <button class="btn-blue" onclick="testBoth()">🔍 Test Both</button>
-        <button class="btn-purple" onclick="testHome()">🏠 Test Home</button>
-        <button class="btn-red" onclick="testTo()">📍 Test TO</button>
+        <button class="btn-purple" onclick="testHome()">🏠 Home</button>
+        <button class="btn-red" onclick="testTo()">📍 TO</button>
+        <button class="btn-green" onclick="checkElements()">🔎 Check</button>
         <button class="btn-gray" onclick="clearAll()">🗑️ Clear</button>
     </div>
+
+    <!-- Console Log -->
+    <div class="console-box" id="console">⏳ Waiting for input...</div>
 </div>
 
 <script>
@@ -96,8 +98,6 @@ var LOCATIONS = [
 // ============================================================
 // CONSOLE LOG
 // ============================================================
-var logCount = 0;
-
 function clog(msg, type) {
     var el = document.getElementById('console');
     var time = new Date().toLocaleTimeString();
@@ -109,16 +109,14 @@ function clog(msg, type) {
 }
 
 // ============================================================
-// SEARCH FUNCTION - WITH LOGGING
+// SEARCH FUNCTION
 // ============================================================
 function searchLocation(context) {
-    logCount++;
     var input = document.getElementById('search-' + context);
     var suggestions = document.getElementById('suggestions-' + context);
     
-    clog('➡️ searchLocation("' + context + '") called (#' + logCount + ')', 'info');
+    clog('➡️ searchLocation("' + context + '") called', 'info');
     
-    // Check if elements exist
     if(!input) {
         clog('❌ Input #search-' + context + ' NOT FOUND!', 'err');
         document.getElementById('call-status').textContent = '❌ Input missing';
@@ -130,15 +128,14 @@ function searchLocation(context) {
         return;
     }
     
-    clog('✅ Input found: #search-' + context, 'ok');
-    clog('✅ Suggestions found: #suggestions-' + context, 'ok');
+    clog('✅ Input found, suggestions found', 'ok');
     
     var query = input.value.trim();
     clog('📝 Query: "' + query + '"', 'info');
     
     if(!query) {
         suggestions.classList.remove('show');
-        clog('⏹️ Query empty, hiding suggestions', 'warn');
+        clog('⏹️ Query empty', 'warn');
         return;
     }
     
@@ -153,11 +150,11 @@ function searchLocation(context) {
         if(results.length >= 8) break;
     }
     
-    clog('🔍 Found ' + results.length + ' results for "' + query + '"', 'info');
+    clog('🔍 Found ' + results.length + ' results', 'info');
     
     if(results.length === 0) {
         suggestions.classList.remove('show');
-        clog('⚠️ No results found', 'warn');
+        clog('⚠️ No results', 'warn');
         return;
     }
     
@@ -182,7 +179,6 @@ function searchLocation(context) {
     suggestions.classList.add('show');
     clog('✅ Suggestions shown for ' + context + '!', 'ok');
     
-    // Update status
     var statusId = context === 'home' ? 'home-status' : 'to-status';
     document.getElementById(statusId).textContent = '✅ ' + results.length + ' results';
     document.getElementById(statusId).className = 'pass';
@@ -200,12 +196,7 @@ function selectLocation(context, pin, name, state) {
     
     input.value = displayName;
     suggestions.classList.remove('show');
-    
-    clog('✅ Selected: ' + displayName + ' for ' + context, 'ok');
-    
-    var statusId = context === 'home' ? 'home-status' : 'to-status';
-    document.getElementById(statusId).textContent = '✅ Selected: ' + pin;
-    document.getElementById(statusId).className = 'pass';
+    clog('✅ Selected: ' + displayName, 'ok');
 }
 
 // ============================================================
@@ -233,6 +224,32 @@ function testBoth() {
     setTimeout(testTo, 500);
 }
 
+function checkElements() {
+    clog('🔎 Checking elements...', 'info');
+    var homeInput = document.getElementById('search-home');
+    var toInput = document.getElementById('search-to');
+    var homeSug = document.getElementById('suggestions-home');
+    var toSug = document.getElementById('suggestions-to');
+    
+    if(homeInput) clog('✅ Home input exists', 'ok');
+    else clog('❌ Home input MISSING', 'err');
+    
+    if(toInput) clog('✅ TO input exists', 'ok');
+    else clog('❌ TO input MISSING', 'err');
+    
+    if(homeSug) clog('✅ Home suggestions exists', 'ok');
+    else clog('❌ Home suggestions MISSING', 'err');
+    
+    if(toSug) clog('✅ TO suggestions exists', 'ok');
+    else clog('❌ TO suggestions MISSING', 'err');
+    
+    if(typeof searchLocation === 'function') {
+        clog('✅ searchLocation() function exists', 'ok');
+    } else {
+        clog('❌ searchLocation() function MISSING!', 'err');
+    }
+}
+
 function clearAll() {
     document.getElementById('search-home').value = '';
     document.getElementById('search-to').value = '';
@@ -245,11 +262,10 @@ function clearAll() {
     document.getElementById('to-status').className = 'pending';
     document.getElementById('call-status').textContent = '⏳ Waiting...';
     document.getElementById('call-status').className = 'pending';
-    logCount = 0;
     clog('🗑️ Cleared all', 'warn');
 }
 
-// Close suggestions on outside click
+// Close suggestions
 document.addEventListener('click', function(e) {
     document.querySelectorAll('.suggestions').forEach(function(s) {
         if(!s.parentElement.contains(e.target)) {
@@ -259,38 +275,12 @@ document.addEventListener('click', function(e) {
 });
 
 // ============================================================
-// CHECK IF ELEMENTS EXIST ON LOAD
+// INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
     clog('🚀 Search Debug initialized', 'info');
     clog('📦 ' + LOCATIONS.length + ' locations loaded', 'info');
-    
-    // Check elements
-    var homeInput = document.getElementById('search-home');
-    var toInput = document.getElementById('search-to');
-    var homeSuggestions = document.getElementById('suggestions-home');
-    var toSuggestions = document.getElementById('suggestions-to');
-    
-    if(homeInput) clog('✅ Home input found', 'ok');
-    else clog('❌ Home input MISSING!', 'err');
-    
-    if(toInput) clog('✅ TO input found', 'ok');
-    else clog('❌ TO input MISSING!', 'err');
-    
-    if(homeSuggestions) clog('✅ Home suggestions found', 'ok');
-    else clog('❌ Home suggestions MISSING!', 'err');
-    
-    if(toSuggestions) clog('✅ TO suggestions found', 'ok');
-    else clog('❌ TO suggestions MISSING!', 'err');
-    
-    // Check function
-    if(typeof searchLocation === 'function') {
-        clog('✅ searchLocation() function exists', 'ok');
-    } else {
-        clog('❌ searchLocation() function MISSING!', 'err');
-    }
-    
-    clog('📝 Click "Test Both" button to test', 'info');
+    clog('📝 Click buttons below to test', 'info');
 });
 </script>
 </body>
