@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Search Test - Home vs TO</title>
+<title>Search Debug Test</title>
 <style>
 *{box-sizing:border-box;font-family:system-ui,sans-serif}
-body{background:#f3f4f6;margin:0;padding:20px;display:flex;justify-content:center;align-items:center;min-height:100vh}
+body{background:#f3f4f6;padding:20px;display:flex;justify-content:center}
 .container{max-width:420px;width:100%;background:#fff;border-radius:24px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
 h2{color:#2563eb;font-size:18px;margin:0 0 4px 0}
 .sub{font-size:12px;color:#64748b;margin-bottom:16px}
@@ -20,27 +20,35 @@ h2{color:#2563eb;font-size:18px;margin:0 0 4px 0}
 .search-wrapper .suggestions .item{padding:10px 16px;font-size:13px;color:#1e293b;cursor:pointer}
 .search-wrapper .suggestions .item:hover{background:#f8fafc}
 .search-wrapper .suggestions .item .highlight{background:#dbeafe;font-weight:600}
-.status-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:12px;margin-top:12px;font-size:12px}
-.status-box .pass{color:#16a34a;font-weight:600}
-.status-box .fail{color:#dc2626;font-weight:600}
-.status-box .info{color:#2563eb;font-weight:600}
-.hidden{display:none}
-.log-box{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:12px;font-family:monospace;font-size:11px;max-height:150px;overflow-y:auto;margin-top:12px;white-space:pre-wrap;word-break:break-all}
-.log-box .success{color:#4ade80}
-.log-box .error{color:#f87171}
-.log-box .info{color:#60a5fa}
+.console-box{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:12px;font-family:monospace;font-size:11px;max-height:200px;overflow-y:auto;margin-top:12px;white-space:pre-wrap;word-break:break-all}
+.console-box .ok{color:#4ade80}
+.console-box .err{color:#f87171}
+.console-box .info{color:#60a5fa}
+.console-box .warn{color:#fbbf24}
+.pass{color:#16a34a;font-weight:600}
+.fail{color:#dc2626;font-weight:600}
+.pending{color:#f59e0b;font-weight:600}
+.status-box{background:#f8fafc;border-radius:12px;padding:12px;margin-top:12px;font-size:12px}
+.status-box .row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f1f5f9}
+.status-box .row:last-child{border-bottom:none}
+.btn-group{display:flex;gap:8px;margin-top:12px}
+.btn-group button{flex:1;padding:8px;border:none;border-radius:8px;font-weight:600;cursor:pointer}
+.btn-blue{background:#2563eb;color:#fff}
+.btn-purple{background:#8b5cf6;color:#fff}
+.btn-gray{background:#6b7280;color:#fff}
+.btn-red{background:#dc2626;color:#fff}
 </style>
 </head>
 <body>
 <div class="container">
-    <h2>🔍 Search Test</h2>
-    <div class="sub">Testing if Home and TO share the same search function</div>
+    <h2>🔍 Search Debug</h2>
+    <div class="sub">Checking why TO search doesn't work</div>
 
     <!-- HOME SEARCH -->
     <div class="test-group">
         <label>📍 HOME SEARCH</label>
         <div class="search-wrapper">
-            <input type="text" id="test-home" placeholder="Type 'kak'..." oninput="searchLocation('home')" autocomplete="off">
+            <input type="text" id="search-home" placeholder="Type 'kak'..." oninput="searchLocation('home')" autocomplete="off">
             <div class="suggestions" id="suggestions-home"></div>
         </div>
     </div>
@@ -49,104 +57,107 @@ h2{color:#2563eb;font-size:18px;margin:0 0 4px 0}
     <div class="test-group">
         <label>📍 TO LOCATION</label>
         <div class="search-wrapper">
-            <input type="text" id="test-to" placeholder="Type 'kak'..." oninput="searchLocation('to')" autocomplete="off">
+            <input type="text" id="search-to" placeholder="Type 'kak'..." oninput="searchLocation('to')" autocomplete="off">
             <div class="suggestions" id="suggestions-to"></div>
         </div>
     </div>
 
     <!-- Status -->
     <div class="status-box" id="status-box">
-        <div>Home Search: <span id="home-status" class="pending">⏳ Waiting...</span></div>
-        <div>TO Search: <span id="to-status" class="pending">⏳ Waiting...</span></div>
+        <div class="row"><span>🔹 Home Search</span><span id="home-status" class="pending">⏳ Waiting...</span></div>
+        <div class="row"><span>🔹 TO Search</span><span id="to-status" class="pending">⏳ Waiting...</span></div>
+        <div class="row"><span>🔹 Function Called</span><span id="call-status" class="pending">⏳ Waiting...</span></div>
     </div>
 
-    <!-- Log -->
-    <div class="log-box" id="log-box">⏳ Test initialized...</div>
+    <!-- Console -->
+    <div class="console-box" id="console">⏳ Waiting for input...</div>
 
-    <!-- Test Buttons -->
-    <div style="display:flex;gap:8px;margin-top:12px">
-        <button onclick="testHomeSearch()" style="flex:1;padding:8px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer">Test Home</button>
-        <button onclick="testToSearch()" style="flex:1;padding:8px;background:#8b5cf6;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer">Test TO</button>
-        <button onclick="clearAll()" style="flex:1;padding:8px;background:#6b7280;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer">Clear</button>
+    <!-- Buttons -->
+    <div class="btn-group">
+        <button class="btn-blue" onclick="testBoth()">🔍 Test Both</button>
+        <button class="btn-purple" onclick="testHome()">🏠 Test Home</button>
+        <button class="btn-red" onclick="testTo()">📍 Test TO</button>
+        <button class="btn-gray" onclick="clearAll()">🗑️ Clear</button>
     </div>
 </div>
 
 <script>
 // ============================================================
-// STATIC LOCATION DATA - SAME AS MAIN APP
+// LOCATION DATA
 // ============================================================
 var LOCATIONS = [
-  {pin:"110018", name:"Ashok Nagar", district:"NEW DELHI", state:"DH", lat:28.636587, lng:77.094466},
-  {pin:"182141", name:"Chenani", district:"UDHAMPUR", state:"JK", lat:33.0389444, lng:75.2846944},
-  {pin:"400001", name:"Mumbai", district:"MUMBAI", state:"MH", lat:18.9391667, lng:72.8375556},
-  {pin:"516362", name:"Khadarabad", district:"Y.S.R.", state:"AP", lat:14.7626487, lng:78.6336605},
-  {pin:"517501", name:"Tirupati", district:"Tirupati", state:"AP", lat:13.6322875, lng:79.4226094},
-  {pin:"518001", name:"Kurnool", district:"KURNOOL", state:"AP", lat:15.833006, lng:78.047822},
-  {pin:"521202", name:"Hanumanthunigudem", district:"Eluru", state:"AP", lat:16.784728, lng:80.849867},
-  {pin:"522301", name:"Anantavaram", district:"GUNTUR", state:"AP", lat:16.02644444, lng:80.16291667},
-  {pin:"522603", name:"Ravipadu", district:"Palnadu", state:"AP", lat:16.2233, lng:79.9719},
-  {pin:"522616", name:"Chilakaluripet", district:"GUNTUR", state:"AP", lat:16.087918, lng:80.266533},
-  {pin:"523253", name:"Uppalapadu", district:"PRAKASAM", state:"AP", lat:15.621921, lng:79.700266},
-  {pin:"524223", name:"Jaladanki", district:"SPSR NELLORE", state:"AP", lat:14.853108, lng:79.84613},
-  {pin:"530001", name:"Visakhapatnam", district:"VISAKHAPATANAM", state:"AP", lat:17.70402479, lng:83.29639357},
-  {pin:"531111", name:"Chintapalli", district:"Alluri Sitharama Raju", state:"AP", lat:17.980066, lng:82.41334},
-  {pin:"531118", name:"Rajupakalu", district:"VISAKHAPATANAM", state:"AP", lat:17.608616, lng:82.632208},
-  {pin:"531162", name:"Chittivalasa", district:"VISAKHAPATANAM", state:"AP", lat:17.936293, lng:83.49369},
   {pin:"533001", name:"Kakinada", district:"Kakinada", state:"AP", lat:16.9550556, lng:82.2354722},
-  {pin:"533101", name:"Rajahmundry", district:"EAST GODAVARI", state:"AP", lat:16.9920339, lng:81.7779721},
   {pin:"533406", name:"Annavaram", district:"Kakinada", state:"AP", lat:17.2830278, lng:82.4064444},
-  {pin:"534202", name:"Gollalakoderu", district:"WEST GODAVARI", state:"AP", lat:16.545316, lng:81.513696},
-  {pin:"560002", name:"Bengaluru City", district:"BENGALURU URBAN", state:"KA", lat:12.839909, lng:77.662968},
-  {pin:"570001", name:"Mysuru", district:"MYSURU", state:"KA", lat:12.31416667, lng:76.65655556},
-  {pin:"671314", name:"Bengalam", district:"KASARAGOD", state:"KL", lat:12.2949717, lng:75.154531},
-  {pin:"700001", name:"KOLKATA", district:"KOLKATA", state:"WB", lat:22.5736, lng:88.3483}
+  {pin:"400001", name:"Mumbai", district:"MUMBAI", state:"MH", lat:18.9391667, lng:72.8375556},
+  {pin:"530001", name:"Visakhapatnam", district:"VISAKHAPATANAM", state:"AP", lat:17.70402479, lng:83.29639357},
+  {pin:"560002", name:"Bengaluru", district:"BENGALURU URBAN", state:"KA", lat:12.839909, lng:77.662968}
 ];
 
 // ============================================================
-// SINGLE SEARCH FUNCTION - SAME AS MAIN APP
+// CONSOLE LOG
+// ============================================================
+var logCount = 0;
+
+function clog(msg, type) {
+    var el = document.getElementById('console');
+    var time = new Date().toLocaleTimeString();
+    var colors = {ok:'ok', err:'err', info:'info', warn:'warn'};
+    var color = colors[type] || 'info';
+    el.innerHTML += '[' + time + '] <span class="' + color + '">' + msg + '</span>\n';
+    el.scrollTop = el.scrollHeight;
+    console.log(msg);
+}
+
+// ============================================================
+// SEARCH FUNCTION - WITH LOGGING
 // ============================================================
 function searchLocation(context) {
-    var input = document.getElementById('test-' + context);
+    logCount++;
+    var input = document.getElementById('search-' + context);
     var suggestions = document.getElementById('suggestions-' + context);
     
-    log('searchLocation("' + context + '") called', 'info');
+    clog('➡️ searchLocation("' + context + '") called (#' + logCount + ')', 'info');
     
+    // Check if elements exist
     if(!input) {
-        log('❌ Input not found for: ' + context, 'error');
+        clog('❌ Input #search-' + context + ' NOT FOUND!', 'err');
+        document.getElementById('call-status').textContent = '❌ Input missing';
+        document.getElementById('call-status').className = 'fail';
         return;
     }
     if(!suggestions) {
-        log('❌ Suggestions not found for: ' + context, 'error');
+        clog('❌ Suggestions #suggestions-' + context + ' NOT FOUND!', 'err');
         return;
     }
     
+    clog('✅ Input found: #search-' + context, 'ok');
+    clog('✅ Suggestions found: #suggestions-' + context, 'ok');
+    
     var query = input.value.trim();
-    log('Query: "' + query + '"', 'info');
+    clog('📝 Query: "' + query + '"', 'info');
     
     if(!query) {
         suggestions.classList.remove('show');
-        log('Query empty, hiding suggestions', 'info');
+        clog('⏹️ Query empty, hiding suggestions', 'warn');
         return;
     }
     
-    // Search in LOCATIONS
+    // Search
     var results = [];
     var ql = query.toLowerCase();
     for(var i = 0; i < LOCATIONS.length; i++) {
         var l = LOCATIONS[i];
-        if(l.name.toLowerCase().includes(ql) || 
-           l.pin.includes(query) || 
-           l.district.toLowerCase().includes(ql) || 
-           l.state.toLowerCase().includes(ql)) {
+        if(l.name.toLowerCase().includes(ql) || l.pin.includes(query)) {
             results.push(l);
         }
         if(results.length >= 8) break;
     }
     
-    log('Found ' + results.length + ' results for "' + query + '"', 'info');
+    clog('🔍 Found ' + results.length + ' results for "' + query + '"', 'info');
     
     if(results.length === 0) {
         suggestions.classList.remove('show');
+        clog('⚠️ No results found', 'warn');
         return;
     }
     
@@ -169,16 +180,14 @@ function searchLocation(context) {
     
     suggestions.innerHTML = html;
     suggestions.classList.add('show');
-    log('✅ Suggestions shown for ' + context, 'success');
+    clog('✅ Suggestions shown for ' + context + '!', 'ok');
     
     // Update status
-    if(context === 'home') {
-        document.getElementById('home-status').textContent = '✅ ' + results.length + ' results';
-        document.getElementById('home-status').className = 'pass';
-    } else {
-        document.getElementById('to-status').textContent = '✅ ' + results.length + ' results';
-        document.getElementById('to-status').className = 'pass';
-    }
+    var statusId = context === 'home' ? 'home-status' : 'to-status';
+    document.getElementById(statusId).textContent = '✅ ' + results.length + ' results';
+    document.getElementById(statusId).className = 'pass';
+    document.getElementById('call-status').textContent = '✅ searchLocation("' + context + '") called';
+    document.getElementById('call-status').className = 'pass';
 }
 
 // ============================================================
@@ -186,68 +195,58 @@ function searchLocation(context) {
 // ============================================================
 function selectLocation(context, pin, name, state) {
     var displayName = name + ', ' + state + ' (' + pin + ')';
-    var input = document.getElementById('test-' + context);
+    var input = document.getElementById('search-' + context);
     var suggestions = document.getElementById('suggestions-' + context);
     
     input.value = displayName;
     suggestions.classList.remove('show');
     
-    log('✅ Selected: ' + displayName + ' for ' + context, 'success');
+    clog('✅ Selected: ' + displayName + ' for ' + context, 'ok');
     
-    if(context === 'home') {
-        document.getElementById('home-status').textContent = '✅ Selected: ' + pin;
-        document.getElementById('home-status').className = 'pass';
-    } else {
-        document.getElementById('to-status').textContent = '✅ Selected: ' + pin;
-        document.getElementById('to-status').className = 'pass';
-    }
-}
-
-// ============================================================
-// LOGGING
-// ============================================================
-function log(msg, type) {
-    var logBox = document.getElementById('log-box');
-    var time = new Date().toLocaleTimeString();
-    var colors = {
-        success: 'success',
-        error: 'error',
-        info: 'info'
-    };
-    var color = colors[type] || 'info';
-    logBox.innerHTML += '[' + time + '] <span class="' + color + '">' + msg + '</span>\n';
-    logBox.scrollTop = logBox.scrollHeight;
-    console.log(msg);
+    var statusId = context === 'home' ? 'home-status' : 'to-status';
+    document.getElementById(statusId).textContent = '✅ Selected: ' + pin;
+    document.getElementById(statusId).className = 'pass';
 }
 
 // ============================================================
 // TEST FUNCTIONS
 // ============================================================
-function testHomeSearch() {
-    var input = document.getElementById('test-home');
+function testHome() {
+    clog('🔵 Testing Home search...', 'info');
+    var input = document.getElementById('search-home');
     input.value = 'kak';
+    input.focus();
     searchLocation('home');
-    log('🔍 Test Home: Typed "kak"', 'info');
 }
 
-function testToSearch() {
-    var input = document.getElementById('test-to');
+function testTo() {
+    clog('🟣 Testing TO search...', 'info');
+    var input = document.getElementById('search-to');
     input.value = 'kak';
+    input.focus();
     searchLocation('to');
-    log('🔍 Test TO: Typed "kak"', 'info');
+}
+
+function testBoth() {
+    clog('🔵🟣 Testing BOTH searches...', 'info');
+    testHome();
+    setTimeout(testTo, 500);
 }
 
 function clearAll() {
-    document.getElementById('test-home').value = '';
-    document.getElementById('test-to').value = '';
+    document.getElementById('search-home').value = '';
+    document.getElementById('search-to').value = '';
     document.getElementById('suggestions-home').classList.remove('show');
     document.getElementById('suggestions-to').classList.remove('show');
-    document.getElementById('log-box').innerHTML = '';
+    document.getElementById('console').innerHTML = '';
     document.getElementById('home-status').textContent = '⏳ Cleared';
     document.getElementById('home-status').className = 'pending';
     document.getElementById('to-status').textContent = '⏳ Cleared';
     document.getElementById('to-status').className = 'pending';
-    log('🗑️ Cleared all', 'info');
+    document.getElementById('call-status').textContent = '⏳ Waiting...';
+    document.getElementById('call-status').className = 'pending';
+    logCount = 0;
+    clog('🗑️ Cleared all', 'warn');
 }
 
 // Close suggestions on outside click
@@ -260,11 +259,39 @@ document.addEventListener('click', function(e) {
 });
 
 // ============================================================
-// INIT
+// CHECK IF ELEMENTS EXIST ON LOAD
 // ============================================================
-log('🚀 Search Test initialized', 'info');
-log('📍 ' + LOCATIONS.length + ' locations loaded', 'info');
-log('Type in Home or TO search boxes to test', 'info');
+document.addEventListener('DOMContentLoaded', function() {
+    clog('🚀 Search Debug initialized', 'info');
+    clog('📦 ' + LOCATIONS.length + ' locations loaded', 'info');
+    
+    // Check elements
+    var homeInput = document.getElementById('search-home');
+    var toInput = document.getElementById('search-to');
+    var homeSuggestions = document.getElementById('suggestions-home');
+    var toSuggestions = document.getElementById('suggestions-to');
+    
+    if(homeInput) clog('✅ Home input found', 'ok');
+    else clog('❌ Home input MISSING!', 'err');
+    
+    if(toInput) clog('✅ TO input found', 'ok');
+    else clog('❌ TO input MISSING!', 'err');
+    
+    if(homeSuggestions) clog('✅ Home suggestions found', 'ok');
+    else clog('❌ Home suggestions MISSING!', 'err');
+    
+    if(toSuggestions) clog('✅ TO suggestions found', 'ok');
+    else clog('❌ TO suggestions MISSING!', 'err');
+    
+    // Check function
+    if(typeof searchLocation === 'function') {
+        clog('✅ searchLocation() function exists', 'ok');
+    } else {
+        clog('❌ searchLocation() function MISSING!', 'err');
+    }
+    
+    clog('📝 Click "Test Both" button to test', 'info');
+});
 </script>
 </body>
 </html>
