@@ -1,651 +1,270 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PWA Installation Debugger</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            font-family: system-ui, -apple-system, sans-serif;
-        }
-        body {
-            background: #f3f4f6;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        .debug-card {
-            max-width: 600px;
-            width: 100%;
-            background: #fff;
-            border-radius: 24px;
-            padding: 24px;
-            box-shadow: 0 4px 20px rgba(0,0,0,.1);
-        }
-        h1 {
-            color: #2563eb;
-            margin-top: 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .status-box {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 16px;
-            margin: 12px 0;
-        }
-        .status-box h3 {
-            margin: 0 0 8px 0;
-            color: #1e293b;
-        }
-        .status-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: 14px;
-        }
-        .status-item:last-child {
-            border-bottom: none;
-        }
-        .pass {
-            color: #16a34a;
-            font-weight: 600;
-        }
-        .fail {
-            color: #dc2626;
-            font-weight: 600;
-        }
-        .warning {
-            color: #f59e0b;
-            font-weight: 600;
-        }
-        .info {
-            color: #2563eb;
-            font-weight: 600;
-        }
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            margin: 4px;
-        }
-        .btn-primary {
-            background: #2563eb;
-            color: #fff;
-        }
-        .btn-success {
-            background: #16a34a;
-            color: #fff;
-        }
-        .btn-danger {
-            background: #dc2626;
-            color: #fff;
-        }
-        .btn-warning {
-            background: #f59e0b;
-            color: #fff;
-        }
-        .btn-secondary {
-            background: #e2e8f0;
-            color: #1e293b;
-        }
-        .btn:hover {
-            opacity: 0.8;
-        }
-        .log-box {
-            background: #0f172a;
-            color: #e2e8f0;
-            border-radius: 8px;
-            padding: 12px;
-            font-family: monospace;
-            font-size: 12px;
-            max-height: 200px;
-            overflow-y: auto;
-            margin: 12px 0;
-            white-space: pre-wrap;
-            word-break: break-all;
-        }
-        .log-box .error {
-            color: #f87171;
-        }
-        .log-box .success {
-            color: #4ade80;
-        }
-        .log-box .info {
-            color: #60a5fa;
-        }
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-        .icon {
-            font-size: 24px;
-        }
-        .badge {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .badge-green {
-            background: #dcfce7;
-            color: #166534;
-        }
-        .badge-red {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-        .badge-yellow {
-            background: #fef3c7;
-            color: #92400e;
-        }
-        .badge-blue {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        .mt-12 { margin-top: 12px; }
-        .mb-12 { margin-bottom: 12px; }
-        .text-center { text-align: center; }
-        .flex { display: flex; }
-        .gap-8 { gap: 8px; }
-        .flex-wrap { flex-wrap: wrap; }
-        .flex-center { align-items: center; justify-content: center; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Search Test - Home vs TO</title>
+<style>
+*{box-sizing:border-box;font-family:system-ui,sans-serif}
+body{background:#f3f4f6;margin:0;padding:20px;display:flex;justify-content:center;align-items:center;min-height:100vh}
+.container{max-width:420px;width:100%;background:#fff;border-radius:24px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+h2{color:#2563eb;font-size:18px;margin:0 0 4px 0}
+.sub{font-size:12px;color:#64748b;margin-bottom:16px}
+.test-group{margin-bottom:16px}
+.test-group label{font-size:11px;font-weight:700;color:#1e293b;display:block;margin-bottom:4px}
+.search-wrapper{position:relative;width:100%}
+.search-wrapper input{width:100%;padding:10px 12px;border:2px solid #e2e8f0;border-radius:12px;font-size:14px;outline:none}
+.search-wrapper input:focus{border-color:#2563eb}
+.search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:50;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.search-wrapper .suggestions.show{display:block}
+.search-wrapper .suggestions .item{padding:10px 16px;font-size:13px;color:#1e293b;cursor:pointer}
+.search-wrapper .suggestions .item:hover{background:#f8fafc}
+.search-wrapper .suggestions .item .highlight{background:#dbeafe;font-weight:600}
+.status-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:12px;margin-top:12px;font-size:12px}
+.status-box .pass{color:#16a34a;font-weight:600}
+.status-box .fail{color:#dc2626;font-weight:600}
+.status-box .info{color:#2563eb;font-weight:600}
+.hidden{display:none}
+.log-box{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:12px;font-family:monospace;font-size:11px;max-height:150px;overflow-y:auto;margin-top:12px;white-space:pre-wrap;word-break:break-all}
+.log-box .success{color:#4ade80}
+.log-box .error{color:#f87171}
+.log-box .info{color:#60a5fa}
+</style>
 </head>
 <body>
-    <div class="debug-card">
-        <h1>
-            <span class="icon">🔧</span>
-            PWA Installation Debugger
-            <span style="font-size:14px;font-weight:400;color:#64748b;margin-left:auto;">v1.0</span>
-        </h1>
-        <p style="color:#64748b;margin-top:-8px;">Check why ReturnTruck isn't installing as a PWA</p>
+<div class="container">
+    <h2>🔍 Search Test</h2>
+    <div class="sub">Testing if Home and TO share the same search function</div>
 
-        <!-- Quick Actions -->
-        <div class="flex flex-wrap gap-8 mb-12" style="margin:12px 0;">
-            <button class="btn btn-primary" onclick="runAllTests()">▶️ Run All Tests</button>
-            <button class="btn btn-warning" onclick="clearCache()">🗑️ Clear Cache</button>
-            <button class="btn btn-danger" onclick="resetPWA()">🔄 Reset PWA</button>
-            <button class="btn btn-secondary" onclick="clearLog()">Clear Log</button>
-        </div>
-
-        <!-- Status Overview -->
-        <div class="status-box">
-            <h3>📊 Installation Readiness</h3>
-            <div id="overview-status" style="text-align:center;padding:8px 0;">
-                <span style="font-size:20px;">⏳</span>
-                <div>Click "Run All Tests" to check</div>
-            </div>
-        </div>
-
-        <!-- Test Results -->
-        <div class="status-box">
-            <h3>✅ Test Results</h3>
-            <div id="test-results">
-                <div class="status-item">
-                    <span>1. HTTPS Connection</span>
-                    <span id="test-https" class="warning">⏳ Pending</span>
-                </div>
-                <div class="status-item">
-                    <span>2. Manifest.json</span>
-                    <span id="test-manifest" class="warning">⏳ Pending</span>
-                </div>
-                <div class="status-item">
-                    <span>3. Service Worker</span>
-                    <span id="test-sw" class="warning">⏳ Pending</span>
-                </div>
-                <div class="status-item">
-                    <span>4. Icons (192x192)</span>
-                    <span id="test-icons" class="warning">⏳ Pending</span>
-                </div>
-                <div class="status-item">
-                    <span>5. BeforeInstallPrompt Event</span>
-                    <span id="test-install-event" class="warning">⏳ Pending</span>
-                </div>
-                <div class="status-item">
-                    <span>6. Display Mode</span>
-                    <span id="test-display" class="warning">⏳ Pending</span>
-                </div>
-                <div class="status-item">
-                    <span>7. Chrome/Android Only</span>
-                    <span id="test-browser" class="warning">⏳ Pending</span>
-                </div>
-                <div class="status-item">
-                    <span>8. Installation Status</span>
-                    <span id="test-installed" class="warning">⏳ Pending</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Detailed Log -->
-        <div class="status-box">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                <h3 style="margin:0;">📝 Debug Log</h3>
-                <button class="btn btn-secondary" onclick="clearLog()" style="padding:4px 12px;font-size:12px;">Clear</button>
-            </div>
-            <div class="log-box" id="debug-log">
-                ⏳ Initializing debugger...
-            </div>
-        </div>
-
-        <!-- Quick Fixes -->
-        <div class="status-box">
-            <h3>🔧 Quick Fixes</h3>
-            <div class="grid-2">
-                <button class="btn btn-primary" onclick="forceInstall()">📲 Force Install Prompt</button>
-                <button class="btn btn-success" onclick="registerSW()">📦 Register SW</button>
-                <button class="btn btn-warning" onclick="checkManifest()">📄 Check Manifest</button>
-                <button class="btn btn-danger" onclick="unregisterSW()">🗑️ Unregister SW</button>
-            </div>
-        </div>
-
-        <!-- Manual Instructions -->
-        <div class="status-box" style="background:#fef3c7;border-color:#f59e0b;">
-            <h3 style="color:#92400e;">📱 Manual Installation Steps</h3>
-            <div style="font-size:14px;color:#92400e;">
-                <p><strong>Android (Chrome):</strong></p>
-                <ol style="margin:4px 0 12px 0;padding-left:20px;">
-                    <li>Tap the <strong>3-dot menu</strong> (⋮) in Chrome</li>
-                    <li>Look for <strong>"Install app"</strong> or <strong>"Add to Home Screen"</strong></li>
-                    <li>If you see "Install app", tap it</li>
-                </ol>
-                <p><strong>iOS (Safari):</strong></p>
-                <ol style="margin:4px 0 0 0;padding-left:20px;">
-                    <li>Tap the <strong>Share button</strong> (square with arrow)</li>
-                    <li>Scroll down and tap <strong>"Add to Home Screen"</strong></li>
-                    <li>Tap <strong>"Add"</strong> in the top right</li>
-                </ol>
-                <p style="margin-top:12px;font-weight:600;">⚠️ Note: iOS doesn't show automatic install prompts!</p>
-            </div>
+    <!-- HOME SEARCH -->
+    <div class="test-group">
+        <label>📍 HOME SEARCH</label>
+        <div class="search-wrapper">
+            <input type="text" id="test-home" placeholder="Type 'kak'..." oninput="searchLocation('home')" autocomplete="off">
+            <div class="suggestions" id="suggestions-home"></div>
         </div>
     </div>
 
-    <script>
-        // ============================================================
-        // DEBUG LOGGING
-        // ============================================================
-        let logEntries = [];
+    <!-- TO SEARCH -->
+    <div class="test-group">
+        <label>📍 TO LOCATION</label>
+        <div class="search-wrapper">
+            <input type="text" id="test-to" placeholder="Type 'kak'..." oninput="searchLocation('to')" autocomplete="off">
+            <div class="suggestions" id="suggestions-to"></div>
+        </div>
+    </div>
 
-        function addLog(message, type = 'info') {
-            const timestamp = new Date().toLocaleTimeString();
-            const entry = { timestamp, message, type };
-            logEntries.push(entry);
-            updateLogDisplay();
+    <!-- Status -->
+    <div class="status-box" id="status-box">
+        <div>Home Search: <span id="home-status" class="pending">⏳ Waiting...</span></div>
+        <div>TO Search: <span id="to-status" class="pending">⏳ Waiting...</span></div>
+    </div>
+
+    <!-- Log -->
+    <div class="log-box" id="log-box">⏳ Test initialized...</div>
+
+    <!-- Test Buttons -->
+    <div style="display:flex;gap:8px;margin-top:12px">
+        <button onclick="testHomeSearch()" style="flex:1;padding:8px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer">Test Home</button>
+        <button onclick="testToSearch()" style="flex:1;padding:8px;background:#8b5cf6;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer">Test TO</button>
+        <button onclick="clearAll()" style="flex:1;padding:8px;background:#6b7280;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer">Clear</button>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// STATIC LOCATION DATA - SAME AS MAIN APP
+// ============================================================
+var LOCATIONS = [
+  {pin:"110018", name:"Ashok Nagar", district:"NEW DELHI", state:"DH", lat:28.636587, lng:77.094466},
+  {pin:"182141", name:"Chenani", district:"UDHAMPUR", state:"JK", lat:33.0389444, lng:75.2846944},
+  {pin:"400001", name:"Mumbai", district:"MUMBAI", state:"MH", lat:18.9391667, lng:72.8375556},
+  {pin:"516362", name:"Khadarabad", district:"Y.S.R.", state:"AP", lat:14.7626487, lng:78.6336605},
+  {pin:"517501", name:"Tirupati", district:"Tirupati", state:"AP", lat:13.6322875, lng:79.4226094},
+  {pin:"518001", name:"Kurnool", district:"KURNOOL", state:"AP", lat:15.833006, lng:78.047822},
+  {pin:"521202", name:"Hanumanthunigudem", district:"Eluru", state:"AP", lat:16.784728, lng:80.849867},
+  {pin:"522301", name:"Anantavaram", district:"GUNTUR", state:"AP", lat:16.02644444, lng:80.16291667},
+  {pin:"522603", name:"Ravipadu", district:"Palnadu", state:"AP", lat:16.2233, lng:79.9719},
+  {pin:"522616", name:"Chilakaluripet", district:"GUNTUR", state:"AP", lat:16.087918, lng:80.266533},
+  {pin:"523253", name:"Uppalapadu", district:"PRAKASAM", state:"AP", lat:15.621921, lng:79.700266},
+  {pin:"524223", name:"Jaladanki", district:"SPSR NELLORE", state:"AP", lat:14.853108, lng:79.84613},
+  {pin:"530001", name:"Visakhapatnam", district:"VISAKHAPATANAM", state:"AP", lat:17.70402479, lng:83.29639357},
+  {pin:"531111", name:"Chintapalli", district:"Alluri Sitharama Raju", state:"AP", lat:17.980066, lng:82.41334},
+  {pin:"531118", name:"Rajupakalu", district:"VISAKHAPATANAM", state:"AP", lat:17.608616, lng:82.632208},
+  {pin:"531162", name:"Chittivalasa", district:"VISAKHAPATANAM", state:"AP", lat:17.936293, lng:83.49369},
+  {pin:"533001", name:"Kakinada", district:"Kakinada", state:"AP", lat:16.9550556, lng:82.2354722},
+  {pin:"533101", name:"Rajahmundry", district:"EAST GODAVARI", state:"AP", lat:16.9920339, lng:81.7779721},
+  {pin:"533406", name:"Annavaram", district:"Kakinada", state:"AP", lat:17.2830278, lng:82.4064444},
+  {pin:"534202", name:"Gollalakoderu", district:"WEST GODAVARI", state:"AP", lat:16.545316, lng:81.513696},
+  {pin:"560002", name:"Bengaluru City", district:"BENGALURU URBAN", state:"KA", lat:12.839909, lng:77.662968},
+  {pin:"570001", name:"Mysuru", district:"MYSURU", state:"KA", lat:12.31416667, lng:76.65655556},
+  {pin:"671314", name:"Bengalam", district:"KASARAGOD", state:"KL", lat:12.2949717, lng:75.154531},
+  {pin:"700001", name:"KOLKATA", district:"KOLKATA", state:"WB", lat:22.5736, lng:88.3483}
+];
+
+// ============================================================
+// SINGLE SEARCH FUNCTION - SAME AS MAIN APP
+// ============================================================
+function searchLocation(context) {
+    var input = document.getElementById('test-' + context);
+    var suggestions = document.getElementById('suggestions-' + context);
+    
+    log('searchLocation("' + context + '") called', 'info');
+    
+    if(!input) {
+        log('❌ Input not found for: ' + context, 'error');
+        return;
+    }
+    if(!suggestions) {
+        log('❌ Suggestions not found for: ' + context, 'error');
+        return;
+    }
+    
+    var query = input.value.trim();
+    log('Query: "' + query + '"', 'info');
+    
+    if(!query) {
+        suggestions.classList.remove('show');
+        log('Query empty, hiding suggestions', 'info');
+        return;
+    }
+    
+    // Search in LOCATIONS
+    var results = [];
+    var ql = query.toLowerCase();
+    for(var i = 0; i < LOCATIONS.length; i++) {
+        var l = LOCATIONS[i];
+        if(l.name.toLowerCase().includes(ql) || 
+           l.pin.includes(query) || 
+           l.district.toLowerCase().includes(ql) || 
+           l.state.toLowerCase().includes(ql)) {
+            results.push(l);
         }
-
-        function updateLogDisplay() {
-            const logBox = document.getElementById('debug-log');
-            const logText = logEntries.map(e => {
-                const color = e.type === 'error' ? 'error' : 
-                             e.type === 'success' ? 'success' : 'info';
-                return `[${e.timestamp}] ${e.message}`;
-            }).join('\n');
-            
-            logBox.innerHTML = logText || 'No logs yet.';
-            logBox.scrollTop = logBox.scrollHeight;
+        if(results.length >= 8) break;
+    }
+    
+    log('Found ' + results.length + ' results for "' + query + '"', 'info');
+    
+    if(results.length === 0) {
+        suggestions.classList.remove('show');
+        return;
+    }
+    
+    // Build HTML
+    var html = '';
+    for(var j = 0; j < results.length; j++) {
+        var l = results[j];
+        var displayName = l.name + ', ' + l.district + ', ' + l.state + ' (' + l.pin + ')';
+        var idx = displayName.toLowerCase().indexOf(ql);
+        var displayHtml = displayName;
+        if(idx !== -1) {
+            displayHtml = displayName.substring(0, idx) + 
+                          '<span class="highlight">' + 
+                          displayName.substring(idx, idx + query.length) + 
+                          '</span>' + 
+                          displayName.substring(idx + query.length);
         }
+        html += '<div class="item" onclick="selectLocation(\'' + context + '\',\'' + l.pin + '\',\'' + l.name + '\',\'' + l.state + '\')">' + displayHtml + '</div>';
+    }
+    
+    suggestions.innerHTML = html;
+    suggestions.classList.add('show');
+    log('✅ Suggestions shown for ' + context, 'success');
+    
+    // Update status
+    if(context === 'home') {
+        document.getElementById('home-status').textContent = '✅ ' + results.length + ' results';
+        document.getElementById('home-status').className = 'pass';
+    } else {
+        document.getElementById('to-status').textContent = '✅ ' + results.length + ' results';
+        document.getElementById('to-status').className = 'pass';
+    }
+}
 
-        function clearLog() {
-            logEntries = [];
-            updateLogDisplay();
-            addLog('Log cleared', 'info');
+// ============================================================
+// SELECT LOCATION
+// ============================================================
+function selectLocation(context, pin, name, state) {
+    var displayName = name + ', ' + state + ' (' + pin + ')';
+    var input = document.getElementById('test-' + context);
+    var suggestions = document.getElementById('suggestions-' + context);
+    
+    input.value = displayName;
+    suggestions.classList.remove('show');
+    
+    log('✅ Selected: ' + displayName + ' for ' + context, 'success');
+    
+    if(context === 'home') {
+        document.getElementById('home-status').textContent = '✅ Selected: ' + pin;
+        document.getElementById('home-status').className = 'pass';
+    } else {
+        document.getElementById('to-status').textContent = '✅ Selected: ' + pin;
+        document.getElementById('to-status').className = 'pass';
+    }
+}
+
+// ============================================================
+// LOGGING
+// ============================================================
+function log(msg, type) {
+    var logBox = document.getElementById('log-box');
+    var time = new Date().toLocaleTimeString();
+    var colors = {
+        success: 'success',
+        error: 'error',
+        info: 'info'
+    };
+    var color = colors[type] || 'info';
+    logBox.innerHTML += '[' + time + '] <span class="' + color + '">' + msg + '</span>\n';
+    logBox.scrollTop = logBox.scrollHeight;
+    console.log(msg);
+}
+
+// ============================================================
+// TEST FUNCTIONS
+// ============================================================
+function testHomeSearch() {
+    var input = document.getElementById('test-home');
+    input.value = 'kak';
+    searchLocation('home');
+    log('🔍 Test Home: Typed "kak"', 'info');
+}
+
+function testToSearch() {
+    var input = document.getElementById('test-to');
+    input.value = 'kak';
+    searchLocation('to');
+    log('🔍 Test TO: Typed "kak"', 'info');
+}
+
+function clearAll() {
+    document.getElementById('test-home').value = '';
+    document.getElementById('test-to').value = '';
+    document.getElementById('suggestions-home').classList.remove('show');
+    document.getElementById('suggestions-to').classList.remove('show');
+    document.getElementById('log-box').innerHTML = '';
+    document.getElementById('home-status').textContent = '⏳ Cleared';
+    document.getElementById('home-status').className = 'pending';
+    document.getElementById('to-status').textContent = '⏳ Cleared';
+    document.getElementById('to-status').className = 'pending';
+    log('🗑️ Cleared all', 'info');
+}
+
+// Close suggestions on outside click
+document.addEventListener('click', function(e) {
+    document.querySelectorAll('.suggestions').forEach(function(s) {
+        if(!s.parentElement.contains(e.target)) {
+            s.classList.remove('show');
         }
+    });
+});
 
-        // ============================================================
-        // TEST FUNCTIONS
-        // ============================================================
-        function updateTestResult(id, status, message) {
-            const el = document.getElementById(id);
-            if (!el) return;
-            
-            const statusMap = {
-                'pass': { class: 'pass', icon: '✅' },
-                'fail': { class: 'fail', icon: '❌' },
-                'warning': { class: 'warning', icon: '⚠️' },
-                'info': { class: 'info', icon: 'ℹ️' }
-            };
-            
-            const s = statusMap[status] || statusMap['info'];
-            el.className = s.class;
-            el.textContent = message ? `${s.icon} ${message}` : `${s.icon} ${status}`;
-        }
-
-        function testHTTPS() {
-            const isHTTPS = window.location.protocol === 'https:';
-            if (isHTTPS) {
-                updateTestResult('test-https', 'pass', '✅ HTTPS detected');
-                addLog('✅ HTTPS: Connection is secure', 'success');
-            } else {
-                updateTestResult('test-https', 'fail', '❌ Not HTTPS - PWA requires HTTPS!');
-                addLog('❌ HTTPS: Connection is NOT secure - PWA requires HTTPS!', 'error');
-            }
-            return isHTTPS;
-        }
-
-        async function testManifest() {
-            try {
-                const response = await fetch('manifest.json');
-                if (response.ok) {
-                    const manifest = await response.json();
-                    updateTestResult('test-manifest', 'pass', '✅ manifest.json loaded');
-                    addLog('✅ Manifest loaded successfully', 'success');
-                    
-                    // Check icons
-                    if (manifest.icons && manifest.icons.length > 0) {
-                        const has192 = manifest.icons.some(i => i.sizes === '192x192');
-                        if (has192) {
-                            updateTestResult('test-icons', 'pass', '✅ 192x192 icon found');
-                            addLog('✅ Icon 192x192 found in manifest', 'success');
-                        } else {
-                            updateTestResult('test-icons', 'fail', '❌ No 192x192 icon in manifest');
-                            addLog('❌ Icon 192x192 NOT found in manifest', 'error');
-                        }
-                    }
-                    return true;
-                } else {
-                    updateTestResult('test-manifest', 'fail', '❌ manifest.json not found (404)');
-                    addLog('❌ manifest.json not found - HTTP 404', 'error');
-                    return false;
-                }
-            } catch (e) {
-                updateTestResult('test-manifest', 'fail', '❌ Cannot load manifest.json');
-                addLog(`❌ Manifest load error: ${e.message}`, 'error');
-                return false;
-            }
-        }
-
-        function testServiceWorker() {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistration().then(reg => {
-                    if (reg) {
-                        updateTestResult('test-sw', 'pass', '✅ Service Worker ACTIVE');
-                        addLog('✅ Service Worker is active', 'success');
-                        addLog(`   Scope: ${reg.scope}`, 'info');
-                    } else {
-                        updateTestResult('test-sw', 'warning', '⚠️ No active SW (registering...)');
-                        addLog('⚠️ No active Service Worker found', 'warning');
-                        
-                        // Try to register
-                        navigator.serviceWorker.register('sw.js').then(() => {
-                            updateTestResult('test-sw', 'pass', '✅ Service Worker registered');
-                            addLog('✅ Service Worker registered successfully', 'success');
-                        }).catch(e => {
-                            updateTestResult('test-sw', 'fail', '❌ SW registration failed');
-                            addLog(`❌ SW registration error: ${e.message}`, 'error');
-                        });
-                    }
-                });
-            } else {
-                updateTestResult('test-sw', 'fail', '❌ Service Workers not supported');
-                addLog('❌ Service Workers not supported in this browser', 'error');
-            }
-        }
-
-        function testInstallEvent() {
-            // Check if beforeinstallprompt was fired
-            if (window.deferredPrompt) {
-                updateTestResult('test-install-event', 'pass', '✅ Install prompt ready');
-                addLog('✅ beforeinstallprompt event received', 'success');
-            } else {
-                updateTestResult('test-install-event', 'warning', '⏳ Waiting for install event...');
-                addLog('⏳ beforeinstallprompt event not yet received', 'info');
-                
-                // Listen for it
-                window.addEventListener('beforeinstallprompt', (e) => {
-                    e.preventDefault();
-                    window.deferredPrompt = e;
-                    updateTestResult('test-install-event', 'pass', '✅ Install prompt ready!');
-                    addLog('✅ beforeinstallprompt event received!', 'success');
-                });
-            }
-        }
-
-        function testDisplayMode() {
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-            if (isStandalone) {
-                updateTestResult('test-display', 'pass', '✅ Already in standalone mode');
-                addLog('✅ App is running in standalone mode', 'success');
-            } else {
-                updateTestResult('test-display', 'info', 'ℹ️ Not in standalone mode');
-                addLog('ℹ️ App is running in browser mode (not standalone)', 'info');
-            }
-        }
-
-        function testBrowser() {
-            const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
-            const isAndroid = /Android/.test(navigator.userAgent);
-            const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
-            
-            if (isChrome && isAndroid) {
-                updateTestResult('test-browser', 'pass', '✅ Chrome on Android');
-                addLog('✅ Chrome on Android - perfect for PWA', 'success');
-            } else if (isIOS) {
-                updateTestResult('test-browser', 'warning', '⚠️ iOS - Manual install only');
-                addLog('ℹ️ iOS detected - automatic install not supported', 'warning');
-            } else if (isChrome) {
-                updateTestResult('test-browser', 'info', 'ℹ️ Chrome (desktop)');
-                addLog('ℹ️ Chrome desktop - PWA works but install may be limited', 'info');
-            } else {
-                updateTestResult('test-browser', 'warning', '⚠️ Non-Chrome browser');
-                addLog(`⚠️ Browser: ${navigator.userAgent} - PWA may not work well`, 'warning');
-            }
-        }
-
-        function testInstalled() {
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-            if (isStandalone) {
-                updateTestResult('test-installed', 'pass', '✅ App is INSTALLED!');
-                addLog('✅ App is installed! Running as standalone', 'success');
-            } else {
-                updateTestResult('test-installed', 'info', 'ℹ️ Not installed (browser mode)');
-                addLog('ℹ️ App not installed - running in browser', 'info');
-            }
-        }
-
-        function updateOverview() {
-            const results = {
-                https: document.getElementById('test-https').className === 'pass',
-                manifest: document.getElementById('test-manifest').className === 'pass',
-                sw: document.getElementById('test-sw').className === 'pass',
-                icons: document.getElementById('test-icons').className === 'pass',
-                install: document.getElementById('test-install-event').className === 'pass'
-            };
-            
-            const allPass = Object.values(results).every(v => v === true);
-            const container = document.getElementById('overview-status');
-            
-            if (allPass) {
-                container.innerHTML = `
-                    <span style="font-size:32px;">🎉</span>
-                    <div style="font-weight:600;color:#16a34a;">All tests passed! Ready to install!</div>
-                    <div style="font-size:12px;color:#64748b;margin-top:4px;">Try the install button in Chrome's menu</div>
-                `;
-            } else {
-                const failCount = Object.values(results).filter(v => v === false).length;
-                container.innerHTML = `
-                    <span style="font-size:32px;">⚠️</span>
-                    <div style="font-weight:600;color:#f59e0b;">${failCount} issues found</div>
-                    <div style="font-size:12px;color:#64748b;margin-top:4px;">Fix the issues above to enable PWA installation</div>
-                `;
-            }
-        }
-
-        // ============================================================
-        // RUN ALL TESTS
-        // ============================================================
-        async function runAllTests() {
-            addLog('🚀 Running all PWA tests...', 'info');
-            
-            // Reset all test statuses
-            ['test-https', 'test-manifest', 'test-sw', 'test-icons', 'test-install-event', 'test-display', 'test-browser', 'test-installed']
-                .forEach(id => updateTestResult(id, 'warning', '⏳ Testing...'));
-            
-            // Run tests
-            await testHTTPS();
-            await testManifest();
-            testServiceWorker();
-            testInstallEvent();
-            testDisplayMode();
-            testBrowser();
-            testInstalled();
-            
-            // Wait a bit for async tests
-            setTimeout(() => {
-                updateOverview();
-                addLog('✅ All tests completed!', 'success');
-            }, 3000);
-        }
-
-        // ============================================================
-        // QUICK FIX FUNCTIONS
-        // ============================================================
-        function forceInstall() {
-            if (window.deferredPrompt) {
-                window.deferredPrompt.prompt();
-                window.deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        addLog('✅ User accepted the install prompt!', 'success');
-                    } else {
-                        addLog('❌ User dismissed the install prompt', 'warning');
-                    }
-                    window.deferredPrompt = null;
-                });
-            } else {
-                addLog('⚠️ No install prompt available - wait for the event or check PWA requirements', 'warning');
-                showManualInstructions();
-            }
-        }
-
-        function registerSW() {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('sw.js', { scope: '/' })
-                    .then(reg => {
-                        addLog('✅ Service Worker registered successfully', 'success');
-                        updateTestResult('test-sw', 'pass', '✅ Service Worker ACTIVE');
-                    })
-                    .catch(err => {
-                        addLog(`❌ SW registration failed: ${err.message}`, 'error');
-                    });
-            } else {
-                addLog('❌ Service Workers not supported', 'error');
-            }
-        }
-
-        function unregisterSW() {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistration().then(reg => {
-                    if (reg) {
-                        reg.unregister().then(() => {
-                            addLog('🗑️ Service Worker unregistered', 'info');
-                            updateTestResult('test-sw', 'warning', '⚠️ Unregistered');
-                        });
-                    } else {
-                        addLog('ℹ️ No SW to unregister', 'info');
-                    }
-                });
-            }
-        }
-
-        function checkManifest() {
-            fetch('manifest.json')
-                .then(r => r.json())
-                .then(m => {
-                    addLog('📄 Manifest contents:', 'info');
-                    addLog(JSON.stringify(m, null, 2), 'info');
-                })
-                .catch(e => {
-                    addLog('❌ Cannot fetch manifest: ' + e.message, 'error');
-                });
-        }
-
-        function clearCache() {
-            if ('caches' in window) {
-                caches.keys().then(names => {
-                    names.forEach(name => {
-                        caches.delete(name);
-                    });
-                    addLog('🗑️ All caches cleared', 'info');
-                });
-            }
-            localStorage.clear();
-            addLog('🗑️ localStorage cleared', 'info');
-            alert('Cache cleared! Refresh the page.');
-        }
-
-        function resetPWA() {
-            if (confirm('This will clear all PWA data and reload the page. Continue?')) {
-                // Clear caches
-                if ('caches' in window) {
-                    caches.keys().then(names => {
-                        names.forEach(name => caches.delete(name));
-                    });
-                }
-                localStorage.clear();
-                sessionStorage.clear();
-                
-                // Unregister SW
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.getRegistration().then(reg => {
-                        if (reg) reg.unregister();
-                    });
-                }
-                
-                addLog('🔄 PWA data reset - reloading...', 'info');
-                setTimeout(() => window.location.reload(), 1000);
-            }
-        }
-
-        function showManualInstructions() {
-            const instructions = document.querySelector('.status-box:last-child');
-            if (instructions) {
-                instructions.scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-
-        // ============================================================
-        // LISTEN FOR INSTALL EVENTS
-        // ============================================================
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            window.deferredPrompt = e;
-            addLog('✅ beforeinstallprompt event caught!', 'success');
-            updateTestResult('test-install-event', 'pass', '✅ Install prompt ready!');
-            updateOverview();
-        });
-
-        window.addEventListener('appinstalled', () => {
-            addLog('🎉 App was successfully installed!', 'success');
-            updateTestResult('test-installed', 'pass', '✅ App INSTALLED!');
-            updateOverview();
-        });
-
-        // ============================================================
-        // INIT
-        // ============================================================
-        addLog('🔍 PWA Debugger initialized', 'info');
-        addLog(`📍 URL: ${window.location.href}`, 'info');
-        addLog(`🌐 User Agent: ${navigator.userAgent}`, 'info');
-
-        // Auto-run tests after 1 second
-        setTimeout(() => {
-            runAllTests();
-        }, 1000);
-
-        // Check if already installed
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            addLog('🎉 App is already installed! Running in standalone mode.', 'success');
-        }
-    </script>
+// ============================================================
+// INIT
+// ============================================================
+log('🚀 Search Test initialized', 'info');
+log('📍 ' + LOCATIONS.length + ' locations loaded', 'info');
+log('Type in Home or TO search boxes to test', 'info');
+</script>
 </body>
 </html>
