@@ -406,7 +406,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 
 <script>
 // ============================================================
-// STATIC LOCATION DATA - SINGLE SOURCE
+// STATIC LOCATION DATA
 // ============================================================
 var LOCATIONS = [
   {pin:"110018", name:"Ashok Nagar", district:"NEW DELHI", state:"DH", lat:28.636587, lng:77.094466},
@@ -436,19 +436,19 @@ var LOCATIONS = [
 ];
 
 // ============================================================
-// CONFIG & STATE - COMPACT
+// CONFIG & STATE
 // ============================================================
 var SB_URL = 'https://ghjoffovatgvhzxlupef.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
 var sb = window.supabase.createClient(SB_URL, SB_KEY);
-var user=null, guest=false, tab='ALL', items=[], detail=null, timer=null, mobile='';
+var user=null, guest=false, tab='ALL', items=[], detail=null, mobile='';
 var homePin=null, toPin=null, prompt=null, installed=false, filterOpen=true;
 
 function $(id){return document.getElementById(id)}
 function toast(msg){alert(msg)}
 
 // ============================================================
-// LOCATION HELPERS - COMPACT
+// LOCATION HELPERS
 // ============================================================
 function getLoc(pin){for(var i=0;i<LOCATIONS.length;i++){if(LOCATIONS[i].pin===pin)return LOCATIONS[i]}return null}
 function getLocName(pin){var l=getLoc(pin);return l?l.name+', '+l.district+', '+l.state+' ('+l.pin+')':pin||'Unknown'}
@@ -461,117 +461,523 @@ function autoLocate(){var inp=$('search-home');if(!inp)return;var saved=localSto
 if(navigator.geolocation){navigator.geolocation.getCurrentPosition(function(p){var lat=p.coords.latitude,lng=p.coords.longitude,near=null,minD=Infinity;for(var i=0;i<LOCATIONS.length;i++){var l=LOCATIONS[i],d=dist(lat,lng,l.lat,l.lng);if(d<minD){minD=d;near=l}}if(near&&minD<100){var dn=near.name+', '+near.state+' ('+near.pin+')';inp.value=dn;homePin=near.pin;localStorage.setItem('rt_home_location',JSON.stringify({pin:near.pin,displayName:dn}));applyFilters()}},function(){fetch('https://ipapi.co/json/').then(function(r){return r.json()}).then(function(d){var city=d.city||'';for(var i=0;i<LOCATIONS.length;i++){var l=LOCATIONS[i];if(l.name.toLowerCase()===city.toLowerCase()||l.district.toLowerCase()===city.toLowerCase()){var dn=l.name+', '+l.state+' ('+l.pin+')';inp.value=dn;homePin=l.pin;localStorage.setItem('rt_home_location',JSON.stringify({pin:l.pin,displayName:dn}));applyFilters();break}}}).catch(function(){})})}}
 
 // ============================================================
-// SEARCH - SINGLE FUNCTION FOR ALL
+// SINGLE SEARCH FUNCTION - Works for ALL search inputs
 // ============================================================
-function searchLocation(ctx){var id='search-'+ctx,sug='suggestions-'+ctx,hid=ctx==='to'?'filter-to-hidden':ctx==='pl-pickup'?'pl-pickup-hidden':ctx==='pl-drop'?'pl-drop-hidden':ctx==='pt-location'?'pt-location-hidden':null;var inp=$(id),sugEl=$(sug);if(!inp||!sugEl)return;var q=inp.value.trim();if(!q){sugEl.classList.remove('show');return}
-var res=[];for(var i=0;i<LOCATIONS.length;i++){var l=LOCATIONS[i];if(l.name.toLowerCase().includes(q.toLowerCase())||l.pin.includes(q)||l.district.toLowerCase().includes(q.toLowerCase())||l.state.toLowerCase().includes(q.toLowerCase())){res.push(l)}if(res.length>=8)break}
-if(res.length===0){sugEl.classList.remove('show');return}
-var html='';for(var j=0;j<res.length;j++){var l=res[j],dn=l.name+', '+l.district+', '+l.state+' ('+l.pin+')',idx=dn.toLowerCase().indexOf(q.toLowerCase());var dh=dn;if(idx!==-1){dh=dn.substring(0,idx)+'<span class="highlight">'+dn.substring(idx,idx+q.length)+'</span>'+dn.substring(idx+q.length)}html+='<div class="item" onclick="selectLoc(\''+ctx+'\',\''+l.pin+'\',\''+l.name+'\',\''+l.state+'\')">'+dh+'</div>'}
-sugEl.innerHTML=html;sugEl.classList.add('show')}
+function searchLocation(ctx){
+    var id = 'search-' + ctx;
+    var sug = 'suggestions-' + ctx;
+    var inp = $(id);
+    var sugEl = $(sug);
+    if(!inp || !sugEl) return;
+    
+    var q = inp.value.trim();
+    if(!q){ sugEl.classList.remove('show'); return; }
+    
+    var results = [];
+    var qLower = q.toLowerCase();
+    for(var i=0; i<LOCATIONS.length; i++){
+        var l = LOCATIONS[i];
+        if(l.name.toLowerCase().includes(qLower) ||
+           l.pin.includes(q) ||
+           l.district.toLowerCase().includes(qLower) ||
+           l.state.toLowerCase().includes(qLower)){
+            results.push(l);
+        }
+        if(results.length >= 8) break;
+    }
+    
+    if(results.length === 0){ sugEl.classList.remove('show'); return; }
+    
+    var html = '';
+    for(var j=0; j<results.length; j++){
+        var l = results[j];
+        var displayName = l.name + ', ' + l.district + ', ' + l.state + ' (' + l.pin + ')';
+        var idx = displayName.toLowerCase().indexOf(qLower);
+        var displayHtml = displayName;
+        if(idx !== -1){
+            displayHtml = displayName.substring(0, idx) + 
+                          '<span class="highlight">' + 
+                          displayName.substring(idx, idx + q.length) + 
+                          '</span>' + 
+                          displayName.substring(idx + q.length);
+        }
+        html += '<div class="item" onclick="selectLocation(\'' + ctx + '\',\'' + l.pin + '\',\'' + l.name + '\',\'' + l.state + '\')">' + displayHtml + '</div>';
+    }
+    sugEl.innerHTML = html;
+    sugEl.classList.add('show');
+}
 
-function selectLoc(ctx,pin,name,state){var id='search-'+ctx,sug='suggestions-'+ctx,hid=ctx==='to'?'filter-to-hidden':ctx==='pl-pickup'?'pl-pickup-hidden':ctx==='pl-drop'?'pl-drop-hidden':ctx==='pt-location'?'pt-location-hidden':null;var dn=name+', '+state+' ('+pin+')';$(id).value=dn;if(hid)$(hid).value=pin;$(sug).classList.remove('show');if(ctx==='home'){homePin=pin;localStorage.setItem('rt_home_location',JSON.stringify({pin:pin,displayName:dn}));applyFilters()}else if(ctx==='to'){toPin=pin;applyFilters()}}
+// ============================================================
+// SINGLE SELECT LOCATION FUNCTION - Works for ALL search inputs
+// ============================================================
+function selectLocation(ctx, pin, name, state){
+    var displayName = name + ', ' + state + ' (' + pin + ')';
+    var inputId = 'search-' + ctx;
+    var suggestionsId = 'suggestions-' + ctx;
+    var hiddenId = null;
+    
+    if(ctx === 'to') hiddenId = 'filter-to-hidden';
+    else if(ctx === 'pl-pickup') hiddenId = 'pl-pickup-hidden';
+    else if(ctx === 'pl-drop') hiddenId = 'pl-drop-hidden';
+    else if(ctx === 'pt-location') hiddenId = 'pt-location-hidden';
+    
+    $(inputId).value = displayName;
+    if(hiddenId) $(hiddenId).value = pin;
+    $(suggestionsId).classList.remove('show');
+    
+    if(ctx === 'home'){
+        homePin = pin;
+        localStorage.setItem('rt_home_location', JSON.stringify({pin: pin, displayName: displayName}));
+        applyFilters();
+    } else if(ctx === 'to'){
+        toPin = pin;
+        applyFilters();
+    }
+}
 
 // Close suggestions on outside click
-document.addEventListener('click',function(e){document.querySelectorAll('.suggestions').forEach(function(s){if(!s.parentElement.contains(e.target))s.classList.remove('show')})});
+document.addEventListener('click', function(e){
+    document.querySelectorAll('.suggestions').forEach(function(s){
+        if(!s.parentElement.contains(e.target)) s.classList.remove('show');
+    });
+});
 
 // ============================================================
 // PWA INSTALL
 // ============================================================
-if(window.matchMedia('(display-mode: standalone)').matches)installed=true;
-function updateInstall(){var mobile= /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);var show=mobile&&!window.matchMedia('(display-mode: standalone)').matches&&!installed;document.querySelectorAll('.nav-install-wrapper').forEach(function(el){el.classList.toggle('show',show)})}
-window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();prompt=e;updateInstall()});
-window.addEventListener('appinstalled',function(){installed=true;prompt=null;updateInstall();toast('🎉 ReturnTruck installed!')});
-function forceInstall(){if(prompt){prompt.prompt();prompt.userChoice.then(function(c){if(c.outcome==='accepted')toast('🎉 Installing...');prompt=null;updateInstall()})}else{if(navigator.userAgent.match(/Android/i))toast('📱 Tap Chrome menu → "Install app"');else if(navigator.userAgent.match(/iPhone|iPad|iPod/i))toast('📱 Tap Share → "Add to Home Screen"');else toast('📱 Open this page in Chrome on your phone')}}
-setTimeout(updateInstall,3000);
+if(window.matchMedia('(display-mode: standalone)').matches) installed = true;
+
+function updateInstall(){
+    var mobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    var show = mobile && !window.matchMedia('(display-mode: standalone)').matches && !installed;
+    document.querySelectorAll('.nav-install-wrapper').forEach(function(el){
+        el.classList.toggle('show', show);
+    });
+}
+
+window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    prompt = e;
+    updateInstall();
+});
+
+window.addEventListener('appinstalled', function(){
+    installed = true;
+    prompt = null;
+    updateInstall();
+    toast('🎉 ReturnTruck installed!');
+});
+
+function forceInstall(){
+    if(prompt){
+        prompt.prompt();
+        prompt.userChoice.then(function(c){
+            if(c.outcome === 'accepted') toast('🎉 Installing...');
+            prompt = null;
+            updateInstall();
+        });
+    } else {
+        if(navigator.userAgent.match(/Android/i)) toast('📱 Tap Chrome menu → "Install app"');
+        else if(navigator.userAgent.match(/iPhone|iPad|iPod/i)) toast('📱 Tap Share → "Add to Home Screen"');
+        else toast('📱 Open this page in Chrome on your phone');
+    }
+}
+
+setTimeout(updateInstall, 3000);
 
 // ============================================================
-// RENDER FEED - COMPACT
+// RENDER FEED
 // ============================================================
 async function renderFeed(){
-try{
-var {data:loads}=await sb.from('active_loads').select('*').eq('status',1);
-var {data:trucks}=await sb.from('active_trucks').select('*').eq('status',1);
-items=[];for(var l=0;l<(loads||[]).length;l++){var ld=loads[l];items.push({type:'LOAD',title:ld.material||'Cargo',company:ld.company||'',from:ld.pickup_pin||'',to:ld.drop_pin||'',weight:ld.weight||0,vehicle:ld.vehicle_type||'',rate:ld.rate||0,views:ld.views||0,interests:(ld.interests||[]).length,shares:ld.shares||0,id:ld.id})}
-for(var t=0;t<(trucks||[]).length;t++){var tk=trucks[t];items.push({type:'TRUCK',title:tk.truck_no||'Truck',company:tk.company_name||'',from:tk.location_pin||'',to:tk.destination_pin||'',vehicle:tk.vehicle_type||'',rate:tk.rate_km||0,views:tk.views||0,interests:(tk.interested||[]).length,shares:tk.share||0,id:tk.id})}
-var filtered=items.slice();var radius=parseInt($('radius-select').value)||50;
-if(homePin){var homeLoc=getLoc(homePin);if(homeLoc){filtered=filtered.filter(function(i){var fromLoc=getLoc(i.from);return fromLoc?dist(homeLoc.lat,homeLoc.lng,fromLoc.lat,fromLoc.lng)<=radius:false})}}
-if(tab==='LOAD')filtered=filtered.filter(function(i){return i.type==='LOAD'});
-else if(tab==='TRUCK')filtered=filtered.filter(function(i){return i.type==='TRUCK'});
-if(toPin){var toLoc=getLoc(toPin);if(toLoc){filtered=filtered.filter(function(i){var toLocItem=getLoc(i.to);return toLocItem?dist(toLoc.lat,toLoc.lng,toLocItem.lat,toLocItem.lng)<=radius:false})}}
-var vehicle=$('filter-vehicle')?.value;if(vehicle&&vehicle!=='ALL'){filtered=filtered.filter(function(i){return i.vehicle&&i.vehicle.toLowerCase().includes(vehicle)})}
-$('results-count').textContent='Showing '+filtered.length+' Records within '+radius+' KM';
-if(filtered.length===0){$('feed-container').innerHTML='<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>';return}
-$('feed-container').innerHTML=filtered.map(function(i){var bc=i.type==='LOAD'?'load':'truck';var loc='',sub='',rate='',stats='';if(i.type==='LOAD'){loc='📍 '+getLocName(i.from)+' → '+getLocName(i.to);sub='💼 '+i.company;rate='💰 ₹'+(i.rate||0).toLocaleString();stats='⚖️ '+(i.weight||0)+' Kg • 🚛 '+i.vehicle}else{var td=i.to?getLocName(i.to):'Any';loc='📍 '+getLocName(i.from)+' → '+td;sub='💼 '+i.company;rate='💰 ₹'+(i.rate||0)+'/km';stats='🚛 '+i.vehicle}
-return'<div class="feed-card" onclick="openDetail(\''+i.type+'\',\''+i.id+'\')">'+
-'<div class="header-row"><div class="title">'+i.title+'</div><span class="type-badge '+bc+'">'+i.type+'</span></div>'+
-'<div class="company">'+sub+'</div><div class="meta">'+loc+'</div><div class="meta">'+rate+'</div><div class="meta">'+stats+'</div>'+
-'<div class="stats-row"><span>👁️ <span class="val">'+i.views+'</span></span><span>🤝 <span class="val">'+i.interests+'</span></span><span>📨 <span class="val">'+i.shares+'</span></span></div></div>'}).join('');
-}catch(e){$('feed-container').innerHTML='<div style="padding:30px 0;color:#ef4444;text-align:center">Error loading feed</div>'}}
+    try {
+        var {data:loads} = await sb.from('active_loads').select('*').eq('status', 1);
+        var {data:trucks} = await sb.from('active_trucks').select('*').eq('status', 1);
+        
+        items = [];
+        for(var l=0; l<(loads||[]).length; l++){
+            var ld = loads[l];
+            items.push({
+                type: 'LOAD',
+                title: ld.material || 'Cargo',
+                company: ld.company || '',
+                from: ld.pickup_pin || '',
+                to: ld.drop_pin || '',
+                weight: ld.weight || 0,
+                vehicle: ld.vehicle_type || '',
+                rate: ld.rate || 0,
+                views: ld.views || 0,
+                interests: (ld.interests || []).length,
+                shares: ld.shares || 0,
+                id: ld.id
+            });
+        }
+        
+        for(var t=0; t<(trucks||[]).length; t++){
+            var tk = trucks[t];
+            items.push({
+                type: 'TRUCK',
+                title: tk.truck_no || 'Truck',
+                company: tk.company_name || '',
+                from: tk.location_pin || '',
+                to: tk.destination_pin || '',
+                vehicle: tk.vehicle_type || '',
+                rate: tk.rate_km || 0,
+                views: tk.views || 0,
+                interests: (tk.interested || []).length,
+                shares: tk.share || 0,
+                id: tk.id
+            });
+        }
+        
+        var filtered = items.slice();
+        var radius = parseInt($('radius-select').value) || 50;
+        
+        // Apply HOME location filter
+        if(homePin){
+            var homeLoc = getLoc(homePin);
+            if(homeLoc){
+                filtered = filtered.filter(function(i){
+                    var fromLoc = getLoc(i.from);
+                    return fromLoc ? dist(homeLoc.lat, homeLoc.lng, fromLoc.lat, fromLoc.lng) <= radius : false;
+                });
+            }
+        }
+        
+        // Apply TAB filter
+        if(tab === 'LOAD') filtered = filtered.filter(function(i){ return i.type === 'LOAD'; });
+        else if(tab === 'TRUCK') filtered = filtered.filter(function(i){ return i.type === 'TRUCK'; });
+        
+        // Apply TO location filter (uses SAME radius)
+        if(toPin){
+            var toLoc = getLoc(toPin);
+            if(toLoc){
+                filtered = filtered.filter(function(i){
+                    var toLocItem = getLoc(i.to);
+                    return toLocItem ? dist(toLoc.lat, toLoc.lng, toLocItem.lat, toLocItem.lng) <= radius : false;
+                });
+            }
+        }
+        
+        // Apply Vehicle Type filter
+        var vehicle = $('filter-vehicle')?.value;
+        if(vehicle && vehicle !== 'ALL'){
+            filtered = filtered.filter(function(i){
+                return i.vehicle && i.vehicle.toLowerCase().includes(vehicle);
+            });
+        }
+        
+        $('results-count').textContent = 'Showing ' + filtered.length + ' Records within ' + radius + ' KM';
+        
+        if(filtered.length === 0){
+            $('feed-container').innerHTML = '<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>';
+            return;
+        }
+        
+        $('feed-container').innerHTML = filtered.map(function(i){
+            var bc = i.type === 'LOAD' ? 'load' : 'truck';
+            var loc = '', sub = '', rate = '', stats = '';
+            if(i.type === 'LOAD'){
+                loc = '📍 ' + getLocName(i.from) + ' → ' + getLocName(i.to);
+                sub = '💼 ' + i.company;
+                rate = '💰 ₹' + (i.rate||0).toLocaleString();
+                stats = '⚖️ ' + (i.weight||0) + ' Kg • 🚛 ' + i.vehicle;
+            } else {
+                var td = i.to ? getLocName(i.to) : 'Any';
+                loc = '📍 ' + getLocName(i.from) + ' → ' + td;
+                sub = '💼 ' + i.company;
+                rate = '💰 ₹' + (i.rate||0) + '/km';
+                stats = '🚛 ' + i.vehicle;
+            }
+            return '<div class="feed-card" onclick="openDetail(\'' + i.type + '\',\'' + i.id + '\')">' +
+                '<div class="header-row"><div class="title">' + i.title + '</div><span class="type-badge ' + bc + '">' + i.type + '</span></div>' +
+                '<div class="company">' + sub + '</div>' +
+                '<div class="meta">' + loc + '</div>' +
+                '<div class="meta">' + rate + '</div>' +
+                '<div class="meta">' + stats + '</div>' +
+                '<div class="stats-row">' +
+                    '<span>👁️ <span class="val">' + i.views + '</span></span>' +
+                    '<span>🤝 <span class="val">' + i.interests + '</span></span>' +
+                    '<span>📨 <span class="val">' + i.shares + '</span></span>' +
+                '</div>' +
+            '</div>';
+        }).join('');
+        
+    } catch(e){
+        console.error('Render feed error:', e);
+        $('feed-container').innerHTML = '<div style="padding:30px 0;color:#ef4444;text-align:center">Error loading feed</div>';
+    }
+}
 
-function applyFilters(){renderFeed()}
-function setTab(t){tab=t;document.querySelectorAll('.type-tabs button').forEach(function(b){b.className='inactive'});var map={'ALL':'tab-all','LOAD':'tab-loads','TRUCK':'tab-trucks','AGENT':'tab-agents'};var el=$(map[t]);if(el)el.className='active';renderFeed()}
-function toggleFilters(){filterOpen=!filterOpen;$('filter-container').classList.toggle('open',filterOpen);$('filter-toggle-label').textContent=filterOpen?'🔍 Hide Filters':'🔍 Show Filters';$('filter-arrow').className=filterOpen?'arrow open':'arrow closed';setTimeout(fixHeight,350)}
+function applyFilters(){ renderFeed(); }
+
+function setTab(t){
+    tab = t;
+    document.querySelectorAll('.type-tabs button').forEach(function(b){ b.className = 'inactive'; });
+    var map = {'ALL':'tab-all','LOAD':'tab-loads','TRUCK':'tab-trucks','AGENT':'tab-agents'};
+    var el = $(map[t]);
+    if(el) el.className = 'active';
+    renderFeed();
+}
+
+function toggleFilters(){
+    filterOpen = !filterOpen;
+    $('filter-container').classList.toggle('open', filterOpen);
+    $('filter-toggle-label').textContent = filterOpen ? '🔍 Hide Filters' : '🔍 Show Filters';
+    $('filter-arrow').className = filterOpen ? 'arrow open' : 'arrow closed';
+    setTimeout(fixHeight, 350);
+}
 
 // ============================================================
-// NAVIGATION - COMPACT
+// NAVIGATION
 // ============================================================
-function goHome(){['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(function(i){$(i).classList.toggle('hidden-page',i!=='home-page')});document.querySelectorAll('.nav-item').forEach(function(e){e.classList.remove('active')});document.querySelectorAll('.nav-fixed .nav-item')[0].classList.add('active');setTimeout(fixHeight,50);renderFeed()}
-function switchPage(id,idx){['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(function(i){$(i).classList.toggle('hidden-page',i!==id)});document.querySelectorAll('.nav-item').forEach(function(e){e.classList.remove('active')});document.querySelectorAll('.nav-fixed .nav-item')[idx].classList.add('active');setTimeout(fixHeight,50)}
-function goPostLoad(){if(guest||!user){showLogin();return}switchPage('postload-page',1)}
-function goPostTruck(){if(guest||!user){showLogin();return}switchPage('posttruck-page',2)}
-function goToProfile(){if(guest||!user){showLogin();return}switchPage('profile-page',3);loadProfile()}
-function cancelPost(){goHome()}
-function closeDetail(){detail=null;goHome()}
+function goHome(){
+    ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(function(i){
+        $(i).classList.toggle('hidden-page', i !== 'home-page');
+    });
+    document.querySelectorAll('.nav-item').forEach(function(e){ e.classList.remove('active'); });
+    document.querySelectorAll('.nav-fixed .nav-item')[0].classList.add('active');
+    setTimeout(fixHeight, 50);
+    renderFeed();
+}
+
+function switchPage(id, idx){
+    ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(function(i){
+        $(i).classList.toggle('hidden-page', i !== id);
+    });
+    document.querySelectorAll('.nav-item').forEach(function(e){ e.classList.remove('active'); });
+    document.querySelectorAll('.nav-fixed .nav-item')[idx].classList.add('active');
+    setTimeout(fixHeight, 50);
+}
+
+function goPostLoad(){ if(guest || !user){ showLogin(); return; } switchPage('postload-page', 1); }
+function goPostTruck(){ if(guest || !user){ showLogin(); return; } switchPage('posttruck-page', 2); }
+function goToProfile(){ if(guest || !user){ showLogin(); return; } switchPage('profile-page', 3); loadProfile(); }
+function cancelPost(){ goHome(); }
+function closeDetail(){ detail = null; goHome(); }
 
 // ============================================================
-// PROFILE - COMPACT
+// PROFILE
 // ============================================================
-function loadProfile(){if(!user)return;$('profile-mobile').textContent=user.mobile||'--'}
-function saveLoadGiverProfile(){var c=$('lg-company').value.trim();if(!c)return toast('⚠️ Enter company name');sb.from('active_users').update({company_name:c}).eq('mobile',user.mobile).then(function(){user.company_name=c;toast('✅ Saved!');loadProfile()})}
-function saveFleetProfile(){var c=$('fo-company').value.trim();if(!c)return toast('⚠️ Enter company name');sb.from('active_users').update({fleet_company:c}).eq('mobile',user.mobile).then(function(){user.fleet_company=c;toast('✅ Saved!');loadProfile()})}
-function editLoadGiver(){$('loadgiver-active-area').style.display='none';$('loadgiver-input-area').style.display='block'}
-function editFleet(){$('fleet-active-area').style.display='none';$('fleet-input-area').style.display='block'}
+function loadProfile(){ if(!user) return; $('profile-mobile').textContent = user.mobile || '--'; }
 
-function openDetail(type,id){var table=type==='LOAD'?'active_loads':'active_trucks';sb.from(table).select('*').eq('id',id).single().then(function(r){var d=r.data;if(d){detail=d;switchPage('detail-page',0);$('detail-title').textContent=type==='LOAD'?d.material||'Details':d.truck_no||'Details';$('detail-company').textContent=type==='LOAD'?d.company||'N/A':d.company_name||'N/A'}})}
-function makeCall(){if(detail){var num=detail.mobile||detail.driver_mobile;if(num)window.location.href='tel:'+num}}
-function expressInterest(){toast('✅ Interest expressed!')}
-function contactUser(){toast('📧 Contact details shared!')}
-function handleShareClick(){if(navigator.share){navigator.share({title:'ReturnTruck',text:'Check out this listing on ReturnTruck!',url:window.location.href})}else{toast('📋 Link copied!')}}
-function resetPIN(){toast('📱 Contact support to reset PIN')}
-function autoFetchVehicle(){toast('🔍 Vehicle details fetched!')}
-function publishLoad(){toast('📦 Load published!')}
-function publishTruck(){toast('🚛 Truck listed!')}
-function openChangePin(){toast('🔑 PIN change coming soon!')}
+function saveLoadGiverProfile(){
+    var c = $('lg-company').value.trim();
+    if(!c) return toast('⚠️ Enter company name');
+    sb.from('active_users').update({company_name: c}).eq('mobile', user.mobile).then(function(){
+        user.company_name = c;
+        toast('✅ Saved!');
+        loadProfile();
+    });
+}
+
+function saveFleetProfile(){
+    var c = $('fo-company').value.trim();
+    if(!c) return toast('⚠️ Enter company name');
+    sb.from('active_users').update({fleet_company: c}).eq('mobile', user.mobile).then(function(){
+        user.fleet_company = c;
+        toast('✅ Saved!');
+        loadProfile();
+    });
+}
+
+function editLoadGiver(){ $('loadgiver-active-area').style.display = 'none'; $('loadgiver-input-area').style.display = 'block'; }
+function editFleet(){ $('fleet-active-area').style.display = 'none'; $('fleet-input-area').style.display = 'block'; }
+
+function openDetail(type, id){
+    var table = type === 'LOAD' ? 'active_loads' : 'active_trucks';
+    sb.from(table).select('*').eq('id', id).single().then(function(r){
+        var d = r.data;
+        if(d){
+            detail = d;
+            switchPage('detail-page', 0);
+            $('detail-title').textContent = type === 'LOAD' ? (d.material || 'Details') : (d.truck_no || 'Details');
+            $('detail-company').textContent = type === 'LOAD' ? (d.company || 'N/A') : (d.company_name || 'N/A');
+        }
+    });
+}
+
+function makeCall(){ if(detail){ var num = detail.mobile || detail.driver_mobile; if(num) window.location.href = 'tel:' + num; } }
+function expressInterest(){ toast('✅ Interest expressed!'); }
+function contactUser(){ toast('📧 Contact details shared!'); }
+function handleShareClick(){
+    if(navigator.share){
+        navigator.share({ title: 'ReturnTruck', text: 'Check out this listing on ReturnTruck!', url: window.location.href });
+    } else {
+        toast('📋 Link copied!');
+    }
+}
+function resetPIN(){ toast('📱 Contact support to reset PIN'); }
+function autoFetchVehicle(){ toast('🔍 Vehicle details fetched!'); }
+function publishLoad(){ toast('📦 Load published!'); }
+function publishTruck(){ toast('🚛 Truck listed!'); }
+function openChangePin(){ toast('🔑 PIN change coming soon!'); }
 
 // ============================================================
-// AUTH - COMPACT
+// AUTH - Fixed: Enter key for PIN login
 // ============================================================
-function continueAsGuest(){guest=true;localStorage.setItem('rt_user',JSON.stringify({guest:true}));showHome()}
-function showLogin(){resetForm();$('mobile').focus()}
-function resetForm(){['step2','step3','step4'].forEach(function(i){$(i).classList.add('hidden')});$('step1').classList.remove('hidden');$('login-screen').style.display='flex';['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(function(i){$(i).classList.add('hidden-page')});clearTimeout(timer)}
-function showHome(){$('login-screen').style.display='none';$('home-page').classList.remove('hidden-page');updateGuestUI();setTimeout(function(){fixHeight();renderFeed();autoLocate()},50)}
-function updateGuestUI(){var b=$('guest-banner');if(b){b.style.display=guest?'flex':'none';if(guest)b.classList.remove('hidden');else b.classList.add('hidden')}setTimeout(fixHeight,50)}
-function toggleDropdown(){document.querySelectorAll('.profile-dropdown').forEach(function(d){d.classList.toggle('show')})}
-function closeDropdown(){document.querySelectorAll('.profile-dropdown').forEach(function(d){d.classList.remove('show')})}
+function continueAsGuest(){
+    guest = true;
+    localStorage.setItem('rt_user', JSON.stringify({guest: true}));
+    showHome();
+}
 
-$('mobile').addEventListener('input',function(e){var m=this.value.trim();if(m.length===10){mobile=m;$('step1').classList.add('hidden');$('step2').classList.remove('hidden');$('display-mobile').textContent=m}});
-window.submitPin=async function(){var pin=$('pin').value.trim();var enc=new TextEncoder();var hash=await crypto.subtle.digest('SHA-256',enc.encode(pin));var ph=Array.from(new Uint8Array(hash)).map(function(b){return b.toString(16).padStart(2,'0')}).join('');var {data:u}=await sb.from('active_users').select('*').eq('mobile',mobile).eq('pinhash',ph).single();if(u){user=u;localStorage.setItem('rt_user',JSON.stringify({mobile:user.mobile,user:user}));guest=false;showHome()}else{toast('❌ Incorrect PIN')}};
-async function registerUser(){var pin=$('reg-pin').value.trim();var enc=new TextEncoder();var hash=await crypto.subtle.digest('SHA-256',enc.encode(pin));var ph=Array.from(new Uint8Array(hash)).map(function(b){return b.toString(16).padStart(2,'0')}).join('');var {data:nu}=await sb.from('active_users').insert({mobile:mobile,pinhash:ph}).select().single();if(nu){user=nu;localStorage.setItem('rt_user',JSON.stringify({mobile:user.mobile,user:user}));guest=false;showHome()}}
-function logout(){if(confirm('Logout?')){localStorage.removeItem('rt_user');window.location.reload()}}
+function showLogin(){ resetForm(); $('mobile').focus(); }
+
+function resetForm(){
+    ['step2','step3','step4'].forEach(function(i){ $(i).classList.add('hidden'); });
+    $('step1').classList.remove('hidden');
+    $('login-screen').style.display = 'flex';
+    ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(function(i){ $(i).classList.add('hidden-page'); });
+}
+
+function showHome(){
+    $('login-screen').style.display = 'none';
+    $('home-page').classList.remove('hidden-page');
+    updateGuestUI();
+    setTimeout(function(){ fixHeight(); renderFeed(); autoLocate(); }, 50);
+}
+
+function updateGuestUI(){
+    var b = $('guest-banner');
+    if(b){
+        b.style.display = guest ? 'flex' : 'none';
+        if(guest) b.classList.remove('hidden');
+        else b.classList.add('hidden');
+    }
+    setTimeout(fixHeight, 50);
+}
+
+function toggleDropdown(){ document.querySelectorAll('.profile-dropdown').forEach(function(d){ d.classList.toggle('show'); }); }
+function closeDropdown(){ document.querySelectorAll('.profile-dropdown').forEach(function(d){ d.classList.remove('show'); }); }
+
+// Enter key handler for mobile input
+$('mobile').addEventListener('input', function(e){
+    var m = this.value.trim();
+    if(m.length === 10){
+        mobile = m;
+        $('step1').classList.add('hidden');
+        $('step2').classList.remove('hidden');
+        $('display-mobile').textContent = m;
+    }
+});
+
+// === FIX 1: Enter key handler for PIN login ===
+$('pin').addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+        submitPin();
+    }
+});
+
+// === FIX 2: Enter key handler for Reg PIN ===
+$('reg-pin').addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+        $('reg-pin-confirm').focus();
+    }
+});
+
+$('reg-pin-confirm').addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+        registerUser();
+    }
+});
+
+window.submitPin = async function(){
+    var pin = $('pin').value.trim();
+    if(!pin || pin.length !== 4){
+        toast('⚠️ Enter 4-digit PIN');
+        $('pin').focus();
+        return;
+    }
+    var enc = new TextEncoder();
+    var hash = await crypto.subtle.digest('SHA-256', enc.encode(pin));
+    var ph = Array.from(new Uint8Array(hash)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+    var {data: u} = await sb.from('active_users').select('*').eq('mobile', mobile).eq('pinhash', ph).single();
+    if(u){
+        user = u;
+        localStorage.setItem('rt_user', JSON.stringify({mobile: user.mobile, user: user}));
+        guest = false;
+        showHome();
+    } else {
+        toast('❌ Incorrect PIN');
+        $('pin').value = '';
+        $('pin').focus();
+    }
+};
+
+async function registerUser(){
+    var pin = $('reg-pin').value.trim();
+    var confirm = $('reg-pin-confirm').value.trim();
+    if(!pin || pin.length !== 4){
+        toast('⚠️ Enter 4-digit PIN');
+        $('reg-pin').focus();
+        return;
+    }
+    if(pin !== confirm){
+        toast('⚠️ PINs do not match');
+        $('reg-pin-confirm').value = '';
+        $('reg-pin-confirm').focus();
+        return;
+    }
+    var enc = new TextEncoder();
+    var hash = await crypto.subtle.digest('SHA-256', enc.encode(pin));
+    var ph = Array.from(new Uint8Array(hash)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+    var {data: nu} = await sb.from('active_users').insert({mobile: mobile, pinhash: ph}).select().single();
+    if(nu){
+        user = nu;
+        localStorage.setItem('rt_user', JSON.stringify({mobile: user.mobile, user: user}));
+        guest = false;
+        showHome();
+    }
+}
+
+function logout(){
+    if(confirm('Logout?')){
+        localStorage.removeItem('rt_user');
+        window.location.reload();
+    }
+}
 
 // ============================================================
-// HEIGHT - COMPACT
+// HEIGHT
 // ============================================================
-function fixHeight(){var card=document.querySelector('.card');if(!card)return;var body=document.querySelector('.scroll-body:not(.hidden-page)');var header=document.querySelector('.header-fixed:not(.hidden-page)');var nav=document.querySelector('.nav-fixed:not(.hidden-page)');var top=$('home-top');if(!body||!header||!nav)return;var hh=header.offsetHeight||50;var nh=nav.offsetHeight||65;var th=top?top.offsetHeight||0:0;var av=card.clientHeight-hh-th-nh-20;if(av<80)av=80;body.style.height=av+'px';body.style.maxHeight=av+'px';body.style.overflowY='auto'}
-window.addEventListener('resize',function(){clearTimeout(window._rtResize);window._rtResize=setTimeout(fixHeight,200)});
+function fixHeight(){
+    var card = document.querySelector('.card');
+    if(!card) return;
+    var body = document.querySelector('.scroll-body:not(.hidden-page)');
+    var header = document.querySelector('.header-fixed:not(.hidden-page)');
+    var nav = document.querySelector('.nav-fixed:not(.hidden-page)');
+    var top = $('home-top');
+    if(!body || !header || !nav) return;
+    var hh = header.offsetHeight || 50;
+    var nh = nav.offsetHeight || 65;
+    var th = top ? top.offsetHeight || 0 : 0;
+    var av = card.clientHeight - hh - th - nh - 20;
+    if(av < 80) av = 80;
+    body.style.height = av + 'px';
+    body.style.maxHeight = av + 'px';
+    body.style.overflowY = 'auto';
+}
+
+window.addEventListener('resize', function(){
+    clearTimeout(window._rtResize);
+    window._rtResize = setTimeout(fixHeight, 200);
+});
 
 // ============================================================
-// INIT - COMPACT
+// INIT
 // ============================================================
-document.addEventListener('DOMContentLoaded',function(){
-var saved=localStorage.getItem('rt_user');
-if(saved){var sd=JSON.parse(saved);if(sd.guest){guest=true;user=null}else if(sd.user){user=sd.user;guest=false}showHome()}else{$('login-screen').style.display='flex';$('home-page').classList.add('hidden-page')}
-setTimeout(function(){fixHeight();autoLocate()},500)
+document.addEventListener('DOMContentLoaded', function(){
+    var saved = localStorage.getItem('rt_user');
+    if(saved){
+        var sd = JSON.parse(saved);
+        if(sd.guest){ guest = true; user = null; }
+        else if(sd.user){ user = sd.user; guest = false; }
+        showHome();
+    } else {
+        $('login-screen').style.display = 'flex';
+        $('home-page').classList.add('hidden-page');
+    }
+    setTimeout(function(){ fixHeight(); autoLocate(); }, 500);
 });
 </script>
 </body>
