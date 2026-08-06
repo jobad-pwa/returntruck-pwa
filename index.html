@@ -99,7 +99,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .detail-actions button{width:100%;padding:10px;border-radius:10px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:10px}
 .btn-call{background:#16a34a}.btn-contact{background:#2563eb}.btn-bid{background:#8b5cf6}.btn-share{background:#25D366}
 .back-btn{background:transparent;border:none;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;padding:4px 8px}.back-btn:hover{color:#2563eb}
-/* Modal Styles */
 .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:999;align-items:center;justify-content:center}
 .modal-overlay.show{display:flex}
 .modal-box{background:#fff;border-radius:24px;padding:24px;max-width:380px;width:90%;max-height:90vh;overflow-y:auto}
@@ -483,10 +482,9 @@ function toast(msg){alert(msg)}
 var EDGE_URL = 'https://ghjoffovatgvhzxlupef.supabase.co/functions/v1';
 
 // ============================================================
-// AUTH FUNCTIONS - Using Edge Functions
+// AUTH FUNCTIONS
 // ============================================================
 
-// Check user status
 async function checkUser(mobile) {
     try {
         var response = await fetch(EDGE_URL + '/login-user', {
@@ -494,16 +492,13 @@ async function checkUser(mobile) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ mobile: mobile, action: 'check' })
         });
-        var result = await response.json();
-        console.log('checkUser result:', result);
-        return result;
+        return await response.json();
     } catch (e) {
         console.error('checkUser error:', e);
         return { exists: false, error: e.message };
     }
 }
 
-// Login user
 async function loginUser(mobile, pin) {
     try {
         var response = await fetch(EDGE_URL + '/login-user', {
@@ -517,7 +512,6 @@ async function loginUser(mobile, pin) {
     }
 }
 
-// Register user
 async function registerUserAPI(mobile, pin) {
     try {
         var response = await fetch(EDGE_URL + '/register-user', {
@@ -531,7 +525,6 @@ async function registerUserAPI(mobile, pin) {
     }
 }
 
-// Change PIN
 async function changePINAPI(mobile, currentPin, newPin) {
     try {
         var response = await fetch(EDGE_URL + '/change-pin', {
@@ -545,7 +538,6 @@ async function changePINAPI(mobile, currentPin, newPin) {
     }
 }
 
-// Request PIN reset
 async function requestPINReset(mobile) {
     try {
         var response = await fetch(EDGE_URL + '/login-user', {
@@ -559,7 +551,6 @@ async function requestPINReset(mobile) {
     }
 }
 
-// Reset PIN
 async function resetPINAPI(mobile, newPin, token) {
     try {
         var response = await fetch(EDGE_URL + '/login-user', {
@@ -579,7 +570,7 @@ async function resetPINAPI(mobile, newPin, token) {
 }
 
 // ============================================================
-// AUTH UI FUNCTIONS - FIXED
+// AUTH UI FUNCTIONS
 // ============================================================
 
 function setStatus(msg, type) {
@@ -591,7 +582,6 @@ function setStatus(msg, type) {
 }
 
 function showPinLogin(m) {
-    console.log('✅ Showing PIN login for:', m);
     $('step1').classList.add('hidden');
     $('step2').classList.remove('hidden');
     $('step3').classList.add('hidden');
@@ -603,7 +593,6 @@ function showPinLogin(m) {
 }
 
 function showRegistration(m) {
-    console.log('📱 Showing registration for:', m);
     $('step1').classList.add('hidden');
     $('step2').classList.add('hidden');
     $('step3').classList.add('hidden');
@@ -615,28 +604,24 @@ function showRegistration(m) {
     $('reg-pin').focus();
 }
 
-// FIXED: Mobile input handler - properly detects existing users
+// Mobile input handler
 $('mobile').addEventListener('input', function(e) {
     var m = this.value.trim();
     if (m.length === 10) {
         mobile = m;
         setStatus('⏳ Checking...', 'blue');
         
-        // Check user using Edge Function
         checkUser(m).then(function(result) {
-            console.log('Check user result:', result);
+            console.log('checkUser result:', result);
             
-            // Check if user exists (active or archived)
             if (result.exists === true || result.source === 'active' || result.source === 'archived') {
-                // ✅ EXISTING USER - Show PIN login
                 showPinLogin(m);
             } else {
-                // ✅ NEW USER - Show Registration
                 showRegistration(m);
             }
         }).catch(function(err) {
-            console.error('Check user error:', err);
-            // Fallback: Directly check Supabase
+            console.error('checkUser error:', err);
+            // Fallback: Direct check
             var mobileNum = parseInt(m);
             sb.from('active_users')
                 .select('mobile')
@@ -646,24 +631,14 @@ $('mobile').addEventListener('input', function(e) {
                     if (data) {
                         showPinLogin(m);
                     } else {
-                        sb.from('archived_users')
-                            .select('mobile')
-                            .eq('mobile', mobileNum)
-                            .maybeSingle()
-                            .then(function({data: archived}) {
-                                if (archived) {
-                                    showPinLogin(m);
-                                } else {
-                                    showRegistration(m);
-                                }
-                            });
+                        showRegistration(m);
                     }
                 });
         });
     }
 });
 
-// Enter key handler for PIN
+// Enter key for PIN
 $('pin').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
         submitPin();
@@ -984,7 +959,6 @@ function selectLoc(ctx,pin,name,state){
     else if(ctx==='to'){toPin=pin;applyFilters()}
 }
 
-// Close suggestions
 document.addEventListener('click',function(e){document.querySelectorAll('.suggestions').forEach(function(s){if(!s.parentElement.contains(e.target))s.classList.remove('show')})});
 
 // ============================================================
