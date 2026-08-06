@@ -1,256 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login Test - ReturnTruck</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-*{box-sizing:border-box;font-family:system-ui,sans-serif}
-body{background:#f3f4f6;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px}
-.container{max-width:420px;width:100%;background:#fff;border-radius:24px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
-h1{color:#2563eb;font-size:22px;margin:0 0 4px 0;display:flex;align-items:center;gap:8px}
-.sub{font-size:13px;color:#64748b;margin-bottom:16px}
-.input-group{margin-bottom:12px}
-.input-group label{font-size:11px;font-weight:700;color:#1e293b;display:block;margin-bottom:4px}
-.input-group input{width:100%;padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;outline:none}
-.input-group input:focus{border-color:#2563eb}
-.btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:.2s}
-.btn-primary{background:#2563eb;color:#fff}
-.btn-primary:hover{background:#1d4ed8}
-.btn-primary:disabled{opacity:.5;cursor:not-allowed}
-.btn-success{background:#16a34a;color:#fff}
-.btn-success:hover{background:#15803d}
-.btn-danger{background:#dc2626;color:#fff}
-.btn-danger:hover{background:#b91c1c}
-.btn-gray{background:#6b7280;color:#fff}
-.btn-gray:hover{background:#4b5563}
-.btn-warning{background:#f59e0b;color:#000}
-.btn-warning:hover{background:#d97706}
-.result-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-top:12px;font-size:13px;max-height:300px;overflow-y:auto}
-.result-box .ok{color:#16a34a;font-weight:600}
-.result-box .err{color:#dc2626;font-weight:600}
-.result-box .info{color:#2563eb;font-weight:600}
-.result-box .warn{color:#f59e0b;font-weight:600}
-.log-box{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:12px;font-family:monospace;font-size:11px;max-height:200px;overflow-y:auto;margin-top:12px;white-space:pre-wrap;word-break:break-all}
-.log-box .pass{color:#4ade80}
-.log-box .fail{color:#f87171}
-.log-box .info{color:#60a5fa}
-.hidden{display:none}
-.btn-group{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
-.btn-group button{flex:1;min-width:80px;padding:10px;font-size:13px}
-.status-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f1f5f9}
-.status-row:last-child{border-bottom:none}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direct Login Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        *{box-sizing:border-box;font-family:system-ui,sans-serif}
+        body{background:#f3f4f6;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px}
+        .container{max-width:420px;width:100%;background:#fff;border-radius:24px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+        h1{color:#2563eb;font-size:20px;margin:0 0 4px}
+        .sub{font-size:13px;color:#64748b;margin-bottom:16px}
+        .input-group{margin-bottom:12px}
+        .input-group label{font-size:11px;font-weight:700;color:#1e293b;display:block;margin-bottom:4px}
+        .input-group input{width:100%;padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;outline:none}
+        .input-group input:focus{border-color:#2563eb}
+        .btn{width:100%;padding:12px;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;transition:.2s;margin-bottom:6px}
+        .btn-primary{background:#2563eb;color:#fff}
+        .btn-primary:hover{background:#1d4ed8}
+        .btn-success{background:#16a34a;color:#fff}
+        .btn-danger{background:#dc2626;color:#fff}
+        .btn-gray{background:#6b7280;color:#fff}
+        .result{background:#f8fafc;border-radius:12px;padding:12px;margin-top:12px;font-size:13px;font-family:monospace;white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto}
+        .pass{color:#16a34a}
+        .fail{color:#dc2626}
+        .info{color:#2563eb}
+        .warn{color:#f59e0b}
+        .log{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:12px;font-family:monospace;font-size:11px;max-height:150px;overflow-y:auto;margin-top:12px}
+        .log .pass{color:#4ade80}
+        .log .fail{color:#f87171}
+        .log .info{color:#60a5fa}
+        .hidden{display:none}
+    </style>
 </head>
 <body>
 <div class="container">
-    <h1>🔐 Login Test</h1>
-    <div class="sub">Testing login functionality for ReturnTruck</div>
+    <h1>🔐 Direct Login Test</h1>
+    <div class="sub">Tests login by directly checking Supabase</div>
 
-    <!-- Mobile Input -->
     <div class="input-group">
         <label>📱 Mobile Number</label>
-        <input type="tel" id="test-mobile" placeholder="Enter 10-digit mobile" maxlength="10" value="6300067332">
+        <input type="tel" id="mobile" placeholder="Enter 10-digit mobile" maxlength="10" value="6300067332">
     </div>
 
-    <!-- PIN Input -->
     <div class="input-group" id="pin-group" style="display:none;">
         <label>🔑 PIN</label>
-        <input type="password" id="test-pin" placeholder="Enter 4-digit PIN" maxlength="4" style="letter-spacing:8px;">
+        <input type="password" id="pin" placeholder="Enter 4-digit PIN" maxlength="4" style="letter-spacing:8px;">
     </div>
 
-    <!-- Buttons -->
     <button class="btn btn-primary" id="btn-check" onclick="checkUser()">🔍 Check User</button>
     <button class="btn btn-success hidden" id="btn-login" onclick="loginUser()">🔐 Login</button>
-    <button class="btn btn-warning hidden" id="btn-register" onclick="registerUser()">📝 Register (New User)</button>
-    <button class="btn btn-gray" onclick="clearLog()">🗑️ Clear Log</button>
+    <button class="btn btn-success hidden" id="btn-register" onclick="registerUser()">📝 Register</button>
+    <button class="btn btn-gray" onclick="clearLog()">🗑️ Clear</button>
 
-    <!-- Result -->
-    <div class="result-box" id="result-box">
-        <div class="status-row"><span>Status</span><span id="status-text" style="color:#f59e0b;">⏳ Waiting...</span></div>
-        <div class="status-row"><span>User Source</span><span id="source-text" style="color:#64748b;">—</span></div>
-        <div class="status-row"><span>User Name</span><span id="name-text" style="color:#64748b;">—</span></div>
-        <div class="status-row"><span>Action</span><span id="action-text" style="color:#64748b;">—</span></div>
-    </div>
-
-    <!-- Log -->
-    <div class="log-box" id="log-box">⏳ Waiting for action...</div>
+    <div class="result" id="result">⏳ Click "Check User" to test</div>
+    <div class="log" id="log">⏳ Waiting...</div>
 </div>
 
 <script>
-// ============================================================
-// CONFIG
-// ============================================================
 var SB_URL = 'https://ghjoffovatgvhzxlupef.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
-var EDGE_URL = 'https://ghjoffovatgvhzxlupef.supabase.co/functions/v1';
 var sb = window.supabase.createClient(SB_URL, SB_KEY);
 
-// ============================================================
-// LOGGING
-// ============================================================
+var currentMobile = null;
+var currentUser = null;
+
 function log(msg, type) {
-    var el = document.getElementById('log-box');
+    var el = document.getElementById('log');
     var time = new Date().toLocaleTimeString();
     var colors = { pass: 'pass', fail: 'fail', info: 'info' };
-    var color = colors[type] || 'info';
-    el.innerHTML += '[' + time + '] <span class="' + color + '">' + msg + '</span>\n';
+    el.innerHTML += '[' + time + '] <span class="' + (colors[type] || 'info') + '">' + msg + '</span>\n';
     el.scrollTop = el.scrollHeight;
-    console.log(msg);
 }
 
 function clearLog() {
-    document.getElementById('log-box').innerHTML = '';
-    log('🗑️ Log cleared', 'info');
+    document.getElementById('log').innerHTML = '';
+    document.getElementById('result').textContent = '⏳ Cleared';
 }
 
-function setStatus(text, color) {
-    document.getElementById('status-text').textContent = text;
-    document.getElementById('status-text').style.color = color || '#64748b';
+function showResult(msg, color) {
+    document.getElementById('result').innerHTML = msg;
+    document.getElementById('result').style.color = color || '#1e293b';
 }
 
-function setSource(text) {
-    document.getElementById('source-text').textContent = text;
-}
-
-function setName(text) {
-    document.getElementById('name-text').textContent = text || '—';
-}
-
-function setAction(text) {
-    document.getElementById('action-text').textContent = text || '—';
-}
-
-// ============================================================
-// CHECK USER
-// ============================================================
 async function checkUser() {
-    var mobile = document.getElementById('test-mobile').value.trim();
+    var mobile = document.getElementById('mobile').value.trim();
     if (!mobile || mobile.length !== 10) {
-        log('❌ Please enter a valid 10-digit mobile number', 'fail');
+        showResult('❌ Enter valid 10-digit mobile', '#dc2626');
         return;
     }
 
-    log('🔍 Checking user: ' + mobile, 'info');
-    setStatus('⏳ Checking...', '#f59e0b');
-    setSource('—');
-    setName('—');
-    setAction('—');
+    currentMobile = mobile;
+    var mobileNum = parseInt(mobile);
+    
+    log('🔍 Checking: ' + mobile + ' (as number: ' + mobileNum + ')', 'info');
+    showResult('⏳ Checking user...', '#f59e0b');
 
     try {
-        // METHOD 1: Edge Function
-        log('📡 Calling Edge Function...', 'info');
-        var response = await fetch(EDGE_URL + '/login-user', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ mobile: mobile, action: 'check' })
-        });
-        var result = await response.json();
-        log('📥 Edge Function response: ' + JSON.stringify(result), 'info');
-
-        if (result.exists === true || result.source === 'active' || result.source === 'archived') {
-            log('✅ User found! Source: ' + result.source, 'pass');
-            setStatus('✅ User EXISTS', '#16a34a');
-            setSource(result.source);
-            setName(result.user?.name || '—');
-            setAction('Show PIN Login');
-            
-            // Show PIN input
-            document.getElementById('pin-group').style.display = 'block';
-            document.getElementById('btn-login').classList.remove('hidden');
-            document.getElementById('btn-register').classList.add('hidden');
-            document.getElementById('test-pin').value = '';
-            document.getElementById('test-pin').focus();
-            
-            // Store mobile for login
-            window._testMobile = mobile;
-            window._testUser = result.user;
-            
-            log('✅ Ready for PIN login', 'pass');
-            return;
-        }
-
-        // METHOD 2: Direct Supabase Query (Fallback)
-        log('📡 Checking Supabase directly...', 'info');
-        var mobileNum = parseInt(mobile);
-        var { data: active, error: activeError } = await sb
+        // Check active_users
+        var { data: active, error: activeErr } = await sb
             .from('active_users')
             .select('*')
             .eq('mobile', mobileNum)
             .maybeSingle();
 
         if (active) {
-            log('✅ User found in active_users! Mobile: ' + active.mobile, 'pass');
-            setStatus('✅ User EXISTS (Supabase)', '#16a34a');
-            setSource('active');
-            setName(active.name || '—');
-            setAction('Show PIN Login');
+            log('✅ Found in active_users! Mobile: ' + active.mobile, 'pass');
+            log('   Name: ' + (active.name || 'Not set'), 'info');
+            log('   PIN hash: ' + (active.pinhash ? 'Yes (hashed)' : 'No'), 'info');
             
+            showResult(
+                '✅ <strong>USER FOUND IN ACTIVE</strong>\n' +
+                '📱 Mobile: ' + active.mobile + '\n' +
+                '👤 Name: ' + (active.name || 'Not set') + '\n' +
+                '🔑 PIN: ' + (active.pinhash ? '✅ Set' : '❌ Not set') + '\n\n' +
+                '👉 Enter PIN and click "Login"',
+                '#16a34a'
+            );
+            
+            currentUser = active;
             document.getElementById('pin-group').style.display = 'block';
             document.getElementById('btn-login').classList.remove('hidden');
             document.getElementById('btn-register').classList.add('hidden');
-            window._testMobile = mobile;
-            window._testUser = active;
+            document.getElementById('pin').value = '';
+            document.getElementById('pin').focus();
             return;
         }
 
-        var { data: archived, error: archivedError } = await sb
+        // Check archived_users
+        var { data: archived, error: archErr } = await sb
             .from('archived_users')
             .select('*')
             .eq('mobile', mobileNum)
             .maybeSingle();
 
         if (archived) {
-            log('✅ User found in archived_users! Mobile: ' + archived.mobile, 'pass');
-            setStatus('✅ User EXISTS (Archived)', '#16a34a');
-            setSource('archived');
-            setName(archived.user_data?.name || '—');
-            setAction('Show PIN Login (Will Restore)');
+            log('✅ Found in archived_users!', 'pass');
+            log('   Name: ' + (archived.user_data?.name || 'Not set'), 'info');
             
+            showResult(
+                '✅ <strong>USER FOUND IN ARCHIVE</strong>\n' +
+                '📱 Mobile: ' + archived.mobile + '\n' +
+                '👤 Name: ' + (archived.user_data?.name || 'Not set') + '\n\n' +
+                '👉 Enter PIN and click "Login" (will restore)',
+                '#16a34a'
+            );
+            
+            currentUser = archived;
             document.getElementById('pin-group').style.display = 'block';
             document.getElementById('btn-login').classList.remove('hidden');
             document.getElementById('btn-register').classList.add('hidden');
-            window._testMobile = mobile;
-            window._testUser = archived.user_data;
+            document.getElementById('pin').value = '';
+            document.getElementById('pin').focus();
             return;
         }
 
-        // NEW USER
-        log('ℹ️ User NOT found. New user.', 'info');
-        setStatus('❌ User NOT FOUND', '#dc2626');
-        setSource('new');
-        setName('—');
-        setAction('Show Registration');
+        // New user
+        log('❌ User NOT found in active or archived', 'fail');
+        showResult(
+            '❌ <strong>USER NOT FOUND</strong>\n' +
+            '📱 Mobile: ' + mobile + '\n\n' +
+            '👉 Click "Register" to create new account',
+            '#dc2626'
+        );
         
         document.getElementById('pin-group').style.display = 'block';
         document.getElementById('btn-login').classList.add('hidden');
         document.getElementById('btn-register').classList.remove('hidden');
-        window._testMobile = mobile;
-        
-        log('📝 Ready for registration', 'info');
+        document.getElementById('pin').value = '';
+        document.getElementById('pin').focus();
 
-    } catch (error) {
-        log('❌ Error: ' + error.message, 'fail');
-        setStatus('❌ Error: ' + error.message, '#dc2626');
-        console.error(error);
+    } catch (err) {
+        log('❌ Error: ' + err.message, 'fail');
+        showResult('❌ Error: ' + err.message, '#dc2626');
     }
 }
 
-// ============================================================
-// LOGIN USER
-// ============================================================
 async function loginUser() {
-    var mobile = window._testMobile;
-    var pin = document.getElementById('test-pin').value.trim();
-    
+    var pin = document.getElementById('pin').value.trim();
     if (!pin || pin.length !== 4) {
-        log('❌ Please enter 4-digit PIN', 'fail');
+        showResult('❌ Enter 4-digit PIN', '#dc2626');
         return;
     }
 
-    log('🔐 Attempting login for: ' + mobile, 'info');
-    setStatus('⏳ Logging in...', '#f59e0b');
+    log('🔐 Login attempt for: ' + currentMobile, 'info');
+    showResult('⏳ Verifying PIN...', '#f59e0b');
 
     try {
         // Hash PIN
@@ -259,132 +193,128 @@ async function loginUser() {
         var hashBuffer = await crypto.subtle.digest('SHA-256', data);
         var hashArray = Array.from(new Uint8Array(hashBuffer));
         var pinhash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        log('   PIN hash: ' + pinhash.substring(0, 16) + '...', 'info');
 
-        // Check login via Edge Function
-        var response = await fetch(EDGE_URL + '/login-user', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ mobile: mobile, pin: pin, action: 'login' })
-        });
-        var result = await response.json();
-        log('📥 Login response: ' + JSON.stringify(result), 'info');
+        var mobileNum = parseInt(currentMobile);
 
-        if (result.success) {
+        // Check if user exists with this PIN
+        var { data: user, error: userErr } = await sb
+            .from('active_users')
+            .select('*')
+            .eq('mobile', mobileNum)
+            .eq('pinhash', pinhash)
+            .maybeSingle();
+
+        if (user) {
             log('✅ LOGIN SUCCESSFUL! 🎉', 'pass');
-            setStatus('✅ LOGIN SUCCESSFUL!', '#16a34a');
-            setAction('Logged in as: ' + (result.user?.name || result.user?.mobile || 'User'));
-            setName(result.user?.name || '—');
+            showResult(
+                '✅ <strong>LOGIN SUCCESSFUL!</strong> 🎉\n' +
+                '📱 Mobile: ' + user.mobile + '\n' +
+                '👤 Name: ' + (user.name || 'Not set') + '\n' +
+                '🏢 Company: ' + (user.company_name || 'Not set'),
+                '#16a34a'
+            );
             document.getElementById('btn-login').textContent = '✅ Logged In!';
             document.getElementById('btn-login').disabled = true;
-        } else if (result.isNewUser) {
-            log('ℹ️ User not found. Please register.', 'info');
-            setStatus('❌ User not found', '#dc2626');
-            setAction('Please register');
-        } else {
-            log('❌ Login failed: ' + (result.error || 'Unknown error'), 'fail');
-            setStatus('❌ Login failed: ' + (result.error || 'Unknown error'), '#dc2626');
-            setAction('Try again');
+            return;
         }
-    } catch (error) {
-        log('❌ Login error: ' + error.message, 'fail');
-        setStatus('❌ Error: ' + error.message, '#dc2626');
+
+        // Check if user exists but PIN is wrong
+        var { data: exists, error: existsErr } = await sb
+            .from('active_users')
+            .select('mobile')
+            .eq('mobile', mobileNum)
+            .maybeSingle();
+
+        if (exists) {
+            log('❌ Incorrect PIN for existing user', 'fail');
+            showResult('❌ <strong>Incorrect PIN</strong>\nPlease try again.', '#dc2626');
+            document.getElementById('pin').value = '';
+            document.getElementById('pin').focus();
+            return;
+        }
+
+        log('❌ User not found with this PIN', 'fail');
+        showResult('❌ <strong>User not found</strong>\nPlease register.', '#dc2626');
+
+    } catch (err) {
+        log('❌ Login error: ' + err.message, 'fail');
+        showResult('❌ Error: ' + err.message, '#dc2626');
     }
 }
 
-// ============================================================
-// REGISTER USER
-// ============================================================
 async function registerUser() {
-    var mobile = window._testMobile;
-    var pin = document.getElementById('test-pin').value.trim();
-    
+    var pin = document.getElementById('pin').value.trim();
     if (!pin || pin.length !== 4) {
-        log('❌ Please enter 4-digit PIN for registration', 'fail');
+        showResult('❌ Enter 4-digit PIN', '#dc2626');
         return;
     }
 
-    log('📝 Registering user: ' + mobile, 'info');
-    setStatus('⏳ Registering...', '#f59e0b');
+    log('📝 Registering: ' + currentMobile, 'info');
+    showResult('⏳ Registering...', '#f59e0b');
 
     try {
-        var response = await fetch(EDGE_URL + '/register-user', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ mobile: mobile, pin: pin })
-        });
-        var result = await response.json();
-        log('📥 Register response: ' + JSON.stringify(result), 'info');
+        var encoder = new TextEncoder();
+        var data = encoder.encode(pin);
+        var hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        var hashArray = Array.from(new Uint8Array(hashBuffer));
+        var pinhash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
-        if (result.success) {
-            log('✅ REGISTRATION SUCCESSFUL! 🎉', 'pass');
-            setStatus('✅ REGISTRATION SUCCESSFUL!', '#16a34a');
-            setAction('User registered: ' + result.user?.mobile);
-            document.getElementById('btn-register').textContent = '✅ Registered!';
-            document.getElementById('btn-register').disabled = true;
-        } else if (result.code === 'USER_EXISTS_ACTIVE') {
-            log('⚠️ User already exists in active_users', 'fail');
-            setStatus('⚠️ Already registered', '#f59e0b');
-            setAction('Please login instead');
-        } else if (result.code === 'USER_ARCHIVED') {
-            log('⚠️ User is archived. Please login to restore.', 'fail');
-            setStatus('⚠️ User archived', '#f59e0b');
-            setAction('Please login to restore');
-        } else {
-            log('❌ Registration failed: ' + (result.error || 'Unknown error'), 'fail');
-            setStatus('❌ ' + (result.error || 'Registration failed'), '#dc2626');
+        var mobileNum = parseInt(currentMobile);
+
+        // Check if already exists
+        var { data: exists } = await sb
+            .from('active_users')
+            .select('mobile')
+            .eq('mobile', mobileNum)
+            .maybeSingle();
+
+        if (exists) {
+            log('❌ User already exists!', 'fail');
+            showResult('❌ <strong>User already exists</strong>\nPlease login instead.', '#dc2626');
+            return;
         }
-    } catch (error) {
-        log('❌ Registration error: ' + error.message, 'fail');
-        setStatus('❌ Error: ' + error.message, '#dc2626');
+
+        // Create new user
+        var { data: newUser, error: insertErr } = await sb
+            .from('active_users')
+            .insert({
+                mobile: mobileNum,
+                pinhash: pinhash,
+                last_active: new Date().toISOString()
+            })
+            .select()
+            .single();
+
+        if (insertErr) {
+            log('❌ Register error: ' + insertErr.message, 'fail');
+            showResult('❌ Error: ' + insertErr.message, '#dc2626');
+            return;
+        }
+
+        log('✅ REGISTRATION SUCCESSFUL! 🎉', 'pass');
+        showResult(
+            '✅ <strong>REGISTRATION SUCCESSFUL!</strong> 🎉\n' +
+            '📱 Mobile: ' + newUser.mobile + '\n' +
+            '🔑 PIN set successfully\n\n' +
+            '👉 Click "Login" with your PIN',
+            '#16a34a'
+        );
+        document.getElementById('btn-register').textContent = '✅ Registered!';
+        document.getElementById('btn-register').disabled = true;
+        document.getElementById('btn-login').classList.remove('hidden');
+
+    } catch (err) {
+        log('❌ Register error: ' + err.message, 'fail');
+        showResult('❌ Error: ' + err.message, '#dc2626');
     }
 }
 
-// ============================================================
-// DIRECT SQL CHECK
-// ============================================================
-async function sqlCheck() {
-    var mobile = document.getElementById('test-mobile').value.trim();
-    if (!mobile || mobile.length !== 10) {
-        log('❌ Enter a valid mobile number', 'fail');
-        return;
-    }
-    var mobileNum = parseInt(mobile);
-    
-    log('🔍 SQL Check for: ' + mobile, 'info');
-    
-    var { data: active, error: activeError } = await sb
-        .from('active_users')
-        .select('*')
-        .eq('mobile', mobileNum)
-        .maybeSingle();
-    
-    if (active) {
-        log('✅ Found in active_users: ' + JSON.stringify(active), 'pass');
-    } else {
-        log('❌ Not found in active_users', 'fail');
-    }
-    
-    var { data: archived, error: archivedError } = await sb
-        .from('archived_users')
-        .select('*')
-        .eq('mobile', mobileNum)
-        .maybeSingle();
-    
-    if (archived) {
-        log('✅ Found in archived_users: ' + JSON.stringify(archived), 'pass');
-    } else {
-        log('❌ Not found in archived_users', 'fail');
-    }
-}
-
-// ============================================================
-// ENTER KEY HANDLERS
-// ============================================================
-document.getElementById('test-mobile').addEventListener('keydown', function(e) {
+// Enter key handlers
+document.getElementById('mobile').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') checkUser();
 });
-
-document.getElementById('test-pin').addEventListener('keydown', function(e) {
+document.getElementById('pin').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
         if (!document.getElementById('btn-login').classList.contains('hidden')) {
             loginUser();
@@ -394,10 +324,8 @@ document.getElementById('test-pin').addEventListener('keydown', function(e) {
     }
 });
 
-// ============================================================
-// INIT
-// ============================================================
-log('🚀 Login Test initialized', 'info');
+// Init
+log('🚀 Direct Login Test initialized', 'info');
 log('📱 Enter mobile and click "Check User"', 'info');
 </script>
 </body>
