@@ -461,75 +461,75 @@ function autoLocate(){var inp=$('search-home');if(!inp)return;var saved=localSto
 if(navigator.geolocation){navigator.geolocation.getCurrentPosition(function(p){var lat=p.coords.latitude,lng=p.coords.longitude,near=null,minD=Infinity;for(var i=0;i<LOCATIONS.length;i++){var l=LOCATIONS[i],d=dist(lat,lng,l.lat,l.lng);if(d<minD){minD=d;near=l}}if(near&&minD<100){var dn=near.name+', '+near.state+' ('+near.pin+')';inp.value=dn;homePin=near.pin;localStorage.setItem('rt_home_location',JSON.stringify({pin:near.pin,displayName:dn}));applyFilters()}},function(){fetch('https://ipapi.co/json/').then(function(r){return r.json()}).then(function(d){var city=d.city||'';for(var i=0;i<LOCATIONS.length;i++){var l=LOCATIONS[i];if(l.name.toLowerCase()===city.toLowerCase()||l.district.toLowerCase()===city.toLowerCase()){var dn=l.name+', '+l.state+' ('+l.pin+')';inp.value=dn;homePin=l.pin;localStorage.setItem('rt_home_location',JSON.stringify({pin:l.pin,displayName:dn}));applyFilters();break}}}).catch(function(){})})}}
 
 // ============================================================
-// SINGLE SEARCH FUNCTION - Works for ALL search inputs
+// SINGLE SEARCH FUNCTION - Works for ALL search inputs (home, to, pl-pickup, pl-drop, pt-location)
 // ============================================================
-function searchLocation(ctx){
-    var id = 'search-' + ctx;
-    var sug = 'suggestions-' + ctx;
-    var inp = $(id);
-    var sugEl = $(sug);
-    if(!inp || !sugEl) return;
+function searchLocation(context){
+    var inputId = 'search-' + context;
+    var suggestionsId = 'suggestions-' + context;
+    var input = $(inputId);
+    var suggestions = $(suggestionsId);
+    if(!input || !suggestions) return;
     
-    var q = inp.value.trim();
-    if(!q){ sugEl.classList.remove('show'); return; }
+    var query = input.value.trim();
+    if(!query){ suggestions.classList.remove('show'); return; }
     
     var results = [];
-    var qLower = q.toLowerCase();
+    var qLower = query.toLowerCase();
     for(var i=0; i<LOCATIONS.length; i++){
-        var l = LOCATIONS[i];
-        if(l.name.toLowerCase().includes(qLower) ||
-           l.pin.includes(q) ||
-           l.district.toLowerCase().includes(qLower) ||
-           l.state.toLowerCase().includes(qLower)){
-            results.push(l);
+        var loc = LOCATIONS[i];
+        if(loc.name.toLowerCase().includes(qLower) ||
+           loc.pin.includes(query) ||
+           loc.district.toLowerCase().includes(qLower) ||
+           loc.state.toLowerCase().includes(qLower)){
+            results.push(loc);
         }
         if(results.length >= 8) break;
     }
     
-    if(results.length === 0){ sugEl.classList.remove('show'); return; }
+    if(results.length === 0){ suggestions.classList.remove('show'); return; }
     
     var html = '';
     for(var j=0; j<results.length; j++){
-        var l = results[j];
-        var displayName = l.name + ', ' + l.district + ', ' + l.state + ' (' + l.pin + ')';
+        var loc = results[j];
+        var displayName = loc.name + ', ' + loc.district + ', ' + loc.state + ' (' + loc.pin + ')';
         var idx = displayName.toLowerCase().indexOf(qLower);
         var displayHtml = displayName;
         if(idx !== -1){
             displayHtml = displayName.substring(0, idx) + 
                           '<span class="highlight">' + 
-                          displayName.substring(idx, idx + q.length) + 
+                          displayName.substring(idx, idx + query.length) + 
                           '</span>' + 
-                          displayName.substring(idx + q.length);
+                          displayName.substring(idx + query.length);
         }
-        html += '<div class="item" onclick="selectLocation(\'' + ctx + '\',\'' + l.pin + '\',\'' + l.name + '\',\'' + l.state + '\')">' + displayHtml + '</div>';
+        html += '<div class="item" onclick="selectLocation(\'' + context + '\',\'' + loc.pin + '\',\'' + loc.name + '\',\'' + loc.state + '\')">' + displayHtml + '</div>';
     }
-    sugEl.innerHTML = html;
-    sugEl.classList.add('show');
+    suggestions.innerHTML = html;
+    suggestions.classList.add('show');
 }
 
 // ============================================================
-// SINGLE SELECT LOCATION FUNCTION - Works for ALL search inputs
+// SINGLE SELECT LOCATION FUNCTION - Works for ALL contexts
 // ============================================================
-function selectLocation(ctx, pin, name, state){
+function selectLocation(context, pin, name, state){
     var displayName = name + ', ' + state + ' (' + pin + ')';
-    var inputId = 'search-' + ctx;
-    var suggestionsId = 'suggestions-' + ctx;
+    var inputId = 'search-' + context;
+    var suggestionsId = 'suggestions-' + context;
     var hiddenId = null;
     
-    if(ctx === 'to') hiddenId = 'filter-to-hidden';
-    else if(ctx === 'pl-pickup') hiddenId = 'pl-pickup-hidden';
-    else if(ctx === 'pl-drop') hiddenId = 'pl-drop-hidden';
-    else if(ctx === 'pt-location') hiddenId = 'pt-location-hidden';
+    if(context === 'to') hiddenId = 'filter-to-hidden';
+    else if(context === 'pl-pickup') hiddenId = 'pl-pickup-hidden';
+    else if(context === 'pl-drop') hiddenId = 'pl-drop-hidden';
+    else if(context === 'pt-location') hiddenId = 'pt-location-hidden';
     
     $(inputId).value = displayName;
     if(hiddenId) $(hiddenId).value = pin;
     $(suggestionsId).classList.remove('show');
     
-    if(ctx === 'home'){
+    if(context === 'home'){
         homePin = pin;
         localStorage.setItem('rt_home_location', JSON.stringify({pin: pin, displayName: displayName}));
         applyFilters();
-    } else if(ctx === 'to'){
+    } else if(context === 'to'){
         toPin = pin;
         applyFilters();
     }
