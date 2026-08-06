@@ -436,9 +436,13 @@ if(navigator.geolocation){navigator.geolocation.getCurrentPosition(function(p){v
 // UNIFIED SEARCH - ONE FUNCTION FOR ALL CONTEXTS
 // ============================================================
 function searchLocation(ctx){
+    console.log('🔍 searchLocation called with:', ctx);  // ← ADD THIS
     var inp=$('search-'+ctx), sug=$('suggestions-'+ctx);
+    console.log('Input found:', inp ? 'YES' : 'NO');     // ← ADD THIS
+    console.log('Suggestions found:', sug ? 'YES' : 'NO'); // ← ADD THIS
     if(!inp||!sug)return;
     var q=inp.value.trim();
+    console.log('Query:', q);                            // ← ADD THIS
     if(!q){sug.classList.remove('show');return}
     var res=[], ql=q.toLowerCase();
     for(var i=0;i<LOCATIONS.length;i++){
