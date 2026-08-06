@@ -500,9 +500,14 @@ async function checkUser(mobile) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ mobile: mobile, action: 'check' })
         });
-        return await response.json();
+        
+        var result = await response.json();
+        console.log('checkUser result:', result); // DEBUG: See what's returned
+        
+        return result;
     } catch (e) {
-        return { success: false, error: e.message };
+        console.error('checkUser error:', e);
+        return { success: false, error: e.message, exists: false };
     }
 }
 
@@ -589,18 +594,43 @@ $('mobile').addEventListener('input', function(e) {
     var m = this.value.trim();
     if (m.length === 10) {
         mobile = m;
+        
+        // Show loading status
+        setStatus('⏳ Checking...', 'blue');
+        
         checkUser(m).then(function(result) {
-            if (result.source === 'active' || result.source === 'archived') {
+            console.log('User check result:', result); // DEBUG
+            
+            // Check if user exists (active or archived)
+            if (result.exists === true || result.source === 'active' || result.source === 'archived') {
+                // ✅ EXISTING USER - Show PIN login
                 $('step1').classList.add('hidden');
                 $('step2').classList.remove('hidden');
+                $('step3').classList.add('hidden');
+                $('step4').classList.add('hidden');
                 $('display-mobile').textContent = m;
                 setStatus('✅ Existing user. Enter your PIN.', 'green');
+                $('pin').value = '';
+                $('pin').focus();
             } else {
+                // ✅ NEW USER - Show Registration
                 $('step1').classList.add('hidden');
+                $('step2').classList.add('hidden');
+                $('step3').classList.add('hidden');
                 $('step4').classList.remove('hidden');
                 $('reg-display-mobile').textContent = m;
                 setStatus('📱 New user. Set your PIN.', 'blue');
+                $('reg-pin').value = '';
+                $('reg-pin-confirm').value = '';
+                $('reg-pin').focus();
             }
+        }).catch(function(err) {
+            console.error('Check user error:', err);
+            setStatus('⚠️ Error checking user. Please try again.', 'red');
+            // Fallback: Show step1 again
+            $('step1').classList.remove('hidden');
+            $('step2').classList.add('hidden');
+            $('step4').classList.add('hidden');
         });
     }
 });
