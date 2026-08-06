@@ -436,30 +436,43 @@ if(navigator.geolocation){navigator.geolocation.getCurrentPosition(function(p){v
 // UNIFIED SEARCH - ONE FUNCTION FOR ALL CONTEXTS
 // ============================================================
 function searchLocation(ctx){
-    console.log('🔍 searchLocation called with:', ctx);  // ← ADD THIS
-    var inp=$('search-'+ctx), sug=$('suggestions-'+ctx);
-    console.log('Input found:', inp ? 'YES' : 'NO');     // ← ADD THIS
-    console.log('Suggestions found:', sug ? 'YES' : 'NO'); // ← ADD THIS
-    if(!inp||!sug)return;
-    var q=inp.value.trim();
-    console.log('Query:', q);                            // ← ADD THIS
-    if(!q){sug.classList.remove('show');return}
-    var res=[], ql=q.toLowerCase();
-    for(var i=0;i<LOCATIONS.length;i++){
-        var l=LOCATIONS[i];
-        if(l.name.toLowerCase().includes(ql)||l.pin.includes(q)||l.district.toLowerCase().includes(ql)||l.state.toLowerCase().includes(ql)){
+    var inp = $('search-' + ctx);
+    var sug = $('suggestions-' + ctx);
+    if(!inp || !sug) return;
+    
+    var q = inp.value.trim();
+    if(!q){ sug.classList.remove('show'); return; }
+    
+    var res = [], ql = q.toLowerCase();
+    
+    // Search in LOCATIONS (works for ALL contexts - home, to, pl-pickup, pl-drop, pt-location)
+    for(var i=0; i<LOCATIONS.length; i++){
+        var l = LOCATIONS[i];
+        if(l.name.toLowerCase().includes(ql) || 
+           l.pin.includes(q) || 
+           l.district.toLowerCase().includes(ql) || 
+           l.state.toLowerCase().includes(ql)){
             res.push(l);
-            if(res.length>=8)break;
+            if(res.length >= 8) break;
         }
     }
-    if(!res.length){sug.classList.remove('show');return}
-    var html='';
-    for(var j=0;j<res.length;j++){
-        var l=res[j], dn=l.name+', '+l.district+', '+l.state+' ('+l.pin+')', idx=dn.toLowerCase().indexOf(ql), dh=dn;
-        if(idx!==-1) dh=dn.substring(0,idx)+'<span class="highlight">'+dn.substring(idx,idx+q.length)+'</span>'+dn.substring(idx+q.length);
-        html+='<div class="item" onclick="selectLoc(\''+ctx+'\',\''+l.pin+'\',\''+l.name+'\',\''+l.state+'\')">'+dh+'</div>';
+    
+    if(!res.length){ sug.classList.remove('show'); return; }
+    
+    var html = '';
+    for(var j=0; j<res.length; j++){
+        var l = res[j];
+        var dn = l.name + ', ' + l.district + ', ' + l.state + ' (' + l.pin + ')';
+        var idx = dn.toLowerCase().indexOf(ql);
+        if(idx !== -1){
+            dn = dn.substring(0, idx) + '<span class="highlight">' + 
+                 dn.substring(idx, idx + q.length) + '</span>' + 
+                 dn.substring(idx + q.length);
+        }
+        html += '<div class="item" onclick="selectLoc(\'' + ctx + '\',\'' + l.pin + '\',\'' + l.name + '\',\'' + l.state + '\')">' + dn + '</div>';
     }
-    sug.innerHTML=html;sug.classList.add('show');
+    sug.innerHTML = html;
+    sug.classList.add('show');
 }
 
 // ============================================================
