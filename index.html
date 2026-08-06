@@ -60,8 +60,9 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .type-tabs button{padding:6px 4px;font-size:11px;font-weight:700;border:none;border-radius:8px;cursor:pointer}
 .type-tabs .active{background:#fff;color:#1e293b}.type-tabs .inactive{background:transparent;color:#64748b}
 .filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:10px;font-weight:600;color:#64748b;border-top:1px solid #e2e8f0;margin-top:4px;user-select:none}
+/* FIX: Allow suggestions to show when filter container is open */
 .filter-container{overflow:hidden;transition:max-height 0.3s ease;max-height:0}
-.filter-container.open{max-height:400px}
+.filter-container.open{max-height:400px;overflow:visible}
 .filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;padding-top:6px}
 .filter-row label{font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
 .filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:11px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;outline:none}
@@ -205,11 +206,9 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div class="filter-row">
                 <div>
                     <label>📍 To Location</label>
-                    <div class="location-input" style="width:100%">  
+                    <div style="position:relative;width:100%">
                         <input type="text" id="search-to" placeholder="📍 Location/PIN" oninput="searchLocation('to')" autocomplete="off">
-                    <div class="search-wrapper">
-                        <div class="suggestions" id="suggestions-to"></div>
-                    </div>
+                        <div class="search-wrapper"><div class="suggestions" id="suggestions-to"></div></div>
                         <input type="hidden" id="filter-to-hidden">
                     </div>
                 </div>
@@ -436,43 +435,26 @@ if(navigator.geolocation){navigator.geolocation.getCurrentPosition(function(p){v
 // UNIFIED SEARCH - ONE FUNCTION FOR ALL CONTEXTS
 // ============================================================
 function searchLocation(ctx){
-    var inp = $('search-' + ctx);
-    var sug = $('suggestions-' + ctx);
-    if(!inp || !sug) return;
-    
-    var q = inp.value.trim();
-    if(!q){ sug.classList.remove('show'); return; }
-    
-    var res = [], ql = q.toLowerCase();
-    
-    // Search in LOCATIONS (works for ALL contexts - home, to, pl-pickup, pl-drop, pt-location)
-    for(var i=0; i<LOCATIONS.length; i++){
-        var l = LOCATIONS[i];
-        if(l.name.toLowerCase().includes(ql) || 
-           l.pin.includes(q) || 
-           l.district.toLowerCase().includes(ql) || 
-           l.state.toLowerCase().includes(ql)){
+    var inp=$('search-'+ctx), sug=$('suggestions-'+ctx);
+    if(!inp||!sug)return;
+    var q=inp.value.trim();
+    if(!q){sug.classList.remove('show');return}
+    var res=[], ql=q.toLowerCase();
+    for(var i=0;i<LOCATIONS.length;i++){
+        var l=LOCATIONS[i];
+        if(l.name.toLowerCase().includes(ql)||l.pin.includes(q)||l.district.toLowerCase().includes(ql)||l.state.toLowerCase().includes(ql)){
             res.push(l);
-            if(res.length >= 8) break;
+            if(res.length>=8)break;
         }
     }
-    
-    if(!res.length){ sug.classList.remove('show'); return; }
-    
-    var html = '';
-    for(var j=0; j<res.length; j++){
-        var l = res[j];
-        var dn = l.name + ', ' + l.district + ', ' + l.state + ' (' + l.pin + ')';
-        var idx = dn.toLowerCase().indexOf(ql);
-        if(idx !== -1){
-            dn = dn.substring(0, idx) + '<span class="highlight">' + 
-                 dn.substring(idx, idx + q.length) + '</span>' + 
-                 dn.substring(idx + q.length);
-        }
-        html += '<div class="item" onclick="selectLoc(\'' + ctx + '\',\'' + l.pin + '\',\'' + l.name + '\',\'' + l.state + '\')">' + dn + '</div>';
+    if(!res.length){sug.classList.remove('show');return}
+    var html='';
+    for(var j=0;j<res.length;j++){
+        var l=res[j], dn=l.name+', '+l.district+', '+l.state+' ('+l.pin+')', idx=dn.toLowerCase().indexOf(ql), dh=dn;
+        if(idx!==-1) dh=dn.substring(0,idx)+'<span class="highlight">'+dn.substring(idx,idx+q.length)+'</span>'+dn.substring(idx+q.length);
+        html+='<div class="item" onclick="selectLoc(\''+ctx+'\',\''+l.pin+'\',\''+l.name+'\',\''+l.state+'\')">'+dh+'</div>';
     }
-    sug.innerHTML = html;
-    sug.classList.add('show');
+    sug.innerHTML=html;sug.classList.add('show');
 }
 
 // ============================================================
