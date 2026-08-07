@@ -482,7 +482,7 @@ function toast(msg){alert(msg)}
 var EDGE_URL = 'https://ghjoffovatgvhzxlupef.supabase.co/functions/v1';
 
 // ============================================================
-// AUTH FUNCTIONS
+// AUTH FUNCTIONS - FIXED
 // ============================================================
 
 async function checkUser(mobile) {
@@ -492,10 +492,43 @@ async function checkUser(mobile) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ mobile: mobile, action: 'check' })
         });
-        return await response.json();
+        var result = await response.json();
+        console.log('checkUser result:', result);
+        return result;
     } catch (e) {
         console.error('checkUser error:', e);
-        return { exists: false, error: e.message };
+        // Fallback: Direct check with BIGINT
+        try {
+            var mobileNum = parseInt(mobile);
+            var { data, error } = await sb
+                .from('active_users')
+                .select('mobile, name, company_name')
+                .eq('mobile', mobileNum)
+                .maybeSingle();
+            if (data) {
+                return { exists: true, source: 'active', user: data };
+            }
+            var { data: archived, error: archErr } = await sb
+                .from('archived_users')
+                .select('mobile, user_data')
+                .eq('mobile', mobileNum)
+                .maybeSingle();
+            if (archived) {
+                return { 
+                    exists: true, 
+                    source: 'archived', 
+                    user: { 
+                        mobile: archived.mobile, 
+                        name: archived.user_data?.name || '',
+                        company_name: archived.user_data?.company_name || ''
+                    }
+                };
+            }
+            return { exists: false, source: 'new' };
+        } catch (fallbackErr) {
+            console.error('Fallback error:', fallbackErr);
+            return { exists: false, error: fallbackErr.message };
+        }
     }
 }
 
@@ -570,7 +603,7 @@ async function resetPINAPI(mobile, newPin, token) {
 }
 
 // ============================================================
-// AUTH UI FUNCTIONS
+// AUTH UI FUNCTIONS - FIXED
 // ============================================================
 
 function setStatus(msg, type) {
@@ -582,6 +615,7 @@ function setStatus(msg, type) {
 }
 
 function showPinLogin(m) {
+    console.log('✅ Showing PIN login for:', m);
     $('step1').classList.add('hidden');
     $('step2').classList.remove('hidden');
     $('step3').classList.add('hidden');
@@ -593,6 +627,7 @@ function showPinLogin(m) {
 }
 
 function showRegistration(m) {
+    console.log('📱 Showing registration for:', m);
     $('step1').classList.add('hidden');
     $('step2').classList.add('hidden');
     $('step3').classList.add('hidden');
@@ -604,24 +639,33 @@ function showRegistration(m) {
     $('reg-pin').focus();
 }
 
-// Mobile input handler
+// ============================================================
+// MOBILE INPUT HANDLER - FIXED
+// ============================================================
 $('mobile').addEventListener('input', function(e) {
     var m = this.value.trim();
     if (m.length === 10) {
         mobile = m;
         setStatus('⏳ Checking...', 'blue');
         
+        console.log('📱 Checking mobile:', m);
+        
         checkUser(m).then(function(result) {
-            console.log('checkUser result:', result);
+            console.log('✅ checkUser result:', result);
             
-            if (result.exists === true || result.source === 'active' || result.source === 'archived') {
+            // Check if user exists (active or archived)
+            var userExists = result.exists === true || 
+                            result.source === 'active' || 
+                            result.source === 'archived';
+            
+            if (userExists) {
                 showPinLogin(m);
             } else {
                 showRegistration(m);
             }
         }).catch(function(err) {
-            console.error('checkUser error:', err);
-            // Fallback: Direct check
+            console.error('❌ checkUser error:', err);
+            // Fallback: Direct check with BIGINT
             var mobileNum = parseInt(m);
             sb.from('active_users')
                 .select('mobile')
@@ -638,13 +682,18 @@ $('mobile').addEventListener('input', function(e) {
     }
 });
 
-// Enter key for PIN
+// ============================================================
+// PIN ENTER KEY
+// ============================================================
 $('pin').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
         submitPin();
     }
 });
 
+// ============================================================
+// SUBMIT PIN - FIXED
+// ============================================================
 window.submitPin = async function() {
     var pin = $('pin').value.trim();
     if (!pin || pin.length !== 4) {
@@ -653,25 +702,32 @@ window.submitPin = async function() {
         return;
     }
     
+    console.log('🔐 Submitting PIN for:', mobile);
+    
     var result = await loginUser(mobile, pin);
+    console.log('✅ Login result:', result);
+    
     if (result.success) {
         user = result.user;
         localStorage.setItem('rt_user', JSON.stringify({ mobile: user.mobile, user: user }));
         guest = false;
         showHome();
-        toast('✅ Login successful!');
+        toast('✅ Login successful! Welcome ' + (user.name || 'User') + '! 🎉');
     } else if (result.isNewUser) {
         toast('📱 User not found. Please register.');
         resetForm();
         $('mobile').value = mobile;
         $('mobile').dispatchEvent(new Event('input'));
     } else {
-        toast('❌ ' + (result.error || 'Login failed'));
+        toast('❌ ' + (result.error || 'Login failed. Please try again.'));
         $('pin').value = '';
         $('pin').focus();
     }
 };
 
+// ============================================================
+// REGISTER USER - FIXED
+// ============================================================
 async function registerUser() {
     var pin = $('reg-pin').value.trim();
     var confirm = $('reg-pin-confirm').value.trim();
@@ -688,7 +744,11 @@ async function registerUser() {
         return;
     }
     
+    console.log('📝 Registering user:', mobile);
+    
     var result = await registerUserAPI(mobile, pin);
+    console.log('✅ Register result:', result);
+    
     if (result.success) {
         user = result.user;
         localStorage.setItem('rt_user', JSON.stringify({ mobile: user.mobile, user: user }));
@@ -713,7 +773,6 @@ async function registerUser() {
 // ============================================================
 // FORGOT PIN FUNCTIONS
 // ============================================================
-
 function openResetPIN() {
     document.getElementById('reset-pin-modal').classList.add('show');
     document.getElementById('reset-step1').style.display = 'block';
@@ -862,7 +921,6 @@ function startResetTimer() {
 // ============================================================
 // CHANGE PIN FUNCTIONS
 // ============================================================
-
 function openChangePinModal() {
     if (guest || !user) { toast('🔐 Please login to change PIN'); return; }
     document.getElementById('change-pin-modal').classList.add('show');
