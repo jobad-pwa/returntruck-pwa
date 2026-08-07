@@ -1,11 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edge Function Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        *{box-sizing:border-box;font-family:system-ui,sans-serif}
+        body{background:#f3f4f6;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px}
+        .container{max-width:480px;width:100%;background:#fff;border-radius:24px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+        h1{color:#2563eb;font-size:20px;margin:0 0 4px}
+        .sub{font-size:13px;color:#64748b;margin-bottom:16px}
+        .input-group{margin-bottom:12px}
+        .input-group label{font-size:11px;font-weight:700;color:#1e293b;display:block;margin-bottom:4px}
+        .input-group input{width:100%;padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;outline:none}
+        .input-group input:focus{border-color:#2563eb}
+        .btn{width:100%;padding:12px;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;transition:.2s;margin-bottom:6px}
+        .btn-primary{background:#2563eb;color:#fff}
+        .btn-primary:hover{background:#1d4ed8}
+        .btn-success{background:#16a34a;color:#fff}
+        .btn-danger{background:#dc2626;color:#fff}
+        .btn-gray{background:#6b7280;color:#fff}
+        .btn-warning{background:#f59e0b;color:#000}
+        .result{background:#f8fafc;border-radius:12px;padding:16px;margin-top:12px;font-size:13px;font-family:monospace;white-space:pre-wrap;word-break:break-all;max-height:400px;overflow-y:auto}
+        .pass{color:#16a34a;font-weight:600}
+        .fail{color:#dc2626;font-weight:600}
+        .info{color:#2563eb;font-weight:600}
+        .warn{color:#f59e0b;font-weight:600}
+        .log{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:12px;font-family:monospace;font-size:11px;max-height:150px;overflow-y:auto;margin-top:12px}
+        .log .pass{color:#4ade80}
+        .log .fail{color:#f87171}
+        .log .info{color:#60a5fa}
+        .step-box{background:#f1f5f9;border-radius:12px;padding:12px;margin:8px 0;border-left:4px solid #94a3b8}
+        .step-box .step-title{font-weight:700;font-size:13px;color:#1e293b}
+        .step-box .step-detail{font-size:12px;color:#475569;margin-top:4px;font-family:monospace}
+        .step-box.pass{border-left-color:#16a34a;background:#f0fdf4}
+        .step-box.fail{border-left-color:#dc2626;background:#fef2f2}
+        .dt-info{background:#dbeafe;border-radius:8px;padding:12px;margin:8px 0;font-size:12px}
+        .dt-info strong{color:#1e40af}
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🔍 Edge Function Test</h1>
+    <div class="sub">Tests check user via Edge Function with data type tracking</div>
+
+    <div class="dt-info">
+        <strong>📊 Data Type Info:</strong><br>
+        Input from HTML: <span id="input-type-display">string</span><br>
+        Converted to BIGINT: <span id="bigint-display">number</span><br>
+        Supabase Column: BIGINT (number)
+    </div>
+
+    <div class="input-group">
+        <label>📱 Mobile Number</label>
+        <input type="tel" id="mobile" placeholder="Enter 10-digit mobile" maxlength="10" value="6300067332">
+    </div>
+
+    <button class="btn btn-primary" onclick="runTest()">🚀 Run Test</button>
+    <button class="btn btn-warning" onclick="testDirect()">📡 Test Edge Function Only</button>
+    <button class="btn btn-success" onclick="testDirectSQL()">🗄️ Test Direct SQL</button>
+    <button class="btn btn-gray" onclick="clearAll()">🗑️ Clear</button>
+
+    <div id="steps-container"></div>
+    <div class="result" id="result">⏳ Enter mobile and click "Run Test"</div>
+    <div class="log" id="log">⏳ Waiting...</div>
+</div>
+
 <script>
 var SB_URL = 'https://ghjoffovatgvhzxlupef.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
 var EDGE_URL = 'https://ghjoffovatgvhzxlupef.supabase.co/functions/v1';
 var sb = window.supabase.createClient(SB_URL, SB_KEY);
 
+function log(msg, type) {
+    var el = document.getElementById('log');
+    var time = new Date().toLocaleTimeString();
+    var colors = { pass: 'pass', fail: 'fail', info: 'info', warn: 'warn' };
+    el.innerHTML += '[' + time + '] <span class="' + (colors[type] || 'info') + '">' + msg + '</span>\n';
+    el.scrollTop = el.scrollHeight;
+}
+
+function clearAll() {
+    document.getElementById('log').innerHTML = '';
+    document.getElementById('result').innerHTML = '⏳ Cleared';
+    document.getElementById('steps-container').innerHTML = '';
+    log('🗑️ Cleared', 'info');
+}
+
+function addStep(title, detail, status) {
+    var container = document.getElementById('steps-container');
+    var cls = 'step-box';
+    if (status === 'pass') cls += ' pass';
+    else if (status === 'fail') cls += ' fail';
+    
+    var html = '<div class="' + cls + '">';
+    html += '<div class="step-title">' + title + '</div>';
+    html += '<div class="step-detail">' + detail + '</div>';
+    html += '</div>';
+    container.innerHTML += html;
+}
+
+function showResult(msg, color) {
+    document.getElementById('result').innerHTML = msg;
+    document.getElementById('result').style.color = color || '#1e293b';
+}
+
+function updateDataTypeDisplay(inputVal) {
+    var inputType = typeof inputVal;
+    var bigintVal = parseInt(inputVal);
+    var bigintType = typeof bigintVal;
+    
+    document.getElementById('input-type-display').textContent = inputType + ' ("' + inputVal + '")';
+    document.getElementById('bigint-display').textContent = bigintType + ' (' + bigintVal + ')';
+}
+
 // ============================================================
-// UPDATED: RUN FULL TEST
+// RUN FULL TEST - FIXED with Authorization Header
 // ============================================================
 async function runTest() {
     var mobile = document.getElementById('mobile').value.trim();
@@ -29,7 +140,7 @@ async function runTest() {
     showResult('⏳ Testing...', '#f59e0b');
 
     // ============================================================
-    // UPDATED: TEST 1 - Edge Function WITH Authorization
+    // TEST 1: Edge Function - NOW WITH AUTHENTICATION
     // ============================================================
     addStep(
         '📡 Step 2: Calling Edge Function',
@@ -44,7 +155,7 @@ async function runTest() {
             headers: { 
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                'Authorization': `Bearer ${SB_KEY}`  // ← FIXED: Added authorization header
+                'Authorization': 'Bearer ' + SB_KEY  // ✅ FIXED: Added authorization header
             },
             body: JSON.stringify({ mobile: mobile, action: 'check' })
         });
@@ -84,7 +195,7 @@ async function runTest() {
     }
 
     // ============================================================
-    // TEST 2: Direct SQL Query (This already works, no changes needed)
+    // TEST 2: Direct SQL Query
     // ============================================================
     addStep(
         '🗄️ Step 3: Direct SQL Query',
@@ -107,6 +218,7 @@ async function runTest() {
             );
             log('✅ Direct SQL found user: ' + active.mobile, 'pass');
         } else {
+            // Check archive
             var { data: archived, error: archErr } = await sb
                 .from('archived_users')
                 .select('*')
@@ -139,7 +251,7 @@ async function runTest() {
     }
 
     // ============================================================
-    // SUMMARY (No changes needed)
+    // SUMMARY
     // ============================================================
     var summary = '📊 <strong>SUMMARY</strong>\n\n';
     summary += '🔹 Input: "' + mobile + '" → BIGINT: ' + mobileNum + '\n';
@@ -166,7 +278,7 @@ async function runTest() {
 }
 
 // ============================================================
-// UPDATED: TEST EDGE FUNCTION ONLY
+// TEST EDGE FUNCTION ONLY - FIXED with Authorization Header
 // ============================================================
 async function testDirect() {
     var mobile = document.getElementById('mobile').value.trim();
@@ -184,7 +296,7 @@ async function testDirect() {
             headers: { 
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                'Authorization': `Bearer ${SB_KEY}`  // ← FIXED: Added authorization header
+                'Authorization': 'Bearer ' + SB_KEY  // ✅ FIXED: Added authorization header
             },
             body: JSON.stringify({ mobile: mobile, action: 'check' })
         });
@@ -211,7 +323,7 @@ async function testDirect() {
 }
 
 // ============================================================
-// TEST DIRECT SQL (No changes needed - this already works)
+// TEST DIRECT SQL (No changes needed - already works)
 // ============================================================
 async function testDirectSQL() {
     var mobile = document.getElementById('mobile').value.trim();
@@ -266,4 +378,15 @@ async function testDirectSQL() {
         log('❌ Error: ' + err.message, 'fail');
     }
 }
+
+// Enter key
+document.getElementById('mobile').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') runTest();
+});
+
+// Init
+log('🚀 Edge Function Test initialized', 'info');
+log('📱 Enter mobile and click "Run Test"', 'info');
 </script>
+</body>
+</html>
