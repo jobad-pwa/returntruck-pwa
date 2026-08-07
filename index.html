@@ -754,10 +754,10 @@ window.submitPin = async function() {
         });
         var result = await resp.json();
         
-        console.log('Login response:', result);
+        console.log('📥 Login response:', result);
         
+        // ✅ Case 1: Login successful
         if (result.success === true && result.user) {
-            // ✅ Login successful
             user = result.user;
             user.mobile = mobile;
             localStorage.setItem('rt_user', JSON.stringify({
@@ -769,36 +769,51 @@ window.submitPin = async function() {
             btn.disabled = false;
             showHome();
             return;
-        } else if (result.isNewUser === true) {
-            // New user - show OTP
+        }
+        
+        // ✅ Case 2: New user (mobile not registered)
+        if (result.isNewUser === true) {
             toast('📝 New user. Please verify OTP to create account.');
             $('step2').classList.add('hidden');
             $('step3').classList.remove('hidden');
             $('wa-display-mobile').textContent = mobile;
-            document.getElementById('otp-error').style.display='none';
-            document.getElementById('otp-success').style.display='none';
+            document.getElementById('otp-error').style.display = 'none';
+            document.getElementById('otp-success').style.display = 'none';
             sendWhatsAppOTP();
-        } else if (result.source === 'archived') {
+            btn.textContent = '🔐 Login';
+            btn.disabled = false;
+            return;
+        }
+        
+        // ✅ Case 3: Archived user
+        if (result.source === 'archived') {
             toast('📦 Archived account found. Please login to restore.');
             $('pin').value = '';
             $('pin').focus();
-        } else {
-            // ❌ Wrong PIN - Show error and stay on PIN screen
-            document.getElementById('pin-error').style.display = 'block';
-            $('pin').value = '';
-            $('pin').focus();
-            $('pin').placeholder = 'Enter correct 4-digit PIN';
-            $('pin').style.borderColor = '#ef4444';
-            setTimeout(function() {
-                $('pin').style.borderColor = '#e2e8f0';
-            }, 1500);
+            btn.textContent = '🔐 Login';
+            btn.disabled = false;
+            return;
         }
+        
+        // ✅ Case 4: Wrong PIN or any other error - STAY ON PIN SCREEN
+        // This handles: result.isNewUser === false, result.success === false
+        document.getElementById('pin-error').style.display = 'block';
+        document.getElementById('pin-error').textContent = '❌ ' + (result.error || 'Incorrect PIN. Please try again.');
+        $('pin').value = '';
+        $('pin').focus();
+        $('pin').placeholder = 'Enter correct 4-digit PIN';
+        $('pin').style.borderColor = '#ef4444';
+        setTimeout(function() {
+            $('pin').style.borderColor = '#e2e8f0';
+        }, 1500);
+        btn.textContent = '🔐 Login';
+        btn.disabled = false;
+        
     } catch (e) {
         console.error('Login error:', e);
         toast('❌ Login error. Please try again.');
         $('pin').value = '';
         $('pin').focus();
-    } finally {
         btn.textContent = '🔐 Login';
         btn.disabled = false;
     }
