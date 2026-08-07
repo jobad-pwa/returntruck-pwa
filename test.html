@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Direct Login Test</title>
+    <title>Login Flow Test</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         *{box-sizing:border-box;font-family:system-ui,sans-serif}
@@ -11,6 +11,10 @@
         .container{max-width:420px;width:100%;background:#fff;border-radius:24px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
         h1{color:#2563eb;font-size:20px;margin:0 0 4px}
         .sub{font-size:13px;color:#64748b;margin-bottom:16px}
+        .test-box{background:#f8fafc;border:2px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px}
+        .test-box .label{font-size:11px;font-weight:700;color:#1e293b;margin-bottom:4px}
+        .test-box .value{font-size:14px;font-family:monospace;background:#fff;padding:8px 12px;border-radius:8px;border:1px solid #e2e8f0}
+        .test-box .type{font-size:11px;color:#64748b;margin-top:4px}
         .input-group{margin-bottom:12px}
         .input-group label{font-size:11px;font-weight:700;color:#1e293b;display:block;margin-bottom:4px}
         .input-group input{width:100%;padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;outline:none}
@@ -21,39 +25,57 @@
         .btn-success{background:#16a34a;color:#fff}
         .btn-danger{background:#dc2626;color:#fff}
         .btn-gray{background:#6b7280;color:#fff}
-        .result{background:#f8fafc;border-radius:12px;padding:12px;margin-top:12px;font-size:13px;font-family:monospace;white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto}
-        .pass{color:#16a34a}
-        .fail{color:#dc2626}
-        .info{color:#2563eb}
-        .warn{color:#f59e0b}
+        .btn-warning{background:#f59e0b;color:#000}
+        .result{background:#f8fafc;border-radius:12px;padding:16px;margin-top:12px;font-size:13px;font-family:monospace;white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto}
+        .pass{color:#16a34a;font-weight:600}
+        .fail{color:#dc2626;font-weight:600}
+        .info{color:#2563eb;font-weight:600}
+        .warn{color:#f59e0b;font-weight:600}
         .log{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:12px;font-family:monospace;font-size:11px;max-height:150px;overflow-y:auto;margin-top:12px}
         .log .pass{color:#4ade80}
         .log .fail{color:#f87171}
         .log .info{color:#60a5fa}
         .hidden{display:none}
+        .dt-info{background:#dbeafe;border-radius:8px;padding:12px;margin:8px 0;font-size:12px}
+        .dt-info strong{color:#1e40af}
+        .step-indicator{display:flex;gap:8px;margin-bottom:16px;padding:8px;background:#f1f5f9;border-radius:12px}
+        .step{flex:1;text-align:center;padding:8px;border-radius:8px;font-size:11px;font-weight:600;color:#94a3b8;background:#e2e8f0}
+        .step.active{background:#2563eb;color:#fff}
+        .step.done{background:#16a34a;color:#fff}
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>🔐 Direct Login Test</h1>
-    <div class="sub">Tests login by directly checking Supabase</div>
+    <h1>🔐 Login Flow Debug</h1>
+    <div class="sub">Shows exactly what's happening with data types</div>
+
+    <!-- Step Indicator -->
+    <div class="step-indicator">
+        <div class="step active" id="step1">1. Enter Mobile</div>
+        <div class="step" id="step2">2. Check User</div>
+        <div class="step" id="step3">3. Login/Register</div>
+    </div>
+
+    <!-- Data Type Info -->
+    <div class="dt-info">
+        <strong>📊 Supabase Column:</strong> mobile = BIGINT (number)<br>
+        <strong>📱 Input Type:</strong> String (from text input)<br>
+        <strong>🔄 Conversion:</strong> Need to convert to Number
+    </div>
 
     <div class="input-group">
-        <label>📱 Mobile Number</label>
+        <label>📱 Mobile Number (as string from input)</label>
         <input type="tel" id="mobile" placeholder="Enter 10-digit mobile" maxlength="10" value="6300067332">
+        <div style="font-size:11px;color:#64748b;margin-top:4px;">
+            typeof: <span id="input-type">string</span> | value: <span id="input-value">6300067332</span>
+        </div>
     </div>
 
-    <div class="input-group" id="pin-group" style="display:none;">
-        <label>🔑 PIN</label>
-        <input type="password" id="pin" placeholder="Enter 4-digit PIN" maxlength="4" style="letter-spacing:8px;">
-    </div>
+    <button class="btn btn-primary" onclick="checkUserFlow()">🔍 Check User (Full Flow)</button>
+    <button class="btn btn-warning" onclick="showDataTypes()">📊 Show Data Types</button>
+    <button class="btn btn-gray" onclick="clearAll()">🗑️ Clear</button>
 
-    <button class="btn btn-primary" id="btn-check" onclick="checkUser()">🔍 Check User</button>
-    <button class="btn btn-success hidden" id="btn-login" onclick="loginUser()">🔐 Login</button>
-    <button class="btn btn-success hidden" id="btn-register" onclick="registerUser()">📝 Register</button>
-    <button class="btn btn-gray" onclick="clearLog()">🗑️ Clear</button>
-
-    <div class="result" id="result">⏳ Click "Check User" to test</div>
+    <div class="result" id="result">⏳ Enter mobile and click "Check User"</div>
     <div class="log" id="log">⏳ Waiting...</div>
 </div>
 
@@ -62,42 +84,77 @@ var SB_URL = 'https://ghjoffovatgvhzxlupef.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
 var sb = window.supabase.createClient(SB_URL, SB_KEY);
 
-var currentMobile = null;
-var currentUser = null;
-
 function log(msg, type) {
     var el = document.getElementById('log');
     var time = new Date().toLocaleTimeString();
-    var colors = { pass: 'pass', fail: 'fail', info: 'info' };
+    var colors = { pass: 'pass', fail: 'fail', info: 'info', warn: 'warn' };
     el.innerHTML += '[' + time + '] <span class="' + (colors[type] || 'info') + '">' + msg + '</span>\n';
     el.scrollTop = el.scrollHeight;
 }
 
-function clearLog() {
+function clearAll() {
     document.getElementById('log').innerHTML = '';
-    document.getElementById('result').textContent = '⏳ Cleared';
+    document.getElementById('result').innerHTML = '⏳ Cleared';
+    document.getElementById('input-type').textContent = 'string';
+    document.getElementById('input-value').textContent = '';
+    document.querySelectorAll('.step').forEach(s => s.className = 'step');
+    document.getElementById('step1').className = 'step active';
 }
 
-function showResult(msg, color) {
-    document.getElementById('result').innerHTML = msg;
-    document.getElementById('result').style.color = color || '#1e293b';
+function showDataTypes() {
+    var mobile = document.getElementById('mobile').value.trim();
+    var mobileNum = parseInt(mobile);
+    
+    var result = '📊 <strong>DATA TYPE ANALYSIS</strong>\n\n';
+    result += 'Input Value: "' + mobile + '"\n';
+    result += 'Input Type: ' + typeof mobile + '\n\n';
+    result += 'Parsed Value: ' + mobileNum + '\n';
+    result += 'Parsed Type: ' + typeof mobileNum + '\n\n';
+    result += 'Supabase Column: BIGINT (number)\n';
+    result += '✅ Correct query: .eq("mobile", ' + mobileNum + ')\n';
+    result += '❌ Wrong query: .eq("mobile", "' + mobile + '")';
+    
+    document.getElementById('result').innerHTML = result;
+    document.getElementById('result').style.color = '#1e293b';
+    log('📊 Showed data type analysis', 'info');
 }
 
-async function checkUser() {
+async function checkUserFlow() {
     var mobile = document.getElementById('mobile').value.trim();
     if (!mobile || mobile.length !== 10) {
-        showResult('❌ Enter valid 10-digit mobile', '#dc2626');
+        document.getElementById('result').innerHTML = '❌ Enter valid 10-digit mobile';
+        document.getElementById('result').style.color = '#dc2626';
         return;
     }
 
-    currentMobile = mobile;
+    // Update step indicator
+    document.getElementById('step1').className = 'step done';
+    document.getElementById('step2').className = 'step active';
+    document.getElementById('step3').className = 'step';
+
     var mobileNum = parseInt(mobile);
     
-    log('🔍 Checking: ' + mobile + ' (as number: ' + mobileNum + ')', 'info');
-    showResult('⏳ Checking user...', '#f59e0b');
+    // Update data type display
+    document.getElementById('input-type').textContent = typeof mobile;
+    document.getElementById('input-value').textContent = mobile;
+
+    var resultHTML = '🔍 <strong>CHECKING USER</strong>\n\n';
+    resultHTML += '📱 Input String: "' + mobile + '"\n';
+    resultHTML += '📱 Parsed Number: ' + mobileNum + '\n';
+    resultHTML += '📱 Type: ' + typeof mobileNum + '\n\n';
+    resultHTML += '🔎 Querying Supabase with: .eq("mobile", ' + mobileNum + ')\n\n';
+    
+    document.getElementById('result').innerHTML = resultHTML + '⏳ Querying...';
+    document.getElementById('result').style.color = '#f59e0b';
+
+    log('🔍 Checking: ' + mobile + ' (BIGINT: ' + mobileNum + ')', 'info');
 
     try {
-        // Check active_users
+        // ============================================================
+        // STEP 1: Check active_users
+        // ============================================================
+        log('📡 Querying active_users with BIGINT: ' + mobileNum, 'info');
+        
         var { data: active, error: activeErr } = await sb
             .from('active_users')
             .select('*')
@@ -105,29 +162,30 @@ async function checkUser() {
             .maybeSingle();
 
         if (active) {
-            log('✅ Found in active_users! Mobile: ' + active.mobile, 'pass');
-            log('   Name: ' + (active.name || 'Not set'), 'info');
-            log('   PIN hash: ' + (active.pinhash ? 'Yes (hashed)' : 'No'), 'info');
+            log('✅ Found in active_users!', 'pass');
             
-            showResult(
-                '✅ <strong>USER FOUND IN ACTIVE</strong>\n' +
-                '📱 Mobile: ' + active.mobile + '\n' +
-                '👤 Name: ' + (active.name || 'Not set') + '\n' +
-                '🔑 PIN: ' + (active.pinhash ? '✅ Set' : '❌ Not set') + '\n\n' +
-                '👉 Enter PIN and click "Login"',
-                '#16a34a'
-            );
+            resultHTML += '✅ <span class="pass">USER FOUND IN ACTIVE_USERS</span>\n\n';
+            resultHTML += '📱 Mobile: ' + active.mobile + ' (type: ' + typeof active.mobile + ')\n';
+            resultHTML += '👤 Name: ' + (active.name || 'Not set') + '\n';
+            resultHTML += '🔑 PIN: ' + (active.pinhash ? '✅ Set' : '❌ Not set') + '\n\n';
+            resultHTML += '👉 <strong>SHOULD SHOW: PIN LOGIN SCREEN</strong>\n';
+            resultHTML += '📌 The app should show "Enter your 4-digit PIN"';
             
-            currentUser = active;
-            document.getElementById('pin-group').style.display = 'block';
-            document.getElementById('btn-login').classList.remove('hidden');
-            document.getElementById('btn-register').classList.add('hidden');
-            document.getElementById('pin').value = '';
-            document.getElementById('pin').focus();
+            document.getElementById('result').innerHTML = resultHTML;
+            document.getElementById('result').style.color = '#16a34a';
+            
+            document.getElementById('step2').className = 'step done';
+            document.getElementById('step3').className = 'step active';
+            
+            log('✅ Should show PIN LOGIN screen', 'pass');
             return;
         }
 
-        // Check archived_users
+        // ============================================================
+        // STEP 2: Check archived_users
+        // ============================================================
+        log('📡 Not in active, checking archived_users...', 'info');
+        
         var { data: archived, error: archErr } = await sb
             .from('archived_users')
             .select('*')
@@ -136,197 +194,59 @@ async function checkUser() {
 
         if (archived) {
             log('✅ Found in archived_users!', 'pass');
-            log('   Name: ' + (archived.user_data?.name || 'Not set'), 'info');
             
-            showResult(
-                '✅ <strong>USER FOUND IN ARCHIVE</strong>\n' +
-                '📱 Mobile: ' + archived.mobile + '\n' +
-                '👤 Name: ' + (archived.user_data?.name || 'Not set') + '\n\n' +
-                '👉 Enter PIN and click "Login" (will restore)',
-                '#16a34a'
-            );
+            resultHTML += '✅ <span class="pass">USER FOUND IN ARCHIVED_USERS</span>\n\n';
+            resultHTML += '📱 Mobile: ' + archived.mobile + '\n';
+            resultHTML += '👤 Name: ' + (archived.user_data?.name || 'Not set') + '\n\n';
+            resultHTML += '👉 <strong>SHOULD SHOW: PIN LOGIN SCREEN</strong>\n';
+            resultHTML += '📌 The app should show "Enter your 4-digit PIN" (will restore)';
             
-            currentUser = archived;
-            document.getElementById('pin-group').style.display = 'block';
-            document.getElementById('btn-login').classList.remove('hidden');
-            document.getElementById('btn-register').classList.add('hidden');
-            document.getElementById('pin').value = '';
-            document.getElementById('pin').focus();
+            document.getElementById('result').innerHTML = resultHTML;
+            document.getElementById('result').style.color = '#16a34a';
+            
+            document.getElementById('step2').className = 'step done';
+            document.getElementById('step3').className = 'step active';
+            
+            log('✅ Archived user - should show PIN LOGIN screen', 'pass');
             return;
         }
 
-        // New user
-        log('❌ User NOT found in active or archived', 'fail');
-        showResult(
-            '❌ <strong>USER NOT FOUND</strong>\n' +
-            '📱 Mobile: ' + mobile + '\n\n' +
-            '👉 Click "Register" to create new account',
-            '#dc2626'
-        );
+        // ============================================================
+        // STEP 3: New user
+        // ============================================================
+        log('❌ User not found in active or archive', 'fail');
         
-        document.getElementById('pin-group').style.display = 'block';
-        document.getElementById('btn-login').classList.add('hidden');
-        document.getElementById('btn-register').classList.remove('hidden');
-        document.getElementById('pin').value = '';
-        document.getElementById('pin').focus();
+        resultHTML += '❌ <span class="fail">USER NOT FOUND</span>\n\n';
+        resultHTML += '📱 Mobile: ' + mobile + '\n\n';
+        resultHTML += '👉 <strong>SHOULD SHOW: REGISTRATION SCREEN</strong>\n';
+        resultHTML += '📌 The app should show "Set your 4-digit PIN"';
+        
+        document.getElementById('result').innerHTML = resultHTML;
+        document.getElementById('result').style.color = '#dc2626';
+        
+        document.getElementById('step2').className = 'step done';
+        document.getElementById('step3').className = 'step active';
+        
+        log('❌ New user - should show REGISTRATION screen', 'fail');
 
     } catch (err) {
         log('❌ Error: ' + err.message, 'fail');
-        showResult('❌ Error: ' + err.message, '#dc2626');
+        document.getElementById('result').innerHTML = '❌ Error: ' + err.message;
+        document.getElementById('result').style.color = '#dc2626';
     }
 }
 
-async function loginUser() {
-    var pin = document.getElementById('pin').value.trim();
-    if (!pin || pin.length !== 4) {
-        showResult('❌ Enter 4-digit PIN', '#dc2626');
-        return;
-    }
-
-    log('🔐 Login attempt for: ' + currentMobile, 'info');
-    showResult('⏳ Verifying PIN...', '#f59e0b');
-
-    try {
-        // Hash PIN
-        var encoder = new TextEncoder();
-        var data = encoder.encode(pin);
-        var hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        var hashArray = Array.from(new Uint8Array(hashBuffer));
-        var pinhash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        log('   PIN hash: ' + pinhash.substring(0, 16) + '...', 'info');
-
-        var mobileNum = parseInt(currentMobile);
-
-        // Check if user exists with this PIN
-        var { data: user, error: userErr } = await sb
-            .from('active_users')
-            .select('*')
-            .eq('mobile', mobileNum)
-            .eq('pinhash', pinhash)
-            .maybeSingle();
-
-        if (user) {
-            log('✅ LOGIN SUCCESSFUL! 🎉', 'pass');
-            showResult(
-                '✅ <strong>LOGIN SUCCESSFUL!</strong> 🎉\n' +
-                '📱 Mobile: ' + user.mobile + '\n' +
-                '👤 Name: ' + (user.name || 'Not set') + '\n' +
-                '🏢 Company: ' + (user.company_name || 'Not set'),
-                '#16a34a'
-            );
-            document.getElementById('btn-login').textContent = '✅ Logged In!';
-            document.getElementById('btn-login').disabled = true;
-            return;
-        }
-
-        // Check if user exists but PIN is wrong
-        var { data: exists, error: existsErr } = await sb
-            .from('active_users')
-            .select('mobile')
-            .eq('mobile', mobileNum)
-            .maybeSingle();
-
-        if (exists) {
-            log('❌ Incorrect PIN for existing user', 'fail');
-            showResult('❌ <strong>Incorrect PIN</strong>\nPlease try again.', '#dc2626');
-            document.getElementById('pin').value = '';
-            document.getElementById('pin').focus();
-            return;
-        }
-
-        log('❌ User not found with this PIN', 'fail');
-        showResult('❌ <strong>User not found</strong>\nPlease register.', '#dc2626');
-
-    } catch (err) {
-        log('❌ Login error: ' + err.message, 'fail');
-        showResult('❌ Error: ' + err.message, '#dc2626');
-    }
-}
-
-async function registerUser() {
-    var pin = document.getElementById('pin').value.trim();
-    if (!pin || pin.length !== 4) {
-        showResult('❌ Enter 4-digit PIN', '#dc2626');
-        return;
-    }
-
-    log('📝 Registering: ' + currentMobile, 'info');
-    showResult('⏳ Registering...', '#f59e0b');
-
-    try {
-        var encoder = new TextEncoder();
-        var data = encoder.encode(pin);
-        var hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        var hashArray = Array.from(new Uint8Array(hashBuffer));
-        var pinhash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-        var mobileNum = parseInt(currentMobile);
-
-        // Check if already exists
-        var { data: exists } = await sb
-            .from('active_users')
-            .select('mobile')
-            .eq('mobile', mobileNum)
-            .maybeSingle();
-
-        if (exists) {
-            log('❌ User already exists!', 'fail');
-            showResult('❌ <strong>User already exists</strong>\nPlease login instead.', '#dc2626');
-            return;
-        }
-
-        // Create new user
-        var { data: newUser, error: insertErr } = await sb
-            .from('active_users')
-            .insert({
-                mobile: mobileNum,
-                pinhash: pinhash,
-                last_active: new Date().toISOString()
-            })
-            .select()
-            .single();
-
-        if (insertErr) {
-            log('❌ Register error: ' + insertErr.message, 'fail');
-            showResult('❌ Error: ' + insertErr.message, '#dc2626');
-            return;
-        }
-
-        log('✅ REGISTRATION SUCCESSFUL! 🎉', 'pass');
-        showResult(
-            '✅ <strong>REGISTRATION SUCCESSFUL!</strong> 🎉\n' +
-            '📱 Mobile: ' + newUser.mobile + '\n' +
-            '🔑 PIN set successfully\n\n' +
-            '👉 Click "Login" with your PIN',
-            '#16a34a'
-        );
-        document.getElementById('btn-register').textContent = '✅ Registered!';
-        document.getElementById('btn-register').disabled = true;
-        document.getElementById('btn-login').classList.remove('hidden');
-
-    } catch (err) {
-        log('❌ Register error: ' + err.message, 'fail');
-        showResult('❌ Error: ' + err.message, '#dc2626');
-    }
-}
-
-// Enter key handlers
-document.getElementById('mobile').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') checkUser();
-});
-document.getElementById('pin').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-        if (!document.getElementById('btn-login').classList.contains('hidden')) {
-            loginUser();
-        } else if (!document.getElementById('btn-register').classList.contains('hidden')) {
-            registerUser();
-        }
-    }
+// Real-time type display
+document.getElementById('mobile').addEventListener('input', function() {
+    var val = this.value.trim();
+    document.getElementById('input-type').textContent = typeof val;
+    document.getElementById('input-value').textContent = val || '(empty)';
 });
 
 // Init
-log('🚀 Direct Login Test initialized', 'info');
+log('🚀 Login Flow Debug initialized', 'info');
 log('📱 Enter mobile and click "Check User"', 'info');
+log('💡 The test will show which screen should appear', 'info');
 </script>
 </body>
 </html>
