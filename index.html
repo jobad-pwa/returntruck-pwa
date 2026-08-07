@@ -5,11 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ReturnTruck - Find Loads & Trucks</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2563eb">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-transparent">
-<link rel="apple-touch-icon" href="launchericon-192x192.png">
 <style>
 *{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
 body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
@@ -150,7 +145,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div style="text-align:center;margin-bottom:12px"><div id="wa-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
             <div style="font-size:13px;color:#475569">Enter OTP sent to your WhatsApp</div>
             </div>
-            <div class="otp-display-box" id="otp-display-box">
+            <div class="otp-display-box" id="otp-display-box" style="display:none">
                 <div class="label">📱 Your OTP is:</div>
                 <div class="otp-code" id="display-otp-code">------</div>
                 <div style="font-size:10px;color:#166534;margin-top:4px">Enter this OTP in the fields below</div>
@@ -463,7 +458,7 @@ function selectLoc(ctx,pin,name,state){var dn=name+', '+state+' ('+pin+')',hid=n
 document.addEventListener('click',function(e){document.querySelectorAll('.suggestions').forEach(function(s){if(!s.parentElement.contains(e.target))s.classList.remove('show')})});
 
 // ============================================================
-// PWA INSTALL
+// PWA INSTALL (Fixed)
 // ============================================================
 if(window.matchMedia('(display-mode: standalone)').matches)installed=true;
 function updateInstall(){var m=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);var s=m&&!window.matchMedia('(display-mode: standalone)').matches&&!installed;document.querySelectorAll('.nav-install-wrapper').forEach(function(e){e.classList.toggle('show',s)})}
@@ -522,10 +517,7 @@ function sendOTPToWhatsApp(mobileNum){
     var otp=generateOTP();
     generatedOTP=otp;
     showOTPDisplay(otp);
-    // In production, this would send actual WhatsApp message
-    // For demo, just show OTP on screen
     toast('📱 OTP sent to WhatsApp: ' + otp);
-    // Auto-fill OTP for demo (remove in production)
     setTimeout(function(){
         var inputs=document.querySelectorAll('.otp-input');
         for(var i=0;i<inputs.length && i<otp.length;i++){
@@ -552,7 +544,6 @@ function verifyOTP(){
         document.getElementById('verify-btn').disabled=false;
         document.getElementById('verify-btn').textContent='✅ Verify';
         toast('✅ OTP verified!');
-        // Move to step 4 after 1 second
         setTimeout(function(){
             $('step3').classList.add('hidden');
             $('step4').classList.remove('hidden');
@@ -588,7 +579,6 @@ function showResetOTP(){
     $('wa-display-mobile').textContent=mobile;
     document.getElementById('otp-error').style.display='none';
     document.getElementById('otp-success').style.display='none';
-    // Generate and show OTP
     var otp=sendOTPToWhatsApp(mobile);
     generatedOTP=otp;
     startOTPTimer();
@@ -690,7 +680,6 @@ async function checkUserAndShowStep(mobileNum){
         });
         var result=await resp.json();
         if(result.exists===true){
-            // Existing user - show PIN login
             $('step1').classList.add('hidden');
             $('step2').classList.remove('hidden');
             $('display-mobile').textContent=mobileNum;
@@ -700,7 +689,6 @@ async function checkUserAndShowStep(mobileNum){
             $('pin').focus();
             document.getElementById('pin-error').style.display='none';
         }else{
-            // New user - show OTP flow
             $('step1').classList.add('hidden');
             $('step3').classList.remove('hidden');
             $('wa-display-mobile').textContent=mobileNum;
@@ -713,7 +701,6 @@ async function checkUserAndShowStep(mobileNum){
             startOTPTimer();
         }
     }catch(e){
-        // Fallback - show PIN login
         $('step1').classList.add('hidden');
         $('step2').classList.remove('hidden');
         $('display-mobile').textContent=mobileNum;
@@ -728,7 +715,7 @@ $('reg-pin').addEventListener('keydown',function(e){if(e.key==='Enter')$('reg-pi
 $('reg-pin-confirm').addEventListener('keydown',function(e){if(e.key==='Enter')registerUser()});
 
 // ============================================================
-// ✅ LOGIN - Fixed: Working login with correct PIN
+// ✅ LOGIN - FIXED: Correct PIN handling with proper error display
 // ============================================================
 window.submitPin = async function() {
     var pin = $('pin').value.trim();
@@ -741,6 +728,7 @@ window.submitPin = async function() {
     var btn = $('submitBtn');
     btn.textContent = '⏳ Checking...';
     btn.disabled = true;
+    document.getElementById('pin-error').style.display = 'none';
     
     try {
         var resp = await fetch(EDGE_URL + '/login-user', {
@@ -789,8 +777,8 @@ window.submitPin = async function() {
             $('pin').value = '';
             $('pin').focus();
         } else {
-            // ❌ Wrong PIN - stay on PIN screen
-            document.getElementById('pin-error').style.display='block';
+            // ❌ Wrong PIN - Show error and stay on PIN screen
+            document.getElementById('pin-error').style.display = 'block';
             $('pin').value = '';
             $('pin').focus();
             $('pin').placeholder = 'Enter correct 4-digit PIN';
@@ -798,12 +786,16 @@ window.submitPin = async function() {
             setTimeout(function() {
                 $('pin').style.borderColor = '#e2e8f0';
             }, 1500);
+            btn.textContent = '🔐 Login';
+            btn.disabled = false;
         }
     } catch (e) {
         console.error('Login error:', e);
         toast('❌ Login error. Please try again.');
         $('pin').value = '';
         $('pin').focus();
+        btn.textContent = '🔐 Login';
+        btn.disabled = false;
     } finally {
         btn.textContent = '🔐 Login';
         btn.disabled = false;
@@ -811,7 +803,7 @@ window.submitPin = async function() {
 };
 
 // ============================================================
-// ✅ REGISTER - Fixed: Registration after OTP
+// ✅ REGISTER - Fixed
 // ============================================================
 async function registerUser() {
     if (!otpVerified) {
@@ -950,7 +942,7 @@ function openChangePin() {
 }
 
 // ============================================================
-// ✅ RESET PIN - Fixed: OTP flow then reset
+// ✅ RESET PIN - Fixed
 // ============================================================
 function resetPIN() {
     if (!otpVerified) {
