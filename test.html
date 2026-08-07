@@ -1,113 +1,312 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edge Function Debug Test</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        *{box-sizing:border-box;font-family:system-ui,sans-serif}
-        body{background:#0f172a;padding:20px;margin:0;color:#e2e8f0}
-        .container{max-width:900px;margin:0 auto;background:#1e293b;border-radius:16px;padding:24px;box-shadow:0 4px 24px rgba(0,0,0,.4)}
-        h1{color:#60a5fa;font-size:20px;margin:0 0 4px}
-        h2{font-size:14px;color:#94a3b8;margin:16px 0 8px;padding-bottom:6px;border-bottom:1px solid #334155}
-        .sub{font-size:12px;color:#94a3b8;margin-bottom:16px}
-        .test-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
-        .test-card{background:#0f172a;border:1px solid #334155;border-radius:10px;padding:14px}
-        .test-card label{font-size:10px;font-weight:700;color:#94a3b8;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
-        .test-card input{width:100%;padding:8px 10px;border:1px solid #334155;border-radius:6px;font-size:13px;background:#0f172a;color:#e2e8f0;margin-bottom:6px}
-        .test-card input:focus{border-color:#60a5fa;outline:none}
-        .test-card input::placeholder{color:#475569}
-        .btn{width:100%;padding:8px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:.2s;margin-bottom:3px}
-        .btn-primary{background:#3b82f6;color:#fff}
-        .btn-primary:hover{background:#2563eb}
-        .btn-success{background:#22c55e;color:#fff}
-        .btn-success:hover{background:#16a34a}
-        .btn-danger{background:#ef4444;color:#fff}
-        .btn-danger:hover{background:#dc2626}
-        .btn-warning{background:#f59e0b;color:#000}
-        .btn-warning:hover{background:#d97706}
-        .btn-gray{background:#64748b;color:#fff}
-        .btn-gray:hover{background:#475569}
-        .result-box{background:#0f172a;border-radius:8px;padding:12px;font-family:monospace;font-size:11px;max-height:400px;overflow-y:auto;margin-top:8px;white-space:pre-wrap;word-break:break-all;border:1px solid #334155}
-        .result-box .pass{color:#4ade80}
-        .result-box .fail{color:#f87171}
-        .result-box .info{color:#60a5fa}
-        .result-box .warn{color:#fbbf24}
-        .result-box .highlight{color:#f472b6;font-weight:bold}
-        .step{background:#0f172a;border-radius:6px;padding:8px 10px;margin:4px 0;border-left:3px solid #475569;font-size:11px}
-        .step.pass{border-left-color:#22c55e}
-        .step.fail{border-left-color:#ef4444}
-        .step .title{font-weight:700;color:#e2e8f0}
-        .step .detail{color:#94a3b8;font-family:monospace;margin-top:2px;font-size:10px}
-        .flex{display:flex;gap:6px;flex-wrap:wrap}
-        .flex .btn{flex:1;min-width:80px}
-        .status-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700}
-        .status-badge.success{background:#22c55e;color:#000}
-        .status-badge.error{background:#ef4444;color:#fff}
-        .status-badge.pending{background:#f59e0b;color:#000}
-        .clear-btn{padding:4px 12px;background:#ef4444;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:11px}
-        .clear-btn:hover{background:#dc2626}
-        .header-right{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
-        .config-box{background:#0f172a;border-radius:6px;padding:8px 12px;font-size:10px;color:#94a3b8;border:1px solid #334155;margin:6px 0}
-        .config-box strong{color:#e2e8f0}
-        .hash-result{font-size:10px;color:#94a3b8;word-break:break-all;margin-top:2px}
-        .hash-result .hash{color:#f472b6}
-        .status-text{font-size:11px;padding:4px;border-radius:4px;margin-top:4px;text-align:center}
-        .status-text.success{background:#052e16;color:#4ade80}
-        .status-text.error{background:#450a0a;color:#f87171}
-        .status-text.pending{background:#451a03;color:#fbbf24}
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ReturnTruck - Test</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
+body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
+.card{max-width:420px;width:100%;background:#fff;border-radius:24px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);display:flex;flex-direction:column;height:95vh;max-height:800px}
+.hidden{display:none !important}
+.header{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #e2e8f0}
+.logo{font-size:20px;font-weight:900;color:#2563eb}
+.avatar{width:36px;height:36px;border-radius:50%;background:#64748b;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;cursor:pointer}
+.profile-dropdown{position:absolute;top:45px;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:160px;z-index:100;display:none}
+.profile-dropdown.show{display:block}
+.dropdown-item{padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:#1e293b;cursor:pointer;border:none;background:transparent;width:100%}
+.dropdown-item:hover{background:#f8fafc}
+.dropdown-divider{height:1px;background:#e2e8f0;margin:4px 12px}
+.header-right{position:relative;display:flex;align-items:center;gap:8px}
+.scroll-body{flex:1;overflow-y:auto;padding:12px 0}
+.input-field{width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;margin-bottom:12px}
+.input-field:focus{border-color:#2563eb;outline:none}
+.btn-primary{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px}
+.btn-primary:hover{background:#1d4ed8}
+.btn-back{width:100%;padding:14px;background:#6b7280;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer}
+.btn-success{background:#16a34a;color:#fff;border:none;border-radius:12px;padding:14px;font-size:16px;font-weight:600;cursor:pointer;width:100%;margin-bottom:10px}
+.btn-success:hover{background:#15803d}
+.btn-danger{background:#dc2626;color:#fff;border:none;border-radius:12px;padding:14px;font-size:16px;font-weight:600;cursor:pointer;width:100%;margin-bottom:10px}
+.btn-danger:hover{background:#b91c1c}
+.error-text{color:#dc2626;font-size:13px;text-align:center;margin-top:4px;display:none}
+.success-text{color:#16a34a;font-size:13px;text-align:center;margin-top:4px;display:none}
+.otp-input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border:2px solid #e2e8f0;border-radius:12px;background:#fff}
+.otp-input:focus{border-color:#2563eb;outline:none}
+.otp-display-box{background:#f0fdf4;border:2px solid #86efac;border-radius:12px;padding:12px;margin:8px 0;text-align:center}
+.otp-display-box .label{font-size:11px;color:#166534;font-weight:600}
+.otp-display-box .otp-code{font-size:28px;font-weight:900;color:#16a34a;letter-spacing:4px;font-family:monospace}
+.resend-btn{background:transparent;border:none;color:#2563eb;font-weight:600;cursor:pointer;font-size:13px;text-decoration:underline}
+.resend-btn:disabled{color:#94a3b8;cursor:not-allowed}
+.nav-fixed{display:flex;justify-content:space-around;border-top:1px solid #e2e8f0;padding-top:8px}
+.nav-item{display:flex;flex-direction:column;align-items:center;color:#94a3b8;font-size:9px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px}
+.nav-item.active{color:#2563eb}
+.nav-item .icon{font-size:22px;margin-bottom:2px}
+.guest-banner{background:#2563eb;color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer}
+.login-divider{display:flex;align-items:center;gap:12px;margin:16px 0}
+.login-divider div{flex:1;height:1px;background:#e2e8f0}
+.login-divider span{font-size:10px;color:#94a3b8}
+.location-row{display:flex;gap:8px;margin-bottom:8px}
+.location-row input{flex:2;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px}
+.location-row select{flex:1;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;background:#fff}
+.type-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;background:#e2e8f0;padding:3px;border-radius:10px;margin-bottom:6px}
+.type-tabs button{padding:6px 4px;font-size:11px;font-weight:700;border:none;border-radius:8px;cursor:pointer}
+.type-tabs .active{background:#fff;color:#1e293b}
+.type-tabs .inactive{background:transparent;color:#64748b}
+.feed-card{border:1px solid #e2e8f0;border-radius:12px;padding:12px;margin-bottom:10px;cursor:pointer}
+.feed-card:hover{border-color:#2563eb;background:#f8faff}
+.feed-card .title{font-weight:700;font-size:15px}
+.feed-card .company{font-size:12px;color:#2563eb;font-weight:600}
+.feed-card .meta{font-size:11px;color:#64748b;margin-top:4px}
+.feed-card .stats{display:flex;gap:12px;font-size:10px;color:#94a3b8;margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9}
+.type-badge{font-size:8px;padding:2px 8px;border-radius:4px;font-weight:700;text-transform:uppercase}
+.type-badge.load{background:#dbeafe;color:#1e40af}
+.type-badge.truck{background:#dcfce7;color:#166534}
+.results-count{font-size:9px;font-weight:700;color:#94a3b8;margin-bottom:6px}
+.profile-header-card{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:12px;padding:16px;color:#fff;margin-bottom:16px}
+.profile-section{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px}
+.section-btn{padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer}
+.form-control{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;background:#fff}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.detail-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:12px}
+.detail-actions button{padding:10px;border-radius:10px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:10px}
+.btn-call{background:#16a34a}
+.btn-contact{background:#2563eb}
+.btn-bid{background:#8b5cf6}
+.btn-share{background:#25D366}
+</style>
 </head>
 <body>
-<div class="container">
-    <div class="header-right">
-        <div>
-            <h1>🔍 Edge Function Debug Test</h1>
-            <div class="sub">Test login, registration, PIN change & reset with full logging</div>
+
+<div class="card" id="app">
+
+<!-- ==================== LOGIN SCREEN ==================== -->
+<div id="login-screen">
+    <div style="text-align:center;padding:10px 0">
+        <div style="font-size:60px">🚛</div>
+        <div style="font-size:24px;font-weight:900;color:#2563eb">ReturnTruck</div>
+        <div style="font-size:13px;color:#64748b">Find Loads • Post Trucks • Connect Agents</div>
+    </div>
+
+    <div class="login-stats-container" style="background:#eff6ff;border-radius:12px;padding:12px;margin-bottom:12px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;text-align:center">
+            <div><span style="font-size:16px">📦</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Load Givers</div></div>
+            <div><span style="font-size:16px">🚛</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Fleet Ops</div></div>
+            <div><span style="font-size:16px">🤝</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Agents</div></div>
+            <div><span style="font-size:16px">👤</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Users</div></div>
         </div>
-        <button class="clear-btn" onclick="clearAll()">🗑️ Clear</button>
     </div>
 
-    <div class="config-box">
-        <strong>📡 Edge URL:</strong> <span id="edge-url-display">loading...</span><br>
-        <strong>📱 Test Mobile:</strong> <span id="test-mobile-display">6300067332</span><br>
-        <strong>🔑 PIN:</strong> <span id="test-pin-display">1234</span>
+    <div id="step1">
+        <input type="tel" id="mobile" class="input-field" placeholder="Enter Mobile Number" maxlength="10" autofocus>
+        <div id="mobile-status" style="font-size:12px;color:#94a3b8;text-align:center;margin-top:4px"></div>
+        <div class="login-divider"><div></div><span>or continue as</span><div></div></div>
+        <button style="width:100%;padding:12px;border:1.5px solid #8b5cf6;border-radius:12px;font-size:14px;font-weight:600;color:#8b5cf6;background:transparent;cursor:pointer" onclick="continueAsGuest()">👤 Guest</button>
     </div>
 
-    <!-- Test Controls -->
-    <div style="display:flex;gap:8px;margin:10px 0;flex-wrap:wrap">
-        <input type="tel" id="test-mobile" value="6300067332" maxlength="10" style="flex:2;padding:8px 10px;border:1px solid #334155;border-radius:6px;font-size:14px;background:#0f172a;color:#e2e8f0;text-align:center">
-        <input type="password" id="test-pin" value="1234" maxlength="4" style="flex:1;padding:8px 10px;border:1px solid #334155;border-radius:6px;font-size:14px;background:#0f172a;color:#e2e8f0;text-align:center">
-        <button class="btn btn-primary" style="flex:0.5" onclick="updateTestValues()">Update</button>
+    <div id="step2" class="hidden">
+        <div style="text-align:center;margin-bottom:16px">
+            <div id="display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
+            <div style="font-size:14px;color:#475569">Enter your 4-digit PIN</div>
+        </div>
+        <input type="password" id="pin" class="input-field" placeholder="Enter 4-digit PIN" maxlength="4" style="letter-spacing:4px">
+        <div id="pin-error" class="error-text">❌ Incorrect PIN. Please try again.</div>
+        <div style="font-size:12px;text-align:center;margin-bottom:12px;color:#64748b">
+            Forgot PIN? <span style="color:#2563eb;cursor:pointer;font-weight:600" onclick="showResetOTP()">Reset PIN</span>
+        </div>
+        <button onclick="submitPin()" id="submitBtn" class="btn-success">🔐 Login</button>
+        <button onclick="resetForm()" class="btn-back">← Change Number</button>
     </div>
 
-    <!-- Hash Display -->
-    <div id="hash-display" class="hash-result" style="display:none">
-        🔐 PIN Hash: <span class="hash" id="pin-hash-display">---</span>
+    <div id="step3" class="hidden">
+        <div style="text-align:center;margin-bottom:12px">
+            <div id="wa-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
+            <div style="font-size:13px;color:#475569">Enter OTP sent to your WhatsApp</div>
+        </div>
+        <div id="otp-display-box" class="otp-display-box" style="display:none">
+            <div class="label">📱 Your OTP is:</div>
+            <div class="otp-code" id="display-otp-code">------</div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px">
+            <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
+            <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
+            <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
+            <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
+            <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
+            <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
+        </div>
+        <div id="otp-error" class="error-text">❌ Invalid OTP. Please try again.</div>
+        <div id="otp-success" class="success-text">✅ OTP verified successfully!</div>
+        <div style="text-align:center;font-size:13px;color:#64748b;margin-bottom:8px">⏳ <span id="otp-timer">5:00</span></div>
+        <div style="text-align:center;margin-bottom:12px">
+            <button class="resend-btn" id="resend-otp-btn" onclick="resendOTP()">📱 Resend OTP</button>
+        </div>
+        <button onclick="verifyOTP()" id="verify-btn" class="btn-success">✅ Verify</button>
+        <button onclick="resetForm()" class="btn-back">← Change Number</button>
     </div>
 
-    <!-- Test Buttons -->
-    <div class="flex" style="margin:10px 0">
-        <button class="btn btn-primary" onclick="testCheckUser()">📡 Check User</button>
-        <button class="btn btn-success" onclick="testLogin()">🔐 Login</button>
-        <button class="btn btn-warning" onclick="testRegister()">📝 Register</button>
-        <button class="btn btn-danger" onclick="testChangePin()">🔑 Change PIN</button>
-        <button class="btn btn-gray" onclick="testResetPin()">🔄 Reset PIN</button>
-        <button class="btn btn-primary" onclick="testFullFlow()">🚀 Full Flow</button>
+    <div id="step4" class="hidden">
+        <div style="text-align:center;margin-bottom:16px">
+            <div id="reg-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
+            <div style="font-size:13px;color:#475569">Set your 4-digit PIN for login</div>
+        </div>
+        <input type="password" id="reg-pin" class="input-field" placeholder="New PIN (4 digits)" maxlength="4">
+        <input type="password" id="reg-pin-confirm" class="input-field" placeholder="Confirm PIN" maxlength="4">
+        <button onclick="registerUser()" id="register-btn" class="btn-success">✅ Create Account</button>
+        <button onclick="resetForm()" class="btn-back">← Change Number</button>
     </div>
 
-    <!-- Steps -->
-    <div id="steps-container"></div>
+    <div style="background:#fef3c7;border-left:4px solid #f59e0b;border-radius:8px;padding:12px;margin-top:12px;font-size:10px;color:#92400e">
+        <div style="font-weight:700;font-size:11px">⚠️ Disclaimer</div>
+        ReturnTruck is a FREE connecting platform. No charges from any party.
+    </div>
+</div>
 
-    <!-- Status -->
-    <div id="status-box" class="status-text" style="display:none"></div>
+<!-- ==================== HOME PAGE ==================== -->
+<div id="home-page" class="hidden" style="display:flex;flex-direction:column;height:100%">
+    <div class="header">
+        <div class="logo">🚛 ReturnTruck</div>
+        <div class="header-right">
+            <div class="avatar" id="avatar-btn" onclick="toggleDropdown()">GU</div>
+            <div class="profile-dropdown" id="profile-dropdown">
+                <button class="dropdown-item" onclick="closeDropdown();goToProfile()">👤 View Profile</button>
+                <button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button>
+            </div>
+        </div>
+    </div>
 
-    <!-- Result Log -->
-    <div class="result-box" id="result-log">⏳ Waiting for tests...</div>
+    <div id="guest-banner" class="guest-banner hidden">
+        <span>👋 Welcome, Guest!</span>
+        <button class="btn-login" onclick="showLogin()">🔐 Login</button>
+    </div>
 
-    <!-- Raw Response -->
-    <div id="raw-response" style="display:none;margin-top:8px;background:#0f172a;border-radius:6px;padding:10px;font-family:monospace;font-size:10px;border:1px solid #334155;max-height:150px;overflow-y:auto"></div>
+    <div style="flex-shrink:0">
+        <div class="location-row">
+            <input type="text" id="search-home" placeholder="📍 Location/PIN">
+            <select id="radius-select">
+                <option value="5">5 KM</option>
+                <option value="10">10 KM</option>
+                <option value="25">25 KM</option>
+                <option value="50" selected>50 KM</option>
+                <option value="100">100 KM</option>
+            </select>
+        </div>
+        <div class="type-tabs">
+            <button id="tab-all" class="active" onclick="setTab('ALL')">All</button>
+            <button id="tab-loads" class="inactive" onclick="setTab('LOAD')">Loads</button>
+            <button id="tab-trucks" class="inactive" onclick="setTab('TRUCK')">Trucks</button>
+            <button id="tab-agents" class="inactive" onclick="setTab('AGENT')">Agents</button>
+        </div>
+        <div class="results-count"><span id="results-count">Showing 0 Records</span></div>
+    </div>
+
+    <div class="scroll-body" id="feed-container">
+        <div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>
+    </div>
+
+    <div class="nav-fixed">
+        <button class="nav-item active" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+    </div>
+</div>
+
+<!-- ==================== PROFILE PAGE ==================== -->
+<div id="profile-page" class="hidden" style="display:flex;flex-direction:column;height:100%">
+    <div class="header">
+        <div class="logo">🚛 ReturnTruck</div>
+        <div style="display:flex;gap:8px;align-items:center">
+            <button onclick="goHome()" style="background:transparent;border:none;font-weight:600;color:#64748b;cursor:pointer">← Back</button>
+            <div class="avatar" onclick="toggleDropdown()">GU</div>
+        </div>
+    </div>
+
+    <div class="scroll-body">
+        <div class="profile-header-card">
+            <div style="font-size:11px;opacity:.8">Welcome,</div>
+            <div id="profile-mobile" style="font-size:20px;font-weight:700">--</div>
+        </div>
+        <div class="profile-section">
+            <div style="font-weight:700;margin-bottom:8px">📦 Load Giver</div>
+            <input class="form-control" style="margin-bottom:8px" type="text" id="lg-company" placeholder="Company Name">
+            <button class="section-btn" onclick="saveProfile()">💾 Save</button>
+        </div>
+        <div class="profile-section">
+            <div style="font-weight:700;margin-bottom:8px">🚛 Fleet Operator</div>
+            <input class="form-control" style="margin-bottom:8px" type="text" id="fo-company" placeholder="Company Name">
+            <button class="section-btn" onclick="saveProfile()">💾 Save</button>
+        </div>
+    </div>
+
+    <div class="nav-fixed">
+        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item active" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+    </div>
+</div>
+
+<!-- ==================== POST LOAD PAGE ==================== -->
+<div id="postload-page" class="hidden" style="display:flex;flex-direction:column;height:100%">
+    <div class="header">
+        <div class="logo">📦 Post Load</div>
+        <button onclick="goHome()" style="background:transparent;border:none;font-weight:600;color:#64748b;cursor:pointer">Cancel</button>
+    </div>
+    <div class="scroll-body">
+        <select class="form-control" style="margin-bottom:12px"><option>Select Material</option><option>Steel Pipes</option><option>Cement</option></select>
+        <div class="grid-2">
+            <input class="form-control" placeholder="Weight (Kg)" type="number">
+            <input class="form-control" placeholder="Dimensions (ft)">
+        </div>
+        <div class="grid-2">
+            <input class="form-control" placeholder="📍 Pickup">
+            <input class="form-control" placeholder="📍 Drop">
+        </div>
+        <div class="grid-2">
+            <input class="form-control" placeholder="Rate (₹)">
+            <input class="form-control" type="date">
+        </div>
+        <button class="btn-success">📤 Publish Load</button>
+    </div>
+    <div class="nav-fixed">
+        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
+        <button class="nav-item active" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+    </div>
+</div>
+
+<!-- ==================== POST TRUCK PAGE ==================== -->
+<div id="posttruck-page" class="hidden" style="display:flex;flex-direction:column;height:100%">
+    <div class="header">
+        <div class="logo">🚛 Post Truck</div>
+        <button onclick="goHome()" style="background:transparent;border:none;font-weight:600;color:#64748b;cursor:pointer">Cancel</button>
+    </div>
+    <div class="scroll-body">
+        <input class="form-control" style="margin-bottom:12px" placeholder="Vehicle Number">
+        <input class="form-control" style="margin-bottom:12px" placeholder="📍 Location">
+        <div class="grid-2">
+            <input class="form-control" type="date">
+            <input class="form-control" placeholder="Rate / KM">
+        </div>
+        <div class="grid-2">
+            <input class="form-control" placeholder="Driver Name">
+            <input class="form-control" placeholder="Driver Mobile" maxlength="10">
+        </div>
+        <button class="btn-success">📤 List Truck</button>
+    </div>
+    <div class="nav-fixed">
+        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item active" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+    </div>
+</div>
+
 </div>
 
 <script>
@@ -119,671 +318,623 @@ var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 var EDGE_URL = 'https://ghjoffovatgvhzxlupef.supabase.co/functions/v1';
 var sb = window.supabase.createClient(SB_URL, SB_KEY);
 
-var mobile = '6300067332';
-var pin = '1234';
-var testResults = [];
+var user = null;
+var guest = false;
+var mobile = '';
+var otpTimer = null;
+var otpSeconds = 300;
+var otpVerified = false;
+var generatedOTP = '';
+var isResetFlow = false;
 
-// Display config
-document.getElementById('edge-url-display').textContent = EDGE_URL;
-document.getElementById('test-mobile-display').textContent = mobile;
-document.getElementById('test-pin-display').textContent = pin;
+function $(id) { return document.getElementById(id); }
+function toast(msg) { alert(msg); }
 
 // ============================================================
-// LOGGING
+// DOM HELPERS
 // ============================================================
-function log(msg, type) {
-    var el = document.getElementById('result-log');
-    var time = new Date().toLocaleTimeString();
-    var colors = { pass: 'pass', fail: 'fail', info: 'info', warn: 'warn', highlight: 'highlight' };
-    el.innerHTML += '[' + time + '] <span class="' + (colors[type] || 'info') + '">' + msg + '</span>\n';
-    el.scrollTop = el.scrollHeight;
+function showPage(id) {
+    var pages = ['login-screen', 'home-page', 'profile-page', 'postload-page', 'posttruck-page'];
+    pages.forEach(function(p) {
+        var el = $(p);
+        if (el) {
+            if (p === id) {
+                el.classList.remove('hidden');
+                el.style.display = 'flex';
+            } else {
+                el.classList.add('hidden');
+                el.style.display = 'none';
+            }
+        }
+    });
 }
 
-function clearAll() {
-    document.getElementById('result-log').innerHTML = '';
-    document.getElementById('steps-container').innerHTML = '';
-    document.getElementById('raw-response').style.display = 'none';
-    document.getElementById('raw-response').innerHTML = '';
-    document.getElementById('status-box').style.display = 'none';
-    log('🗑️ Cleared', 'info');
-    testResults = [];
+function resetForm() {
+    otpVerified = false;
+    isResetFlow = false;
+    if (otpTimer) clearInterval(otpTimer);
+    ['step2', 'step3', 'step4'].forEach(function(i) { $(i).classList.add('hidden'); });
+    $('step1').classList.remove('hidden');
+    showPage('login-screen');
+    var inputs = document.querySelectorAll('.otp-input');
+    for (var i = 0; i < inputs.length; i++) { inputs[i].value = ''; }
+    $('pin-error').style.display = 'none';
+    $('otp-error').style.display = 'none';
+    $('otp-success').style.display = 'none';
+    $('otp-display-box').style.display = 'none';
+    $('verify-btn').disabled = false;
+    $('verify-btn').textContent = '✅ Verify';
 }
 
-function addStep(title, detail, status, data) {
-    var container = document.getElementById('steps-container');
-    var cls = 'step';
-    if (status === 'pass') cls += ' pass';
-    else if (status === 'fail') cls += ' fail';
-    
-    var html = '<div class="' + cls + '">';
-    html += '<div class="title">' + title + '</div>';
-    html += '<div class="detail">' + detail + '</div>';
-    if (data) {
-        html += '<div class="detail" style="color:#60a5fa;margin-top:4px">📦 ' + JSON.stringify(data, null, 2) + '</div>';
+function showLogin() { resetForm(); $('mobile').focus(); }
+
+// ============================================================
+// OTP HELPERS
+// ============================================================
+function otpInput(el) {
+    if (el.value.length === 1) {
+        var next = el.nextElementSibling;
+        if (next) next.focus();
     }
-    html += '</div>';
-    container.innerHTML += html;
-    container.scrollTop = container.scrollHeight;
+    $('otp-error').style.display = 'none';
 }
 
-function setStatus(text, type) {
-    var el = document.getElementById('status-box');
-    el.style.display = 'block';
-    el.textContent = text;
-    el.className = 'status-text ' + (type || 'pending');
+function startOTPTimer() {
+    otpSeconds = 300;
+    otpVerified = false;
+    if (otpTimer) clearInterval(otpTimer);
+    var timerDisplay = $('otp-timer');
+    var resendBtn = $('resend-otp-btn');
+    resendBtn.disabled = true;
+    $('otp-success').style.display = 'none';
+    otpTimer = setInterval(function() {
+        otpSeconds--;
+        var m = Math.floor(otpSeconds / 60);
+        var s = otpSeconds % 60;
+        timerDisplay.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+        if (otpSeconds <= 0) {
+            clearInterval(otpTimer);
+            $('verify-btn').disabled = true;
+            $('verify-btn').textContent = '⏳ Expired';
+            resendBtn.disabled = false;
+            toast('⏳ OTP expired. Click Resend');
+        }
+    }, 1000);
 }
 
-function showRawResponse(data) {
-    var el = document.getElementById('raw-response');
-    el.style.display = 'block';
-    el.innerHTML = JSON.stringify(data, null, 2);
+function generateOTP() {
+    var otp = '';
+    for (var i = 0; i < 6; i++) {
+        otp += Math.floor(Math.random() * 10);
+    }
+    return otp;
 }
 
-function getMobile() {
-    return document.getElementById('test-mobile').value.trim() || mobile;
+function showOTPDisplay(otp) {
+    $('display-otp-code').textContent = otp;
+    $('otp-display-box').style.display = 'block';
 }
 
-function getPin() {
-    return document.getElementById('test-pin').value.trim() || pin;
+function sendOTPToWhatsApp(mobileNum) {
+    var otp = generateOTP();
+    generatedOTP = otp;
+    showOTPDisplay(otp);
+    toast('📱 OTP sent to WhatsApp: ' + otp);
+    setTimeout(function() {
+        var inputs = document.querySelectorAll('.otp-input');
+        for (var i = 0; i < inputs.length && i < otp.length; i++) {
+            inputs[i].value = otp[i];
+        }
+    }, 500);
+    return otp;
 }
 
-function updateTestValues() {
-    mobile = getMobile();
-    pin = getPin();
-    document.getElementById('test-mobile-display').textContent = mobile;
-    document.getElementById('test-pin-display').textContent = pin;
-    log('📱 Updated test values: Mobile=' + mobile + ', PIN=' + pin, 'info');
-    
-    // Show hash
-    hashPIN(pin).then(function(hash) {
-        document.getElementById('hash-display').style.display = 'block';
-        document.getElementById('pin-hash-display').textContent = hash;
+function verifyOTP() {
+    var inputs = document.querySelectorAll('.otp-input');
+    var otp = '';
+    for (var i = 0; i < inputs.length; i++) { otp += inputs[i].value; }
+    if (otp.length !== 6) {
+        $('otp-error').style.display = 'block';
+        $('otp-error').textContent = '❌ Enter complete 6-digit OTP';
+        return;
+    }
+    if (otp === generatedOTP) {
+        otpVerified = true;
+        $('otp-error').style.display = 'none';
+        $('otp-success').style.display = 'block';
+        clearInterval(otpTimer);
+        $('verify-btn').disabled = false;
+        $('verify-btn').textContent = '✅ Verify';
+        toast('✅ OTP verified!');
+        setTimeout(function() {
+            $('step3').classList.add('hidden');
+            $('step4').classList.remove('hidden');
+            $('reg-display-mobile').textContent = mobile;
+        }, 500);
+    } else {
+        $('otp-error').style.display = 'block';
+        $('otp-error').textContent = '❌ Invalid OTP. Please try again.';
+        var inputs = document.querySelectorAll('.otp-input');
+        for (var i = 0; i < inputs.length; i++) { inputs[i].value = ''; }
+        inputs[0].focus();
+    }
+}
+
+function resendOTP() {
+    if (otpSeconds > 0) {
+        toast('⏳ Please wait for OTP to expire');
+        return;
+    }
+    var newOTP = sendOTPToWhatsApp(mobile);
+    generatedOTP = newOTP;
+    startOTPTimer();
+    $('verify-btn').disabled = false;
+    $('verify-btn').textContent = '✅ Verify';
+    $('otp-success').style.display = 'none';
+    toast('📱 New OTP sent to WhatsApp');
+}
+
+function showResetOTP() {
+    isResetFlow = true;
+    $('step2').classList.add('hidden');
+    $('step3').classList.remove('hidden');
+    $('wa-display-mobile').textContent = mobile;
+    $('otp-error').style.display = 'none';
+    $('otp-success').style.display = 'none';
+    var otp = sendOTPToWhatsApp(mobile);
+    generatedOTP = otp;
+    startOTPTimer();
+    toast('📱 OTP sent to WhatsApp for PIN reset');
+}
+
+// ============================================================
+// AUTH FUNCTIONS
+// ============================================================
+function continueAsGuest() {
+    guest = true;
+    user = null;
+    localStorage.setItem('rt_user', JSON.stringify({ guest: true }));
+    showHome();
+    toast('👤 You are browsing as guest');
+}
+
+function showHome() {
+    showPage('home-page');
+    updateGuestUI();
+    var b = $('guest-banner');
+    if (b) {
+        b.style.display = guest ? 'flex' : 'none';
+    }
+    var avatar = $('avatar-btn');
+    if (avatar) {
+        avatar.textContent = guest ? 'GU' : (user ? user.mobile ? user.mobile.substring(0, 2) : 'U' : 'U');
+    }
+}
+
+function updateGuestUI() {
+    var b = $('guest-banner');
+    if (b) {
+        b.style.display = guest ? 'flex' : 'none';
+        if (guest) b.classList.remove('hidden');
+        else b.classList.add('hidden');
+    }
+}
+
+function toggleDropdown() {
+    var d = $('profile-dropdown');
+    if (d) d.classList.toggle('show');
+}
+
+function closeDropdown() {
+    var d = $('profile-dropdown');
+    if (d) d.classList.remove('show');
+}
+
+// ============================================================
+// MOBILE INPUT - Check user on entry
+// ============================================================
+$('mobile').addEventListener('input', function(e) {
+    var m = this.value.trim();
+    if (m.length === 10) {
+        mobile = m;
+        checkUserAndShowStep(m);
+    }
+});
+
+async function checkUserAndShowStep(mobileNum) {
+    try {
+        var resp = await fetch(EDGE_URL + '/login-user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': 'Bearer ' + SB_KEY
+            },
+            body: JSON.stringify({ mobile: mobileNum, action: 'check' })
+        });
+        var result = await resp.json();
+        if (result.exists === true) {
+            $('step1').classList.add('hidden');
+            $('step2').classList.remove('hidden');
+            $('display-mobile').textContent = mobileNum;
+            $('mobile-status').textContent = '✅ Existing user - Enter your PIN';
+            $('mobile-status').style.color = '#16a34a';
+            $('pin').value = '';
+            $('pin').focus();
+            $('pin-error').style.display = 'none';
+        } else {
+            $('step1').classList.add('hidden');
+            $('step3').classList.remove('hidden');
+            $('wa-display-mobile').textContent = mobileNum;
+            $('mobile-status').textContent = '📝 New user - Verify OTP to create account';
+            $('mobile-status').style.color = '#f59e0b';
+            $('otp-error').style.display = 'none';
+            $('otp-success').style.display = 'none';
+            var otp = sendOTPToWhatsApp(mobileNum);
+            generatedOTP = otp;
+            startOTPTimer();
+        }
+    } catch (e) {
+        $('step1').classList.add('hidden');
+        $('step2').classList.remove('hidden');
+        $('display-mobile').textContent = mobileNum;
+    }
+}
+
+// ============================================================
+// ✅ LOGIN - Fixed: Wrong PIN stays on same page
+// ============================================================
+window.submitPin = async function() {
+    var pin = $('pin').value.trim();
+    if (!pin || pin.length !== 4) {
+        toast('⚠️ Enter 4-digit PIN');
+        $('pin').focus();
+        return;
+    }
+
+    var btn = $('submitBtn');
+    btn.textContent = '⏳ Checking...';
+    btn.disabled = true;
+    $('pin-error').style.display = 'none';
+
+    try {
+        var resp = await fetch(EDGE_URL + '/login-user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': 'Bearer ' + SB_KEY
+            },
+            body: JSON.stringify({
+                mobile: mobile,
+                action: 'login',
+                pin: pin
+            })
+        });
+        var result = await resp.json();
+
+        console.log('Login response:', result);
+
+        if (result.success === true && result.user) {
+            user = result.user;
+            user.mobile = mobile;
+            localStorage.setItem('rt_user', JSON.stringify({
+                mobile: user.mobile,
+                user: user
+            }));
+            guest = false;
+            btn.textContent = '🔐 Login';
+            btn.disabled = false;
+            showHome();
+            return;
+        } else if (result.isNewUser === true) {
+            toast('📝 New user. Please verify OTP to create account.');
+            $('step2').classList.add('hidden');
+            $('step3').classList.remove('hidden');
+            $('wa-display-mobile').textContent = mobile;
+            $('otp-error').style.display = 'none';
+            $('otp-success').style.display = 'none';
+            var otp = sendOTPToWhatsApp(mobile);
+            generatedOTP = otp;
+            startOTPTimer();
+        } else if (result.source === 'archived') {
+            toast('📦 Archived account found. Please login to restore.');
+            $('pin').value = '';
+            $('pin').focus();
+        } else {
+            // ❌ Wrong PIN - Stay on PIN screen with error
+            $('pin-error').style.display = 'block';
+            $('pin').value = '';
+            $('pin').focus();
+            $('pin').placeholder = 'Enter correct 4-digit PIN';
+            $('pin').style.borderColor = '#ef4444';
+            setTimeout(function() {
+                $('pin').style.borderColor = '#e2e8f0';
+            }, 1500);
+        }
+    } catch (e) {
+        console.error('Login error:', e);
+        toast('❌ Login error. Please try again.');
+        $('pin').value = '';
+        $('pin').focus();
+    } finally {
+        btn.textContent = '🔐 Login';
+        btn.disabled = false;
+    }
+};
+
+// ============================================================
+// ✅ REGISTER
+// ============================================================
+async function registerUser() {
+    if (!otpVerified) {
+        toast('⚠️ Please verify OTP first');
+        return;
+    }
+
+    var pin = $('reg-pin').value.trim();
+    var conf = $('reg-pin-confirm').value.trim();
+    if (!pin || pin.length !== 4) {
+        toast('⚠️ Enter 4-digit PIN');
+        $('reg-pin').focus();
+        return;
+    }
+    if (pin !== conf) {
+        toast('⚠️ PINs do not match');
+        $('reg-pin-confirm').value = '';
+        $('reg-pin-confirm').focus();
+        return;
+    }
+
+    var btn = $('register-btn');
+    btn.textContent = '⏳ Creating...';
+    btn.disabled = true;
+
+    try {
+        var resp = await fetch(EDGE_URL + '/register-user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': 'Bearer ' + SB_KEY
+            },
+            body: JSON.stringify({
+                mobile: mobile,
+                pin: pin,
+                name: '',
+                company_name: '',
+                location: null
+            })
+        });
+        var result = await resp.json();
+
+        if (result.success === true && result.user) {
+            user = result.user;
+            user.mobile = mobile;
+            localStorage.setItem('rt_user', JSON.stringify({
+                mobile: user.mobile,
+                user: user
+            }));
+            guest = false;
+            toast('✅ Account created successfully!');
+            showHome();
+            return;
+        } else if (result.code === 'USER_EXISTS_ACTIVE') {
+            toast('⚠️ User already registered. Please login.');
+            resetForm();
+            $('mobile').value = mobile;
+            $('step1').classList.add('hidden');
+            $('step2').classList.remove('hidden');
+            $('display-mobile').textContent = mobile;
+        } else if (result.code === 'USER_ARCHIVED') {
+            toast('📦 Archived account. Please login to restore.');
+            resetForm();
+            $('mobile').value = mobile;
+            $('step1').classList.add('hidden');
+            $('step2').classList.remove('hidden');
+            $('display-mobile').textContent = mobile;
+        } else {
+            toast('❌ ' + (result.error || 'Registration failed'));
+        }
+    } catch (e) {
+        console.error('Registration error:', e);
+        toast('❌ Registration error. Please try again.');
+    } finally {
+        btn.textContent = '✅ Create Account';
+        btn.disabled = false;
+    }
+}
+
+// ============================================================
+// ✅ CHANGE PIN
+// ============================================================
+function openChangePin() {
+    if (!user) {
+        toast('⚠️ Please login first');
+        return;
+    }
+    var currentPin = prompt('Enter your current PIN:');
+    if (currentPin === null) return;
+    if (!currentPin || currentPin.length !== 4) {
+        toast('⚠️ Enter valid 4-digit current PIN');
+        return;
+    }
+    var newPin = prompt('Enter new 4-digit PIN:');
+    if (newPin === null) return;
+    if (!newPin || newPin.length !== 4) {
+        toast('⚠️ Enter valid 4-digit new PIN');
+        return;
+    }
+    var confirmPin = prompt('Confirm new PIN:');
+    if (confirmPin === null) return;
+    if (newPin !== confirmPin) {
+        toast('⚠️ PINs do not match');
+        return;
+    }
+
+    toast('⏳ Changing PIN...');
+    fetch(EDGE_URL + '/change-pin', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + SB_KEY
+        },
+        body: JSON.stringify({
+            mobile: user.mobile,
+            current_pin: currentPin,
+            new_pin: newPin
+        })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(result) {
+        if (result.success === true) {
+            toast('✅ PIN changed successfully!');
+        } else {
+            toast('❌ ' + (result.error || 'Failed to change PIN. Current PIN may be incorrect.'));
+        }
+    })
+    .catch(function(e) {
+        console.error('Change PIN error:', e);
+        toast('❌ Change PIN failed. Please try again.');
     });
 }
 
 // ============================================================
-// HASH HELPER
+// ✅ RESET PIN - OTP flow then reset
 // ============================================================
-async function hashPIN(pinValue) {
-    var enc = new TextEncoder();
-    var hash = await crypto.subtle.digest('SHA-256', enc.encode(pinValue));
-    var hashArray = Array.from(new Uint8Array(hash));
-    return hashArray.map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
-}
-
-// ============================================================
-// TEST: Check User
-// ============================================================
-async function testCheckUser() {
-    var m = getMobile();
-    if (!m || m.length !== 10) {
-        log('❌ Enter valid 10-digit mobile', 'fail');
+function resetPIN() {
+    if (!otpVerified) {
+        toast('⚠️ Please verify OTP first');
         return;
     }
 
-    log('📡 Testing CHECK USER for: ' + m, 'info');
-    setStatus('Checking user...', 'pending');
-
-    try {
-        var mobileNum = parseInt(m);
-        log('📊 Mobile as BIGINT: ' + mobileNum + ' (type: ' + typeof mobileNum + ')', 'info');
-        log('📤 Sending to: ' + EDGE_URL + '/login-user', 'info');
-        log('📤 Headers: Authorization: Bearer ' + SB_KEY.substring(0, 20) + '...', 'info');
-        log('📤 Body: { mobile: "' + m + '", action: "check" }', 'info');
-
-        var response = await fetch(EDGE_URL + '/login-user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': 'Bearer ' + SB_KEY
-            },
-            body: JSON.stringify({
-                mobile: m,
-                action: 'check'
-            })
-        });
-
-        var result = await response.json();
-        showRawResponse(result);
-        
-        log('📥 Status: ' + response.status, 'info');
-        log('📥 Response: ' + JSON.stringify(result, null, 2), 'info');
-
-        addStep(
-            '📡 Check User Result',
-            'Status: ' + response.status + '\nExists: ' + (result.exists === true ? '✅ YES' : '❌ NO') + 
-            '\nSource: ' + (result.source || 'unknown') + 
-            '\nUser: ' + (result.user ? JSON.stringify(result.user) : 'none'),
-            result.exists === true ? 'pass' : 'fail',
-            result
-        );
-
-        if (result.exists === true) {
-            log('✅ User FOUND in ' + result.source, 'pass');
-            setStatus('✅ User found in ' + result.source, 'success');
-        } else {
-            log('❌ User NOT FOUND', 'fail');
-            setStatus('❌ User not found', 'error');
-        }
-
-        return result;
-    } catch (e) {
-        log('❌ Error: ' + e.message, 'fail');
-        setStatus('❌ Error: ' + e.message, 'error');
-        addStep('❌ Check User Error', e.message, 'fail');
-        return null;
-    }
-}
-
-// ============================================================
-// TEST: Login
-// ============================================================
-async function testLogin() {
-    var m = getMobile();
-    var p = getPin();
-
-    if (!m || m.length !== 10) {
-        log('❌ Enter valid 10-digit mobile', 'fail');
+    var newPin = prompt('Enter new 4-digit PIN:');
+    if (newPin === null) return;
+    if (!newPin || newPin.length !== 4) {
+        toast('⚠️ Enter valid 4-digit PIN');
         return;
     }
-    if (!p || p.length !== 4) {
-        log('❌ Enter 4-digit PIN', 'fail');
+    var confirmPin = prompt('Confirm new PIN:');
+    if (confirmPin === null) return;
+    if (newPin !== confirmPin) {
+        toast('⚠️ PINs do not match');
         return;
     }
 
-    log('🔐 Testing LOGIN for: ' + m, 'info');
-    setStatus('Logging in...', 'pending');
-
-    try {
-        var mobileNum = parseInt(m);
-        var pinHash = await hashPIN(p);
-        
-        log('📊 Mobile as BIGINT: ' + mobileNum + ' (type: ' + typeof mobileNum + ')', 'info');
-        log('📊 PIN: "' + p + '" (type: ' + typeof p + ')', 'info');
-        log('📊 PIN Hash: ' + pinHash, 'highlight');
-        log('📤 Sending to: ' + EDGE_URL + '/login-user', 'info');
-        log('📤 Body: { mobile: "' + m + '", action: "login", pin: "' + p + '" }', 'info');
-
-        var response = await fetch(EDGE_URL + '/login-user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': 'Bearer ' + SB_KEY
-            },
-            body: JSON.stringify({
-                mobile: m,
-                action: 'login',
-                pin: p  // Plain PIN - Edge Function hashes it
-            })
-        });
-
-        var result = await response.json();
-        showRawResponse(result);
-        
-        log('📥 Status: ' + response.status, 'info');
-        log('📥 Response: ' + JSON.stringify(result, null, 2), 'info');
-
-        var detail = 'Status: ' + response.status + 
-            '\nSuccess: ' + (result.success === true ? '✅ YES' : '❌ NO') +
-            '\nSource: ' + (result.source || 'unknown') +
-            '\nIs New User: ' + (result.isNewUser === true ? 'YES' : 'NO');
-
-        if (result.user) {
-            detail += '\nUser Mobile: ' + result.user.mobile +
-                '\nPIN Hash: ' + (result.user.pinhash ? result.user.pinhash.substring(0, 20) + '...' : 'none');
-        }
-
-        addStep(
-            '🔐 Login Result',
-            detail,
-            result.success === true ? 'pass' : 'fail',
-            result
-        );
-
-        // Check if PIN hash matches database
-        if (result.user && result.user.pinhash) {
-            var dbHash = result.user.pinhash;
-            log('📊 DB PIN Hash: ' + dbHash, 'info');
-            log('📊 Expected Hash: ' + pinHash, 'info');
-            if (dbHash === pinHash) {
-                log('✅ PIN hash MATCHES!', 'pass');
-            } else {
-                log('❌ PIN hash MISMATCH!', 'fail');
-                log('⚠️ DB has: ' + dbHash, 'warn');
-                log('⚠️ Expected: ' + pinHash, 'warn');
+    toast('⏳ Resetting PIN...');
+    fetch(EDGE_URL + '/login-user', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + SB_KEY
+        },
+        body: JSON.stringify({
+            mobile: mobile,
+            action: 'reset_pin',
+            new_pin: newPin
+        })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(result) {
+        if (result.success === true) {
+            toast('✅ PIN reset successfully!');
+            if (result.user) {
+                user = result.user;
+                localStorage.setItem('rt_user', JSON.stringify({
+                    mobile: user.mobile,
+                    user: user
+                }));
+                guest = false;
+                showHome();
             }
-        }
-
-        if (result.success === true && result.user) {
-            log('✅ Login SUCCESSFUL!', 'pass');
-            setStatus('✅ Login successful for ' + result.user.mobile, 'success');
-            return result;
-        } else if (result.isNewUser === true) {
-            log('ℹ️ New user - needs registration', 'warn');
-            setStatus('ℹ️ New user - please register', 'pending');
-            return result;
-        } else if (result.source === 'archived') {
-            log('📦 Archived account found', 'warn');
-            setStatus('📦 Archived account', 'pending');
-            return result;
         } else {
-            log('❌ Login FAILED: ' + (result.error || 'Unknown error'), 'fail');
-            setStatus('❌ Login failed', 'error');
-            return result;
+            toast('❌ ' + (result.error || 'Failed to reset PIN'));
         }
-    } catch (e) {
-        log('❌ Login error: ' + e.message, 'fail');
-        setStatus('❌ Error: ' + e.message, 'error');
-        addStep('❌ Login Error', e.message, 'fail');
-        return null;
-    }
+    })
+    .catch(function(e) {
+        console.error('Reset PIN error:', e);
+        toast('❌ Reset PIN failed. Please try again.');
+    });
 }
 
 // ============================================================
-// TEST: Register
+// NAVIGATION
 // ============================================================
-async function testRegister() {
-    var m = getMobile();
-    var p = getPin();
+function goHome() {
+    showPage('home-page');
+    document.querySelectorAll('.nav-item').forEach(function(e) { e.classList.remove('active'); });
+    document.querySelectorAll('.nav-fixed .nav-item')[0].classList.add('active');
+}
 
-    if (!m || m.length !== 10) {
-        log('❌ Enter valid 10-digit mobile', 'fail');
-        return;
-    }
-    if (!p || p.length !== 4) {
-        log('❌ Enter 4-digit PIN', 'fail');
-        return;
-    }
+function goToProfile() {
+    if (guest || !user) { showLogin(); return; }
+    showPage('profile-page');
+    document.querySelectorAll('.nav-item').forEach(function(e) { e.classList.remove('active'); });
+    document.querySelectorAll('.nav-fixed .nav-item')[3].classList.add('active');
+    $('profile-mobile').textContent = user.mobile || '--';
+}
 
-    log('📝 Testing REGISTER for: ' + m, 'info');
-    setStatus('Registering...', 'pending');
+function goPostLoad() {
+    if (guest || !user) { showLogin(); return; }
+    showPage('postload-page');
+    document.querySelectorAll('.nav-item').forEach(function(e) { e.classList.remove('active'); });
+    document.querySelectorAll('.nav-fixed .nav-item')[1].classList.add('active');
+}
 
-    try {
-        var mobileNum = parseInt(m);
-        var pinHash = await hashPIN(p);
-        
-        log('📊 Mobile as BIGINT: ' + mobileNum + ' (type: ' + typeof mobileNum + ')', 'info');
-        log('📊 PIN: "' + p + '" (type: ' + typeof p + ')', 'info');
-        log('📊 PIN Hash (will be stored): ' + pinHash, 'highlight');
-        log('📤 Sending to: ' + EDGE_URL + '/register-user', 'info');
+function goPostTruck() {
+    if (guest || !user) { showLogin(); return; }
+    showPage('posttruck-page');
+    document.querySelectorAll('.nav-item').forEach(function(e) { e.classList.remove('active'); });
+    document.querySelectorAll('.nav-fixed .nav-item')[2].classList.add('active');
+}
 
-        var response = await fetch(EDGE_URL + '/register-user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': 'Bearer ' + SB_KEY
-            },
-            body: JSON.stringify({
-                mobile: m,
-                pin: p,
-                name: 'Test User',
-                company_name: 'Test Company',
-                location: null
-            })
-        });
-
-        var result = await response.json();
-        showRawResponse(result);
-        
-        log('📥 Status: ' + response.status, 'info');
-        log('📥 Response: ' + JSON.stringify(result, null, 2), 'info');
-
-        var detail = 'Status: ' + response.status +
-            '\nSuccess: ' + (result.success === true ? '✅ YES' : '❌ NO') +
-            '\nCode: ' + (result.code || 'none');
-
-        if (result.user) {
-            detail += '\nUser Mobile: ' + result.user.mobile +
-                '\nPIN Hash: ' + (result.user.pinhash ? result.user.pinhash.substring(0, 20) + '...' : 'none');
-        }
-
-        addStep(
-            '📝 Register Result',
-            detail,
-            result.success === true ? 'pass' : 'fail',
-            result
-        );
-
-        if (result.success === true && result.user) {
-            log('✅ Registration SUCCESSFUL!', 'pass');
-            setStatus('✅ Registration successful for ' + result.user.mobile, 'success');
-            return result;
-        } else if (result.code === 'USER_EXISTS_ACTIVE') {
-            log('⚠️ User already exists in active_users', 'warn');
-            setStatus('⚠️ User already registered', 'pending');
-            return result;
-        } else if (result.code === 'USER_ARCHIVED') {
-            log('⚠️ User is archived', 'warn');
-            setStatus('⚠️ User archived', 'pending');
-            return result;
-        } else {
-            log('❌ Registration FAILED: ' + (result.error || 'Unknown error'), 'fail');
-            setStatus('❌ Registration failed', 'error');
-            return result;
-        }
-    } catch (e) {
-        log('❌ Registration error: ' + e.message, 'fail');
-        setStatus('❌ Error: ' + e.message, 'error');
-        addStep('❌ Registration Error', e.message, 'fail');
-        return null;
+function saveProfile() { toast('✅ Profile saved!'); }
+function setTab(t) {
+    document.querySelectorAll('.type-tabs button').forEach(function(b) { b.className = 'inactive'; });
+    var map = { 'ALL': 'tab-all', 'LOAD': 'tab-loads', 'TRUCK': 'tab-trucks', 'AGENT': 'tab-agents' };
+    var el = $(map[t]);
+    if (el) el.className = 'active';
+}
+function logout() {
+    if (confirm('Logout?')) {
+        localStorage.removeItem('rt_user');
+        window.location.reload();
     }
 }
 
-// ============================================================
-// TEST: Change PIN
-// ============================================================
-async function testChangePin() {
-    var m = getMobile();
-    var currentPin = getPin();
-    var newPin = prompt('Enter NEW 4-digit PIN to change to:', '5678');
-
-    if (newPin === null) return;
-    if (!newPin || newPin.length !== 4) {
-        log('❌ Enter valid 4-digit PIN', 'fail');
-        return;
-    }
-
-    if (!m || m.length !== 10) {
-        log('❌ Enter valid 10-digit mobile', 'fail');
-        return;
-    }
-    if (!currentPin || currentPin.length !== 4) {
-        log('❌ Enter current PIN', 'fail');
-        return;
-    }
-
-    log('🔑 Testing CHANGE PIN for: ' + m, 'info');
-    log('📊 Current PIN: ' + currentPin + ' → New PIN: ' + newPin, 'info');
-    setStatus('Changing PIN...', 'pending');
-
-    try {
-        var mobileNum = parseInt(m);
-        var currentHash = await hashPIN(currentPin);
-        var newHash = await hashPIN(newPin);
-        
-        log('📊 Current PIN Hash: ' + currentHash, 'info');
-        log('📊 New PIN Hash: ' + newHash, 'info');
-        log('📤 Sending to: ' + EDGE_URL + '/change-pin', 'info');
-
-        var response = await fetch(EDGE_URL + '/change-pin', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': 'Bearer ' + SB_KEY
-            },
-            body: JSON.stringify({
-                mobile: m,
-                current_pin: currentPin,
-                new_pin: newPin
-            })
-        });
-
-        var result = await response.json();
-        showRawResponse(result);
-        
-        log('📥 Status: ' + response.status, 'info');
-        log('📥 Response: ' + JSON.stringify(result, null, 2), 'info');
-
-        addStep(
-            '🔑 Change PIN Result',
-            'Status: ' + response.status + '\nSuccess: ' + (result.success === true ? '✅ YES' : '❌ NO') +
-            '\nMessage: ' + (result.message || 'none'),
-            result.success === true ? 'pass' : 'fail',
-            result
-        );
-
-        if (result.success === true) {
-            log('✅ PIN changed successfully!', 'pass');
-            setStatus('✅ PIN changed successfully', 'success');
-            // Update test PIN to new PIN
-            document.getElementById('test-pin').value = newPin;
-            updateTestValues();
-            return result;
-        } else {
-            log('❌ Change PIN FAILED: ' + (result.error || 'Unknown error'), 'fail');
-            setStatus('❌ Change PIN failed', 'error');
-            return result;
-        }
-    } catch (e) {
-        log('❌ Change PIN error: ' + e.message, 'fail');
-        setStatus('❌ Error: ' + e.message, 'error');
-        addStep('❌ Change PIN Error', e.message, 'fail');
-        return null;
-    }
-}
-
-// ============================================================
-// TEST: Reset PIN
-// ============================================================
-async function testResetPin() {
-    var m = getMobile();
-    var newPin = prompt('Enter NEW 4-digit PIN to reset to:', '1234');
-
-    if (newPin === null) return;
-    if (!newPin || newPin.length !== 4) {
-        log('❌ Enter valid 4-digit PIN', 'fail');
-        return;
-    }
-
-    if (!m || m.length !== 10) {
-        log('❌ Enter valid 10-digit mobile', 'fail');
-        return;
-    }
-
-    log('🔄 Testing RESET PIN for: ' + m, 'info');
-    log('📊 New PIN: ' + newPin, 'info');
-    setStatus('Resetting PIN...', 'pending');
-
-    try {
-        var mobileNum = parseInt(m);
-        var newHash = await hashPIN(newPin);
-        
-        log('📊 New PIN Hash: ' + newHash, 'info');
-        log('📤 Sending to: ' + EDGE_URL + '/login-user (action: reset_pin)', 'info');
-
-        var response = await fetch(EDGE_URL + '/login-user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': 'Bearer ' + SB_KEY
-            },
-            body: JSON.stringify({
-                mobile: m,
-                action: 'reset_pin',
-                new_pin: newPin
-            })
-        });
-
-        var result = await response.json();
-        showRawResponse(result);
-        
-        log('📥 Status: ' + response.status, 'info');
-        log('📥 Response: ' + JSON.stringify(result, null, 2), 'info');
-
-        var detail = 'Status: ' + response.status +
-            '\nSuccess: ' + (result.success === true ? '✅ YES' : '❌ NO') +
-            '\nSource: ' + (result.source || 'unknown');
-
-        if (result.user) {
-            detail += '\nUser Mobile: ' + result.user.mobile +
-                '\nNew PIN Hash: ' + (result.user.pinhash ? result.user.pinhash.substring(0, 20) + '...' : 'none');
-        }
-
-        addStep(
-            '🔄 Reset PIN Result',
-            detail,
-            result.success === true ? 'pass' : 'fail',
-            result
-        );
-
-        if (result.success === true) {
-            log('✅ PIN reset successfully!', 'pass');
-            setStatus('✅ PIN reset successfully', 'success');
-            // Update test PIN to new PIN
-            document.getElementById('test-pin').value = newPin;
-            updateTestValues();
-            return result;
-        } else {
-            log('❌ Reset PIN FAILED: ' + (result.error || 'Unknown error'), 'fail');
-            setStatus('❌ Reset PIN failed', 'error');
-            return result;
-        }
-    } catch (e) {
-        log('❌ Reset PIN error: ' + e.message, 'fail');
-        setStatus('❌ Error: ' + e.message, 'error');
-        addStep('❌ Reset PIN Error', e.message, 'fail');
-        return null;
-    }
-}
-
-// ============================================================
-// TEST: Direct SQL Check
-// ============================================================
-async function testDirectSQL() {
-    var m = getMobile();
-    if (!m || m.length !== 10) {
-        log('❌ Enter valid 10-digit mobile', 'fail');
-        return;
-    }
-
-    var mobileNum = parseInt(m);
-    log('🗄️ Direct SQL check for: ' + m + ' (BIGINT: ' + mobileNum + ')', 'info');
-    setStatus('Querying database...', 'pending');
-
-    try {
-        // Check active_users
-        var { data: active, error: activeErr } = await sb
-            .from('active_users')
-            .select('*')
-            .eq('mobile', mobileNum)
-            .maybeSingle();
-
-        if (active) {
-            log('✅ Found in active_users: ' + active.mobile + ' (type: ' + typeof active.mobile + ')', 'pass');
-            addStep(
-                '🗄️ Active Users Query',
-                'Mobile: ' + active.mobile + ' (type: ' + typeof active.mobile + ')\n' +
-                'PIN Hash: ' + (active.pinhash ? active.pinhash : 'Not set') + '\n' +
-                'Name: ' + (active.name || 'Not set') + '\n' +
-                'Company: ' + (active.company_name || 'Not set'),
-                'pass',
-                active
-            );
-            setStatus('✅ Found in active_users', 'success');
-            return active;
-        }
-
-        // Check archived_users
-        var { data: archived, error: archErr } = await sb
-            .from('archived_users')
-            .select('*')
-            .eq('mobile', mobileNum)
-            .maybeSingle();
-
-        if (archived) {
-            log('✅ Found in archived_users: ' + archived.mobile, 'pass');
-            addStep(
-                '🗄️ Archived Users Query',
-                'Mobile: ' + archived.mobile + '\n' +
-                'User Data: ' + JSON.stringify(archived.user_data, null, 2),
-                'pass',
-                archived
-            );
-            setStatus('✅ Found in archived_users', 'success');
-            return archived;
-        }
-
-        log('❌ User NOT FOUND in any table', 'fail');
-        addStep('🗄️ Direct SQL Query', 'User NOT FOUND in active_users or archived_users', 'fail');
-        setStatus('❌ User not found in database', 'error');
-        return null;
-    } catch (e) {
-        log('❌ Direct SQL error: ' + e.message, 'fail');
-        setStatus('❌ Error: ' + e.message, 'error');
-        return null;
-    }
-}
-
-// ============================================================
-// TEST: Full Flow
-// ============================================================
-async function testFullFlow() {
-    log('🚀 Starting FULL FLOW test...', 'info');
-    document.getElementById('steps-container').innerHTML = '';
-    
-    // Step 1: Check user
-    log('📡 Step 1: Checking user existence', 'info');
-    var checkResult = await testCheckUser();
-    
-    if (checkResult && checkResult.exists === true) {
-        log('✅ User exists. Testing login...', 'pass');
-        var loginResult = await testLogin();
-        
-        if (loginResult && loginResult.success === true) {
-            log('✅ Login successful!', 'pass');
-            
-            // Step 3: Test change PIN
-            log('🔑 Step 3: Testing PIN change...', 'info');
-            var newPin = '5678';
-            document.getElementById('test-pin').value = newPin;
-            updateTestValues();
-            await testChangePin();
-            
-            // Step 4: Test reset PIN
-            log('🔄 Step 4: Testing PIN reset...', 'info');
-            var resetPin = '1234';
-            document.getElementById('test-pin').value = resetPin;
-            updateTestValues();
-            await testResetPin();
-        } else if (loginResult && loginResult.isNewUser === true) {
-            log('ℹ️ New user. Testing registration...', 'warn');
-            await testRegister();
-        }
-    } else {
-        log('ℹ️ New user. Testing registration...', 'warn');
-        await testRegister();
-        
-        log('🔐 Testing login after registration...', 'info');
-        await testLogin();
-    }
-    
-    // Final SQL check
-    log('🗄️ Final database check...', 'info');
-    await testDirectSQL();
-    
-    log('✅ Full flow test completed!', 'pass');
-    addStep('✅ Test Complete', 'All tests executed. Check results above.', 'pass');
-    setStatus('✅ Full flow complete', 'success');
-}
+// Enter key handlers
+$('pin').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') submitPin();
+    $('pin-error').style.display = 'none';
+});
+$('reg-pin').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') $('reg-pin-confirm').focus();
+});
+$('reg-pin-confirm').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') registerUser();
+});
 
 // ============================================================
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
-    log('🚀 Edge Function Debug Test initialized', 'info');
-    log('📡 Edge URL: ' + EDGE_URL, 'info');
-    log('📱 Mobile: ' + mobile + ', PIN: ' + pin, 'info');
-    log('📊 BIGINT type check: parseInt("6300067332") = ' + parseInt('6300067332'), 'info');
-    log('🔑 To test PIN hash, click Update button', 'info');
-    log('----------------------------------------', 'info');
-    
-    // Auto update hash on load
-    setTimeout(function() {
-        updateTestValues();
-    }, 500);
-});
-
-// Enter key handlers
-document.getElementById('test-mobile').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') updateTestValues();
-});
-document.getElementById('test-pin').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') updateTestValues();
+    var saved = localStorage.getItem('rt_user');
+    if (saved) {
+        var sd = JSON.parse(saved);
+        if (sd.guest) {
+            guest = true;
+            user = null;
+        } else if (sd.user) {
+            user = sd.user;
+            guest = false;
+        }
+        showHome();
+    } else {
+        showPage('login-screen');
+        $('step1').classList.remove('hidden');
+    }
 });
 </script>
 </body>
