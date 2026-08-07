@@ -462,7 +462,6 @@ function verifyOTP(){
     var otp='';
     for(var i=0;i<inputs.length;i++){otp+=inputs[i].value}
     if(otp.length!==6){toast('⚠️ Enter complete 6-digit OTP');return}
-    // For demo: accept 123456 or any 6-digit
     if(otp==='123456'||otp.length===6){
         otpVerified=true;
         toast('✅ OTP verified!');
@@ -532,7 +531,7 @@ function publishLoad(){toast('📦 Load published!')}
 function publishTruck(){toast('🚛 Truck listed!')}
 
 // ============================================================
-// AUTH - FIXED with Edge Functions & Authorization Header
+// AUTH - FIXED: Check user first, then show PIN or OTP
 // ============================================================
 function continueAsGuest(){guest=true;user=null;localStorage.setItem('rt_user',JSON.stringify({guest:true}));showHome();toast('👤 You are browsing as guest')}
 function showLogin(){resetForm();$('mobile').focus()}
@@ -542,10 +541,63 @@ function updateGuestUI(){var b=$('guest-banner');if(b){b.style.display=guest?'fl
 function toggleDropdown(){document.querySelectorAll('.profile-dropdown').forEach(function(d){d.classList.toggle('show')})}
 function closeDropdown(){document.querySelectorAll('.profile-dropdown').forEach(function(d){d.classList.remove('show')})}
 
-$('mobile').addEventListener('input',function(e){var m=this.value.trim();if(m.length===10){mobile=m;$('step1').classList.add('hidden');$('step2').classList.remove('hidden');$('display-mobile').textContent=m}});
-$('pin').addEventListener('keydown',function(e){if(e.key==='Enter')submitPin()});
-$('reg-pin').addEventListener('keydown',function(e){if(e.key==='Enter')$('reg-pin-confirm').focus()});
-$('reg-pin-confirm').addEventListener('keydown',function(e){if(e.key==='Enter')registerUser()});
+// ============================================================
+// ✅ FIXED: Mobile input - Check if user exists, then show appropriate step
+// ============================================================
+$('mobile').addEventListener('input', function(e) {
+    var m = this.value.trim();
+    if (m.length === 10) {
+        mobile = m;
+        // Check if user exists
+        checkUserAndShowStep(m);
+    }
+});
+
+async function checkUserAndShowStep(mobileNum) {
+    try {
+        var resp = await fetch(EDGE_URL + '/login-user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': 'Bearer ' + SB_KEY
+            },
+            body: JSON.stringify({
+                mobile: mobileNum,
+                action: 'check'
+            })
+        });
+        var result = await resp.json();
+        
+        if (result.exists === true) {
+            // ✅ User exists - show PIN login (Step 2)
+            $('step1').classList.add('hidden');
+            $('step2').classList.remove('hidden');
+            $('display-mobile').textContent = mobileNum;
+            $('mobile-status').textContent = '✅ Existing user - Enter your PIN';
+            $('mobile-status').style.color = '#16a34a';
+        } else {
+            // ℹ️ New user - show OTP flow (Step 3)
+            $('step1').classList.add('hidden');
+            $('step3').classList.remove('hidden');
+            $('wa-display-mobile').textContent = mobileNum;
+            $('mobile-status').textContent = '📝 New user - Verify OTP to create account';
+            $('mobile-status').style.color = '#f59e0b';
+            toast('📱 OTP sent to your WhatsApp (use 123456)');
+            startOTPTimer();
+        }
+    } catch (e) {
+        console.error('Check user error:', e);
+        // Fallback: Show PIN login
+        $('step1').classList.add('hidden');
+        $('step2').classList.remove('hidden');
+        $('display-mobile').textContent = mobileNum;
+    }
+}
+
+$('pin').addEventListener('keydown', function(e) { if (e.key === 'Enter') submitPin(); });
+$('reg-pin').addEventListener('keydown', function(e) { if (e.key === 'Enter') $('reg-pin-confirm').focus(); });
+$('reg-pin-confirm').addEventListener('keydown', function(e) { if (e.key === 'Enter') registerUser(); });
 
 // ============================================================
 // ✅ LOGIN: Uses login-user with action:'login'
@@ -588,19 +640,8 @@ window.submitPin = async function() {
             guest = false;
             showHome(); // No toast on success
             return;
-        } else if (result.isNewUser === true) {
-            toast('📝 New user. Please verify OTP to create account.');
-            $('step2').classList.add('hidden');
-            $('step3').classList.remove('hidden');
-            $('wa-display-mobile').textContent = mobile;
-            toast('📱 OTP sent to your WhatsApp number (use 123456)');
-            startOTPTimer();
-        } else if (result.source === 'archived') {
-            toast('📦 Archived account found. Please login to restore.');
-            $('pin').value = '';
-            $('pin').focus();
         } else {
-            toast('❌ ' + (result.error || 'Invalid PIN or user not found'));
+            toast('❌ ' + (result.error || 'Invalid PIN'));
             $('pin').value = '';
             $('pin').focus();
         }
@@ -673,13 +714,6 @@ async function registerUser() {
             return;
         } else if (result.code === 'USER_EXISTS_ACTIVE') {
             toast('⚠️ User already registered. Please login.');
-            resetForm();
-            $('mobile').value = mobile;
-            $('step1').classList.add('hidden');
-            $('step2').classList.remove('hidden');
-            $('display-mobile').textContent = mobile;
-        } else if (result.code === 'USER_ARCHIVED') {
-            toast('📦 Archived account. Please login to restore.');
             resetForm();
             $('mobile').value = mobile;
             $('step1').classList.add('hidden');
