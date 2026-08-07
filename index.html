@@ -531,7 +531,7 @@ $('reg-pin').addEventListener('keydown',function(e){if(e.key==='Enter')$('reg-pi
 $('reg-pin-confirm').addEventListener('keydown',function(e){if(e.key==='Enter')registerUser()});
 
 // ============================================================
-// ✅ FIXED: submitPin - NO success message, just login
+// ✅ FIXED: submitPin - Login with new user detection
 // ============================================================
 window.submitPin = async function() {
     var pin = $('pin').value.trim();
@@ -569,19 +569,16 @@ window.submitPin = async function() {
                 user: user
             }));
             guest = false;
-            // ✅ NO success toast message - just login
-            showHome();
+            showHome(); // No toast message on success
             return;
         } else if (result.isNewUser === true) {
-            toast('📝 New user. Please create an account.');
-            // Show registration with OTP flow
+            toast('📝 New user. Please verify OTP to create account.');
             $('step2').classList.add('hidden');
             $('step3').classList.remove('hidden');
             $('wa-display-mobile').textContent = mobile;
-            // Simulate sending OTP via WhatsApp
             toast('📱 OTP sent to your WhatsApp number');
             startOTPTimer();
-            // Auto-fill OTP for demo (remove in production)
+            // Auto-fill demo OTP (remove in production)
             setTimeout(function(){
                 var inputs = document.querySelectorAll('.otp-input');
                 var otp = '123456';
@@ -594,7 +591,7 @@ window.submitPin = async function() {
             $('pin').value = '';
             $('pin').focus();
         } else {
-            toast('❌ ' + (result.error || 'Login failed'));
+            toast('❌ ' + (result.error || 'Invalid PIN or user not found'));
             $('pin').value = '';
             $('pin').focus();
         }
@@ -610,7 +607,7 @@ window.submitPin = async function() {
 };
 
 // ============================================================
-// ✅ FIXED: registerUser - uses register-user endpoint
+// ✅ FIXED: registerUser - Creates account after OTP verification
 // ============================================================
 async function registerUser() {
     var pin = $('reg-pin').value.trim(),
@@ -687,7 +684,7 @@ async function registerUser() {
 }
 
 // ============================================================
-// ✅ FIXED: changePIN - uses change-pin endpoint
+// ✅ FIXED: changePIN - Uses change-pin endpoint with better error handling
 // ============================================================
 function openChangePin() {
     if (!user) {
@@ -697,13 +694,13 @@ function openChangePin() {
     var currentPin = prompt('Enter your current PIN:');
     if (currentPin === null) return;
     if (!currentPin || currentPin.length !== 4) {
-        toast('⚠️ Enter valid current PIN');
+        toast('⚠️ Enter valid 4-digit current PIN');
         return;
     }
     var newPin = prompt('Enter new 4-digit PIN:');
     if (newPin === null) return;
     if (!newPin || newPin.length !== 4) {
-        toast('⚠️ Enter valid new PIN');
+        toast('⚠️ Enter valid 4-digit new PIN');
         return;
     }
     var confirmPin = prompt('Confirm new PIN:');
@@ -727,29 +724,31 @@ function openChangePin() {
             new_pin: newPin
         })
     })
-    .then(function(r) { return r.json(); })
+    .then(function(r) { 
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json(); 
+    })
     .then(function(result) {
         if (result.success === true) {
             toast('✅ PIN changed successfully!');
-            // Update local user with new pin (optional)
         } else {
             toast('❌ ' + (result.error || 'Failed to change PIN'));
         }
     })
     .catch(function(e) {
         console.error('Change PIN error:', e);
-        toast('❌ Error changing PIN');
+        toast('❌ Change PIN failed. Make sure change-pin Edge Function is deployed.');
     });
 }
 
 // ============================================================
-// ✅ FIXED: resetPIN - uses login-user with reset_pin action
+// ✅ FIXED: resetPIN - Uses login-user with reset_pin action
 // ============================================================
 function resetPIN() {
     var newPin = prompt('Enter new 4-digit PIN:');
     if (newPin === null) return;
     if (!newPin || newPin.length !== 4) {
-        toast('⚠️ Enter valid PIN');
+        toast('⚠️ Enter valid 4-digit PIN');
         return;
     }
     var confirmPin = prompt('Confirm new PIN:');
@@ -773,7 +772,10 @@ function resetPIN() {
             new_pin: newPin
         })
     })
-    .then(function(r) { return r.json(); })
+    .then(function(r) { 
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json(); 
+    })
     .then(function(result) {
         if (result.success === true) {
             toast('✅ PIN reset successfully!');
@@ -792,7 +794,7 @@ function resetPIN() {
     })
     .catch(function(e) {
         console.error('Reset PIN error:', e);
-        toast('❌ Error resetting PIN');
+        toast('❌ Reset PIN failed. Make sure login-user Edge Function has reset_pin action.');
     });
 }
 
