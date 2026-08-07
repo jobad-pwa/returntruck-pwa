@@ -394,33 +394,29 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 
 <script>
 // ============================================================
-// STATIC LOCATION DATA
+// STATIC LOCATION DATA WITH PIN_ID (UNIQUE IDENTIFIER)
 // ============================================================
-var LOCATIONS=[
-  {pin:"110018",name:"Ashok Nagar",district:"NEW DELHI",state:"DH",lat:28.636587,lng:77.094466},
-  {pin:"182141",name:"Chenani",district:"UDHAMPUR",state:"JK",lat:33.0389444,lng:75.2846944},
-  {pin:"400001",name:"Mumbai",district:"MUMBAI",state:"MH",lat:18.9391667,lng:72.8375556},
-  {pin:"516362",name:"Khadarabad",district:"Y.S.R.",state:"AP",lat:14.7626487,lng:78.6336605},
-  {pin:"517501",name:"Tirupati",district:"Tirupati",state:"AP",lat:13.6322875,lng:79.4226094},
-  {pin:"518001",name:"Kurnool",district:"KURNOOL",state:"AP",lat:15.833006,lng:78.047822},
-  {pin:"521202",name:"Hanumanthunigudem",district:"Eluru",state:"AP",lat:16.784728,lng:80.849867},
-  {pin:"522301",name:"Anantavaram",district:"GUNTUR",state:"AP",lat:16.02644444,lng:80.16291667},
-  {pin:"522603",name:"Ravipadu",district:"Palnadu",state:"AP",lat:16.2233,lng:79.9719},
-  {pin:"522616",name:"Chilakaluripet",district:"GUNTUR",state:"AP",lat:16.087918,lng:80.266533},
-  {pin:"523253",name:"Uppalapadu",district:"PRAKASAM",state:"AP",lat:15.621921,lng:79.700266},
-  {pin:"524223",name:"Jaladanki",district:"SPSR NELLORE",state:"AP",lat:14.853108,lng:79.84613},
-  {pin:"530001",name:"Visakhapatnam",district:"VISAKHAPATANAM",state:"AP",lat:17.70402479,lng:83.29639357},
-  {pin:"531111",name:"Chintapalli",district:"Alluri Sitharama Raju",state:"AP",lat:17.980066,lng:82.41334},
-  {pin:"531118",name:"Rajupakalu",district:"VISAKHAPATANAM",state:"AP",lat:17.608616,lng:82.632208},
-  {pin:"531162",name:"Chittivalasa",district:"VISAKHAPATANAM",state:"AP",lat:17.936293,lng:83.49369},
-  {pin:"533001",name:"Kakinada",district:"Kakinada",state:"AP",lat:16.9550556,lng:82.2354722},
-  {pin:"533101",name:"Rajahmundry",district:"EAST GODAVARI",state:"AP",lat:16.9920339,lng:81.7779721},
-  {pin:"533406",name:"Annavaram",district:"Kakinada",state:"AP",lat:17.2830278,lng:82.4064444},
-  {pin:"534202",name:"Gollalakoderu",district:"WEST GODAVARI",state:"AP",lat:16.545316,lng:81.513696},
-  {pin:"560002",name:"Bengaluru City",district:"BENGALURU URBAN",state:"KA",lat:12.839909,lng:77.662968},
-  {pin:"570001",name:"Mysuru",district:"MYSURU",state:"KA",lat:12.31416667,lng:76.65655556},
-  {pin:"671314",name:"Bengalam",district:"KASARAGOD",state:"KL",lat:12.2949717,lng:75.154531},
-  {pin:"700001",name:"KOLKATA",district:"KOLKATA",state:"WB",lat:22.5736,lng:88.3483}
+var LOCATIONS = [
+  {pin_id:"53300104", pincode:"533001", name:"Kakinada", district:"Kakinada", state:"AP", lat:16.9550556, lng:82.2354722},
+  {pin_id:"53340114", pincode:"533401", name:"Tuni", district:"Kakinada", state:"AP", lat:17.3581389, lng:82.5455278},
+  {pin_id:"53340604", pincode:"533406", name:"Annavaram", district:"Kakinada", state:"AP", lat:17.2830278, lng:82.4064444},
+  {pin_id:"53342905", pincode:"533429", name:"Yeleswaram", district:"Kakinada", state:"AP", lat:17.2893333, lng:82.1058889},
+  {pin_id:"52400103", pincode:"524001", name:"Nellore", district:"SPSR NELLORE", state:"AP", lat:14.451895, lng:79.980856},
+  {pin_id:"52400405", pincode:"524004", name:"Buja Buja Nellore", district:"SPSR NELLORE", state:"AP", lat:14.393973, lng:79.938857},
+  {pin_id:"52420106", pincode:"524201", name:"Kavali", district:"SPSR NELLORE", state:"AP", lat:14.91658, lng:79.993121},
+  {pin_id:"52434404", pincode:"524344", name:"Muthukur", district:"SPSR NELLORE", state:"AP", lat:14.5749722, lng:80.1420833},
+  {pin_id:"50000101", pincode:"500001", name:"Hyderabad G.P.O.", district:"HYDERABAD", state:"TG", lat:17.387993, lng:78.47652},
+  {pin_id:"50000802", pincode:"500008", name:"Lungeruse", district:"HYDERABAD", state:"TG", lat:17.37586111, lng:78.42025},
+  {pin_id:"50000803", pincode:"500008", name:"Toli Chowki", district:"HYDERABAD", state:"TG", lat:17.65252778, lng:78.68886111},
+  {pin_id:"50004501", pincode:"500045", name:"Yousufguda", district:"HYDERABAD", state:"TG", lat:17.441504, lng:78.424536},
+  {pin_id:"50004902", pincode:"500049", name:"Miyapur", district:"MEDCHAL MALKAJGIRI", state:"TG", lat:17.49253338, lng:78.35148793},
+  {pin_id:"50006201", pincode:"500062", name:"Ecil", district:"MEDCHAL MALKAJGIRI", state:"TG", lat:17.465795, lng:78.570653},
+  {pin_id:"50007503", pincode:"500075", name:"Gandipet", district:"RANGA REDDY", state:"TG", lat:17.38471, lng:78.320332},
+  {pin_id:"50007504", pincode:"500075", name:"Kokapet", district:"RANGA REDDY", state:"TG", lat:17.38471, lng:78.320332},
+  {pin_id:"50009201", pincode:"500092", name:"Boduppal", district:"MEDCHAL MALKAJGIRI", state:"TG", lat:17.42022, lng:78.58452},
+  {pin_id:"50009702", pincode:"500097", name:"Meerpet", district:"RANGA REDDY", state:"TG", lat:17.320999, lng:78.530474},
+  {pin_id:"50009801", pincode:"500098", name:"Medipalli", district:"MEDCHAL MALKAJGIRI", state:"TG", lat:17.40909, lng:78.60141},
+  {pin_id:"50011201", pincode:"500112", name:"Badangpet", district:"HYDERABAD", state:"TG", lat:17.30505, lng:78.525178}
 ];
 
 // ============================================================
@@ -431,192 +427,270 @@ var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI
 var EDGE_URL='https://ghjoffovatgvhzxlupef.supabase.co/functions/v1';
 var sb=window.supabase.createClient(SB_URL,SB_KEY);
 var user=null,guest=false,tab='ALL',items=[],detail=null,mobile='';
-var homePin=null,toPin=null,prompt=null,installed=false,filterOpen=true;
+var homePinId=null,toPinId=null,prompt=null,installed=false,filterOpen=true;
 var otpTimer=null,otpSeconds=300,otpVerified=false,generatedOTP='';
-var isResetFlow=false;
-var otpPurpose='registration';
+var isResetFlow=false,otpPurpose='registration';
 
 function $(id){return document.getElementById(id)}
 function toast(msg){alert(msg)}
 
 // ============================================================
-// LOCATION HELPERS
+// LOCATION HELPERS - Using PIN_ID as unique identifier
 // ============================================================
-function getLoc(pin){for(var i=0;i<LOCATIONS.length;i++){if(LOCATIONS[i].pin===pin)return LOCATIONS[i]}return null}
-function getLocName(pin){var l=getLoc(pin);return l?l.name+', '+l.district+', '+l.state+' ('+l.pin+')':pin||'Unknown'}
-function dist(lat1,lng1,lat2,lng2){var R=6371,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180,a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))}
-
-// ============================================================
-// AUTO-LOCATE
-// ============================================================
-function autoLocate(){var inp=$('search-home');if(!inp)return;var saved=localStorage.getItem('rt_home_location');if(saved){try{var l=JSON.parse(saved);inp.value=l.displayName;homePin=l.pin;applyFilters();return}catch(e){}}
-if(navigator.geolocation){navigator.geolocation.getCurrentPosition(function(p){var lat=p.coords.latitude,lng=p.coords.longitude,near=null,minD=Infinity;for(var i=0;i<LOCATIONS.length;i++){var l=LOCATIONS[i],d=dist(lat,lng,l.lat,l.lng);if(d<minD){minD=d;near=l}}if(near&&minD<100){var dn=near.name+', '+near.state+' ('+near.pin+')';inp.value=dn;homePin=near.pin;localStorage.setItem('rt_home_location',JSON.stringify({pin:near.pin,displayName:dn}));applyFilters()}},function(){fetch('https://ipapi.co/json/').then(function(r){return r.json()}).then(function(d){var city=d.city||'';for(var i=0;i<LOCATIONS.length;i++){var l=LOCATIONS[i];if(l.name.toLowerCase()===city.toLowerCase()||l.district.toLowerCase()===city.toLowerCase()){var dn=l.name+', '+l.state+' ('+l.pin+')';inp.value=dn;homePin=l.pin;localStorage.setItem('rt_home_location',JSON.stringify({pin:l.pin,displayName:dn}));applyFilters();break}}}).catch(function(){})})}}
-
-// ============================================================
-// SEARCH
-// ============================================================
-function searchLocation(ctx){var inp=$('search-'+ctx),sug=$('suggestions-'+ctx);if(!inp||!sug)return;var q=inp.value.trim();if(!q){sug.classList.remove('show');return}var res=[],ql=q.toLowerCase();for(var i=0;i<LOCATIONS.length;i++){var l=LOCATIONS[i];if(l.name.toLowerCase().includes(ql)||l.pin.includes(q)||l.district.toLowerCase().includes(ql)||l.state.toLowerCase().includes(ql)){res.push(l);if(res.length>=8)break}}if(!res.length){sug.classList.remove('show');return}var html='';for(var j=0;j<res.length;j++){var l=res[j],dn=l.name+', '+l.district+', '+l.state+' ('+l.pin+')',idx=dn.toLowerCase().indexOf(ql),dh=dn;if(idx!==-1)dh=dn.substring(0,idx)+'<span class="highlight">'+dn.substring(idx,idx+q.length)+'</span>'+dn.substring(idx+q.length);html+='<div class="item" onclick="selectLoc(\''+ctx+'\',\''+l.pin+'\',\''+l.name+'\',\''+l.state+'\')">'+dh+'</div>'}sug.innerHTML=html;sug.classList.add('show')}
-function selectLoc(ctx,pin,name,state){var dn=name+', '+state+' ('+pin+')',hid=null;if(ctx==='to')hid='filter-to-hidden';else if(ctx==='pl-pickup')hid='pl-pickup-hidden';else if(ctx==='pl-drop')hid='pl-drop-hidden';else if(ctx==='pt-location')hid='pt-location-hidden';$('search-'+ctx).value=dn;if(hid)$(hid).value=pin;$('suggestions-'+ctx).classList.remove('show');if(ctx==='home'){homePin=pin;localStorage.setItem('rt_home_location',JSON.stringify({pin:pin,displayName:dn}));applyFilters()}else if(ctx==='to'){toPin=pin;applyFilters()}}
-document.addEventListener('click',function(e){document.querySelectorAll('.suggestions').forEach(function(s){if(!s.parentElement.contains(e.target))s.classList.remove('show')})});
-
-// ============================================================
-// PWA INSTALL
-// ============================================================
-if(window.matchMedia('(display-mode: standalone)').matches)installed=true;
-function updateInstall(){var m=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);var s=m&&!window.matchMedia('(display-mode: standalone)').matches&&!installed;document.querySelectorAll('.nav-install-wrapper').forEach(function(e){e.classList.toggle('show',s)})}
-window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();prompt=e;updateInstall()});
-window.addEventListener('appinstalled',function(){installed=true;prompt=null;updateInstall();toast('🎉 ReturnTruck installed!')});
-function forceInstall(){if(prompt){prompt.prompt();prompt.userChoice.then(function(c){if(c.outcome==='accepted')toast('🎉 Installing...');prompt=null;updateInstall()})}else{if(navigator.userAgent.match(/Android/i))toast('📱 Tap Chrome menu → "Install app"');else if(navigator.userAgent.match(/iPhone|iPad|iPod/i))toast('📱 Tap Share → "Add to Home Screen"');else toast('📱 Open this page in Chrome on your phone')}}
-setTimeout(updateInstall,3000);
-
-// ============================================================
-// OTP HELPERS - WhatsApp API Integration (Browser Level)
-// ============================================================
-function otpInput(el){
-    if(el.value.length===1){
-        var next=el.nextElementSibling;
-        if(next)next.focus();
+function getLoc(pinId){
+    for(var i=0;i<LOCATIONS.length;i++){
+        if(LOCATIONS[i].pin_id===pinId) return LOCATIONS[i];
     }
-    document.getElementById('otp-error').style.display='none';
+    return null;
 }
 
-function startOTPTimer(){
-    otpSeconds=300;
-    otpVerified=false;
-    if(otpTimer)clearInterval(otpTimer);
-    var timerDisplay=document.getElementById('otp-timer');
-    var resendBtn=document.getElementById('resend-otp-btn');
-    resendBtn.disabled=true;
-    document.getElementById('otp-success').style.display='none';
-    otpTimer=setInterval(function(){
-        otpSeconds--;
-        var m=Math.floor(otpSeconds/60),s=otpSeconds%60;
-        timerDisplay.textContent=m+':'+(s<10?'0':'')+s;
-        if(otpSeconds<=0){
-            clearInterval(otpTimer);
-            document.getElementById('verify-btn').disabled=true;
-            document.getElementById('verify-btn').textContent='⏳ Expired';
-            resendBtn.disabled=false;
+function getLocName(pinId){
+    var l=getLoc(pinId);
+    return l ? l.name+', '+l.district+', '+l.state+' ('+l.pincode+') [ID:'+l.pin_id+']' : pinId||'Unknown';
+}
+
+function getLocByPincode(pincode){
+    var results=[];
+    for(var i=0;i<LOCATIONS.length;i++){
+        if(LOCATIONS[i].pincode===pincode) results.push(LOCATIONS[i]);
+    }
+    return results;
+}
+
+function dist(lat1,lng1,lat2,lng2){
+    var R=6371,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180,
+        a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
+    return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+// ============================================================
+// SEARCH - Search by PIN_ID or pincode or name
+// ============================================================
+function searchLocation(ctx){
+    var inp=$('search-'+ctx),sug=$('suggestions-'+ctx);
+    if(!inp||!sug)return;
+    var q=inp.value.trim();
+    if(!q){sug.classList.remove('show');return}
+    
+    var res=[], ql=q.toLowerCase();
+    for(var i=0;i<LOCATIONS.length;i++){
+        var l=LOCATIONS[i];
+        if(l.name.toLowerCase().includes(ql) || 
+           l.pincode.includes(q) || 
+           l.pin_id.toLowerCase().includes(ql) ||
+           l.district.toLowerCase().includes(ql) ||
+           l.state.toLowerCase().includes(ql)){
+            res.push(l);
+            if(res.length>=8) break;
         }
-    },1000);
-}
-
-function generateOTP(){
-    var otp='';
-    for(var i=0;i<6;i++){
-        otp+=Math.floor(Math.random()*10);
-    }
-    return otp;
-}
-
-// ✅ NO POPUPS - Just opens WhatsApp with OTP
-function sendWhatsAppOTP(){
-    if(!mobile || mobile.length!==10){
-        return;
     }
     
-    var otp=generateOTP();
-    generatedOTP=otp;
+    if(!res.length){sug.classList.remove('show');return}
     
-    var purposeText = (otpPurpose === 'reset') ? 'PIN Reset' : 'Registration';
-    
-    var message = '🔐 ReturnTruck - ' + purposeText + '\n\n';
-    message += 'Your OTP is: ' + otp + '\n\n';
-    message += 'This OTP is valid for 5 minutes.\n\n';
-    message += '📱 Mobile: ' + mobile + '\n\n';
-    message += '- ReturnTruck Team';
-    
-    var encodedMessage = encodeURIComponent(message);
-    var whatsappURL = 'https://wa.me/91' + mobile + '?text=' + encodedMessage;
-    
-    window.open(whatsappURL, '_blank');
-    
-    startOTPTimer();
-    document.getElementById('verify-btn').disabled=false;
-    document.getElementById('verify-btn').textContent='✅ Verify';
+    var html='';
+    for(var j=0;j<res.length;j++){
+        var l=res[j];
+        var dn=l.name+', '+l.district+', '+l.state+' ('+l.pincode+') [ID:'+l.pin_id+']';
+        var idx=dn.toLowerCase().indexOf(ql), dh=dn;
+        if(idx!==-1) dh=dn.substring(0,idx)+'<span class="highlight">'+dn.substring(idx,idx+q.length)+'</span>'+dn.substring(idx+q.length);
+        html+='<div class="item" onclick="selectLoc(\''+ctx+'\',\''+l.pin_id+'\',\''+l.name+'\',\''+l.state+'\')">'+dh+'</div>';
+    }
+    sug.innerHTML=html;
+    sug.classList.add('show');
 }
 
-function verifyOTP(){
-    var inputs=document.querySelectorAll('.otp-input');
-    var otp='';
-    for(var i=0;i<inputs.length;i++){otp+=inputs[i].value}
-    if(otp.length!==6){
-        document.getElementById('otp-error').style.display='block';
-        document.getElementById('otp-error').textContent='❌ Enter complete 6-digit OTP';
-        return;
+function selectLoc(ctx,pinId,name,state){
+    var l=getLoc(pinId);
+    if(!l) return;
+    var dn=l.name+', '+l.district+', '+l.state+' ('+l.pincode+') [ID:'+l.pin_id+']';
+    var hid=null;
+    if(ctx==='to') hid='filter-to-hidden';
+    else if(ctx==='pl-pickup') hid='pl-pickup-hidden';
+    else if(ctx==='pl-drop') hid='pl-drop-hidden';
+    else if(ctx==='pt-location') hid='pt-location-hidden';
+    
+    $('search-'+ctx).value=dn;
+    if(hid) $(hid).value=pinId;
+    $('suggestions-'+ctx).classList.remove('show');
+    
+    if(ctx==='home'){
+        homePinId=pinId;
+        localStorage.setItem('rt_home_location',JSON.stringify({pinId:pinId,displayName:dn}));
+        applyFilters();
+    }else if(ctx==='to'){
+        toPinId=pinId;
+        applyFilters();
     }
-    if(otp===generatedOTP){
-        otpVerified=true;
-        document.getElementById('otp-error').style.display='none';
-        document.getElementById('otp-success').style.display='block';
-        clearInterval(otpTimer);
-        document.getElementById('verify-btn').disabled=false;
-        document.getElementById('verify-btn').textContent='✅ Verify';
-        setTimeout(function(){
-            $('step3').classList.add('hidden');
-            $('step4').classList.remove('hidden');
-            $('reg-display-mobile').textContent=mobile;
-            
-            if (otpPurpose === 'reset') {
-                $('step4-purpose').textContent = 'Set your new 4-digit PIN';
-                $('register-btn').textContent = '🔄 Reset PIN';
-            } else {
-                $('step4-purpose').textContent = 'Set your 4-digit PIN for login';
-                $('register-btn').textContent = '✅ Create Account';
-            }
-        }, 500);
-    }else{
-        document.getElementById('otp-error').style.display='block';
-        document.getElementById('otp-error').textContent='❌ Invalid OTP. Please try again.';
-        var inputs=document.querySelectorAll('.otp-input');
-        for(var i=0;i<inputs.length;i++){inputs[i].value=''}
-        inputs[0].focus();
-    }
-}
-
-function resendOTP(){
-    if(otpSeconds>0){
-        return;
-    }
-    sendWhatsAppOTP();
-}
-
-// ✅ NO POPUPS - Reset OTP with correct purpose
-function showResetOTP(){
-    isResetFlow=true;
-    otpPurpose='reset';
-    $('step2').classList.add('hidden');
-    $('step3').classList.remove('hidden');
-    $('wa-display-mobile').textContent=mobile;
-    $('otp-purpose').textContent = 'Enter OTP sent via WhatsApp for PIN Reset';
-    document.getElementById('otp-error').style.display='none';
-    document.getElementById('otp-success').style.display='none';
-    sendWhatsAppOTP();
 }
 
 // ============================================================
-// RENDER FEED
+// AUTO-LOCATE - Find nearest location by PIN_ID
+// ============================================================
+function autoLocate(){
+    var inp=$('search-home');
+    if(!inp)return;
+    var saved=localStorage.getItem('rt_home_location');
+    if(saved){
+        try{
+            var l=JSON.parse(saved);
+            var loc=getLoc(l.pinId);
+            if(loc){
+                inp.value=l.displayName;
+                homePinId=l.pinId;
+                applyFilters();
+                return;
+            }
+        }catch(e){}
+    }
+    
+    if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(
+            function(p){
+                var lat=p.coords.latitude,lng=p.coords.longitude;
+                var near=null,minD=Infinity;
+                for(var i=0;i<LOCATIONS.length;i++){
+                    var l=LOCATIONS[i],d=dist(lat,lng,l.lat,l.lng);
+                    if(d<minD){minD=d;near=l;}
+                }
+                if(near&&minD<100){
+                    var dn=near.name+', '+near.district+', '+near.state+' ('+near.pincode+') [ID:'+near.pin_id+']';
+                    inp.value=dn;
+                    homePinId=near.pin_id;
+                    localStorage.setItem('rt_home_location',JSON.stringify({pinId:near.pin_id,displayName:dn}));
+                    applyFilters();
+                }
+            },
+            function(){
+                // Fallback to IP based location
+                fetch('https://ipapi.co/json/')
+                .then(function(r){return r.json()})
+                .then(function(d){
+                    var city=d.city||'';
+                    for(var i=0;i<LOCATIONS.length;i++){
+                        var l=LOCATIONS[i];
+                        if(l.name.toLowerCase()===city.toLowerCase() || l.district.toLowerCase()===city.toLowerCase()){
+                            var dn=l.name+', '+l.district+', '+l.state+' ('+l.pincode+') [ID:'+l.pin_id+']';
+                            inp.value=dn;
+                            homePinId=l.pin_id;
+                            localStorage.setItem('rt_home_location',JSON.stringify({pinId:l.pin_id,displayName:dn}));
+                            applyFilters();
+                            break;
+                        }
+                    }
+                }).catch(function(){});
+            }
+        );
+    }
+}
+
+// ============================================================
+// RENDER FEED - Using PIN_ID for locations
 // ============================================================
 async function renderFeed(){
 try{
 var {data:loads}=await sb.from('active_loads').select('*').eq('status',1);
 var {data:trucks}=await sb.from('active_trucks').select('*').eq('status',1);
 items=[];
-for(var l=0;l<(loads||[]).length;l++){var ld=loads[l];items.push({type:'LOAD',title:ld.material||'Cargo',company:ld.company||'',from:ld.pickup_pin||'',to:ld.drop_pin||'',weight:ld.weight||0,vehicle:ld.vehicle_type||'',rate:ld.rate||0,views:ld.views||0,interests:(ld.interests||[]).length,shares:ld.shares||0,id:ld.id})}
-for(var t=0;t<(trucks||[]).length;t++){var tk=trucks[t];items.push({type:'TRUCK',title:tk.truck_no||'Truck',company:tk.company_name||'',from:tk.location_pin||'',to:tk.destination_pin||'',vehicle:tk.vehicle_type||'',rate:tk.rate_km||0,views:tk.views||0,interests:(tk.interested||[]).length,shares:tk.share||0,id:tk.id})}
-var filtered=items.slice(), radius=parseInt($('radius-select').value)||50;
-if(homePin){var hl=getLoc(homePin);if(hl){filtered=filtered.filter(function(i){var fl=getLoc(i.from);return fl?dist(hl.lat,hl.lng,fl.lat,fl.lng)<=radius:false})}}
-if(tab==='LOAD')filtered=filtered.filter(function(i){return i.type==='LOAD'});
-else if(tab==='TRUCK')filtered=filtered.filter(function(i){return i.type==='TRUCK'});
-if(toPin){var tl=getLoc(toPin);if(tl){filtered=filtered.filter(function(i){var tl2=getLoc(i.to);return tl2?dist(tl.lat,tl.lng,tl2.lat,tl2.lng)<=radius:false})}}
-var v=$('filter-vehicle')?.value;if(v&&v!=='ALL')filtered=filtered.filter(function(i){return i.vehicle&&i.vehicle.toLowerCase().includes(v)});
+
+for(var l=0;l<(loads||[]).length;l++){
+    var ld=loads[l];
+    items.push({
+        type:'LOAD',
+        title:ld.material||'Cargo',
+        company:ld.company||'',
+        from_pin_id:ld.pickup_pin_id||'',
+        to_pin_id:ld.drop_pin_id||'',
+        weight:ld.weight||0,
+        vehicle:ld.vehicle_type||'',
+        rate:ld.rate||0,
+        views:ld.views||0,
+        interests:(ld.interests||[]).length,
+        shares:ld.shares||0,
+        id:ld.id
+    });
+}
+
+for(var t=0;t<(trucks||[]).length;t++){
+    var tk=trucks[t];
+    items.push({
+        type:'TRUCK',
+        title:tk.truck_no||'Truck',
+        company:tk.company_name||'',
+        from_pin_id:tk.location_pin_id||'',
+        to_pin_id:tk.destination_pin_id||'',
+        vehicle:tk.vehicle_type||'',
+        rate:tk.rate_km||0,
+        views:tk.views||0,
+        interests:(tk.interested||[]).length,
+        shares:tk.share||0,
+        id:tk.id
+    });
+}
+
+var filtered=items.slice();
+var radius=parseInt($('radius-select').value)||50;
+
+// Filter by home location (using PIN_ID)
+if(homePinId){
+    var hl=getLoc(homePinId);
+    if(hl){
+        filtered=filtered.filter(function(i){
+            var fl=getLoc(i.from_pin_id);
+            return fl ? dist(hl.lat,hl.lng,fl.lat,fl.lng)<=radius : false;
+        });
+    }
+}
+
+// Filter by tab
+if(tab==='LOAD') filtered=filtered.filter(function(i){return i.type==='LOAD'});
+else if(tab==='TRUCK') filtered=filtered.filter(function(i){return i.type==='TRUCK'});
+
+// Filter by destination
+if(toPinId){
+    var tl=getLoc(toPinId);
+    if(tl){
+        filtered=filtered.filter(function(i){
+            var tl2=getLoc(i.to_pin_id);
+            return tl2 ? dist(tl.lat,tl.lng,tl2.lat,tl2.lng)<=radius : false;
+        });
+    }
+}
+
+var v=$('filter-vehicle')?.value;
+if(v&&v!=='ALL') filtered=filtered.filter(function(i){return i.vehicle&&i.vehicle.toLowerCase().includes(v)});
+
 $('results-count').textContent='Showing '+filtered.length+' Records within '+radius+' KM';
-if(!filtered.length){$('feed-container').innerHTML='<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>';return}
-$('feed-container').innerHTML=filtered.map(function(i){var bc=i.type==='LOAD'?'load':'truck',loc='',sub='',rate='',stats='';if(i.type==='LOAD'){loc='📍 '+getLocName(i.from)+' → '+getLocName(i.to);sub='💼 '+i.company;rate='💰 ₹'+(i.rate||0).toLocaleString();stats='⚖️ '+(i.weight||0)+' Kg • 🚛 '+i.vehicle}else{var td=i.to?getLocName(i.to):'Any';loc='📍 '+getLocName(i.from)+' → '+td;sub='💼 '+i.company;rate='💰 ₹'+(i.rate||0)+'/km';stats='🚛 '+i.vehicle}
-return'<div class="feed-card" onclick="openDetail(\''+i.type+'\',\''+i.id+'\')">'+
-'<div class="header-row"><div class="title">'+i.title+'</div><span class="type-badge '+bc+'">'+i.type+'</span></div>'+
-'<div class="company">'+sub+'</div><div class="meta">'+loc+'</div><div class="meta">'+rate+'</div><div class="meta">'+stats+'</div>'+
-'<div class="stats-row"><span>👁️ <span class="val">'+i.views+'</span></span><span>🤝 <span class="val">'+i.interests+'</span></span><span>📨 <span class="val">'+i.shares+'</span></span></div></div>'}).join('');
+
+if(!filtered.length){
+    $('feed-container').innerHTML='<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>';
+    return;
+}
+
+$('feed-container').innerHTML=filtered.map(function(i){
+    var bc=i.type==='LOAD'?'load':'truck';
+    var loc='';
+    var sub='';
+    var rate='';
+    var stats='';
+    
+    if(i.type==='LOAD'){
+        loc='📍 '+getLocName(i.from_pin_id)+' → '+getLocName(i.to_pin_id);
+        sub='💼 '+i.company;
+        rate='💰 ₹'+(i.rate||0).toLocaleString();
+        stats='⚖️ '+(i.weight||0)+' Kg • 🚛 '+i.vehicle;
+    }else{
+        var td=i.to_pin_id?getLocName(i.to_pin_id):'Any';
+        loc='📍 '+getLocName(i.from_pin_id)+' → '+td;
+        sub='💼 '+i.company;
+        rate='💰 ₹'+(i.rate||0)+'/km';
+        stats='🚛 '+i.vehicle;
+    }
+    
+    return '<div class="feed-card" onclick="openDetail(\''+i.type+'\',\''+i.id+'\')">'+
+        '<div class="header-row"><div class="title">'+i.title+'</div><span class="type-badge '+bc+'">'+i.type+'</span></div>'+
+        '<div class="company">'+sub+'</div><div class="meta">'+loc+'</div><div class="meta">'+rate+'</div><div class="meta">'+stats+'</div>'+
+        '<div class="stats-row"><span>👁️ <span class="val">'+i.views+'</span></span><span>🤝 <span class="val">'+i.interests+'</span></span><span>📨 <span class="val">'+i.shares+'</span></span></div></div>';
+}).join('');
 }catch(e){$('feed-container').innerHTML='<div style="padding:30px 0;color:#ef4444;text-align:center">Error loading feed</div>'}}
 
 function applyFilters(){renderFeed()}
@@ -651,14 +725,118 @@ function publishLoad(){toast('📦 Load published!')}
 function publishTruck(){toast('🚛 Truck listed!')}
 
 // ============================================================
-// AUTH
+// OTP HELPERS (Same as before)
+// ============================================================
+function otpInput(el){
+    if(el.value.length===1){
+        var next=el.nextElementSibling;
+        if(next)next.focus();
+    }
+    document.getElementById('otp-error').style.display='none';
+}
+
+function startOTPTimer(){
+    otpSeconds=300;
+    otpVerified=false;
+    if(otpTimer)clearInterval(otpTimer);
+    var timerDisplay=document.getElementById('otp-timer');
+    var resendBtn=document.getElementById('resend-otp-btn');
+    resendBtn.disabled=true;
+    document.getElementById('otp-success').style.display='none';
+    otpTimer=setInterval(function(){
+        otpSeconds--;
+        var m=Math.floor(otpSeconds/60),s=otpSeconds%60;
+        timerDisplay.textContent=m+':'+(s<10?'0':'')+s;
+        if(otpSeconds<=0){
+            clearInterval(otpTimer);
+            document.getElementById('verify-btn').disabled=true;
+            document.getElementById('verify-btn').textContent='⏳ Expired';
+            resendBtn.disabled=false;
+        }
+    },1000);
+}
+
+function generateOTP(){
+    var otp='';
+    for(var i=0;i<6;i++){otp+=Math.floor(Math.random()*10);}
+    return otp;
+}
+
+function sendWhatsAppOTP(){
+    if(!mobile || mobile.length!==10) return;
+    var otp=generateOTP();
+    generatedOTP=otp;
+    var purposeText = (otpPurpose==='reset') ? 'PIN Reset' : 'Registration';
+    var message = '🔐 ReturnTruck - '+purposeText+'\n\nYour OTP is: '+otp+'\n\nThis OTP is valid for 5 minutes.\n\n📱 Mobile: '+mobile+'\n\n- ReturnTruck Team';
+    var encodedMessage = encodeURIComponent(message);
+    var whatsappURL = 'https://wa.me/91'+mobile+'?text='+encodedMessage;
+    window.open(whatsappURL, '_blank');
+    startOTPTimer();
+    document.getElementById('verify-btn').disabled=false;
+    document.getElementById('verify-btn').textContent='✅ Verify';
+}
+
+function verifyOTP(){
+    var inputs=document.querySelectorAll('.otp-input');
+    var otp='';
+    for(var i=0;i<inputs.length;i++){otp+=inputs[i].value}
+    if(otp.length!==6){
+        document.getElementById('otp-error').style.display='block';
+        document.getElementById('otp-error').textContent='❌ Enter complete 6-digit OTP';
+        return;
+    }
+    if(otp===generatedOTP){
+        otpVerified=true;
+        document.getElementById('otp-error').style.display='none';
+        document.getElementById('otp-success').style.display='block';
+        clearInterval(otpTimer);
+        document.getElementById('verify-btn').disabled=false;
+        document.getElementById('verify-btn').textContent='✅ Verify';
+        setTimeout(function(){
+            $('step3').classList.add('hidden');
+            $('step4').classList.remove('hidden');
+            $('reg-display-mobile').textContent=mobile;
+            if(otpPurpose==='reset'){
+                $('step4-purpose').textContent='Set your new 4-digit PIN';
+                $('register-btn').textContent='🔄 Reset PIN';
+            }else{
+                $('step4-purpose').textContent='Set your 4-digit PIN for login';
+                $('register-btn').textContent='✅ Create Account';
+            }
+        }, 500);
+    }else{
+        document.getElementById('otp-error').style.display='block';
+        document.getElementById('otp-error').textContent='❌ Invalid OTP. Please try again.';
+        var inputs=document.querySelectorAll('.otp-input');
+        for(var i=0;i<inputs.length;i++){inputs[i].value=''}
+        inputs[0].focus();
+    }
+}
+
+function resendOTP(){
+    if(otpSeconds>0) return;
+    sendWhatsAppOTP();
+}
+
+function showResetOTP(){
+    isResetFlow=true;
+    otpPurpose='reset';
+    $('step2').classList.add('hidden');
+    $('step3').classList.remove('hidden');
+    $('wa-display-mobile').textContent=mobile;
+    $('otp-purpose').textContent='Enter OTP sent via WhatsApp for PIN Reset';
+    document.getElementById('otp-error').style.display='none';
+    document.getElementById('otp-success').style.display='none';
+    sendWhatsAppOTP();
+}
+
+// ============================================================
+// AUTH (Same as before)
 // ============================================================
 function continueAsGuest(){guest=true;user=null;localStorage.setItem('rt_user',JSON.stringify({guest:true}));showHome();}
 function showLogin(){resetForm();$('mobile').focus()}
 function resetForm(){
-    otpVerified=false;
-    isResetFlow=false;
-    otpPurpose='registration';
+    otpVerified=false;isResetFlow=false;otpPurpose='registration';
     if(otpTimer)clearInterval(otpTimer);
     ['step2','step3','step4'].forEach(function(i){$(i).classList.add('hidden')});
     $('step1').classList.remove('hidden');
@@ -671,9 +849,9 @@ function resetForm(){
     document.getElementById('otp-success').style.display='none';
     document.getElementById('verify-btn').disabled=false;
     document.getElementById('verify-btn').textContent='✅ Verify';
-    $('otp-purpose').textContent = 'Enter OTP sent via WhatsApp';
-    $('step4-purpose').textContent = 'Set your 4-digit PIN for login';
-    $('register-btn').textContent = '✅ Create Account';
+    $('otp-purpose').textContent='Enter OTP sent via WhatsApp';
+    $('step4-purpose').textContent='Set your 4-digit PIN for login';
+    $('register-btn').textContent='✅ Create Account';
 }
 function showHome(){$('login-screen').style.display='none';$('home-page').classList.remove('hidden-page');updateGuestUI();setTimeout(function(){fixHeight();renderFeed();autoLocate()},50)}
 function updateGuestUI(){var b=$('guest-banner');if(b){b.style.display=guest?'flex':'none';if(guest)b.classList.remove('hidden');else b.classList.add('hidden')}setTimeout(fixHeight,50)}
@@ -705,7 +883,7 @@ async function checkUserAndShowStep(mobileNum){
             $('step1').classList.add('hidden');
             $('step3').classList.remove('hidden');
             $('wa-display-mobile').textContent=mobileNum;
-            $('otp-purpose').textContent = 'Enter OTP sent via WhatsApp for Registration';
+            $('otp-purpose').textContent='Enter OTP sent via WhatsApp for Registration';
             $('mobile-status').textContent='📝 New user - Verify OTP to create account';
             $('mobile-status').style.color='#f59e0b';
             document.getElementById('otp-error').style.display='none';
@@ -719,21 +897,16 @@ async function checkUserAndShowStep(mobileNum){
     }
 }
 
-$('pin').addEventListener('keydown',function(e){
-    if(e.key==='Enter')submitPin();
-    document.getElementById('pin-error').style.display='none';
-});
+$('pin').addEventListener('keydown',function(e){if(e.key==='Enter')submitPin();document.getElementById('pin-error').style.display='none';});
 $('reg-pin').addEventListener('keydown',function(e){if(e.key==='Enter')$('reg-pin-confirm').focus()});
 $('reg-pin-confirm').addEventListener('keydown',function(e){if(e.key==='Enter')registerUser()});
 
 // ============================================================
-// ✅ FIXED: submitPin - Wrong PIN stays on same page, NO POPUPS
+// SUBMIT PIN - Fixed: Wrong PIN stays on same page
 // ============================================================
 window.submitPin = async function() {
     var pin = $('pin').value.trim();
-    if (!pin || pin.length !== 4) {
-        return;
-    }
+    if (!pin || pin.length !== 4) return;
     
     var btn = $('submitBtn');
     btn.textContent = '⏳ Checking...';
@@ -756,7 +929,6 @@ window.submitPin = async function() {
         });
         var result = await resp.json();
         
-        // Case 1: Login successful
         if (result.success === true && result.user) {
             user = result.user;
             user.mobile = mobile;
@@ -771,7 +943,6 @@ window.submitPin = async function() {
             return;
         }
         
-        // Case 2: New user (mobile not registered)
         if (result.isNewUser === true) {
             otpPurpose='registration';
             $('step2').classList.add('hidden');
@@ -786,7 +957,6 @@ window.submitPin = async function() {
             return;
         }
         
-        // Case 3: Archived user
         if (result.source === 'archived') {
             $('pin').value = '';
             $('pin').focus();
@@ -795,7 +965,7 @@ window.submitPin = async function() {
             return;
         }
         
-        // Case 4: Wrong PIN or any other error - STAY ON PIN SCREEN
+        // Wrong PIN - STAY ON PIN SCREEN
         document.getElementById('pin-error').style.display = 'block';
         document.getElementById('pin-error').textContent = '❌ ' + (result.error || 'Incorrect PIN. Please try again.');
         $('pin').value = '';
@@ -818,18 +988,14 @@ window.submitPin = async function() {
 };
 
 // ============================================================
-// ✅ FIXED: Register/Reset PIN - NO POPUPS
+// REGISTER / RESET PIN
 // ============================================================
 async function registerUser() {
-    if (!otpVerified) {
-        return;
-    }
+    if (!otpVerified) return;
     
     var pin = $('reg-pin').value.trim(),
         conf = $('reg-pin-confirm').value.trim();
-    if (!pin || pin.length !== 4) {
-        return;
-    }
+    if (!pin || pin.length !== 4) return;
     if (pin !== conf) {
         $('reg-pin-confirm').value = '';
         $('reg-pin-confirm').focus();
@@ -841,7 +1007,6 @@ async function registerUser() {
     btn.disabled = true;
     
     try {
-        // Reset flow
         if (otpPurpose === 'reset') {
             var resp = await fetch(EDGE_URL + '/login-user', {
                 method: 'POST',
@@ -857,25 +1022,21 @@ async function registerUser() {
                 })
             });
             var result = await resp.json();
-            
-            if (result.success === true) {
-                if (result.user) {
-                    user = result.user;
-                    user.mobile = mobile;
-                    localStorage.setItem('rt_user', JSON.stringify({
-                        mobile: user.mobile,
-                        user: user
-                    }));
-                    guest = false;
-                    showHome();
-                }
+            if (result.success === true && result.user) {
+                user = result.user;
+                user.mobile = mobile;
+                localStorage.setItem('rt_user', JSON.stringify({
+                    mobile: user.mobile,
+                    user: user
+                }));
+                guest = false;
+                showHome();
             }
             btn.textContent = '🔄 Reset PIN';
             btn.disabled = false;
             return;
         }
         
-        // Registration flow
         var resp = await fetch(EDGE_URL + '/register-user', {
             method: 'POST',
             headers: {
@@ -918,28 +1079,14 @@ async function registerUser() {
     }
 }
 
-// ============================================================
-// ✅ CHANGE PIN
-// ============================================================
 function openChangePin() {
-    if (!user) {
-        return;
-    }
+    if (!user) return;
     var currentPin = prompt('Enter your current PIN:');
-    if (currentPin === null) return;
-    if (!currentPin || currentPin.length !== 4) {
-        return;
-    }
+    if (currentPin === null || !currentPin || currentPin.length !== 4) return;
     var newPin = prompt('Enter new 4-digit PIN:');
-    if (newPin === null) return;
-    if (!newPin || newPin.length !== 4) {
-        return;
-    }
+    if (newPin === null || !newPin || newPin.length !== 4) return;
     var confirmPin = prompt('Confirm new PIN:');
-    if (confirmPin === null) return;
-    if (newPin !== confirmPin) {
-        return;
-    }
+    if (confirmPin === null || newPin !== confirmPin) return;
     
     fetch(EDGE_URL + '/change-pin', {
         method: 'POST',
@@ -954,15 +1101,9 @@ function openChangePin() {
             new_pin: newPin
         })
     })
-    .then(function(r) { return r.json(); })
-    .then(function(result) {
-        if (result.success === true) {
-            // PIN changed successfully - no popup
-        }
-    })
-    .catch(function(e) {
-        console.error('Change PIN error:', e);
-    });
+    .then(function(r){return r.json()})
+    .then(function(result){})
+    .catch(function(e){console.error('Change PIN error:', e)});
 }
 
 function logout(){if(confirm('Logout?')){localStorage.removeItem('rt_user');window.location.reload()}}
