@@ -500,14 +500,12 @@ function makeCall(){if(detail){var num=detail.mobile||detail.driver_mobile;if(nu
 function expressInterest(){toast('✅ Interest expressed!')}
 function contactUser(){toast('📧 Contact details shared!')}
 function handleShareClick(){if(navigator.share){navigator.share({title:'ReturnTruck',text:'Check out this listing on ReturnTruck!',url:window.location.href})}else{toast('📋 Link copied!')}}
-function resetPIN(){toast('📱 Contact support to reset PIN')}
 function autoFetchVehicle(){toast('🔍 Vehicle details fetched!')}
 function publishLoad(){toast('📦 Load published!')}
 function publishTruck(){toast('🚛 Truck listed!')}
-function openChangePin(){toast('🔑 PIN change coming soon!')}
 
 // ============================================================
-// AUTH - FIXED with Edge Function & Authorization Header
+// AUTH - FIXED with Edge Functions & Authorization Header
 // ============================================================
 function continueAsGuest(){guest=true;user=null;localStorage.setItem('rt_user',JSON.stringify({guest:true}));showHome();toast('👤 You are browsing as guest')}
 function showLogin(){resetForm();$('mobile').focus()}
@@ -516,70 +514,258 @@ function showHome(){$('login-screen').style.display='none';$('home-page').classL
 function updateGuestUI(){var b=$('guest-banner');if(b){b.style.display=guest?'flex':'none';if(guest)b.classList.remove('hidden');else b.classList.add('hidden')}setTimeout(fixHeight,50)}
 function toggleDropdown(){document.querySelectorAll('.profile-dropdown').forEach(function(d){d.classList.toggle('show')})}
 function closeDropdown(){document.querySelectorAll('.profile-dropdown').forEach(function(d){d.classList.remove('show')})}
+
 $('mobile').addEventListener('input',function(e){var m=this.value.trim();if(m.length===10){mobile=m;$('step1').classList.add('hidden');$('step2').classList.remove('hidden');$('display-mobile').textContent=m}});
 $('pin').addEventListener('keydown',function(e){if(e.key==='Enter')submitPin()});
 $('reg-pin').addEventListener('keydown',function(e){if(e.key==='Enter')$('reg-pin-confirm').focus()});
 $('reg-pin-confirm').addEventListener('keydown',function(e){if(e.key==='Enter')registerUser()});
 
-// ✅ FIXED: submitPin with Edge Function + Authorization header
-window.submitPin=async function(){
-    var pin=$('pin').value.trim();
-    if(!pin||pin.length!==4){toast('⚠️ Enter 4-digit PIN');$('pin').focus();return}
-    var btn=$('submitBtn');btn.textContent='⏳ Checking...';btn.disabled=true;
-    try{
-        var enc=new TextEncoder();
-        var hash=await crypto.subtle.digest('SHA-256',enc.encode(pin));
-        var ph=Array.from(new Uint8Array(hash)).map(function(b){return b.toString(16).padStart(2,'0')}).join('');
-        // Call Edge Function with Authorization header
-        var resp=await fetch(EDGE_URL+'/login-user',{
-            method:'POST',
-            headers:{'Content-Type':'application/json','Accept':'application/json','Authorization':'Bearer '+SB_KEY},
-            body:JSON.stringify({mobile:mobile,action:'check',pinhash:ph})
+// ============================================================
+// ✅ FIXED: submitPin - uses login-user with action:'login' & plain PIN
+// ============================================================
+window.submitPin = async function() {
+    var pin = $('pin').value.trim();
+    if (!pin || pin.length !== 4) {
+        toast('⚠️ Enter 4-digit PIN');
+        $('pin').focus();
+        return;
+    }
+    
+    var btn = $('submitBtn');
+    btn.textContent = '⏳ Checking...';
+    btn.disabled = true;
+    
+    try {
+        var resp = await fetch(EDGE_URL + '/login-user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': 'Bearer ' + SB_KEY
+            },
+            body: JSON.stringify({
+                mobile: mobile,
+                action: 'login',
+                pin: pin  // Send plain PIN - Edge Function hashes it
+            })
         });
-        var result=await resp.json();
-        if(result.exists===true&&result.user){
-            if(result.user.pinhash===ph){
-                user=result.user;user.mobile=mobile;
-                localStorage.setItem('rt_user',JSON.stringify({mobile:user.mobile,user:user}));
-                guest=false;toast('✅ Login successful!');showHome();return;
-            }else{toast('❌ Incorrect PIN');$('pin').value='';$('pin').focus();return}
+        var result = await resp.json();
+        
+        if (result.success === true && result.user) {
+            user = result.user;
+            user.mobile = mobile;
+            localStorage.setItem('rt_user', JSON.stringify({
+                mobile: user.mobile,
+                user: user
+            }));
+            guest = false;
+            toast('✅ Login successful!');
+            showHome();
+            return;
+        } else if (result.isNewUser === true) {
+            toast('📝 New user. Please create an account.');
+            $('step2').classList.add('hidden');
+            $('step4').classList.remove('hidden');
+            $('reg-display-mobile').textContent = mobile;
+        } else if (result.source === 'archived') {
+            toast('📦 Archived account found. Please login to restore.');
+            $('pin').value = '';
+            $('pin').focus();
+        } else {
+            toast('❌ ' + (result.error || 'Login failed'));
+            $('pin').value = '';
+            $('pin').focus();
         }
-        // Fallback to Direct SQL
-        var {data:u}=await sb.from('active_users').select('*').eq('mobile',mobile).eq('pinhash',ph).single();
-        if(u){user=u;localStorage.setItem('rt_user',JSON.stringify({mobile:user.mobile,user:user}));guest=false;toast('✅ Login successful!');showHome()}
-        else{toast('❌ User not found or incorrect PIN');$('pin').value='';$('pin').focus()}
-    }catch(e){console.error('Login error:',e);toast('❌ Login error. Please try again.');$('pin').value='';$('pin').focus()}
-    finally{btn.textContent='🔐 Login';btn.disabled=false}
+    } catch (e) {
+        console.error('Login error:', e);
+        toast('❌ Login error. Please try again.');
+        $('pin').value = '';
+        $('pin').focus();
+    } finally {
+        btn.textContent = '🔐 Login';
+        btn.disabled = false;
+    }
 };
 
-// ✅ FIXED: registerUser with Edge Function + Authorization header
-async function registerUser(){
-    var pin=$('reg-pin').value.trim(),conf=$('reg-pin-confirm').value.trim();
-    if(!pin||pin.length!==4){toast('⚠️ Enter 4-digit PIN');$('reg-pin').focus();return}
-    if(pin!==conf){toast('⚠️ PINs do not match');$('reg-pin-confirm').value='';$('reg-pin-confirm').focus();return}
-    var btn=$('register-btn');btn.textContent='⏳ Creating...';btn.disabled=true;
-    try{
-        var enc=new TextEncoder();
-        var hash=await crypto.subtle.digest('SHA-256',enc.encode(pin));
-        var ph=Array.from(new Uint8Array(hash)).map(function(b){return b.toString(16).padStart(2,'0')}).join('');
-        // Call Edge Function with Authorization header
-        var resp=await fetch(EDGE_URL+'/login-user',{
-            method:'POST',
-            headers:{'Content-Type':'application/json','Accept':'application/json','Authorization':'Bearer '+SB_KEY},
-            body:JSON.stringify({mobile:mobile,action:'register',pinhash:ph})
+// ============================================================
+// ✅ FIXED: registerUser - uses register-user endpoint with plain PIN
+// ============================================================
+async function registerUser() {
+    var pin = $('reg-pin').value.trim(),
+        conf = $('reg-pin-confirm').value.trim();
+    if (!pin || pin.length !== 4) {
+        toast('⚠️ Enter 4-digit PIN');
+        $('reg-pin').focus();
+        return;
+    }
+    if (pin !== conf) {
+        toast('⚠️ PINs do not match');
+        $('reg-pin-confirm').value = '';
+        $('reg-pin-confirm').focus();
+        return;
+    }
+    
+    var btn = $('register-btn');
+    btn.textContent = '⏳ Creating...';
+    btn.disabled = true;
+    
+    try {
+        var resp = await fetch(EDGE_URL + '/register-user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': 'Bearer ' + SB_KEY
+            },
+            body: JSON.stringify({
+                mobile: mobile,
+                pin: pin,  // Send plain PIN - Edge Function hashes it
+                name: '',
+                company_name: '',
+                location: null
+            })
         });
-        var result=await resp.json();
-        if(result.success===true&&result.user){
-            user=result.user;user.mobile=mobile;
-            localStorage.setItem('rt_user',JSON.stringify({mobile:user.mobile,user:user}));
-            guest=false;toast('✅ Account created successfully!');showHome();return;
+        var result = await resp.json();
+        
+        if (result.success === true && result.user) {
+            user = result.user;
+            user.mobile = mobile;
+            localStorage.setItem('rt_user', JSON.stringify({
+                mobile: user.mobile,
+                user: user
+            }));
+            guest = false;
+            toast('✅ Account created successfully!');
+            showHome();
+            return;
+        } else if (result.code === 'USER_EXISTS_ACTIVE') {
+            toast('⚠️ User already registered. Please login.');
+            resetForm();
+            $('mobile').value = mobile;
+            $('step1').classList.add('hidden');
+            $('step2').classList.remove('hidden');
+            $('display-mobile').textContent = mobile;
+        } else if (result.code === 'USER_ARCHIVED') {
+            toast('📦 Archived account. Please login to restore.');
+            resetForm();
+            $('mobile').value = mobile;
+            $('step1').classList.add('hidden');
+            $('step2').classList.remove('hidden');
+            $('display-mobile').textContent = mobile;
+        } else {
+            toast('❌ ' + (result.error || 'Registration failed'));
         }
-        // Fallback to Direct SQL
-        var {data:nu}=await sb.from('active_users').insert({mobile:mobile,pinhash:ph}).select().single();
-        if(nu){user=nu;localStorage.setItem('rt_user',JSON.stringify({mobile:user.mobile,user:user}));guest=false;toast('✅ Account created successfully!');showHome()}
-        else{toast('❌ Registration failed. Please try again.')}
-    }catch(e){console.error('Registration error:',e);toast('❌ Registration error. Please try again.')}
-    finally{btn.textContent='✅ Create Account';btn.disabled=false}
+    } catch (e) {
+        console.error('Registration error:', e);
+        toast('❌ Registration error. Please try again.');
+    } finally {
+        btn.textContent = '✅ Create Account';
+        btn.disabled = false;
+    }
+}
+
+// ============================================================
+// ✅ FIXED: changePIN - uses change-pin endpoint
+// ============================================================
+function openChangePin() {
+    var currentPin = prompt('Enter your current PIN:');
+    if (!currentPin || currentPin.length !== 4) {
+        toast('⚠️ Enter valid current PIN');
+        return;
+    }
+    var newPin = prompt('Enter new 4-digit PIN:');
+    if (!newPin || newPin.length !== 4) {
+        toast('⚠️ Enter valid new PIN');
+        return;
+    }
+    var confirmPin = prompt('Confirm new PIN:');
+    if (newPin !== confirmPin) {
+        toast('⚠️ PINs do not match');
+        return;
+    }
+    
+    fetch(EDGE_URL + '/change-pin', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + SB_KEY
+        },
+        body: JSON.stringify({
+            mobile: user.mobile,
+            current_pin: currentPin,
+            new_pin: newPin
+        })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(result) {
+        if (result.success === true) {
+            toast('✅ PIN changed successfully!');
+        } else {
+            toast('❌ ' + (result.error || 'Failed to change PIN'));
+        }
+    })
+    .catch(function(e) {
+        console.error('Change PIN error:', e);
+        toast('❌ Error changing PIN');
+    });
+}
+
+// ============================================================
+// ✅ FIXED: resetPIN - uses login-user with reset_pin action
+// ============================================================
+function resetPIN() {
+    var newPin = prompt('Enter new 4-digit PIN:');
+    if (!newPin || newPin.length !== 4) {
+        toast('⚠️ Enter valid PIN');
+        return;
+    }
+    var confirmPin = prompt('Confirm new PIN:');
+    if (newPin !== confirmPin) {
+        toast('⚠️ PINs do not match');
+        return;
+    }
+    
+    var btn = document.querySelector('#step2 .btn-primary');
+    if (btn) { btn.textContent = '⏳ Resetting...'; btn.disabled = true; }
+    
+    fetch(EDGE_URL + '/login-user', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + SB_KEY
+        },
+        body: JSON.stringify({
+            mobile: mobile,
+            action: 'reset_pin',
+            new_pin: newPin
+        })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(result) {
+        if (result.success === true) {
+            toast('✅ PIN reset successfully!');
+            if (result.user) {
+                user = result.user;
+                localStorage.setItem('rt_user', JSON.stringify({
+                    mobile: user.mobile,
+                    user: user
+                }));
+                guest = false;
+                showHome();
+            }
+        } else {
+            toast('❌ ' + (result.error || 'Failed to reset PIN'));
+        }
+    })
+    .catch(function(e) {
+        console.error('Reset PIN error:', e);
+        toast('❌ Error resetting PIN');
+    })
+    .finally(function() {
+        if (btn) { btn.textContent = '🔐 Login'; btn.disabled = false; }
+    });
 }
 
 function logout(){if(confirm('Logout?')){localStorage.removeItem('rt_user');window.location.reload()}}
