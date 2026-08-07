@@ -472,6 +472,7 @@ var user=null, guest=false, tab='ALL', items=[], detail=null, mobile='';
 var homePin=null, toPin=null, prompt=null, installed=false, filterOpen=true;
 var resetToken = null;
 var resetTimerInterval = null;
+var otpTimerInterval = null;
 
 function $(id){return document.getElementById(id)}
 function toast(msg){alert(msg)}
@@ -482,56 +483,64 @@ function toast(msg){alert(msg)}
 var EDGE_URL = 'https://ghjoffovatgvhzxlupef.supabase.co/functions/v1';
 
 // ============================================================
-// AUTH FUNCTIONS - FIXED
+// CHECK USER - FIXED
 // ============================================================
-
 async function checkUser(mobile) {
     try {
+        console.log('📡 Calling Edge Function for:', mobile);
+        
         var response = await fetch(EDGE_URL + '/login-user', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
             body: JSON.stringify({ mobile: mobile, action: 'check' })
         });
+        
         var result = await response.json();
-        console.log('checkUser result:', result);
+        console.log('📡 Edge Function response:', result);
+        
         return result;
     } catch (e) {
-        console.error('checkUser error:', e);
-        // Fallback: Direct check with BIGINT
-        try {
-            var mobileNum = parseInt(mobile);
-            var { data, error } = await sb
-                .from('active_users')
-                .select('mobile, name, company_name')
-                .eq('mobile', mobileNum)
-                .maybeSingle();
-            if (data) {
-                return { exists: true, source: 'active', user: data };
-            }
-            var { data: archived, error: archErr } = await sb
-                .from('archived_users')
-                .select('mobile, user_data')
-                .eq('mobile', mobileNum)
-                .maybeSingle();
-            if (archived) {
-                return { 
-                    exists: true, 
-                    source: 'archived', 
-                    user: { 
-                        mobile: archived.mobile, 
-                        name: archived.user_data?.name || '',
-                        company_name: archived.user_data?.company_name || ''
-                    }
-                };
-            }
-            return { exists: false, source: 'new' };
-        } catch (fallbackErr) {
-            console.error('Fallback error:', fallbackErr);
-            return { exists: false, error: fallbackErr.message };
+        console.error('❌ checkUser error:', e);
+        // Fallback: Direct Supabase query
+        var mobileNum = parseInt(mobile);
+        var { data, error } = await sb
+            .from('active_users')
+            .select('mobile, name, company_name')
+            .eq('mobile', mobileNum)
+            .maybeSingle();
+        
+        if (data) {
+            return { exists: true, source: 'active', user: data };
         }
+        
+        var { data: archived, error: archErr } = await sb
+            .from('archived_users')
+            .select('mobile, user_data')
+            .eq('mobile', mobileNum)
+            .maybeSingle();
+        
+        if (archived) {
+            return { 
+                exists: true, 
+                source: 'archived', 
+                user: { 
+                    mobile: archived.mobile, 
+                    name: archived.user_data?.name || '',
+                    company_name: archived.user_data?.company_name || ''
+                }
+            };
+        }
+        
+        return { exists: false, source: 'new' };
     }
 }
 
+// ============================================================
+// AUTH FUNCTIONS
+// ============================================================
 async function loginUser(mobile, pin) {
     try {
         var response = await fetch(EDGE_URL + '/login-user', {
@@ -603,7 +612,103 @@ async function resetPINAPI(mobile, newPin, token) {
 }
 
 // ============================================================
-// AUTH UI FUNCTIONS - FIXED
+// SEND OTP
+// ============================================================
+async function sendOTP(mobile) {
+    try {
+        var response = await fetch(EDGE_URL + '/send-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mobile: mobile, type: 'login' })
+        });
+        var result = await response.json();
+        console.log('📡 Send OTP response:', result);
+        
+        if (result.success) {
+            toast('📱 OTP sent via WhatsApp!');
+            if (result.waUrl) {
+                window.open(result.waUrl, '_blank');
+            }
+            startOTPTimer();
+        } else {
+            toast('❌ ' + (result.error || 'Failed to send OTP'));
+        }
+    } catch (e) {
+        toast('❌ Error sending OTP: ' + e.message);
+    }
+}
+
+// ============================================================
+// VERIFY OTP
+// ============================================================
+async function verifyOTP() {
+    var otp = '';
+    document.querySelectorAll('.otp-input').forEach(function(el) {
+        otp += el.value;
+    });
+    
+    if (!otp || otp.length !== 6) {
+        toast('⚠️ Enter complete 6-digit OTP');
+        return;
+    }
+    
+    try {
+        var response = await fetch(EDGE_URL + '/verify-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                mobile: mobile, 
+                otp: otp, 
+                type: 'login' 
+            })
+        });
+        var result = await response.json();
+        console.log('📡 Verify OTP response:', result);
+        
+        if (result.success) {
+            toast('✅ OTP verified! Set your PIN.');
+            resetToken = result.reset_token;
+            // Show registration screen
+            $('step3').classList.add('hidden');
+            $('step4').classList.remove('hidden');
+            $('reg-display-mobile').textContent = mobile;
+            setStatus('📱 Set your 4-digit PIN', 'blue');
+            $('reg-pin').value = '';
+            $('reg-pin-confirm').value = '';
+            $('reg-pin').focus();
+        } else {
+            toast('❌ ' + (result.error || 'Invalid OTP'));
+        }
+    } catch (e) {
+        toast('❌ Error: ' + e.message);
+    }
+}
+
+// ============================================================
+// OTP TIMER
+// ============================================================
+function startOTPTimer() {
+    var timeLeft = 300;
+    var timerEl = document.getElementById('otp-timer');
+    if (otpTimerInterval) {
+        clearInterval(otpTimerInterval);
+    }
+    
+    otpTimerInterval = setInterval(function() {
+        var mins = Math.floor(timeLeft / 60);
+        var secs = timeLeft % 60;
+        timerEl.textContent = mins + ':' + (secs < 10 ? '0' : '') + secs;
+        timeLeft--;
+        if (timeLeft < 0) {
+            clearInterval(otpTimerInterval);
+            otpTimerInterval = null;
+            timerEl.textContent = 'Expired';
+        }
+    }, 1000);
+}
+
+// ============================================================
+// AUTH UI FUNCTIONS
 // ============================================================
 
 function setStatus(msg, type) {
@@ -626,6 +731,21 @@ function showPinLogin(m) {
     $('pin').focus();
 }
 
+function showOTPScreen(m) {
+    console.log('📱 Showing OTP screen for:', m);
+    $('step1').classList.add('hidden');
+    $('step2').classList.add('hidden');
+    $('step3').classList.remove('hidden');
+    $('step4').classList.add('hidden');
+    $('wa-display-mobile').textContent = m;
+    setStatus('📱 Enter OTP sent via WhatsApp', 'blue');
+    document.querySelectorAll('.otp-input').forEach(function(el) { el.value = ''; });
+    document.querySelector('.otp-input').focus();
+    
+    // Automatically send OTP
+    sendOTP(m);
+}
+
 function showRegistration(m) {
     console.log('📱 Showing registration for:', m);
     $('step1').classList.add('hidden');
@@ -633,7 +753,7 @@ function showRegistration(m) {
     $('step3').classList.add('hidden');
     $('step4').classList.remove('hidden');
     $('reg-display-mobile').textContent = m;
-    setStatus('📱 New user. Set your PIN.', 'blue');
+    setStatus('📱 Set your 4-digit PIN', 'blue');
     $('reg-pin').value = '';
     $('reg-pin-confirm').value = '';
     $('reg-pin').focus();
@@ -653,15 +773,12 @@ $('mobile').addEventListener('input', function(e) {
         checkUser(m).then(function(result) {
             console.log('✅ checkUser result:', result);
             
-            // Check if user exists (active or archived)
-            var userExists = result.exists === true || 
-                            result.source === 'active' || 
-                            result.source === 'archived';
-            
-            if (userExists) {
+            if (result.exists === true || result.source === 'active' || result.source === 'archived') {
+                // ✅ User found → Show PIN Login
                 showPinLogin(m);
             } else {
-                showRegistration(m);
+                // ✅ User NOT found → Show OTP (NOT registration!)
+                showOTPScreen(m);
             }
         }).catch(function(err) {
             console.error('❌ checkUser error:', err);
@@ -675,7 +792,7 @@ $('mobile').addEventListener('input', function(e) {
                     if (data) {
                         showPinLogin(m);
                     } else {
-                        showRegistration(m);
+                        showOTPScreen(m);
                     }
                 });
         });
@@ -692,7 +809,7 @@ $('pin').addEventListener('keydown', function(e) {
 });
 
 // ============================================================
-// SUBMIT PIN - FIXED
+// SUBMIT PIN
 // ============================================================
 window.submitPin = async function() {
     var pin = $('pin').value.trim();
@@ -726,7 +843,7 @@ window.submitPin = async function() {
 };
 
 // ============================================================
-// REGISTER USER - FIXED
+// REGISTER USER
 // ============================================================
 async function registerUser() {
     var pin = $('reg-pin').value.trim();
@@ -1107,29 +1224,7 @@ window.addEventListener('resize',function(){clearTimeout(window._rtResize);windo
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
-    // OTP input handling for reset PIN
-    document.querySelectorAll('.reset-otp-input').forEach(function(input, index, arr) {
-        input.addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^0-9]/g, '');
-            if (this.value.length === 1 && index < arr.length - 1) {
-                arr[index + 1].focus();
-            }
-        });
-        input.addEventListener('keydown', function(e) {
-            if (e.key === 'Backspace' && this.value.length === 0 && index > 0) {
-                arr[index - 1].focus();
-            }
-            if (e.key === 'Enter') {
-                var allFilled = true;
-                for (var i = 0; i < arr.length; i++) {
-                    if (arr[i].value.length !== 1) { allFilled = false; break; }
-                }
-                if (allFilled) { verifyResetOTP(); }
-            }
-        });
-    });
-
-    // Existing OTP input handling
+    // OTP input handling
     document.querySelectorAll('.otp-input').forEach(function(input, index, arr) {
         input.addEventListener('input', function(e) {
             this.value = this.value.replace(/[^0-9]/g, '');
@@ -1151,6 +1246,28 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Reset OTP input handling
+    document.querySelectorAll('.reset-otp-input').forEach(function(input, index, arr) {
+        input.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            if (this.value.length === 1 && index < arr.length - 1) {
+                arr[index + 1].focus();
+            }
+        });
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace' && this.value.length === 0 && index > 0) {
+                arr[index - 1].focus();
+            }
+            if (e.key === 'Enter') {
+                var allFilled = true;
+                for (var i = 0; i < arr.length; i++) {
+                    if (arr[i].value.length !== 1) { allFilled = false; break; }
+                }
+                if (allFilled) { verifyResetOTP(); }
+            }
+        });
+    });
+
     // Init
     var saved = localStorage.getItem('rt_user');
     if (saved) {
@@ -1164,18 +1281,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     setTimeout(function() { fixHeight(); autoLocate(); }, 500);
 });
-
-function verifyOTP() {
-    var otp = '';
-    document.querySelectorAll('.otp-input').forEach(function(el) {
-        otp += el.value;
-    });
-    if (otp.length !== 6) {
-        toast('⚠️ Enter complete 6-digit OTP');
-        return;
-    }
-    toast('✅ OTP verified!');
-}
 </script>
 </body>
 </html>
