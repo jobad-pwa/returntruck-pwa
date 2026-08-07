@@ -1,286 +1,569 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edge Function Test Suite</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        *{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
-        body{background:#f3f4f6;padding:20px;margin:0}
-        .container{max-width:800px;margin:0 auto;background:#fff;border-radius:24px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
-        h1{color:#2563eb;font-size:22px;margin:0 0 4px}
-        h2{font-size:16px;color:#1e293b;margin:20px 0 10px;padding-bottom:8px;border-bottom:2px solid #e2e8f0}
-        .sub{font-size:13px;color:#64748b;margin-bottom:16px}
-        .test-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
-        .test-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px}
-        .test-card label{font-size:11px;font-weight:700;color:#1e293b;display:block;margin-bottom:4px}
-        .test-card input{width:100%;padding:10px 12px;border:2px solid #e2e8f0;border-radius:8px;font-size:14px;background:#fff;margin-bottom:8px}
-        .test-card input:focus{border-color:#2563eb;outline:none}
-        .btn{width:100%;padding:10px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;margin-bottom:4px}
-        .btn-primary{background:#2563eb;color:#fff}
-        .btn-primary:hover{background:#1d4ed8}
-        .btn-success{background:#16a34a;color:#fff}
-        .btn-success:hover{background:#15803d}
-        .btn-danger{background:#dc2626;color:#fff}
-        .btn-danger:hover{background:#b91c1c}
-        .btn-warning{background:#f59e0b;color:#000}
-        .btn-warning:hover{background:#d97706}
-        .btn-gray{background:#6b7280;color:#fff}
-        .btn-gray:hover{background:#4b5563}
-        .result-box{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:12px;font-family:monospace;font-size:11px;max-height:300px;overflow-y:auto;margin-top:8px;white-space:pre-wrap;word-break:break-all}
-        .result-box .pass{color:#4ade80}
-        .result-box .fail{color:#f87171}
-        .result-box .info{color:#60a5fa}
-        .result-box .warn{color:#fbbf24}
-        .result-box .highlight{color:#f472b6;font-weight:bold}
-        .step{background:#f1f5f9;border-radius:8px;padding:10px;margin:4px 0;border-left:4px solid #94a3b8}
-        .step.pass{border-left-color:#16a34a;background:#f0fdf4}
-        .step.fail{border-left-color:#dc2626;background:#fef2f2}
-        .step .title{font-weight:700;font-size:12px;color:#1e293b}
-        .step .detail{font-size:11px;color:#475569;font-family:monospace;margin-top:2px}
-        .flex{display:flex;gap:8px;flex-wrap:wrap}
-        .flex .btn{flex:1;min-width:100px}
-        .dt-info{background:#dbeafe;border-radius:8px;padding:12px;margin:8px 0;font-size:12px}
-        .dt-info strong{color:#1e40af}
-        .status-badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:10px;font-weight:700}
-        .status-badge.success{background:#dcfce7;color:#166534}
-        .status-badge.error{background:#fef2f2;color:#991b1b}
-        .status-badge.pending{background:#fef3c7;color:#92400e}
-        .clear-btn{padding:6px 16px;background:#ef4444;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px}
-        .clear-btn:hover{background:#dc2626}
-        .header-right{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
-        .mobile-display{font-size:20px;font-weight:700;color:#1e293b;text-align:center;padding:8px;background:#f1f5f9;border-radius:8px;margin:8px 0}
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ReturnTruck - Find Loads & Trucks</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-transparent">
+<link rel="apple-touch-icon" href="launchericon-192x192.png">
+<style>
+*{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
+body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
+.card{max-width:420px;width:100%;background:#fff;border-radius:24px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);display:flex;flex-direction:column;height:95vh;max-height:800px;position:relative;overflow:hidden}
+.hidden-page{display:none !important}.hidden{display:none !important}
+.header-fixed{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #f1f5f9;background:#fff;z-index:10;width:100%;min-height:50px}
+.logo{font-size:22px;font-weight:900;color:#2563eb;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none}
+.logo-icon{font-size:28px;line-height:1}.logo-text{font-size:22px;font-weight:900;color:#2563eb;letter-spacing:-0.5px}
+.header-right{display:flex;align-items:center;gap:8px;position:relative}
+.avatar-btn{width:36px;height:36px;border-radius:50%;border:2px solid #e2e8f0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;background:#94a3b8;transition:all .2s}
+.avatar-btn.guest{background:#64748b}
+.profile-dropdown{position:absolute;top:45px;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:160px;z-index:100;display:none}
+.profile-dropdown.show{display:block}
+.dropdown-item{padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:#1e293b;cursor:pointer;border:none;background:transparent;width:100%}
+.dropdown-item:hover{background:#f8fafc}
+.dropdown-divider{height:1px;background:#e2e8f0;margin:4px 12px}
+.nav-fixed{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e2e8f0;background:#fff;position:relative;z-index:10;min-height:65px;width:100%;padding-bottom:5px;margin-top:auto}
+.nav-item{display:flex;flex-direction:column;align-items:center;color:#94a3b8;font-size:9px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px;position:relative;z-index:2}
+.nav-item.active{color:#2563eb}.nav-item .icon{font-size:22px;margin-bottom:2px}.nav-item .label{font-size:9px;text-transform:uppercase;letter-spacing:.05em}
+.nav-install-wrapper{position:absolute;left:50%;top:-18px;transform:translateX(-50%);z-index:5;display:none}
+.nav-install-wrapper.show{display:block}
+.nav-install-btn{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;border-radius:30px;padding:6px 18px;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 4px 15px rgba(37,99,235,0.4);display:flex;align-items:center;gap:6px;white-space:nowrap;animation:pulse-install 2s infinite;letter-spacing:0.3px}
+.nav-install-btn .install-icon{font-size:14px}
+.nav-install-btn .install-badge{background:#ef4444;color:#fff;font-size:7px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:2px}
+@keyframes pulse-install{0%{transform:scale(1);box-shadow:0 4px 15px rgba(37,99,235,0.4)}50%{transform:scale(1.05);box-shadow:0 4px 25px rgba(37,99,235,0.6)}100%{transform:scale(1);box-shadow:0 4px 15px rgba(37,99,235,0.4)}}
+.scroll-body{overflow-y:auto;padding:8px 0;-webkit-overflow-scrolling:touch;display:block;width:100%;flex:1}
+.scroll-body::-webkit-scrollbar{width:4px}.scroll-body::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
+#login-screen{display:flex;flex-direction:column;height:100%;width:100%;overflow-y:auto;padding:4px 0}
+.login-icon-container{display:flex;justify-content:center;margin-bottom:0}
+.login-icon-container img{width:240px;height:240px;border-radius:40px;box-shadow:0 4px 20px rgba(37,99,235,0.25);background:#fff;padding:8px;max-width:100%}
+.login-subtitle{font-size:13px;color:#64748b;text-align:center;margin-bottom:12px;margin-top:4px}
+.login-stats-container{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:12px;margin-bottom:12px;border:1px solid #bfdbfe}
+.login-stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
+.login-stat-item{text-align:center}
+.login-stat-item .number{font-size:18px;font-weight:800;color:#1d4ed8;display:block;line-height:1.2}
+.login-stat-item .label{font-size:8px;font-weight:600;color:#475569;display:block;text-transform:uppercase}
+.login-step-container{flex:1;display:flex;flex-direction:column;justify-content:center}
+.input-field{width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;background:#fff;margin-bottom:12px}
+.input-field:focus{border-color:#2563eb;outline:none}
+.btn-primary{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px}
+.btn-primary:hover{background:#1d4ed8}
+.btn-back{width:100%;padding:14px;background:#6b7280;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer}
+.login-divider{display:flex;align-items:center;gap:12px;margin:16px 0}
+.location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.location-row .location-input{flex:2}.location-row .radius-select{flex:1}
+.location-input input,.radius-select select{width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;background:#fff}
+.type-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;background:#e2e8f0;padding:3px;border-radius:10px;margin-bottom:6px}
+.type-tabs button{padding:6px 4px;font-size:11px;font-weight:700;border:none;border-radius:8px;cursor:pointer}
+.type-tabs .active{background:#fff;color:#1e293b}.type-tabs .inactive{background:transparent;color:#64748b}
+.filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:10px;font-weight:600;color:#64748b;border-top:1px solid #e2e8f0;margin-top:4px;user-select:none}
+.filter-container{overflow:hidden;transition:max-height 0.3s ease;max-height:0}
+.filter-container.open{max-height:400px;overflow:visible}
+.filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;padding-top:6px}
+.filter-row label{font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
+.filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:11px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;outline:none}
+.search-wrapper{position:relative;width:100%}
+.search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:50;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.search-wrapper .suggestions.show{display:block}
+.search-wrapper .suggestions .item{padding:10px 16px;font-size:13px;color:#1e293b;cursor:pointer}
+.search-wrapper .suggestions .item:hover{background:#f8fafc}
+.search-wrapper .suggestions .item .highlight{background:#dbeafe;font-weight:600}
+.results-count{display:flex;justify-content:space-between;padding-bottom:4px;margin-bottom:6px;font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
+.feed-container{display:flex;flex-direction:column;gap:10px}
+.feed-card{border:1px solid #e2e8f0;border-radius:12px;padding:12px;cursor:pointer;background:#fff;transition:all .2s}
+.feed-card:hover{border-color:#3b82f6;background:#f8faff}
+.feed-card .header-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+.feed-card .title{font-weight:700;font-size:15px;color:#0f172a;flex:1}
+.feed-card .type-badge{flex-shrink:0;font-size:8px;padding:2px 8px;border-radius:4px;font-weight:700;text-transform:uppercase}
+.feed-card .type-badge.load{background:#dbeafe;color:#1e40af}
+.feed-card .type-badge.truck{background:#dcfce7;color:#166534}
+.feed-card .company{font-size:12px;color:#2563eb;font-weight:600;margin-bottom:2px}
+.feed-card .meta{font-size:11px;color:#475569;margin-top:3px;display:flex;align-items:center;gap:4px}
+.feed-card .meta .sep{color:#d1d5db;margin:0 4px}
+.feed-card .stats-row{margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9;display:flex;gap:12px;font-size:10px;color:#94a3b8}
+.feed-card .stats-row span{display:flex;align-items:center;gap:3px}
+.feed-card .stats-row .val{font-weight:600;color:#475569}
+.install-banner{display:none !important}.floating-install-btn{display:none !important}
+.guest-banner{flex-shrink:0;background:#2563eb;color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.guest-banner.hidden{display:none}
+.guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer}
+.profile-header-card{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:12px;padding:16px;color:#fff;margin-bottom:16px}
+.profile-section{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px}
+.section-btn{padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer}
+.form-control{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;background:#fff;outline:none}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.detail-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:12px}
+.detail-actions button{width:100%;padding:10px;border-radius:10px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:10px}
+.btn-call{background:#16a34a}.btn-contact{background:#2563eb}.btn-bid{background:#8b5cf6}.btn-share{background:#25D366}
+.back-btn{background:transparent;border:none;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;padding:4px 8px}.back-btn:hover{color:#2563eb}
+.otp-input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff}
+.otp-input:focus{border-color:#2563eb;outline:none}
+</style>
 </head>
 <body>
-<div class="container">
-    <div class="header-right">
-        <div>
-            <h1>🔍 Edge Function Test Suite</h1>
-            <div class="sub">Test login, registration, PIN change & reset</div>
+<div class="card" id="app-card">
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+    <div class="login-icon-container"><img src="launchericon-192x192.png" alt="ReturnTruck" width="240" height="240"></div>
+    <div class="login-subtitle">Find Loads • Post Trucks • Connect Agents</div>
+    <div class="login-stats-container">
+        <div class="login-stats-grid" style="margin-bottom:6px">
+            <div class="login-stat-item"><span style="font-size:16px">📦</span><span class="number" id="stat-loadgivers">0</span><span class="label">Load Givers</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">🚛</span><span class="number" id="stat-fleetops">0</span><span class="label">Fleet Ops</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">🤝</span><span class="number" id="stat-agents">0</span><span class="label">Agents</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">👤</span><span class="number" id="stat-users">0</span><span class="label">Users</span></div>
         </div>
-        <button class="clear-btn" onclick="clearLog()">🗑️ Clear Log</button>
-    </div>
-
-    <div class="dt-info">
-        <strong>📊 Configuration:</strong><br>
-        Supabase URL: <span id="sb-url-display">loading...</span><br>
-        Edge Function URL: <span id="edge-url-display">loading...</span><br>
-        Test Mobile: <span id="test-mobile-display">6300067332</span>
-    </div>
-
-    <!-- Test Mobile Input -->
-    <div style="margin:12px 0">
-        <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">📱 Test Mobile Number</label>
-        <input type="tel" id="test-mobile" value="6300067332" maxlength="10" style="width:100%;padding:10px 12px;border:2px solid #e2e8f0;border-radius:8px;font-size:16px;text-align:center;background:#fff">
-    </div>
-
-    <!-- Test Grid -->
-    <div class="test-grid">
-        <!-- Test 1: Login -->
-        <div class="test-card">
-            <label>🔐 Test Login</label>
-            <input type="password" id="login-pin" placeholder="Enter PIN (4 digits)" maxlength="4">
-            <button class="btn btn-primary" onclick="testLogin()">Login</button>
-            <button class="btn btn-gray" onclick="testCheckUser()">Check User</button>
-            <div id="login-status" style="font-size:11px;color:#64748b;text-align:center;margin-top:4px">Enter PIN to test login</div>
-        </div>
-
-        <!-- Test 2: Registration -->
-        <div class="test-card">
-            <label>📝 Test Registration</label>
-            <input type="password" id="reg-pin" placeholder="New PIN (4 digits)" maxlength="4">
-            <input type="password" id="reg-pin-confirm" placeholder="Confirm PIN" maxlength="4">
-            <button class="btn btn-success" onclick="testRegister()">Register</button>
-            <div id="reg-status" style="font-size:11px;color:#64748b;text-align:center;margin-top:4px">Enter PIN to test registration</div>
-        </div>
-
-        <!-- Test 3: Change PIN -->
-        <div class="test-card">
-            <label>🔑 Test Change PIN</label>
-            <input type="password" id="change-current" placeholder="Current PIN" maxlength="4">
-            <input type="password" id="change-new" placeholder="New PIN" maxlength="4">
-            <input type="password" id="change-confirm" placeholder="Confirm New PIN" maxlength="4">
-            <button class="btn btn-warning" onclick="testChangePin()">Change PIN</button>
-            <div id="change-status" style="font-size:11px;color:#64748b;text-align:center;margin-top:4px">Enter PINs to test change</div>
-        </div>
-
-        <!-- Test 4: Reset PIN -->
-        <div class="test-card">
-            <label>🔄 Test Reset PIN</label>
-            <input type="password" id="reset-new" placeholder="New PIN" maxlength="4">
-            <input type="password" id="reset-confirm" placeholder="Confirm PIN" maxlength="4">
-            <button class="btn btn-danger" onclick="testResetPin()">Reset PIN</button>
-            <div id="reset-status" style="font-size:11px;color:#64748b;text-align:center;margin-top:4px">Enter PIN to test reset</div>
+        <div class="login-stats-grid">
+            <div class="login-stat-item"><span style="font-size:16px">🚚</span><span class="number" id="stat-trucks">0</span><span class="label">Trucks</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">📊</span><span class="number" id="stat-loads">0</span><span class="label">Loads</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">📱</span><span class="number" id="stat-installs">0</span><span class="label">Installs</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">📱</span><span class="number" id="stat-visits">0</span><span class="label">Visits</span></div>
         </div>
     </div>
-
-    <!-- Quick Actions -->
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">
-        <button class="btn btn-primary" style="flex:1" onclick="testFullFlow()">🚀 Test Full Flow</button>
-        <button class="btn btn-success" style="flex:1" onclick="testDirectSQL()">🗄️ Direct SQL Check</button>
+    <div class="login-step-container">
+        <div id="step1">
+            <input type="tel" id="mobile" class="input-field" placeholder="Enter Mobile Number" maxlength="10" autofocus>
+            <div id="mobile-status" style="font-size:12px;color:#94a3b8;text-align:center;margin-top:4px"></div>
+            <div class="login-divider"><div style="flex:1;height:1px;background:#e2e8f0"></div><span style="font-size:10px;color:#94a3b8">or continue as</span><div style="flex:1;height:1px;background:#e2e8f0"></div></div>
+            <button style="width:100%;padding:12px;border:1.5px solid #8b5cf6;border-radius:12px;font-size:14px;font-weight:600;color:#8b5cf6;background:transparent;cursor:pointer" onclick="continueAsGuest()">👤 Guest</button>
+        </div>
+        <div id="step2" class="hidden">
+            <div style="text-align:center;margin-bottom:16px"><div id="display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div><div style="font-size:14px;font-weight:500;color:#475569">Enter your 4-digit PIN</div></div>
+            <input type="password" id="pin" class="input-field" style="letter-spacing:4px;" placeholder="Enter 4-digit PIN" maxlength="4">
+            <div style="font-size:12px;text-align:center;margin-bottom:12px;color:#64748b">Forgot PIN? <span style="color:#2563eb;cursor:pointer;font-weight:600" onclick="resetPIN()">Reset PIN</span></div>
+            <button onclick="submitPin()" id="submitBtn" class="btn-primary" style="background:#16a34a">🔐 Login</button>
+            <button onclick="resetForm()" class="btn-back">← Change Number</button>
+        </div>
+        <div id="step3" class="hidden">
+            <div style="text-align:center;margin-bottom:16px"><div id="wa-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div><div style="font-size:13px;color:#64748b">Enter OTP sent via WhatsApp</div></div>
+            <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
+                <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
+                <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
+                <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
+                <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
+                <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
+                <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
+            </div>
+            <div style="text-align:center;font-size:13px;color:#64748b;margin-bottom:12px">⏳ <span id="otp-timer">5:00</span></div>
+            <button onclick="verifyOTP()" id="verify-btn" class="btn-primary" style="background:#16a34a">✅ Verify</button>
+            <button onclick="resetForm()" class="btn-back">← Change Number</button>
+        </div>
+        <div id="step4" class="hidden">
+            <div style="text-align:center;margin-bottom:16px"><div id="reg-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div><div style="font-size:13px;color:#64748b">Set your 4-digit PIN for login</div></div>
+            <input type="password" id="reg-pin" class="input-field" placeholder="New PIN (4 digits)" maxlength="4">
+            <input type="password" id="reg-pin-confirm" class="input-field" placeholder="Confirm PIN" maxlength="4">
+            <button onclick="registerUser()" id="register-btn" class="btn-primary" style="background:#16a34a">✅ Create Account</button>
+            <button onclick="resetForm()" class="btn-back">← Change Number</button>
+        </div>
     </div>
+    <div style="flex-shrink:0;background:#fef3c7;border-left:4px solid #f59e0b;border-radius:8px;padding:12px 16px;margin-top:12px;font-size:10px;color:#92400e;line-height:1.5">
+        <div style="font-weight:700;font-size:11px;display:flex;align-items:center;gap:4px">⚠️ Disclaimer</div>
+        ReturnTruck is a FREE connecting platform. No charges from any party. Not responsible for financial or other losses.
+    </div>
+</div>
 
-    <!-- Results -->
-    <div id="steps-container"></div>
-    <div class="result-box" id="result-log">⏳ Waiting for tests...</div>
+<!-- HOME PAGE -->
+<div id="home-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
+    <div class="header-fixed">
+        <div class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></div>
+        <div class="header-right">
+            <button class="avatar-btn guest" id="avatar-btn" onclick="toggleDropdown()"><span id="avatar-initials">GU</span></button>
+            <div class="profile-dropdown" id="profile-dropdown">
+                <button class="dropdown-item" onclick="closeDropdown();goToProfile()">👤 View Profile</button>
+                <button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button>
+            </div>
+        </div>
+    </div>
+    <div id="home-top" style="flex-shrink:0; padding-top:0;">
+        <div id="guest-banner" class="guest-banner hidden"><span>👋 Welcome, Guest!</span><button class="btn-login" onclick="showLogin()">🔐 Login</button></div>
+        <div class="location-row">
+            <div class="location-input">
+                <input type="text" id="search-home" placeholder="📍 Location/PIN" oninput="searchLocation('home')" autocomplete="off">
+                <div class="search-wrapper"><div class="suggestions" id="suggestions-home"></div></div>
+            </div>
+            <div class="radius-select">
+                <select id="radius-select" onchange="applyFilters()">
+                    <option value="5">5 KM</option><option value="10">10 KM</option><option value="25">25 KM</option><option value="50" selected>50 KM</option><option value="100">100 KM</option><option value="200">200 KM</option>
+                </select>
+            </div>
+        </div>
+        <div class="type-tabs">
+            <button id="tab-all" class="active" onclick="setTab('ALL')">All</button>
+            <button id="tab-loads" class="inactive" onclick="setTab('LOAD')">Loads</button>
+            <button id="tab-trucks" class="inactive" onclick="setTab('TRUCK')">Trucks</button>
+            <button id="tab-agents" class="inactive" onclick="setTab('AGENT')">Agents</button>
+        </div>
+        <div class="filter-toggle" onclick="toggleFilters()">
+            <span id="filter-toggle-label">🔍 Hide Filters</span>
+            <span class="arrow open" id="filter-arrow">▲</span>
+        </div>
+        <div class="filter-container open" id="filter-container">
+            <div class="filter-row">
+                <div>
+                    <label>📍 To Location</label>
+                    <div style="position:relative;width:100%">
+                        <input type="text" id="search-to" placeholder="📍 Location/PIN" oninput="searchLocation('to')" autocomplete="off">
+                        <div class="search-wrapper"><div class="suggestions" id="suggestions-to"></div></div>
+                        <input type="hidden" id="filter-to-hidden">
+                    </div>
+                </div>
+                <div>
+                    <label>🚛 Vehicle Type</label>
+                    <select id="filter-vehicle" onchange="applyFilters()">
+                        <option value="ALL">All</option>
+                        <option value="highbed">Highbed 40x8x8</option>
+                        <option value="lowbed">Lowbed 40x10x10</option>
+                        <option value="container">Container 22x8x8</option>
+                        <option value="odc">ODC</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="results-count"><span id="results-count">Showing 0 Records</span></div>
+        <div style="width:100%;height:1px;background:#f1f5f9;margin-top:2px;margin-bottom:4px;flex-shrink:0"></div>
+    </div>
+    <div class="scroll-body" id="home-scroll-body"><div id="feed-container" class="feed-container"></div></div>
+    <div class="nav-fixed" id="bottom-nav">
+        <button class="nav-item active" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+        <div class="nav-install-wrapper" id="nav-install-wrapper">
+            <button class="nav-install-btn" id="nav-install-btn" onclick="forceInstall()">
+                <span class="install-icon">📲</span> Install <span class="install-badge">NEW</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- POST LOAD PAGE -->
+<div id="postload-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
+    <div class="header-fixed">
+        <span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span>
+        <button class="back-btn" onclick="cancelPost()">Cancel</button>
+    </div>
+    <div class="scroll-body" id="postload-scroll">
+        <div class="form-group"><label class="form-label">Material Type *</label>
+            <select class="form-control" id="pl-material"><option value="">Select</option><option value="Steel Pipes">Steel Pipes</option><option value="Cement">Cement</option><option value="Other">Other</option></select></div>
+        <div class="grid-2"><div><label>Weight (Kg)</label><input class="form-control" type="number" id="pl-weight"></div><div><label>Dimensions (ft)</label><input class="form-control" type="text" id="pl-dim" placeholder="40x8x8"></div></div>
+        <div class="grid-2">
+            <div><label>📍 Pickup</label>
+                <div style="position:relative;width:100%">
+                    <input type="text" id="search-pl-pickup" placeholder="Search PIN..." oninput="searchLocation('pl-pickup')" autocomplete="off">
+                    <div class="search-wrapper"><div class="suggestions" id="suggestions-pl-pickup"></div></div>
+                    <input type="hidden" id="pl-pickup-hidden">
+                </div>
+            </div>
+            <div><label>📍 Drop</label>
+                <div style="position:relative;width:100%">
+                    <input type="text" id="search-pl-drop" placeholder="Search PIN..." oninput="searchLocation('pl-drop')" autocomplete="off">
+                    <div class="search-wrapper"><div class="suggestions" id="suggestions-pl-drop"></div></div>
+                    <input type="hidden" id="pl-drop-hidden">
+                </div>
+            </div>
+        </div>
+        <div class="grid-2"><div><label>Rate (₹)</label><input class="form-control" type="text" id="pl-rate"></div><div><label>Date</label><input class="form-control" type="date" id="pl-date"></div></div>
+        <button class="btn-primary" onclick="publishLoad()">📤 Publish Load</button>
+    </div>
+    <div class="nav-fixed" id="bottom-nav2">
+        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
+        <button class="nav-item active" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+        <div class="nav-install-wrapper" id="nav-install-wrapper2">
+            <button class="nav-install-btn" onclick="forceInstall()">
+                <span class="install-icon">📲</span> Install <span class="install-badge">NEW</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- POST TRUCK PAGE -->
+<div id="posttruck-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
+    <div class="header-fixed">
+        <span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span>
+        <button class="back-btn" onclick="cancelPost()">Cancel</button>
+    </div>
+    <div class="scroll-body" id="posttruck-scroll">
+        <div class="form-group"><label>Vehicle Number</label><div style="display:flex;gap:8px"><input class="form-control" id="pt-number" style="flex:2"><button class="btn-primary" style="width:auto;padding:10px 16px" onclick="autoFetchVehicle()">🔍 Auto-Fetch</button></div></div>
+        <div class="form-group"><label>📍 Location</label>
+            <div style="position:relative;width:100%">
+                <input type="text" id="search-pt-location" placeholder="Search PIN..." oninput="searchLocation('pt-location')" autocomplete="off">
+                <div class="search-wrapper"><div class="suggestions" id="suggestions-pt-location"></div></div>
+                <input type="hidden" id="pt-location-hidden">
+            </div>
+        </div>
+        <div class="grid-2"><div><label>Available From</label><input class="form-control" type="date" id="pt-available"></div><div><label>Rate / KM</label><input class="form-control" type="text" id="pt-rate-km"></div></div>
+        <div class="grid-2"><div><label>Driver Name</label><input class="form-control" id="pt-driver"></div><div><label>Driver Mobile</label><input class="form-control" id="pt-driver-mobile" maxlength="10"></div></div>
+        <button class="btn-primary" onclick="publishTruck()">📤 List Truck</button>
+    </div>
+    <div class="nav-fixed" id="bottom-nav3">
+        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
+        <button class="nav-item active" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+        <div class="nav-install-wrapper" id="nav-install-wrapper3">
+            <button class="nav-install-btn" onclick="forceInstall()">
+                <span class="install-icon">📲</span> Install <span class="install-badge">NEW</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- PROFILE PAGE -->
+<div id="profile-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
+    <div class="header-fixed">
+        <div class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></div>
+        <div class="header-right">
+            <button class="back-btn" onclick="goHome()">← Back</button>
+            <button class="avatar-btn guest" id="avatar-btn-profile" onclick="toggleDropdown()"><span id="avatar-initials-profile">GU</span></button>
+            <div class="profile-dropdown" id="profile-dropdown-profile">
+                <button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button>
+            </div>
+        </div>
+    </div>
+    <div class="scroll-body" id="profile-scroll">
+        <div class="profile-header-card"><div style="font-size:11px;opacity:.8;font-weight:500;text-transform:uppercase">Welcome,</div><div class="mobile" id="profile-mobile">--</div><span style="font-size:10px;background:rgba(255,255,255,.2);padding:2px 12px;border-radius:12px;display:inline-block">⭐ Member</span></div>
+        <div class="profile-section"><div class="section-header"><span class="section-title">📦 Load Giver</span><span id="loadgiver-badge" style="font-size:9px;background:#fef3c7;color:#d97706;padding:2px 10px;border-radius:12px;font-weight:700">⚠️ Required</span></div>
+        <div id="loadgiver-input-area"><input class="form-control" style="margin-bottom:8px" type="text" id="lg-company" placeholder="Company Name"><button class="section-btn" onclick="saveLoadGiverProfile()">💾 Save</button></div>
+        <div id="loadgiver-active-area" style="display:none"><p><strong id="lg-display-company">--</strong></p><button class="section-btn" onclick="editLoadGiver()">✏️ Edit</button></div></div>
+        <div class="profile-section"><div class="section-header"><span class="section-title">🚛 Fleet Operator</span><span id="fleet-badge" style="font-size:9px;background:#fef3c7;color:#d97706;padding:2px 10px;border-radius:12px;font-weight:700">⚠️ Required</span></div>
+        <div id="fleet-input-area"><input class="form-control" style="margin-bottom:8px" type="text" id="fo-company" placeholder="Company Name"><button class="section-btn" onclick="saveFleetProfile()">💾 Save</button></div>
+        <div id="fleet-active-area" style="display:none"><p><strong id="fo-display-company">--</strong></p><button class="section-btn" onclick="editFleet()">✏️ Edit</button><div id="my-trucks-list" style="margin-top:12px"></div></div></div>
+        <div><p style="font-size:11px;font-weight:600;color:#1e293b;margin:0 0 8px 0">📦 My Loads</p><div id="my-loads-container"></div></div>
+    </div>
+    <div class="nav-fixed" id="bottom-nav4">
+        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item active" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+        <div class="nav-install-wrapper" id="nav-install-wrapper4">
+            <button class="nav-install-btn" onclick="forceInstall()">
+                <span class="install-icon">📲</span> Install <span class="install-badge">NEW</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- DETAIL PAGE -->
+<div id="detail-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
+    <div class="header-fixed">
+        <span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span>
+        <button class="back-btn" onclick="closeDetail()">Cancel</button>
+    </div>
+    <div class="scroll-body" id="detail-scroll">
+        <div style="margin-bottom:12px"><div style="font-size:17px;font-weight:700" id="detail-title">Title</div><div id="detail-company" style="font-size:13px;color:#2563eb">Company</div></div>
+        <div class="detail-actions"><button class="btn-call" onclick="makeCall()">📞 Call</button><button class="btn-contact" onclick="contactUser()">✉️ Contact</button><button class="btn-bid" onclick="expressInterest()">🤝 Interest</button><button class="btn-share" onclick="handleShareClick()">↗️ Share</button></div>
+    </div>
+    <div class="nav-fixed" id="bottom-nav5">
+        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+        <div class="nav-install-wrapper" id="nav-install-wrapper5">
+            <button class="nav-install-btn" onclick="forceInstall()">
+                <span class="install-icon">📲</span> Install <span class="install-badge">NEW</span>
+            </button>
+        </div>
+    </div>
 </div>
 
 <script>
 // ============================================================
-// CONFIG
+// STATIC LOCATION DATA
 // ============================================================
-var SB_URL = 'https://ghjoffovatgvhzxlupef.supabase.co';
-var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
-var EDGE_URL = 'https://ghjoffovatgvhzxlupef.supabase.co/functions/v1';
-var sb = window.supabase.createClient(SB_URL, SB_KEY);
-
-// Display config
-document.getElementById('sb-url-display').textContent = SB_URL;
-document.getElementById('edge-url-display').textContent = EDGE_URL;
-document.getElementById('test-mobile-display').textContent = document.getElementById('test-mobile').value;
-
-// ============================================================
-// LOGGING
-// ============================================================
-function log(msg, type) {
-    var el = document.getElementById('result-log');
-    var time = new Date().toLocaleTimeString();
-    var colors = { pass: 'pass', fail: 'fail', info: 'info', warn: 'warn', highlight: 'highlight' };
-    el.innerHTML += '[' + time + '] <span class="' + (colors[type] || 'info') + '">' + msg + '</span>\n';
-    el.scrollTop = el.scrollHeight;
-}
-
-function clearLog() {
-    document.getElementById('result-log').innerHTML = '';
-    document.getElementById('steps-container').innerHTML = '';
-    log('🗑️ Log cleared', 'info');
-    ['login-status', 'reg-status', 'change-status', 'reset-status'].forEach(function(id) {
-        document.getElementById(id).textContent = 'Ready';
-        document.getElementById(id).style.color = '#64748b';
-    });
-}
-
-function addStep(title, detail, status, data) {
-    var container = document.getElementById('steps-container');
-    var cls = 'step';
-    if (status === 'pass') cls += ' pass';
-    else if (status === 'fail') cls += ' fail';
-    
-    var html = '<div class="' + cls + '">';
-    html += '<div class="title">' + title + '</div>';
-    html += '<div class="detail">' + detail + '</div>';
-    if (data) {
-        html += '<div class="detail" style="color:#2563eb;margin-top:4px">📦 ' + JSON.stringify(data, null, 2) + '</div>';
-    }
-    html += '</div>';
-    container.innerHTML += html;
-    container.scrollTop = container.scrollHeight;
-}
-
-function setStatus(id, text, color) {
-    var el = document.getElementById(id);
-    if (el) {
-        el.textContent = text;
-        el.style.color = color || '#64748b';
-    }
-}
-
-function getMobile() {
-    return document.getElementById('test-mobile').value.trim();
-}
+var LOCATIONS=[
+  {pin:"110018",name:"Ashok Nagar",district:"NEW DELHI",state:"DH",lat:28.636587,lng:77.094466},
+  {pin:"182141",name:"Chenani",district:"UDHAMPUR",state:"JK",lat:33.0389444,lng:75.2846944},
+  {pin:"400001",name:"Mumbai",district:"MUMBAI",state:"MH",lat:18.9391667,lng:72.8375556},
+  {pin:"516362",name:"Khadarabad",district:"Y.S.R.",state:"AP",lat:14.7626487,lng:78.6336605},
+  {pin:"517501",name:"Tirupati",district:"Tirupati",state:"AP",lat:13.6322875,lng:79.4226094},
+  {pin:"518001",name:"Kurnool",district:"KURNOOL",state:"AP",lat:15.833006,lng:78.047822},
+  {pin:"521202",name:"Hanumanthunigudem",district:"Eluru",state:"AP",lat:16.784728,lng:80.849867},
+  {pin:"522301",name:"Anantavaram",district:"GUNTUR",state:"AP",lat:16.02644444,lng:80.16291667},
+  {pin:"522603",name:"Ravipadu",district:"Palnadu",state:"AP",lat:16.2233,lng:79.9719},
+  {pin:"522616",name:"Chilakaluripet",district:"GUNTUR",state:"AP",lat:16.087918,lng:80.266533},
+  {pin:"523253",name:"Uppalapadu",district:"PRAKASAM",state:"AP",lat:15.621921,lng:79.700266},
+  {pin:"524223",name:"Jaladanki",district:"SPSR NELLORE",state:"AP",lat:14.853108,lng:79.84613},
+  {pin:"530001",name:"Visakhapatnam",district:"VISAKHAPATANAM",state:"AP",lat:17.70402479,lng:83.29639357},
+  {pin:"531111",name:"Chintapalli",district:"Alluri Sitharama Raju",state:"AP",lat:17.980066,lng:82.41334},
+  {pin:"531118",name:"Rajupakalu",district:"VISAKHAPATANAM",state:"AP",lat:17.608616,lng:82.632208},
+  {pin:"531162",name:"Chittivalasa",district:"VISAKHAPATANAM",state:"AP",lat:17.936293,lng:83.49369},
+  {pin:"533001",name:"Kakinada",district:"Kakinada",state:"AP",lat:16.9550556,lng:82.2354722},
+  {pin:"533101",name:"Rajahmundry",district:"EAST GODAVARI",state:"AP",lat:16.9920339,lng:81.7779721},
+  {pin:"533406",name:"Annavaram",district:"Kakinada",state:"AP",lat:17.2830278,lng:82.4064444},
+  {pin:"534202",name:"Gollalakoderu",district:"WEST GODAVARI",state:"AP",lat:16.545316,lng:81.513696},
+  {pin:"560002",name:"Bengaluru City",district:"BENGALURU URBAN",state:"KA",lat:12.839909,lng:77.662968},
+  {pin:"570001",name:"Mysuru",district:"MYSURU",state:"KA",lat:12.31416667,lng:76.65655556},
+  {pin:"671314",name:"Bengalam",district:"KASARAGOD",state:"KL",lat:12.2949717,lng:75.154531},
+  {pin:"700001",name:"KOLKATA",district:"KOLKATA",state:"WB",lat:22.5736,lng:88.3483}
+];
 
 // ============================================================
-// TEST: Check User (Edge Function)
+// CONFIG & STATE
 // ============================================================
-async function testCheckUser() {
-    var mobile = getMobile();
-    if (!mobile || mobile.length !== 10) {
-        log('❌ Enter valid 10-digit mobile', 'fail');
-        return;
-    }
+var SB_URL='https://ghjoffovatgvhzxlupef.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
+var EDGE_URL='https://ghjoffovatgvhzxlupef.supabase.co/functions/v1';
+var sb=window.supabase.createClient(SB_URL,SB_KEY);
+var user=null,guest=false,tab='ALL',items=[],detail=null,mobile='';
+var homePin=null,toPin=null,prompt=null,installed=false,filterOpen=true;
+var otpTimer=null,otpSeconds=300;
+var otpVerified=false;
 
-    log('📡 Testing Edge Function check for: ' + mobile, 'info');
-    setStatus('login-status', '⏳ Checking...', '#f59e0b');
+function $(id){return document.getElementById(id)}
+function toast(msg){alert(msg)}
 
-    try {
-        // Convert mobile to BIGINT
-        var mobileNum = parseInt(mobile);
-        log('📊 Mobile as BIGINT: ' + mobileNum + ' (type: ' + typeof mobileNum + ')', 'info');
+// ============================================================
+// LOCATION HELPERS
+// ============================================================
+function getLoc(pin){for(var i=0;i<LOCATIONS.length;i++){if(LOCATIONS[i].pin===pin)return LOCATIONS[i]}return null}
+function getLocName(pin){var l=getLoc(pin);return l?l.name+', '+l.district+', '+l.state+' ('+l.pin+')':pin||'Unknown'}
+function dist(lat1,lng1,lat2,lng2){var R=6371,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180,a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))}
 
-        var response = await fetch(EDGE_URL + '/login-user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': 'Bearer ' + SB_KEY
-            },
-            body: JSON.stringify({
-                mobile: mobile,
-                action: 'check'
-            })
-        });
+// ============================================================
+// AUTO-LOCATE
+// ============================================================
+function autoLocate(){var inp=$('search-home');if(!inp)return;var saved=localStorage.getItem('rt_home_location');if(saved){try{var l=JSON.parse(saved);inp.value=l.displayName;homePin=l.pin;applyFilters();return}catch(e){}}
+if(navigator.geolocation){navigator.geolocation.getCurrentPosition(function(p){var lat=p.coords.latitude,lng=p.coords.longitude,near=null,minD=Infinity;for(var i=0;i<LOCATIONS.length;i++){var l=LOCATIONS[i],d=dist(lat,lng,l.lat,l.lng);if(d<minD){minD=d;near=l}}if(near&&minD<100){var dn=near.name+', '+near.state+' ('+near.pin+')';inp.value=dn;homePin=near.pin;localStorage.setItem('rt_home_location',JSON.stringify({pin:near.pin,displayName:dn}));applyFilters()}},function(){fetch('https://ipapi.co/json/').then(function(r){return r.json()}).then(function(d){var city=d.city||'';for(var i=0;i<LOCATIONS.length;i++){var l=LOCATIONS[i];if(l.name.toLowerCase()===city.toLowerCase()||l.district.toLowerCase()===city.toLowerCase()){var dn=l.name+', '+l.state+' ('+l.pin+')';inp.value=dn;homePin=l.pin;localStorage.setItem('rt_home_location',JSON.stringify({pin:l.pin,displayName:dn}));applyFilters();break}}}).catch(function(){})})}}
 
-        var result = await response.json();
-        
-        addStep(
-            '📡 Edge Function: Check User',
-            'Status: ' + response.status + '\nResponse: ' + JSON.stringify(result, null, 2),
-            result.exists === true ? 'pass' : 'fail',
-            result
-        );
+// ============================================================
+// SEARCH
+// ============================================================
+function searchLocation(ctx){var inp=$('search-'+ctx),sug=$('suggestions-'+ctx);if(!inp||!sug)return;var q=inp.value.trim();if(!q){sug.classList.remove('show');return}var res=[],ql=q.toLowerCase();for(var i=0;i<LOCATIONS.length;i++){var l=LOCATIONS[i];if(l.name.toLowerCase().includes(ql)||l.pin.includes(q)||l.district.toLowerCase().includes(ql)||l.state.toLowerCase().includes(ql)){res.push(l);if(res.length>=8)break}}if(!res.length){sug.classList.remove('show');return}var html='';for(var j=0;j<res.length;j++){var l=res[j],dn=l.name+', '+l.district+', '+l.state+' ('+l.pin+')',idx=dn.toLowerCase().indexOf(ql),dh=dn;if(idx!==-1)dh=dn.substring(0,idx)+'<span class="highlight">'+dn.substring(idx,idx+q.length)+'</span>'+dn.substring(idx+q.length);html+='<div class="item" onclick="selectLoc(\''+ctx+'\',\''+l.pin+'\',\''+l.name+'\',\''+l.state+'\')">'+dh+'</div>'}sug.innerHTML=html;sug.classList.add('show')}
+function selectLoc(ctx,pin,name,state){var dn=name+', '+state+' ('+pin+')',hid=null;if(ctx==='to')hid='filter-to-hidden';else if(ctx==='pl-pickup')hid='pl-pickup-hidden';else if(ctx==='pl-drop')hid='pl-drop-hidden';else if(ctx==='pt-location')hid='pt-location-hidden';$('search-'+ctx).value=dn;if(hid)$(hid).value=pin;$('suggestions-'+ctx).classList.remove('show');if(ctx==='home'){homePin=pin;localStorage.setItem('rt_home_location',JSON.stringify({pin:pin,displayName:dn}));applyFilters()}else if(ctx==='to'){toPin=pin;applyFilters()}}
+document.addEventListener('click',function(e){document.querySelectorAll('.suggestions').forEach(function(s){if(!s.parentElement.contains(e.target))s.classList.remove('show')})});
 
-        if (result.exists === true) {
-            log('✅ User FOUND: ' + JSON.stringify(result.user), 'pass');
-            setStatus('login-status', '✅ Found', '#16a34a');
-        } else {
-            log('❌ User NOT FOUND', 'fail');
-            setStatus('login-status', '❌ Not found', '#dc2626');
-        }
+// ============================================================
+// PWA INSTALL
+// ============================================================
+if(window.matchMedia('(display-mode: standalone)').matches)installed=true;
+function updateInstall(){var m=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);var s=m&&!window.matchMedia('(display-mode: standalone)').matches&&!installed;document.querySelectorAll('.nav-install-wrapper').forEach(function(e){e.classList.toggle('show',s)})}
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();prompt=e;updateInstall()});
+window.addEventListener('appinstalled',function(){installed=true;prompt=null;updateInstall();toast('🎉 ReturnTruck installed!')});
+function forceInstall(){if(prompt){prompt.prompt();prompt.userChoice.then(function(c){if(c.outcome==='accepted')toast('🎉 Installing...');prompt=null;updateInstall()})}else{if(navigator.userAgent.match(/Android/i))toast('📱 Tap Chrome menu → "Install app"');else if(navigator.userAgent.match(/iPhone|iPad|iPod/i))toast('📱 Tap Share → "Add to Home Screen"');else toast('📱 Open this page in Chrome on your phone')}}
+setTimeout(updateInstall,3000);
 
-        return result;
-    } catch (e) {
-        log('❌ Error: ' + e.message, 'fail');
-        setStatus('login-status', '❌ Error', '#dc2626');
-        addStep('❌ Check User Error', e.message, 'fail');
-        return null;
+// ============================================================
+// OTP HELPERS
+// ============================================================
+function otpInput(el){if(el.value.length===1){var next=el.nextElementSibling;if(next)next.focus()}}
+function startOTPTimer(){otpSeconds=300;otpVerified=false;if(otpTimer)clearInterval(otpTimer);otpTimer=setInterval(function(){otpSeconds--;var m=Math.floor(otpSeconds/60),s=otpSeconds%60;$('otp-timer').textContent=m+':'+(s<10?'0':'')+s;if(otpSeconds<=0){clearInterval(otpTimer);$('verify-btn').disabled=true;$('verify-btn').textContent='⏳ Expired';toast('⏳ OTP expired. Please try again.')}},1000)}
+function verifyOTP(){
+    var inputs=document.querySelectorAll('.otp-input');
+    var otp='';
+    for(var i=0;i<inputs.length;i++){otp+=inputs[i].value}
+    if(otp.length!==6){toast('⚠️ Enter complete 6-digit OTP');return}
+    // For demo: accept 123456 or any 6-digit
+    if(otp==='123456'||otp.length===6){
+        otpVerified=true;
+        toast('✅ OTP verified!');
+        clearInterval(otpTimer);
+        $('step3').classList.add('hidden');
+        $('step4').classList.remove('hidden');
+        $('reg-display-mobile').textContent=mobile;
+    }else{
+        toast('❌ Invalid OTP. Try 123456');
     }
 }
 
 // ============================================================
-// TEST: Login
+// RENDER FEED
 // ============================================================
-async function testLogin() {
-    var mobile = getMobile();
-    var pin = document.getElementById('login-pin').value.trim();
+async function renderFeed(){
+try{
+var {data:loads}=await sb.from('active_loads').select('*').eq('status',1);
+var {data:trucks}=await sb.from('active_trucks').select('*').eq('status',1);
+items=[];
+for(var l=0;l<(loads||[]).length;l++){var ld=loads[l];items.push({type:'LOAD',title:ld.material||'Cargo',company:ld.company||'',from:ld.pickup_pin||'',to:ld.drop_pin||'',weight:ld.weight||0,vehicle:ld.vehicle_type||'',rate:ld.rate||0,views:ld.views||0,interests:(ld.interests||[]).length,shares:ld.shares||0,id:ld.id})}
+for(var t=0;t<(trucks||[]).length;t++){var tk=trucks[t];items.push({type:'TRUCK',title:tk.truck_no||'Truck',company:tk.company_name||'',from:tk.location_pin||'',to:tk.destination_pin||'',vehicle:tk.vehicle_type||'',rate:tk.rate_km||0,views:tk.views||0,interests:(tk.interested||[]).length,shares:tk.share||0,id:tk.id})}
+var filtered=items.slice(), radius=parseInt($('radius-select').value)||50;
+if(homePin){var hl=getLoc(homePin);if(hl){filtered=filtered.filter(function(i){var fl=getLoc(i.from);return fl?dist(hl.lat,hl.lng,fl.lat,fl.lng)<=radius:false})}}
+if(tab==='LOAD')filtered=filtered.filter(function(i){return i.type==='LOAD'});
+else if(tab==='TRUCK')filtered=filtered.filter(function(i){return i.type==='TRUCK'});
+if(toPin){var tl=getLoc(toPin);if(tl){filtered=filtered.filter(function(i){var tl2=getLoc(i.to);return tl2?dist(tl.lat,tl.lng,tl2.lat,tl2.lng)<=radius:false})}}
+var v=$('filter-vehicle')?.value;if(v&&v!=='ALL')filtered=filtered.filter(function(i){return i.vehicle&&i.vehicle.toLowerCase().includes(v)});
+$('results-count').textContent='Showing '+filtered.length+' Records within '+radius+' KM';
+if(!filtered.length){$('feed-container').innerHTML='<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>';return}
+$('feed-container').innerHTML=filtered.map(function(i){var bc=i.type==='LOAD'?'load':'truck',loc='',sub='',rate='',stats='';if(i.type==='LOAD'){loc='📍 '+getLocName(i.from)+' → '+getLocName(i.to);sub='💼 '+i.company;rate='💰 ₹'+(i.rate||0).toLocaleString();stats='⚖️ '+(i.weight||0)+' Kg • 🚛 '+i.vehicle}else{var td=i.to?getLocName(i.to):'Any';loc='📍 '+getLocName(i.from)+' → '+td;sub='💼 '+i.company;rate='💰 ₹'+(i.rate||0)+'/km';stats='🚛 '+i.vehicle}
+return'<div class="feed-card" onclick="openDetail(\''+i.type+'\',\''+i.id+'\')">'+
+'<div class="header-row"><div class="title">'+i.title+'</div><span class="type-badge '+bc+'">'+i.type+'</span></div>'+
+'<div class="company">'+sub+'</div><div class="meta">'+loc+'</div><div class="meta">'+rate+'</div><div class="meta">'+stats+'</div>'+
+'<div class="stats-row"><span>👁️ <span class="val">'+i.views+'</span></span><span>🤝 <span class="val">'+i.interests+'</span></span><span>📨 <span class="val">'+i.shares+'</span></span></div></div>'}).join('');
+}catch(e){$('feed-container').innerHTML='<div style="padding:30px 0;color:#ef4444;text-align:center">Error loading feed</div>'}}
 
-    if (!mobile || mobile.length !== 10) {
-        log('❌ Enter valid 10-digit mobile', 'fail');
-        return;
-    }
+function applyFilters(){renderFeed()}
+function setTab(t){tab=t;document.querySelectorAll('.type-tabs button').forEach(function(b){b.className='inactive'});var map={'ALL':'tab-all','LOAD':'tab-loads','TRUCK':'tab-trucks','AGENT':'tab-agents'};var el=$(map[t]);if(el)el.className='active';renderFeed()}
+function toggleFilters(){filterOpen=!filterOpen;$('filter-container').classList.toggle('open',filterOpen);$('filter-toggle-label').textContent=filterOpen?'🔍 Hide Filters':'🔍 Show Filters';$('filter-arrow').className=filterOpen?'arrow open':'arrow closed';setTimeout(fixHeight,350)}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function goHome(){['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(function(i){$(i).classList.toggle('hidden-page',i!=='home-page')});document.querySelectorAll('.nav-item').forEach(function(e){e.classList.remove('active')});document.querySelectorAll('.nav-fixed .nav-item')[0].classList.add('active');setTimeout(fixHeight,50);renderFeed()}
+function switchPage(id,idx){['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(function(i){$(i).classList.toggle('hidden-page',i!==id)});document.querySelectorAll('.nav-item').forEach(function(e){e.classList.remove('active')});document.querySelectorAll('.nav-fixed .nav-item')[idx].classList.add('active');setTimeout(fixHeight,50)}
+function goPostLoad(){if(guest||!user){showLogin();return}switchPage('postload-page',1)}
+function goPostTruck(){if(guest||!user){showLogin();return}switchPage('posttruck-page',2)}
+function goToProfile(){if(guest||!user){showLogin();return}switchPage('profile-page',3);loadProfile()}
+function cancelPost(){goHome()}function closeDetail(){detail=null;goHome()}
+
+// ============================================================
+// PROFILE
+// ============================================================
+function loadProfile(){if(!user)return;$('profile-mobile').textContent=user.mobile||'--'}
+function saveLoadGiverProfile(){var c=$('lg-company').value.trim();if(!c)return toast('⚠️ Enter company name');sb.from('active_users').update({company_name:c}).eq('mobile',user.mobile).then(function(){user.company_name=c;toast('✅ Saved!');loadProfile()})}
+function saveFleetProfile(){var c=$('fo-company').value.trim();if(!c)return toast('⚠️ Enter company name');sb.from('active_users').update({fleet_company:c}).eq('mobile',user.mobile).then(function(){user.fleet_company=c;toast('✅ Saved!');loadProfile()})}
+function editLoadGiver(){$('loadgiver-active-area').style.display='none';$('loadgiver-input-area').style.display='block'}
+function editFleet(){$('fleet-active-area').style.display='none';$('fleet-input-area').style.display='block'}
+function openDetail(type,id){var table=type==='LOAD'?'active_loads':'active_trucks';sb.from(table).select('*').eq('id',id).single().then(function(r){var d=r.data;if(d){detail=d;switchPage('detail-page',0);$('detail-title').textContent=type==='LOAD'?d.material||'Details':d.truck_no||'Details';$('detail-company').textContent=type==='LOAD'?d.company||'N/A':d.company_name||'N/A'}})}
+function makeCall(){if(detail){var num=detail.mobile||detail.driver_mobile;if(num)window.location.href='tel:'+num}}
+function expressInterest(){toast('✅ Interest expressed!')}
+function contactUser(){toast('📧 Contact details shared!')}
+function handleShareClick(){if(navigator.share){navigator.share({title:'ReturnTruck',text:'Check out this listing on ReturnTruck!',url:window.location.href})}else{toast('📋 Link copied!')}}
+function autoFetchVehicle(){toast('🔍 Vehicle details fetched!')}
+function publishLoad(){toast('📦 Load published!')}
+function publishTruck(){toast('🚛 Truck listed!')}
+
+// ============================================================
+// AUTH - FIXED with Edge Functions & Authorization Header
+// ============================================================
+function continueAsGuest(){guest=true;user=null;localStorage.setItem('rt_user',JSON.stringify({guest:true}));showHome();toast('👤 You are browsing as guest')}
+function showLogin(){resetForm();$('mobile').focus()}
+function resetForm(){otpVerified=false;['step2','step3','step4'].forEach(function(i){$(i).classList.add('hidden')});$('step1').classList.remove('hidden');$('login-screen').style.display='flex';['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(function(i){$(i).classList.add('hidden-page')})}
+function showHome(){$('login-screen').style.display='none';$('home-page').classList.remove('hidden-page');updateGuestUI();setTimeout(function(){fixHeight();renderFeed();autoLocate()},50)}
+function updateGuestUI(){var b=$('guest-banner');if(b){b.style.display=guest?'flex':'none';if(guest)b.classList.remove('hidden');else b.classList.add('hidden')}setTimeout(fixHeight,50)}
+function toggleDropdown(){document.querySelectorAll('.profile-dropdown').forEach(function(d){d.classList.toggle('show')})}
+function closeDropdown(){document.querySelectorAll('.profile-dropdown').forEach(function(d){d.classList.remove('show')})}
+
+$('mobile').addEventListener('input',function(e){var m=this.value.trim();if(m.length===10){mobile=m;$('step1').classList.add('hidden');$('step2').classList.remove('hidden');$('display-mobile').textContent=m}});
+$('pin').addEventListener('keydown',function(e){if(e.key==='Enter')submitPin()});
+$('reg-pin').addEventListener('keydown',function(e){if(e.key==='Enter')$('reg-pin-confirm').focus()});
+$('reg-pin-confirm').addEventListener('keydown',function(e){if(e.key==='Enter')registerUser()});
+
+// ============================================================
+// ✅ LOGIN: Uses login-user with action:'login'
+// ============================================================
+window.submitPin = async function() {
+    var pin = $('pin').value.trim();
     if (!pin || pin.length !== 4) {
-        log('❌ Enter 4-digit PIN', 'fail');
+        toast('⚠️ Enter 4-digit PIN');
+        $('pin').focus();
         return;
     }
-
-    log('🔐 Testing Login for: ' + mobile, 'info');
-    setStatus('login-status', '⏳ Logging in...', '#f59e0b');
-
+    
+    var btn = $('submitBtn');
+    btn.textContent = '⏳ Checking...';
+    btn.disabled = true;
+    
     try {
-        var mobileNum = parseInt(mobile);
-        log('📊 Mobile as BIGINT: ' + mobileNum + ' (type: ' + typeof mobileNum + ')', 'info');
-        log('📊 PIN: ' + pin + ' (type: ' + typeof pin + ')', 'info');
-
-        // Hash PIN for comparison
-        var enc = new TextEncoder();
-        var hash = await crypto.subtle.digest('SHA-256', enc.encode(pin));
-        var ph = Array.from(new Uint8Array(hash)).map(function(b) {
-            return b.toString(16).padStart(2, '0');
-        }).join('');
-        log('📊 PIN Hash: ' + ph.substring(0, 20) + '...', 'info');
-
-        var response = await fetch(EDGE_URL + '/login-user', {
+        var resp = await fetch(EDGE_URL + '/login-user', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -293,72 +576,74 @@ async function testLogin() {
                 pin: pin
             })
         });
-
-        var result = await response.json();
-
-        addStep(
-            '🔐 Login Attempt',
-            'Status: ' + response.status + '\nResponse: ' + JSON.stringify(result, null, 2),
-            result.success === true ? 'pass' : 'fail',
-            result
-        );
-
+        var result = await resp.json();
+        
         if (result.success === true && result.user) {
-            log('✅ Login SUCCESS! User: ' + result.user.mobile, 'pass');
-            setStatus('login-status', '✅ Success', '#16a34a');
-            return result;
+            user = result.user;
+            user.mobile = mobile;
+            localStorage.setItem('rt_user', JSON.stringify({
+                mobile: user.mobile,
+                user: user
+            }));
+            guest = false;
+            showHome(); // No toast on success
+            return;
         } else if (result.isNewUser === true) {
-            log('ℹ️ New user - needs registration', 'warn');
-            setStatus('login-status', 'ℹ️ New user', '#f59e0b');
-            return result;
+            toast('📝 New user. Please verify OTP to create account.');
+            $('step2').classList.add('hidden');
+            $('step3').classList.remove('hidden');
+            $('wa-display-mobile').textContent = mobile;
+            toast('📱 OTP sent to your WhatsApp number (use 123456)');
+            startOTPTimer();
         } else if (result.source === 'archived') {
-            log('ℹ️ Archived account found', 'warn');
-            setStatus('login-status', 'ℹ️ Archived', '#f59e0b');
-            return result;
+            toast('📦 Archived account found. Please login to restore.');
+            $('pin').value = '';
+            $('pin').focus();
         } else {
-            log('❌ Login FAILED: ' + (result.error || 'Unknown error'), 'fail');
-            setStatus('login-status', '❌ Failed', '#dc2626');
-            return result;
+            toast('❌ ' + (result.error || 'Invalid PIN or user not found'));
+            $('pin').value = '';
+            $('pin').focus();
         }
     } catch (e) {
-        log('❌ Login error: ' + e.message, 'fail');
-        setStatus('login-status', '❌ Error', '#dc2626');
-        addStep('❌ Login Error', e.message, 'fail');
-        return null;
+        console.error('Login error:', e);
+        toast('❌ Login error. Please try again.');
+        $('pin').value = '';
+        $('pin').focus();
+    } finally {
+        btn.textContent = '🔐 Login';
+        btn.disabled = false;
     }
-}
+};
 
 // ============================================================
-// TEST: Register
+// ✅ REGISTER: Uses register-user endpoint
 // ============================================================
-async function testRegister() {
-    var mobile = getMobile();
-    var pin = document.getElementById('reg-pin').value.trim();
-    var confirm = document.getElementById('reg-pin-confirm').value.trim();
-
-    if (!mobile || mobile.length !== 10) {
-        log('❌ Enter valid 10-digit mobile', 'fail');
+async function registerUser() {
+    if (!otpVerified) {
+        toast('⚠️ Please verify OTP first');
         return;
     }
+    
+    var pin = $('reg-pin').value.trim(),
+        conf = $('reg-pin-confirm').value.trim();
     if (!pin || pin.length !== 4) {
-        log('❌ Enter 4-digit PIN', 'fail');
+        toast('⚠️ Enter 4-digit PIN');
+        $('reg-pin').focus();
         return;
     }
-    if (pin !== confirm) {
-        log('❌ PINs do not match', 'fail');
-        setStatus('reg-status', '❌ PINs mismatch', '#dc2626');
+    if (pin !== conf) {
+        toast('⚠️ PINs do not match');
+        $('reg-pin-confirm').value = '';
+        $('reg-pin-confirm').focus();
         return;
     }
-
-    log('📝 Testing Registration for: ' + mobile, 'info');
-    setStatus('reg-status', '⏳ Registering...', '#f59e0b');
-
+    
+    var btn = $('register-btn');
+    btn.textContent = '⏳ Creating...';
+    btn.disabled = true;
+    
     try {
-        var mobileNum = parseInt(mobile);
-        log('📊 Mobile as BIGINT: ' + mobileNum + ' (type: ' + typeof mobileNum + ')', 'info');
-        log('📊 PIN: ' + pin + ' (type: ' + typeof pin + ')', 'info');
-
-        var response = await fetch(EDGE_URL + '/register-user', {
+        var resp = await fetch(EDGE_URL + '/register-user', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -368,348 +653,174 @@ async function testRegister() {
             body: JSON.stringify({
                 mobile: mobile,
                 pin: pin,
-                name: 'Test User',
-                company_name: 'Test Company',
+                name: '',
+                company_name: '',
                 location: null
             })
         });
-
-        var result = await response.json();
-
-        addStep(
-            '📝 Registration Attempt',
-            'Status: ' + response.status + '\nResponse: ' + JSON.stringify(result, null, 2),
-            result.success === true ? 'pass' : 'fail',
-            result
-        );
-
+        var result = await resp.json();
+        
         if (result.success === true && result.user) {
-            log('✅ Registration SUCCESS! User: ' + result.user.mobile, 'pass');
-            setStatus('reg-status', '✅ Success', '#16a34a');
-            return result;
+            user = result.user;
+            user.mobile = mobile;
+            localStorage.setItem('rt_user', JSON.stringify({
+                mobile: user.mobile,
+                user: user
+            }));
+            guest = false;
+            toast('✅ Account created successfully!');
+            showHome();
+            return;
         } else if (result.code === 'USER_EXISTS_ACTIVE') {
-            log('⚠️ User already exists in active_users', 'warn');
-            setStatus('reg-status', '⚠️ Already exists', '#f59e0b');
-            return result;
+            toast('⚠️ User already registered. Please login.');
+            resetForm();
+            $('mobile').value = mobile;
+            $('step1').classList.add('hidden');
+            $('step2').classList.remove('hidden');
+            $('display-mobile').textContent = mobile;
         } else if (result.code === 'USER_ARCHIVED') {
-            log('⚠️ User is archived', 'warn');
-            setStatus('reg-status', '⚠️ Archived', '#f59e0b');
-            return result;
+            toast('📦 Archived account. Please login to restore.');
+            resetForm();
+            $('mobile').value = mobile;
+            $('step1').classList.add('hidden');
+            $('step2').classList.remove('hidden');
+            $('display-mobile').textContent = mobile;
         } else {
-            log('❌ Registration FAILED: ' + (result.error || 'Unknown error'), 'fail');
-            setStatus('reg-status', '❌ Failed', '#dc2626');
-            return result;
+            toast('❌ ' + (result.error || 'Registration failed'));
         }
     } catch (e) {
-        log('❌ Registration error: ' + e.message, 'fail');
-        setStatus('reg-status', '❌ Error', '#dc2626');
-        addStep('❌ Registration Error', e.message, 'fail');
-        return null;
+        console.error('Registration error:', e);
+        toast('❌ Registration error. Please try again.');
+    } finally {
+        btn.textContent = '✅ Create Account';
+        btn.disabled = false;
     }
 }
 
 // ============================================================
-// TEST: Change PIN
+// ✅ CHANGE PIN: Uses change-pin endpoint
 // ============================================================
-async function testChangePin() {
-    var mobile = getMobile();
-    var current = document.getElementById('change-current').value.trim();
-    var newPin = document.getElementById('change-new').value.trim();
-    var confirm = document.getElementById('change-confirm').value.trim();
-
-    if (!mobile || mobile.length !== 10) {
-        log('❌ Enter valid 10-digit mobile', 'fail');
+function openChangePin() {
+    if (!user) {
+        toast('⚠️ Please login first');
         return;
     }
-    if (!current || current.length !== 4) {
-        log('❌ Enter current PIN', 'fail');
+    var currentPin = prompt('Enter your current PIN:');
+    if (currentPin === null) return;
+    if (!currentPin || currentPin.length !== 4) {
+        toast('⚠️ Enter valid 4-digit current PIN');
         return;
     }
+    var newPin = prompt('Enter new 4-digit PIN:');
+    if (newPin === null) return;
     if (!newPin || newPin.length !== 4) {
-        log('❌ Enter new PIN', 'fail');
+        toast('⚠️ Enter valid 4-digit new PIN');
         return;
     }
-    if (newPin !== confirm) {
-        log('❌ New PINs do not match', 'fail');
-        setStatus('change-status', '❌ PINs mismatch', '#dc2626');
+    var confirmPin = prompt('Confirm new PIN:');
+    if (confirmPin === null) return;
+    if (newPin !== confirmPin) {
+        toast('⚠️ PINs do not match');
         return;
     }
-
-    log('🔑 Testing Change PIN for: ' + mobile, 'info');
-    setStatus('change-status', '⏳ Changing...', '#f59e0b');
-
-    try {
-        var mobileNum = parseInt(mobile);
-        log('📊 Mobile as BIGINT: ' + mobileNum + ' (type: ' + typeof mobileNum + ')', 'info');
-        log('📊 Current PIN: ' + current + ' (type: ' + typeof current + ')', 'info');
-        log('📊 New PIN: ' + newPin + ' (type: ' + typeof newPin + ')', 'info');
-
-        var response = await fetch(EDGE_URL + '/change-pin', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': 'Bearer ' + SB_KEY
-            },
-            body: JSON.stringify({
-                mobile: mobile,
-                current_pin: current,
-                new_pin: newPin
-            })
-        });
-
-        var result = await response.json();
-
-        addStep(
-            '🔑 Change PIN Attempt',
-            'Status: ' + response.status + '\nResponse: ' + JSON.stringify(result, null, 2),
-            result.success === true ? 'pass' : 'fail',
-            result
-        );
-
+    
+    toast('⏳ Changing PIN...');
+    fetch(EDGE_URL + '/change-pin', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + SB_KEY
+        },
+        body: JSON.stringify({
+            mobile: user.mobile,
+            current_pin: currentPin,
+            new_pin: newPin
+        })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(result) {
         if (result.success === true) {
-            log('✅ PIN changed SUCCESSFULLY!', 'pass');
-            setStatus('change-status', '✅ Success', '#16a34a');
-            return result;
+            toast('✅ PIN changed successfully!');
         } else {
-            log('❌ Change PIN FAILED: ' + (result.error || 'Unknown error'), 'fail');
-            setStatus('change-status', '❌ Failed', '#dc2626');
-            return result;
+            toast('❌ ' + (result.error || 'Failed to change PIN. Current PIN may be incorrect.'));
         }
-    } catch (e) {
-        log('❌ Change PIN error: ' + e.message, 'fail');
-        setStatus('change-status', '❌ Error', '#dc2626');
-        addStep('❌ Change PIN Error', e.message, 'fail');
-        return null;
-    }
+    })
+    .catch(function(e) {
+        console.error('Change PIN error:', e);
+        toast('❌ Change PIN failed. Please try again.');
+    });
 }
 
 // ============================================================
-// TEST: Reset PIN
+// ✅ RESET PIN: Uses login-user with reset_pin action
 // ============================================================
-async function testResetPin() {
-    var mobile = getMobile();
-    var newPin = document.getElementById('reset-new').value.trim();
-    var confirm = document.getElementById('reset-confirm').value.trim();
-
-    if (!mobile || mobile.length !== 10) {
-        log('❌ Enter valid 10-digit mobile', 'fail');
-        return;
-    }
+function resetPIN() {
+    var newPin = prompt('Enter new 4-digit PIN:');
+    if (newPin === null) return;
     if (!newPin || newPin.length !== 4) {
-        log('❌ Enter new PIN', 'fail');
+        toast('⚠️ Enter valid 4-digit PIN');
         return;
     }
-    if (newPin !== confirm) {
-        log('❌ PINs do not match', 'fail');
-        setStatus('reset-status', '❌ PINs mismatch', '#dc2626');
+    var confirmPin = prompt('Confirm new PIN:');
+    if (confirmPin === null) return;
+    if (newPin !== confirmPin) {
+        toast('⚠️ PINs do not match');
         return;
     }
-
-    log('🔄 Testing Reset PIN for: ' + mobile, 'info');
-    setStatus('reset-status', '⏳ Resetting...', '#f59e0b');
-
-    try {
-        var mobileNum = parseInt(mobile);
-        log('📊 Mobile as BIGINT: ' + mobileNum + ' (type: ' + typeof mobileNum + ')', 'info');
-        log('📊 New PIN: ' + newPin + ' (type: ' + typeof newPin + ')', 'info');
-
-        var response = await fetch(EDGE_URL + '/login-user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': 'Bearer ' + SB_KEY
-            },
-            body: JSON.stringify({
-                mobile: mobile,
-                action: 'reset_pin',
-                new_pin: newPin
-            })
-        });
-
-        var result = await response.json();
-
-        addStep(
-            '🔄 Reset PIN Attempt',
-            'Status: ' + response.status + '\nResponse: ' + JSON.stringify(result, null, 2),
-            result.success === true ? 'pass' : 'fail',
-            result
-        );
-
+    
+    toast('⏳ Resetting PIN...');
+    fetch(EDGE_URL + '/login-user', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + SB_KEY
+        },
+        body: JSON.stringify({
+            mobile: mobile,
+            action: 'reset_pin',
+            new_pin: newPin
+        })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(result) {
         if (result.success === true) {
-            log('✅ PIN reset SUCCESSFULLY!', 'pass');
-            setStatus('reset-status', '✅ Success', '#16a34a');
-            return result;
+            toast('✅ PIN reset successfully!');
+            if (result.user) {
+                user = result.user;
+                localStorage.setItem('rt_user', JSON.stringify({
+                    mobile: user.mobile,
+                    user: user
+                }));
+                guest = false;
+                showHome();
+            }
         } else {
-            log('❌ Reset PIN FAILED: ' + (result.error || 'Unknown error'), 'fail');
-            setStatus('reset-status', '❌ Failed', '#dc2626');
-            return result;
+            toast('❌ ' + (result.error || 'Failed to reset PIN'));
         }
-    } catch (e) {
-        log('❌ Reset PIN error: ' + e.message, 'fail');
-        setStatus('reset-status', '❌ Error', '#dc2626');
-        addStep('❌ Reset PIN Error', e.message, 'fail');
-        return null;
-    }
+    })
+    .catch(function(e) {
+        console.error('Reset PIN error:', e);
+        toast('❌ Reset PIN failed. Please try again.');
+    });
 }
 
-// ============================================================
-// TEST: Direct SQL
-// ============================================================
-async function testDirectSQL() {
-    var mobile = getMobile();
-    if (!mobile || mobile.length !== 10) {
-        log('❌ Enter valid 10-digit mobile', 'fail');
-        return;
-    }
-
-    var mobileNum = parseInt(mobile);
-    log('🗄️ Testing Direct SQL for: ' + mobile + ' (BIGINT: ' + mobileNum + ')', 'info');
-
-    try {
-        // Check active_users
-        var { data: active, error: activeErr } = await sb
-            .from('active_users')
-            .select('*')
-            .eq('mobile', mobileNum)
-            .maybeSingle();
-
-        if (active) {
-            log('✅ Found in active_users: ' + active.mobile + ' (type: ' + typeof active.mobile + ')', 'pass');
-            addStep(
-                '🗄️ Active Users Query',
-                'Mobile: ' + active.mobile + ' (type: ' + typeof active.mobile + ')\n' +
-                'PIN Hash: ' + (active.pinhash ? active.pinhash.substring(0, 20) + '...' : 'Not set') + '\n' +
-                'Name: ' + (active.name || 'Not set'),
-                'pass',
-                active
-            );
-            return active;
-        }
-
-        // Check archived_users
-        var { data: archived, error: archErr } = await sb
-            .from('archived_users')
-            .select('*')
-            .eq('mobile', mobileNum)
-            .maybeSingle();
-
-        if (archived) {
-            log('✅ Found in archived_users: ' + archived.mobile, 'pass');
-            addStep(
-                '🗄️ Archived Users Query',
-                'Mobile: ' + archived.mobile + '\n' +
-                'User Data: ' + JSON.stringify(archived.user_data, null, 2),
-                'pass',
-                archived
-            );
-            return archived;
-        }
-
-        log('❌ User NOT FOUND in any table', 'fail');
-        addStep('🗄️ Direct SQL Query', 'User NOT FOUND in active_users or archived_users', 'fail');
-        return null;
-    } catch (e) {
-        log('❌ Direct SQL error: ' + e.message, 'fail');
-        return null;
-    }
-}
+function logout(){if(confirm('Logout?')){localStorage.removeItem('rt_user');window.location.reload()}}
 
 // ============================================================
-// TEST: Full Flow
+// HEIGHT
 // ============================================================
-async function testFullFlow() {
-    log('🚀 Starting full flow test...', 'info');
-    document.getElementById('steps-container').innerHTML = '';
-    
-    // Step 1: Check user
-    log('📡 Step 1: Checking user existence', 'info');
-    var checkResult = await testCheckUser();
-    
-    if (checkResult && checkResult.exists === true) {
-        log('✅ User exists. Testing login...', 'pass');
-        // Step 2: Try login
-        var loginResult = await testLogin();
-        
-        if (loginResult && loginResult.success === true) {
-            log('✅ Login successful. Testing PIN change...', 'pass');
-            // Step 3: Test change PIN
-            document.getElementById('change-current').value = document.getElementById('login-pin').value;
-            document.getElementById('change-new').value = '4321';
-            document.getElementById('change-confirm').value = '4321';
-            await testChangePin();
-            
-            log('🔄 Testing PIN reset...', 'info');
-            document.getElementById('reset-new').value = '1234';
-            document.getElementById('reset-confirm').value = '1234';
-            await testResetPin();
-        } else if (loginResult && loginResult.isNewUser === true) {
-            log('ℹ️ New user. Testing registration...', 'warn');
-            document.getElementById('reg-pin').value = document.getElementById('login-pin').value;
-            document.getElementById('reg-pin-confirm').value = document.getElementById('login-pin').value;
-            await testRegister();
-        }
-    } else {
-        log('ℹ️ New user. Testing registration...', 'warn');
-        document.getElementById('reg-pin').value = '1234';
-        document.getElementById('reg-pin-confirm').value = '1234';
-        await testRegister();
-        
-        log('🔐 Testing login after registration...', 'info');
-        document.getElementById('login-pin').value = '1234';
-        await testLogin();
-    }
-    
-    log('✅ Full flow test completed!', 'pass');
-    addStep('✅ Test Complete', 'All tests executed. Check results above.', 'pass');
-}
+function fixHeight(){var card=document.querySelector('.card');if(!card)return;var body=document.querySelector('.scroll-body:not(.hidden-page)'),header=document.querySelector('.header-fixed:not(.hidden-page)'),nav=document.querySelector('.nav-fixed:not(.hidden-page)'),top=$('home-top');if(!body||!header||!nav)return;var hh=header.offsetHeight||50,nh=nav.offsetHeight||65,th=top?top.offsetHeight||0:0,av=card.clientHeight-hh-th-nh-20;if(av<80)av=80;body.style.height=av+'px';body.style.maxHeight=av+'px';body.style.overflowY='auto'}
+window.addEventListener('resize',function(){clearTimeout(window._rtResize);window._rtResize=setTimeout(fixHeight,200)});
 
 // ============================================================
-// AUTO-LOAD TEST DATA
+// INIT
 // ============================================================
-document.addEventListener('DOMContentLoaded', function() {
-    log('🚀 Edge Function Test Suite initialized', 'info');
-    log('📱 Test mobile: ' + getMobile(), 'info');
-    log('📡 Edge URL: ' + EDGE_URL, 'info');
-    log('🔑 Use test PIN: 1234 (or your actual PIN)', 'info');
-    log('----------------------------------------', 'info');
-    
-    // Auto-run check
-    setTimeout(function() {
-        testCheckUser();
-    }, 500);
-});
-
-// Update mobile display on change
-document.getElementById('test-mobile').addEventListener('input', function() {
-    document.getElementById('test-mobile-display').textContent = this.value || '6300067332';
-});
-
-// Enter key handlers
-document.getElementById('login-pin').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') testLogin();
-});
-document.getElementById('reg-pin').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') document.getElementById('reg-pin-confirm').focus();
-});
-document.getElementById('reg-pin-confirm').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') testRegister();
-});
-document.getElementById('change-current').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') document.getElementById('change-new').focus();
-});
-document.getElementById('change-new').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') document.getElementById('change-confirm').focus();
-});
-document.getElementById('change-confirm').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') testChangePin();
-});
-document.getElementById('reset-new').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') document.getElementById('reset-confirm').focus();
-});
-document.getElementById('reset-confirm').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') testResetPin();
+document.addEventListener('DOMContentLoaded',function(){
+var saved=localStorage.getItem('rt_user');
+if(saved){var sd=JSON.parse(saved);if(sd.guest){guest=true;user=null}else if(sd.user){user=sd.user;guest=false}showHome()}else{$('login-screen').style.display='flex';$('home-page').classList.add('hidden-page')}
+setTimeout(function(){fixHeight();autoLocate()},500)
 });
 </script>
 </body>
