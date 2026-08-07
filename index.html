@@ -434,7 +434,7 @@ var user=null,guest=false,tab='ALL',items=[],detail=null,mobile='';
 var homePin=null,toPin=null,prompt=null,installed=false,filterOpen=true;
 var otpTimer=null,otpSeconds=300,otpVerified=false,generatedOTP='';
 var isResetFlow=false;
-var otpPurpose='registration'; // 'registration' or 'reset'
+var otpPurpose='registration';
 
 function $(id){return document.getElementById(id)}
 function toast(msg){alert(msg)}
@@ -497,7 +497,6 @@ function startOTPTimer(){
             document.getElementById('verify-btn').disabled=true;
             document.getElementById('verify-btn').textContent='⏳ Expired';
             resendBtn.disabled=false;
-            toast('⏳ OTP expired. Click Resend');
         }
     },1000);
 }
@@ -510,26 +509,17 @@ function generateOTP(){
     return otp;
 }
 
-// ✅ FIXED: Send OTP via WhatsApp with purpose context
+// ✅ NO POPUPS - Just opens WhatsApp with OTP
 function sendWhatsAppOTP(){
     if(!mobile || mobile.length!==10){
-        toast('⚠️ Please enter valid mobile number first');
         return;
     }
     
-    // Generate OTP
     var otp=generateOTP();
     generatedOTP=otp;
     
-    // Different message based on purpose
-    var purposeText = '';
-    if (otpPurpose === 'reset') {
-        purposeText = 'PIN Reset';
-    } else {
-        purposeText = 'Registration';
-    }
+    var purposeText = (otpPurpose === 'reset') ? 'PIN Reset' : 'Registration';
     
-    // Create WhatsApp message
     var message = '🔐 ReturnTruck - ' + purposeText + '\n\n';
     message += 'Your OTP is: ' + otp + '\n\n';
     message += 'This OTP is valid for 5 minutes.\n\n';
@@ -537,25 +527,13 @@ function sendWhatsAppOTP(){
     message += '- ReturnTruck Team';
     
     var encodedMessage = encodeURIComponent(message);
-    
-    // Open WhatsApp with pre-filled message
     var whatsappURL = 'https://wa.me/91' + mobile + '?text=' + encodedMessage;
     
-    // Open in new window
     window.open(whatsappURL, '_blank');
     
-    toast('📱 WhatsApp opened with OTP for ' + purposeText);
     startOTPTimer();
     document.getElementById('verify-btn').disabled=false;
     document.getElementById('verify-btn').textContent='✅ Verify';
-    
-    // Auto-fill OTP for demo (remove in production)
-    setTimeout(function(){
-        var inputs=document.querySelectorAll('.otp-input');
-        for(var i=0;i<inputs.length && i<otp.length;i++){
-            inputs[i].value=otp[i];
-        }
-    },500);
 }
 
 function verifyOTP(){
@@ -574,13 +552,11 @@ function verifyOTP(){
         clearInterval(otpTimer);
         document.getElementById('verify-btn').disabled=false;
         document.getElementById('verify-btn').textContent='✅ Verify';
-        toast('✅ OTP verified!');
         setTimeout(function(){
             $('step3').classList.add('hidden');
             $('step4').classList.remove('hidden');
             $('reg-display-mobile').textContent=mobile;
             
-            // Show appropriate message in step4
             if (otpPurpose === 'reset') {
                 $('step4-purpose').textContent = 'Set your new 4-digit PIN';
                 $('register-btn').textContent = '🔄 Reset PIN';
@@ -600,13 +576,12 @@ function verifyOTP(){
 
 function resendOTP(){
     if(otpSeconds>0){
-        toast('⏳ Please wait for OTP to expire');
         return;
     }
     sendWhatsAppOTP();
 }
 
-// ✅ FIXED: Show Reset OTP with correct purpose
+// ✅ NO POPUPS - Reset OTP with correct purpose
 function showResetOTP(){
     isResetFlow=true;
     otpPurpose='reset';
@@ -617,7 +592,6 @@ function showResetOTP(){
     document.getElementById('otp-error').style.display='none';
     document.getElementById('otp-success').style.display='none';
     sendWhatsAppOTP();
-    toast('📱 OTP sent via WhatsApp for PIN reset');
 }
 
 // ============================================================
@@ -679,7 +653,7 @@ function publishTruck(){toast('🚛 Truck listed!')}
 // ============================================================
 // AUTH
 // ============================================================
-function continueAsGuest(){guest=true;user=null;localStorage.setItem('rt_user',JSON.stringify({guest:true}));showHome();toast('👤 You are browsing as guest')}
+function continueAsGuest(){guest=true;user=null;localStorage.setItem('rt_user',JSON.stringify({guest:true}));showHome();}
 function showLogin(){resetForm();$('mobile').focus()}
 function resetForm(){
     otpVerified=false;
@@ -718,7 +692,6 @@ async function checkUserAndShowStep(mobileNum){
         });
         var result=await resp.json();
         if(result.exists===true){
-            // Existing user - show PIN login
             $('step1').classList.add('hidden');
             $('step2').classList.remove('hidden');
             $('display-mobile').textContent=mobileNum;
@@ -728,7 +701,6 @@ async function checkUserAndShowStep(mobileNum){
             $('pin').focus();
             document.getElementById('pin-error').style.display='none';
         }else{
-            // New user - show OTP flow with WhatsApp
             otpPurpose='registration';
             $('step1').classList.add('hidden');
             $('step3').classList.remove('hidden');
@@ -738,11 +710,9 @@ async function checkUserAndShowStep(mobileNum){
             $('mobile-status').style.color='#f59e0b';
             document.getElementById('otp-error').style.display='none';
             document.getElementById('otp-success').style.display='none';
-            // Send OTP via WhatsApp
             sendWhatsAppOTP();
         }
     }catch(e){
-        // Fallback - show PIN login
         $('step1').classList.add('hidden');
         $('step2').classList.remove('hidden');
         $('display-mobile').textContent=mobileNum;
@@ -757,13 +727,11 @@ $('reg-pin').addEventListener('keydown',function(e){if(e.key==='Enter')$('reg-pi
 $('reg-pin-confirm').addEventListener('keydown',function(e){if(e.key==='Enter')registerUser()});
 
 // ============================================================
-// ✅ FIXED: submitPin - Wrong PIN stays on same page
+// ✅ FIXED: submitPin - Wrong PIN stays on same page, NO POPUPS
 // ============================================================
 window.submitPin = async function() {
     var pin = $('pin').value.trim();
     if (!pin || pin.length !== 4) {
-        toast('⚠️ Enter 4-digit PIN');
-        $('pin').focus();
         return;
     }
     
@@ -788,8 +756,6 @@ window.submitPin = async function() {
         });
         var result = await resp.json();
         
-        console.log('📥 Login response:', result);
-        
         // Case 1: Login successful
         if (result.success === true && result.user) {
             user = result.user;
@@ -808,7 +774,6 @@ window.submitPin = async function() {
         // Case 2: New user (mobile not registered)
         if (result.isNewUser === true) {
             otpPurpose='registration';
-            toast('📝 New user. Please verify OTP to create account.');
             $('step2').classList.add('hidden');
             $('step3').classList.remove('hidden');
             $('wa-display-mobile').textContent = mobile;
@@ -823,7 +788,6 @@ window.submitPin = async function() {
         
         // Case 3: Archived user
         if (result.source === 'archived') {
-            toast('📦 Archived account found. Please login to restore.');
             $('pin').value = '';
             $('pin').focus();
             btn.textContent = '🔐 Login';
@@ -846,7 +810,6 @@ window.submitPin = async function() {
         
     } catch (e) {
         console.error('Login error:', e);
-        toast('❌ Login error. Please try again.');
         $('pin').value = '';
         $('pin').focus();
         btn.textContent = '🔐 Login';
@@ -855,23 +818,19 @@ window.submitPin = async function() {
 };
 
 // ============================================================
-// ✅ FIXED: Register/Reset PIN - Handles both flows
+// ✅ FIXED: Register/Reset PIN - NO POPUPS
 // ============================================================
 async function registerUser() {
     if (!otpVerified) {
-        toast('⚠️ Please verify OTP first');
         return;
     }
     
     var pin = $('reg-pin').value.trim(),
         conf = $('reg-pin-confirm').value.trim();
     if (!pin || pin.length !== 4) {
-        toast('⚠️ Enter 4-digit PIN');
-        $('reg-pin').focus();
         return;
     }
     if (pin !== conf) {
-        toast('⚠️ PINs do not match');
         $('reg-pin-confirm').value = '';
         $('reg-pin-confirm').focus();
         return;
@@ -882,7 +841,7 @@ async function registerUser() {
     btn.disabled = true;
     
     try {
-        // If it's a reset flow, call reset_pin
+        // Reset flow
         if (otpPurpose === 'reset') {
             var resp = await fetch(EDGE_URL + '/login-user', {
                 method: 'POST',
@@ -900,7 +859,6 @@ async function registerUser() {
             var result = await resp.json();
             
             if (result.success === true) {
-                toast('✅ PIN reset successfully!');
                 if (result.user) {
                     user = result.user;
                     user.mobile = mobile;
@@ -911,8 +869,6 @@ async function registerUser() {
                     guest = false;
                     showHome();
                 }
-            } else {
-                toast('❌ ' + (result.error || 'Failed to reset PIN'));
             }
             btn.textContent = '🔄 Reset PIN';
             btn.disabled = false;
@@ -945,29 +901,17 @@ async function registerUser() {
                 user: user
             }));
             guest = false;
-            toast('✅ Account created successfully!');
             showHome();
             return;
-        } else if (result.code === 'USER_EXISTS_ACTIVE') {
-            toast('⚠️ User already registered. Please login.');
+        } else if (result.code === 'USER_EXISTS_ACTIVE' || result.code === 'USER_ARCHIVED') {
             resetForm();
             $('mobile').value = mobile;
             $('step1').classList.add('hidden');
             $('step2').classList.remove('hidden');
             $('display-mobile').textContent = mobile;
-        } else if (result.code === 'USER_ARCHIVED') {
-            toast('📦 Archived account. Please login to restore.');
-            resetForm();
-            $('mobile').value = mobile;
-            $('step1').classList.add('hidden');
-            $('step2').classList.remove('hidden');
-            $('display-mobile').textContent = mobile;
-        } else {
-            toast('❌ ' + (result.error || 'Registration failed'));
         }
     } catch (e) {
         console.error('Error:', e);
-        toast('❌ Error. Please try again.');
     } finally {
         btn.textContent = otpPurpose === 'reset' ? '🔄 Reset PIN' : '✅ Create Account';
         btn.disabled = false;
@@ -979,29 +923,24 @@ async function registerUser() {
 // ============================================================
 function openChangePin() {
     if (!user) {
-        toast('⚠️ Please login first');
         return;
     }
     var currentPin = prompt('Enter your current PIN:');
     if (currentPin === null) return;
     if (!currentPin || currentPin.length !== 4) {
-        toast('⚠️ Enter valid 4-digit current PIN');
         return;
     }
     var newPin = prompt('Enter new 4-digit PIN:');
     if (newPin === null) return;
     if (!newPin || newPin.length !== 4) {
-        toast('⚠️ Enter valid 4-digit new PIN');
         return;
     }
     var confirmPin = prompt('Confirm new PIN:');
     if (confirmPin === null) return;
     if (newPin !== confirmPin) {
-        toast('⚠️ PINs do not match');
         return;
     }
     
-    toast('⏳ Changing PIN...');
     fetch(EDGE_URL + '/change-pin', {
         method: 'POST',
         headers: {
@@ -1018,14 +957,11 @@ function openChangePin() {
     .then(function(r) { return r.json(); })
     .then(function(result) {
         if (result.success === true) {
-            toast('✅ PIN changed successfully!');
-        } else {
-            toast('❌ ' + (result.error || 'Failed to change PIN. Current PIN may be incorrect.'));
+            // PIN changed successfully - no popup
         }
     })
     .catch(function(e) {
         console.error('Change PIN error:', e);
-        toast('❌ Change PIN failed. Please try again.');
     });
 }
 
