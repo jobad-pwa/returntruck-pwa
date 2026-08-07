@@ -99,8 +99,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .detail-actions button{width:100%;padding:10px;border-radius:10px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:10px}
 .btn-call{background:#16a34a}.btn-contact{background:#2563eb}.btn-bid{background:#8b5cf6}.btn-share{background:#25D366}
 .back-btn{background:transparent;border:none;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;padding:4px 8px}.back-btn:hover{color:#2563eb}
-.otp-input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff}
-.otp-input:focus{border-color:#2563eb;outline:none}
 </style>
 </head>
 <body>
@@ -141,12 +139,12 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div id="step3" class="hidden">
             <div style="text-align:center;margin-bottom:16px"><div id="wa-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div><div style="font-size:13px;color:#64748b">Enter OTP sent via WhatsApp</div></div>
             <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
-                <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
-                <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
-                <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
-                <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
-                <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
-                <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
+                <input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
+                <input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
+                <input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
+                <input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
+                <input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
+                <input type="text" maxlength="1" class="otp-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff" inputmode="numeric">
             </div>
             <div style="text-align:center;font-size:13px;color:#64748b;margin-bottom:12px">⏳ <span id="otp-timer">5:00</span></div>
             <button onclick="verifyOTP()" id="verify-btn" class="btn-primary" style="background:#16a34a">✅ Verify</button>
@@ -416,7 +414,6 @@ var EDGE_URL='https://ghjoffovatgvhzxlupef.supabase.co/functions/v1';
 var sb=window.supabase.createClient(SB_URL,SB_KEY);
 var user=null,guest=false,tab='ALL',items=[],detail=null,mobile='';
 var homePin=null,toPin=null,prompt=null,installed=false,filterOpen=true;
-var otpTimer=null,otpSeconds=300,otpVerified=false;
 
 function $(id){return document.getElementById(id)}
 function toast(msg){alert(msg)}
@@ -450,29 +447,6 @@ window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();pro
 window.addEventListener('appinstalled',function(){installed=true;prompt=null;updateInstall();toast('🎉 ReturnTruck installed!')});
 function forceInstall(){if(prompt){prompt.prompt();prompt.userChoice.then(function(c){if(c.outcome==='accepted')toast('🎉 Installing...');prompt=null;updateInstall()})}else{if(navigator.userAgent.match(/Android/i))toast('📱 Tap Chrome menu → "Install app"');else if(navigator.userAgent.match(/iPhone|iPad|iPod/i))toast('📱 Tap Share → "Add to Home Screen"');else toast('📱 Open this page in Chrome on your phone')}}
 setTimeout(updateInstall,3000);
-
-// ============================================================
-// OTP HELPERS (NEW)
-// ============================================================
-function otpInput(el){if(el.value.length===1){var next=el.nextElementSibling;if(next)next.focus()}}
-function startOTPTimer(){otpSeconds=300;otpVerified=false;if(otpTimer)clearInterval(otpTimer);otpTimer=setInterval(function(){otpSeconds--;var m=Math.floor(otpSeconds/60),s=otpSeconds%60;$('otp-timer').textContent=m+':'+(s<10?'0':'')+s;if(otpSeconds<=0){clearInterval(otpTimer);$('verify-btn').disabled=true;$('verify-btn').textContent='⏳ Expired';toast('⏳ OTP expired. Please try again.')}},1000)}
-function verifyOTP(){
-    var inputs=document.querySelectorAll('.otp-input');
-    var otp='';
-    for(var i=0;i<inputs.length;i++){otp+=inputs[i].value}
-    if(otp.length!==6){toast('⚠️ Enter complete 6-digit OTP');return}
-    // Demo: accept 123456 or any 6-digit
-    if(otp==='123456'||otp.length===6){
-        otpVerified=true;
-        toast('✅ OTP verified!');
-        clearInterval(otpTimer);
-        $('step3').classList.add('hidden');
-        $('step4').classList.remove('hidden');
-        $('reg-display-mobile').textContent=mobile;
-    }else{
-        toast('❌ Invalid OTP. Try 123456');
-    }
-}
 
 // ============================================================
 // RENDER FEED
@@ -531,58 +505,23 @@ function publishLoad(){toast('📦 Load published!')}
 function publishTruck(){toast('🚛 Truck listed!')}
 
 // ============================================================
-// AUTH
+// AUTH - FIXED with Edge Functions & Authorization Header
 // ============================================================
 function continueAsGuest(){guest=true;user=null;localStorage.setItem('rt_user',JSON.stringify({guest:true}));showHome();toast('👤 You are browsing as guest')}
 function showLogin(){resetForm();$('mobile').focus()}
-function resetForm(){otpVerified=false;['step2','step3','step4'].forEach(function(i){$(i).classList.add('hidden')});$('step1').classList.remove('hidden');$('login-screen').style.display='flex';['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(function(i){$(i).classList.add('hidden-page')})}
+function resetForm(){['step2','step3','step4'].forEach(function(i){$(i).classList.add('hidden')});$('step1').classList.remove('hidden');$('login-screen').style.display='flex';['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(function(i){$(i).classList.add('hidden-page')})}
 function showHome(){$('login-screen').style.display='none';$('home-page').classList.remove('hidden-page');updateGuestUI();setTimeout(function(){fixHeight();renderFeed();autoLocate()},50)}
 function updateGuestUI(){var b=$('guest-banner');if(b){b.style.display=guest?'flex':'none';if(guest)b.classList.remove('hidden');else b.classList.add('hidden')}setTimeout(fixHeight,50)}
 function toggleDropdown(){document.querySelectorAll('.profile-dropdown').forEach(function(d){d.classList.toggle('show')})}
 function closeDropdown(){document.querySelectorAll('.profile-dropdown').forEach(function(d){d.classList.remove('show')})}
 
-// Mobile input - check user and show appropriate step
-$('mobile').addEventListener('input',function(e){var m=this.value.trim();if(m.length===10){mobile=m;checkUserAndShowStep(m)}});
-
-async function checkUserAndShowStep(mobileNum){
-    try{
-        var resp=await fetch(EDGE_URL+'/login-user',{
-            method:'POST',
-            headers:{'Content-Type':'application/json','Accept':'application/json','Authorization':'Bearer '+SB_KEY},
-            body:JSON.stringify({mobile:mobileNum,action:'check'})
-        });
-        var result=await resp.json();
-        if(result.exists===true){
-            // Existing user - show PIN login
-            $('step1').classList.add('hidden');
-            $('step2').classList.remove('hidden');
-            $('display-mobile').textContent=mobileNum;
-            $('mobile-status').textContent='✅ Existing user - Enter your PIN';
-            $('mobile-status').style.color='#16a34a';
-        }else{
-            // New user - show OTP flow
-            $('step1').classList.add('hidden');
-            $('step3').classList.remove('hidden');
-            $('wa-display-mobile').textContent=mobileNum;
-            $('mobile-status').textContent='📝 New user - Verify OTP to create account';
-            $('mobile-status').style.color='#f59e0b';
-            toast('📱 OTP sent to your WhatsApp (use 123456)');
-            startOTPTimer();
-        }
-    }catch(e){
-        // Fallback - show PIN login
-        $('step1').classList.add('hidden');
-        $('step2').classList.remove('hidden');
-        $('display-mobile').textContent=mobileNum;
-    }
-}
-
+$('mobile').addEventListener('input',function(e){var m=this.value.trim();if(m.length===10){mobile=m;$('step1').classList.add('hidden');$('step2').classList.remove('hidden');$('display-mobile').textContent=m}});
 $('pin').addEventListener('keydown',function(e){if(e.key==='Enter')submitPin()});
 $('reg-pin').addEventListener('keydown',function(e){if(e.key==='Enter')$('reg-pin-confirm').focus()});
 $('reg-pin-confirm').addEventListener('keydown',function(e){if(e.key==='Enter')registerUser()});
 
 // ============================================================
-// ✅ LOGIN - UNCHANGED (working correctly)
+// ✅ FIXED: submitPin - uses login-user with action:'login' & plain PIN
 // ============================================================
 window.submitPin = async function() {
     var pin = $('pin').value.trim();
@@ -607,7 +546,7 @@ window.submitPin = async function() {
             body: JSON.stringify({
                 mobile: mobile,
                 action: 'login',
-                pin: pin
+                pin: pin  // Send plain PIN - Edge Function hashes it
             })
         });
         var result = await resp.json();
@@ -626,10 +565,8 @@ window.submitPin = async function() {
         } else if (result.isNewUser === true) {
             toast('📝 New user. Please create an account.');
             $('step2').classList.add('hidden');
-            $('step3').classList.remove('hidden');
-            $('wa-display-mobile').textContent = mobile;
-            toast('📱 OTP sent to your WhatsApp (use 123456)');
-            startOTPTimer();
+            $('step4').classList.remove('hidden');
+            $('reg-display-mobile').textContent = mobile;
         } else if (result.source === 'archived') {
             toast('📦 Archived account found. Please login to restore.');
             $('pin').value = '';
@@ -651,14 +588,9 @@ window.submitPin = async function() {
 };
 
 // ============================================================
-// ✅ REGISTER - WhatsApp OTP flow (NEW)
+// ✅ FIXED: registerUser - uses register-user endpoint with plain PIN
 // ============================================================
 async function registerUser() {
-    if (!otpVerified) {
-        toast('⚠️ Please verify OTP first');
-        return;
-    }
-    
     var pin = $('reg-pin').value.trim(),
         conf = $('reg-pin-confirm').value.trim();
     if (!pin || pin.length !== 4) {
@@ -687,7 +619,7 @@ async function registerUser() {
             },
             body: JSON.stringify({
                 mobile: mobile,
-                pin: pin,
+                pin: pin,  // Send plain PIN - Edge Function hashes it
                 name: '',
                 company_name: '',
                 location: null
@@ -733,33 +665,25 @@ async function registerUser() {
 }
 
 // ============================================================
-// ✅ CHANGE PIN - Fixed (UPDATED)
+// ✅ FIXED: changePIN - uses change-pin endpoint
 // ============================================================
 function openChangePin() {
-    if (!user) {
-        toast('⚠️ Please login first');
-        return;
-    }
     var currentPin = prompt('Enter your current PIN:');
-    if (currentPin === null) return;
     if (!currentPin || currentPin.length !== 4) {
-        toast('⚠️ Enter valid 4-digit current PIN');
+        toast('⚠️ Enter valid current PIN');
         return;
     }
     var newPin = prompt('Enter new 4-digit PIN:');
-    if (newPin === null) return;
     if (!newPin || newPin.length !== 4) {
-        toast('⚠️ Enter valid 4-digit new PIN');
+        toast('⚠️ Enter valid new PIN');
         return;
     }
     var confirmPin = prompt('Confirm new PIN:');
-    if (confirmPin === null) return;
     if (newPin !== confirmPin) {
         toast('⚠️ PINs do not match');
         return;
     }
     
-    toast('⏳ Changing PIN...');
     fetch(EDGE_URL + '/change-pin', {
         method: 'POST',
         headers: {
@@ -778,33 +702,33 @@ function openChangePin() {
         if (result.success === true) {
             toast('✅ PIN changed successfully!');
         } else {
-            toast('❌ ' + (result.error || 'Failed to change PIN. Current PIN may be incorrect.'));
+            toast('❌ ' + (result.error || 'Failed to change PIN'));
         }
     })
     .catch(function(e) {
         console.error('Change PIN error:', e);
-        toast('❌ Change PIN failed. Please try again.');
+        toast('❌ Error changing PIN');
     });
 }
 
 // ============================================================
-// ✅ RESET PIN - Fixed (UPDATED)
+// ✅ FIXED: resetPIN - uses login-user with reset_pin action
 // ============================================================
 function resetPIN() {
     var newPin = prompt('Enter new 4-digit PIN:');
-    if (newPin === null) return;
     if (!newPin || newPin.length !== 4) {
-        toast('⚠️ Enter valid 4-digit PIN');
+        toast('⚠️ Enter valid PIN');
         return;
     }
     var confirmPin = prompt('Confirm new PIN:');
-    if (confirmPin === null) return;
     if (newPin !== confirmPin) {
         toast('⚠️ PINs do not match');
         return;
     }
     
-    toast('⏳ Resetting PIN...');
+    var btn = document.querySelector('#step2 .btn-primary');
+    if (btn) { btn.textContent = '⏳ Resetting...'; btn.disabled = true; }
+    
     fetch(EDGE_URL + '/login-user', {
         method: 'POST',
         headers: {
@@ -837,7 +761,10 @@ function resetPIN() {
     })
     .catch(function(e) {
         console.error('Reset PIN error:', e);
-        toast('❌ Reset PIN failed. Please try again.');
+        toast('❌ Error resetting PIN');
+    })
+    .finally(function() {
+        if (btn) { btn.textContent = '🔐 Login'; btn.disabled = false; }
     });
 }
 
