@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ReturnTruck - Test</title>
+<title>ReturnTruck - Find Loads & Trucks</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
@@ -33,9 +33,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .success-text{color:#16a34a;font-size:13px;text-align:center;margin-top:4px;display:none}
 .otp-input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border:2px solid #e2e8f0;border-radius:12px;background:#fff}
 .otp-input:focus{border-color:#2563eb;outline:none}
-.otp-display-box{background:#f0fdf4;border:2px solid #86efac;border-radius:12px;padding:12px;margin:8px 0;text-align:center}
-.otp-display-box .label{font-size:11px;color:#166534;font-weight:600}
-.otp-display-box .otp-code{font-size:28px;font-weight:900;color:#16a34a;letter-spacing:4px;font-family:monospace}
 .resend-btn{background:transparent;border:none;color:#2563eb;font-weight:600;cursor:pointer;font-size:13px;text-decoration:underline}
 .resend-btn:disabled{color:#94a3b8;cursor:not-allowed}
 .nav-fixed{display:flex;justify-content:space-around;border-top:1px solid #e2e8f0;padding-top:8px}
@@ -75,6 +72,10 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .btn-contact{background:#2563eb}
 .btn-bid{background:#8b5cf6}
 .btn-share{background:#25D366}
+.otp-sent-msg{background:#dbeafe;border-radius:8px;padding:10px;margin:8px 0;text-align:center;font-size:13px;color:#1e40af}
+.otp-sent-msg .wa-number{font-weight:700;color:#075e54}
+.whatsapp-btn{background:#25D366;color:#fff;border:none;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;width:100%;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px}
+.whatsapp-btn:hover{background:#1da851}
 </style>
 </head>
 <body>
@@ -89,7 +90,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div style="font-size:13px;color:#64748b">Find Loads • Post Trucks • Connect Agents</div>
     </div>
 
-    <div class="login-stats-container" style="background:#eff6ff;border-radius:12px;padding:12px;margin-bottom:12px">
+    <div style="background:#eff6ff;border-radius:12px;padding:12px;margin-bottom:12px">
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;text-align:center">
             <div><span style="font-size:16px">📦</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Load Givers</div></div>
             <div><span style="font-size:16px">🚛</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Fleet Ops</div></div>
@@ -124,10 +125,18 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div id="wa-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
             <div style="font-size:13px;color:#475569">Enter OTP sent to your WhatsApp</div>
         </div>
-        <div id="otp-display-box" class="otp-display-box" style="display:none">
-            <div class="label">📱 Your OTP is:</div>
-            <div class="otp-code" id="display-otp-code">------</div>
+
+        <!-- WhatsApp OTP Sent Message -->
+        <div class="otp-sent-msg" id="otp-sent-msg">
+            📱 OTP sent to WhatsApp number: <span class="wa-number" id="wa-number-display">---</span>
+            <div style="font-size:11px;margin-top:4px;color:#64748b">Didn't receive? Click below to resend</div>
         </div>
+
+        <!-- Open WhatsApp Button -->
+        <button class="whatsapp-btn" onclick="openWhatsApp()">
+            <span style="font-size:20px">💬</span> Open WhatsApp
+        </button>
+
         <div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px">
             <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
             <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
@@ -224,7 +233,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div class="avatar" onclick="toggleDropdown()">GU</div>
         </div>
     </div>
-
     <div class="scroll-body">
         <div class="profile-header-card">
             <div style="font-size:11px;opacity:.8">Welcome,</div>
@@ -241,7 +249,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <button class="section-btn" onclick="saveProfile()">💾 Save</button>
         </div>
     </div>
-
     <div class="nav-fixed">
         <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
         <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
@@ -361,9 +368,9 @@ function resetForm() {
     $('pin-error').style.display = 'none';
     $('otp-error').style.display = 'none';
     $('otp-success').style.display = 'none';
-    $('otp-display-box').style.display = 'none';
     $('verify-btn').disabled = false;
     $('verify-btn').textContent = '✅ Verify';
+    $('otp-sent-msg').style.display = 'block';
 }
 
 function showLogin() { resetForm(); $('mobile').focus(); }
@@ -410,16 +417,45 @@ function generateOTP() {
     return otp;
 }
 
-function showOTPDisplay(otp) {
-    $('display-otp-code').textContent = otp;
-    $('otp-display-box').style.display = 'block';
+// ============================================================
+// WHATSAPP INTEGRATION - Browser Level
+// ============================================================
+
+function openWhatsApp() {
+    if (!mobile) {
+        toast('⚠️ Mobile number required');
+        return;
+    }
+    // Format mobile number for WhatsApp (remove any non-digit characters)
+    var cleanMobile = mobile.replace(/\D/g, '');
+    // Add country code if not present (assuming +91 for India)
+    if (cleanMobile.length === 10) {
+        cleanMobile = '91' + cleanMobile;
+    }
+    // Create WhatsApp message with OTP
+    var message = 'Your ReturnTruck OTP is: ' + generatedOTP;
+    var waUrl = 'https://wa.me/' + cleanMobile + '?text=' + encodeURIComponent(message);
+    // Open WhatsApp in new window
+    window.open(waUrl, '_blank');
+    toast('💬 Opening WhatsApp... Please check your phone');
 }
 
 function sendOTPToWhatsApp(mobileNum) {
     var otp = generateOTP();
     generatedOTP = otp;
-    showOTPDisplay(otp);
-    toast('📱 OTP sent to WhatsApp: ' + otp);
+    
+    // Display OTP sent message
+    $('otp-sent-msg').style.display = 'block';
+    $('wa-number-display').textContent = mobileNum;
+    $('otp-display-box').style.display = 'none'; // Hide OTP display for security
+    
+    // Show the WhatsApp button
+    var waBtn = document.querySelector('.whatsapp-btn');
+    if (waBtn) waBtn.style.display = 'flex';
+    
+    toast('📱 OTP generated. Click "Open WhatsApp" to send it');
+    
+    // Auto-fill OTP for demo (remove in production)
     setTimeout(function() {
         var inputs = document.querySelectorAll('.otp-input');
         for (var i = 0; i < inputs.length && i < otp.length; i++) {
@@ -427,64 +463,6 @@ function sendOTPToWhatsApp(mobileNum) {
         }
     }, 500);
     return otp;
-}
-
-function verifyOTP() {
-    var inputs = document.querySelectorAll('.otp-input');
-    var otp = '';
-    for (var i = 0; i < inputs.length; i++) { otp += inputs[i].value; }
-    if (otp.length !== 6) {
-        $('otp-error').style.display = 'block';
-        $('otp-error').textContent = '❌ Enter complete 6-digit OTP';
-        return;
-    }
-    if (otp === generatedOTP) {
-        otpVerified = true;
-        $('otp-error').style.display = 'none';
-        $('otp-success').style.display = 'block';
-        clearInterval(otpTimer);
-        $('verify-btn').disabled = false;
-        $('verify-btn').textContent = '✅ Verify';
-        toast('✅ OTP verified!');
-        setTimeout(function() {
-            $('step3').classList.add('hidden');
-            $('step4').classList.remove('hidden');
-            $('reg-display-mobile').textContent = mobile;
-        }, 500);
-    } else {
-        $('otp-error').style.display = 'block';
-        $('otp-error').textContent = '❌ Invalid OTP. Please try again.';
-        var inputs = document.querySelectorAll('.otp-input');
-        for (var i = 0; i < inputs.length; i++) { inputs[i].value = ''; }
-        inputs[0].focus();
-    }
-}
-
-function resendOTP() {
-    if (otpSeconds > 0) {
-        toast('⏳ Please wait for OTP to expire');
-        return;
-    }
-    var newOTP = sendOTPToWhatsApp(mobile);
-    generatedOTP = newOTP;
-    startOTPTimer();
-    $('verify-btn').disabled = false;
-    $('verify-btn').textContent = '✅ Verify';
-    $('otp-success').style.display = 'none';
-    toast('📱 New OTP sent to WhatsApp');
-}
-
-function showResetOTP() {
-    isResetFlow = true;
-    $('step2').classList.add('hidden');
-    $('step3').classList.remove('hidden');
-    $('wa-display-mobile').textContent = mobile;
-    $('otp-error').style.display = 'none';
-    $('otp-success').style.display = 'none';
-    var otp = sendOTPToWhatsApp(mobile);
-    generatedOTP = otp;
-    startOTPTimer();
-    toast('📱 OTP sent to WhatsApp for PIN reset');
 }
 
 // ============================================================
@@ -664,7 +642,66 @@ window.submitPin = async function() {
 };
 
 // ============================================================
-// ✅ REGISTER
+// OTP VERIFICATION
+// ============================================================
+function verifyOTP() {
+    var inputs = document.querySelectorAll('.otp-input');
+    var otp = '';
+    for (var i = 0; i < inputs.length; i++) { otp += inputs[i].value; }
+    if (otp.length !== 6) {
+        $('otp-error').style.display = 'block';
+        $('otp-error').textContent = '❌ Enter complete 6-digit OTP';
+        return;
+    }
+    if (otp === generatedOTP) {
+        otpVerified = true;
+        $('otp-error').style.display = 'none';
+        $('otp-success').style.display = 'block';
+        clearInterval(otpTimer);
+        toast('✅ OTP verified!');
+        setTimeout(function() {
+            $('step3').classList.add('hidden');
+            $('step4').classList.remove('hidden');
+            $('reg-display-mobile').textContent = mobile;
+        }, 500);
+    } else {
+        $('otp-error').style.display = 'block';
+        $('otp-error').textContent = '❌ Invalid OTP. Please try again.';
+        var inputs = document.querySelectorAll('.otp-input');
+        for (var i = 0; i < inputs.length; i++) { inputs[i].value = ''; }
+        inputs[0].focus();
+    }
+}
+
+function resendOTP() {
+    if (otpSeconds > 0) {
+        toast('⏳ Please wait for OTP to expire');
+        return;
+    }
+    var newOTP = sendOTPToWhatsApp(mobile);
+    generatedOTP = newOTP;
+    startOTPTimer();
+    $('verify-btn').disabled = false;
+    $('verify-btn').textContent = '✅ Verify';
+    $('otp-success').style.display = 'none';
+    toast('📱 New OTP generated');
+}
+
+function showResetOTP() {
+    isResetFlow = true;
+    $('step2').classList.add('hidden');
+    $('step3').classList.remove('hidden');
+    $('wa-display-mobile').textContent = mobile;
+    $('otp-error').style.display = 'none';
+    $('otp-success').style.display = 'none';
+    var otp = sendOTPToWhatsApp(mobile);
+    generatedOTP = otp;
+    startOTPTimer();
+    toast('📱 OTP generated for PIN reset');
+}
+
+// ============================================================
+// REGISTER
 // ============================================================
 async function registerUser() {
     if (!otpVerified) {
@@ -746,7 +783,7 @@ async function registerUser() {
 }
 
 // ============================================================
-// ✅ CHANGE PIN
+// CHANGE PIN
 // ============================================================
 function openChangePin() {
     if (!user) {
@@ -801,7 +838,7 @@ function openChangePin() {
 }
 
 // ============================================================
-// ✅ RESET PIN - OTP flow then reset
+// RESET PIN
 // ============================================================
 function resetPIN() {
     if (!otpVerified) {
