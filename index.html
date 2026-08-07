@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ReturnTruck - Find Loads & Trucks</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-transparent">
+<link rel="apple-touch-icon" href="launchericon-192x192.png">
 <style>
 *{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
 body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
@@ -100,9 +105,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .success-text{color:#16a34a;font-size:12px;text-align:center;margin-top:4px;display:none}
 .resend-btn{background:transparent;border:none;color:#2563eb;font-weight:600;cursor:pointer;font-size:12px;text-decoration:underline}
 .resend-btn:disabled{color:#94a3b8;cursor:not-allowed}
-.otp-display-box{background:#f0fdf4;border:2px solid #86efac;border-radius:12px;padding:12px;margin:8px 0;text-align:center}
-.otp-display-box .label{font-size:11px;color:#166534;font-weight:600}
-.otp-display-box .otp-code{font-size:28px;font-weight:900;color:#16a34a;letter-spacing:4px;font-family:monospace}
 </style>
 </head>
 <body>
@@ -143,12 +145,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         </div>
         <div id="step3" class="hidden">
             <div style="text-align:center;margin-bottom:12px"><div id="wa-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
-            <div style="font-size:13px;color:#475569">Enter OTP sent to your WhatsApp</div>
-            </div>
-            <div class="otp-display-box" id="otp-display-box" style="display:none">
-                <div class="label">📱 Your OTP is:</div>
-                <div class="otp-code" id="display-otp-code">------</div>
-                <div style="font-size:10px;color:#166534;margin-top:4px">Enter this OTP in the fields below</div>
+            <div style="font-size:13px;color:#475569">Enter OTP sent via WhatsApp</div>
             </div>
             <div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px">
                 <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
@@ -163,6 +160,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div style="text-align:center;font-size:13px;color:#64748b;margin-bottom:8px">⏳ <span id="otp-timer">5:00</span></div>
             <div style="text-align:center;font-size:12px;margin-bottom:12px">
                 <button class="resend-btn" id="resend-otp-btn" onclick="resendOTP()">📱 Resend OTP</button>
+                <br><br>
+                <button class="resend-btn" onclick="sendWhatsAppOTP()" style="color:#25D366;font-weight:700">💬 Send OTP via WhatsApp</button>
             </div>
             <button onclick="verifyOTP()" id="verify-btn" class="btn-primary" style="background:#16a34a">✅ Verify</button>
             <button onclick="resetForm()" class="btn-back">← Change Number</button>
@@ -458,7 +457,7 @@ function selectLoc(ctx,pin,name,state){var dn=name+', '+state+' ('+pin+')',hid=n
 document.addEventListener('click',function(e){document.querySelectorAll('.suggestions').forEach(function(s){if(!s.parentElement.contains(e.target))s.classList.remove('show')})});
 
 // ============================================================
-// PWA INSTALL (Fixed)
+// PWA INSTALL
 // ============================================================
 if(window.matchMedia('(display-mode: standalone)').matches)installed=true;
 function updateInstall(){var m=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);var s=m&&!window.matchMedia('(display-mode: standalone)').matches&&!installed;document.querySelectorAll('.nav-install-wrapper').forEach(function(e){e.classList.toggle('show',s)})}
@@ -468,7 +467,7 @@ function forceInstall(){if(prompt){prompt.prompt();prompt.userChoice.then(functi
 setTimeout(updateInstall,3000);
 
 // ============================================================
-// OTP HELPERS
+// OTP HELPERS - WhatsApp API Integration (Browser Level)
 // ============================================================
 function otpInput(el){
     if(el.value.length===1){
@@ -508,23 +507,39 @@ function generateOTP(){
     return otp;
 }
 
-function showOTPDisplay(otp){
-    document.getElementById('display-otp-code').textContent=otp;
-    document.getElementById('otp-display-box').style.display='block';
-}
-
-function sendOTPToWhatsApp(mobileNum){
+// ✅ NEW: Send OTP via WhatsApp using wa.me link
+function sendWhatsAppOTP(){
+    if(!mobile || mobile.length!==10){
+        toast('⚠️ Please enter valid mobile number first');
+        return;
+    }
+    
+    // Generate OTP
     var otp=generateOTP();
     generatedOTP=otp;
-    showOTPDisplay(otp);
-    toast('📱 OTP sent to WhatsApp: ' + otp);
+    
+    // Create WhatsApp message
+    var message = 'Your ReturnTruck OTP is: ' + otp + '\n\nThis OTP is valid for 5 minutes.\n\n- ReturnTruck Team';
+    var encodedMessage = encodeURIComponent(message);
+    
+    // Open WhatsApp with pre-filled message
+    var whatsappURL = 'https://wa.me/91' + mobile + '?text=' + encodedMessage;
+    
+    // Open in new window
+    window.open(whatsappURL, '_blank');
+    
+    toast('📱 WhatsApp opened with OTP');
+    startOTPTimer();
+    document.getElementById('verify-btn').disabled=false;
+    document.getElementById('verify-btn').textContent='✅ Verify';
+    
+    // Auto-fill OTP for demo (remove in production)
     setTimeout(function(){
         var inputs=document.querySelectorAll('.otp-input');
         for(var i=0;i<inputs.length && i<otp.length;i++){
             inputs[i].value=otp[i];
         }
     },500);
-    return otp;
 }
 
 function verifyOTP(){
@@ -563,13 +578,7 @@ function resendOTP(){
         toast('⏳ Please wait for OTP to expire');
         return;
     }
-    var newOTP=sendOTPToWhatsApp(mobile);
-    generatedOTP=newOTP;
-    startOTPTimer();
-    document.getElementById('verify-btn').disabled=false;
-    document.getElementById('verify-btn').textContent='✅ Verify';
-    document.getElementById('otp-success').style.display='none';
-    toast('📱 New OTP sent to WhatsApp');
+    sendWhatsAppOTP();
 }
 
 function showResetOTP(){
@@ -579,10 +588,8 @@ function showResetOTP(){
     $('wa-display-mobile').textContent=mobile;
     document.getElementById('otp-error').style.display='none';
     document.getElementById('otp-success').style.display='none';
-    var otp=sendOTPToWhatsApp(mobile);
-    generatedOTP=otp;
-    startOTPTimer();
-    toast('📱 OTP sent to WhatsApp for PIN reset');
+    sendWhatsAppOTP();
+    toast('📱 OTP sent via WhatsApp for PIN reset');
 }
 
 // ============================================================
@@ -659,7 +666,6 @@ function resetForm(){
     document.getElementById('pin-error').style.display='none';
     document.getElementById('otp-error').style.display='none';
     document.getElementById('otp-success').style.display='none';
-    document.getElementById('otp-display-box').style.display='none';
     document.getElementById('verify-btn').disabled=false;
     document.getElementById('verify-btn').textContent='✅ Verify';
 }
@@ -680,6 +686,7 @@ async function checkUserAndShowStep(mobileNum){
         });
         var result=await resp.json();
         if(result.exists===true){
+            // Existing user - show PIN login
             $('step1').classList.add('hidden');
             $('step2').classList.remove('hidden');
             $('display-mobile').textContent=mobileNum;
@@ -689,6 +696,7 @@ async function checkUserAndShowStep(mobileNum){
             $('pin').focus();
             document.getElementById('pin-error').style.display='none';
         }else{
+            // New user - show OTP flow with WhatsApp
             $('step1').classList.add('hidden');
             $('step3').classList.remove('hidden');
             $('wa-display-mobile').textContent=mobileNum;
@@ -696,11 +704,11 @@ async function checkUserAndShowStep(mobileNum){
             $('mobile-status').style.color='#f59e0b';
             document.getElementById('otp-error').style.display='none';
             document.getElementById('otp-success').style.display='none';
-            var otp=sendOTPToWhatsApp(mobileNum);
-            generatedOTP=otp;
-            startOTPTimer();
+            // Send OTP via WhatsApp
+            sendWhatsAppOTP();
         }
     }catch(e){
+        // Fallback - show PIN login
         $('step1').classList.add('hidden');
         $('step2').classList.remove('hidden');
         $('display-mobile').textContent=mobileNum;
@@ -715,7 +723,7 @@ $('reg-pin').addEventListener('keydown',function(e){if(e.key==='Enter')$('reg-pi
 $('reg-pin-confirm').addEventListener('keydown',function(e){if(e.key==='Enter')registerUser()});
 
 // ============================================================
-// ✅ LOGIN - FIXED: Correct PIN handling with proper error display
+// ✅ LOGIN - Fixed: Wrong PIN stays on same page
 // ============================================================
 window.submitPin = async function() {
     var pin = $('pin').value.trim();
@@ -769,9 +777,7 @@ window.submitPin = async function() {
             $('wa-display-mobile').textContent = mobile;
             document.getElementById('otp-error').style.display='none';
             document.getElementById('otp-success').style.display='none';
-            var otp=sendOTPToWhatsApp(mobile);
-            generatedOTP=otp;
-            startOTPTimer();
+            sendWhatsAppOTP();
         } else if (result.source === 'archived') {
             toast('📦 Archived account found. Please login to restore.');
             $('pin').value = '';
@@ -786,16 +792,12 @@ window.submitPin = async function() {
             setTimeout(function() {
                 $('pin').style.borderColor = '#e2e8f0';
             }, 1500);
-            btn.textContent = '🔐 Login';
-            btn.disabled = false;
         }
     } catch (e) {
         console.error('Login error:', e);
         toast('❌ Login error. Please try again.');
         $('pin').value = '';
         $('pin').focus();
-        btn.textContent = '🔐 Login';
-        btn.disabled = false;
     } finally {
         btn.textContent = '🔐 Login';
         btn.disabled = false;
