@@ -461,13 +461,13 @@ function dist(lat1,lng1,lat2,lng2){
 }
 
 // ============================================================
-// SEARCH - Clean display: Name, District, State (Pincode)
+// SEARCH - Fixed selection
 // ============================================================
 function searchLocation(ctx){
-    var inp=$('search-'+ctx),sug=$('suggestions-'+ctx);
-    if(!inp||!sug)return;
+    var inp=$('search-'+ctx), sug=$('suggestions-'+ctx);
+    if(!inp||!sug) return;
     var q=inp.value.trim();
-    if(!q){sug.classList.remove('show');return}
+    if(!q){sug.classList.remove('show'); return}
     
     var res=[], ql=q.toLowerCase();
     for(var i=0;i<LOCATIONS.length;i++){
@@ -482,49 +482,66 @@ function searchLocation(ctx){
         }
     }
     
-    if(!res.length){sug.classList.remove('show');return}
+    if(!res.length){sug.classList.remove('show'); return}
     
     var html='';
     for(var j=0;j<res.length;j++){
         var l=res[j];
-        // Display: Name, District, State (Pincode)
-        var dn=l.name+', '+l.district+', '+l.state+' ('+l.pincode+')';
+        var dn=getLocDisplayName(l);
         var idx=dn.toLowerCase().indexOf(ql), dh=dn;
         if(idx!==-1) dh=dn.substring(0,idx)+'<span class="highlight">'+dn.substring(idx,idx+q.length)+'</span>'+dn.substring(idx+q.length);
+        // ✅ FIX: Properly pass pin_id and display name
         html+='<div class="item" onclick="selectLoc(\''+ctx+'\',\''+l.pin_id+'\')">'+dh+'</div>';
     }
     sug.innerHTML=html;
     sug.classList.add('show');
 }
 
-function selectLoc(ctx,pinId){
+// ✅ FIXED: selectLoc with proper parameters
+function selectLoc(ctx, pinId){
     var l=getLoc(pinId);
-    if(!l) return;
+    if(!l) {
+        console.log('Location not found for pinId:', pinId);
+        return;
+    }
     
-    // Display: Name, District, State (Pincode)
-    var dn=l.name+', '+l.district+', '+l.state+' ('+l.pincode+')';
+    var dn=getLocDisplayName(l);
     var hid=null;
     if(ctx==='to') hid='filter-to-hidden';
     else if(ctx==='pl-pickup') hid='pl-pickup-hidden';
     else if(ctx==='pl-drop') hid='pl-drop-hidden';
     else if(ctx==='pt-location') hid='pt-location-hidden';
     
-    $('search-'+ctx).value=dn;
-    if(hid) $(hid).value=pinId;
-    $('suggestions-'+ctx).classList.remove('show');
+    // Set the input value
+    var searchInput=$('search-'+ctx);
+    if(searchInput) searchInput.value=dn;
     
+    // Set hidden field if exists
+    if(hid) $(hid).value=pinId;
+    
+    // Close suggestions
+    var sug=$('suggestions-'+ctx);
+    if(sug) sug.classList.remove('show');
+    
+    // Update state based on context
     if(ctx==='home'){
         homePinId=pinId;
-        localStorage.setItem('rt_home_location',JSON.stringify({pinId:pinId,displayName:dn}));
+        localStorage.setItem('rt_home_location', JSON.stringify({pinId:pinId, displayName:dn}));
         applyFilters();
     }else if(ctx==='to'){
         toPinId=pinId;
         applyFilters();
     }
+    
+    console.log('✅ Selected:', ctx, dn, 'pinId:', pinId);
 }
 
 // Close suggestions
-document.addEventListener('click',function(e){document.querySelectorAll('.suggestions').forEach(function(s){if(!s.parentElement.contains(e.target))s.classList.remove('show')})});
+document.addEventListener('click', function(e){
+    document.querySelectorAll('.suggestions').forEach(function(s){
+        if(!s.parentElement.contains(e.target)) s.classList.remove('show');
+    });
+});
 
 // ============================================================
 // PWA INSTALL
@@ -566,10 +583,10 @@ function autoLocate(){
                     if(d<minD){minD=d;near=l;}
                 }
                 if(near&&minD<100){
-                    var dn=near.name+', '+near.district+', '+near.state+' ('+near.pincode+')';
+                    var dn=getLocDisplayName(near);
                     inp.value=dn;
                     homePinId=near.pin_id;
-                    localStorage.setItem('rt_home_location',JSON.stringify({pinId:near.pin_id,displayName:dn}));
+                    localStorage.setItem('rt_home_location', JSON.stringify({pinId:near.pin_id, displayName:dn}));
                     applyFilters();
                 }
             },
@@ -581,10 +598,10 @@ function autoLocate(){
                     for(var i=0;i<LOCATIONS.length;i++){
                         var l=LOCATIONS[i];
                         if(l.name.toLowerCase()===city.toLowerCase() || l.district.toLowerCase()===city.toLowerCase()){
-                            var dn=l.name+', '+l.district+', '+l.state+' ('+l.pincode+')';
+                            var dn=getLocDisplayName(l);
                             inp.value=dn;
                             homePinId=l.pin_id;
-                            localStorage.setItem('rt_home_location',JSON.stringify({pinId:l.pin_id,displayName:dn}));
+                            localStorage.setItem('rt_home_location', JSON.stringify({pinId:l.pin_id, displayName:dn}));
                             applyFilters();
                             break;
                         }
