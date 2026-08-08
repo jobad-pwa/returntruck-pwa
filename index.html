@@ -29,11 +29,11 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .nav-fixed{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e2e8f0;background:#fff;position:relative;z-index:10;min-height:65px;width:100%;padding-bottom:5px;margin-top:auto}
 .nav-item{display:flex;flex-direction:column;align-items:center;color:#94a3b8;font-size:9px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px;position:relative;z-index:2}
 .nav-item.active{color:#2563eb}.nav-item .icon{font-size:22px;margin-bottom:2px}.nav-item .label{font-size:9px;text-transform:uppercase;letter-spacing:.05em}
-.nav-install-wrapper{position:absolute;left:50%;top:-18px;transform:translateX(-50%);z-index:5;display:none}
+.nav-install-wrapper{position:absolute;left:50%;top:-22px;transform:translateX(-50%);z-index:5;display:none}
 .nav-install-wrapper.show{display:block}
-.nav-install-btn{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;border-radius:30px;padding:6px 18px;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 4px 15px rgba(37,99,235,0.4);display:flex;align-items:center;gap:6px;white-space:nowrap;animation:pulse-install 2s infinite;letter-spacing:0.3px}
-.nav-install-btn .install-icon{font-size:14px}
-.nav-install-btn .install-badge{background:#ef4444;color:#fff;font-size:7px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:2px}
+.nav-install-btn{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;border-radius:30px;padding:4px 14px;font-size:10px;font-weight:700;cursor:pointer;box-shadow:0 4px 15px rgba(37,99,235,0.4);display:flex;align-items:center;gap:4px;white-space:nowrap;animation:pulse-install 2s infinite;letter-spacing:0.3px}
+.nav-install-btn .install-icon{font-size:12px}
+.nav-install-btn .install-badge{background:#ef4444;color:#fff;font-size:6px;font-weight:700;padding:1px 5px;border-radius:10px;margin-left:2px}
 @keyframes pulse-install{0%{transform:scale(1);box-shadow:0 4px 15px rgba(37,99,235,0.4)}50%{transform:scale(1.05);box-shadow:0 4px 25px rgba(37,99,235,0.6)}100%{transform:scale(1);box-shadow:0 4px 15px rgba(37,99,235,0.4)}}
 .scroll-body{overflow-y:auto;padding:8px 0;-webkit-overflow-scrolling:touch;display:block;width:100%;flex:1}
 .scroll-body::-webkit-scrollbar{width:4px}.scroll-body::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
@@ -71,6 +71,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .search-wrapper .suggestions .item{padding:10px 16px;font-size:13px;color:#1e293b;cursor:pointer}
 .search-wrapper .suggestions .item:hover{background:#f8fafc}
 .search-wrapper .suggestions .item .highlight{background:#dbeafe;font-weight:600}
+.search-wrapper input.selected{background:#e8f0fe;border-color:#2563eb}
 .results-count{display:flex;justify-content:space-between;padding-bottom:4px;margin-bottom:6px;font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
 .feed-container{display:flex;flex-direction:column;gap:10px}
 .feed-card{border:1px solid #e2e8f0;border-radius:12px;padding:12px;cursor:pointer;background:#fff;transition:all .2s}
@@ -200,7 +201,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div id="guest-banner" class="guest-banner hidden"><span>👋 Welcome, Guest!</span><button class="btn-login" onclick="showLogin()">🔐 Login</button></div>
         <div class="location-row">
             <div class="location-input">
-                <input type="text" id="search-home" placeholder="📍 Search Location" oninput="searchLocation('home')" autocomplete="off">
+                <input type="text" id="search-home" placeholder="📍 Search Location" onclick="selectInputText(this)" oninput="searchLocation('home')" autocomplete="off">
                 <div class="search-wrapper"><div class="suggestions" id="suggestions-home"></div></div>
             </div>
             <div class="radius-select">
@@ -224,7 +225,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <div>
                     <label>📍 To Location</label>
                     <div style="position:relative;width:100%">
-                        <input type="text" id="search-to" placeholder="📍 Search Location" oninput="searchLocation('to')" autocomplete="off">
+                        <input type="text" id="search-to" placeholder="📍 Search Location" onclick="selectInputText(this)" oninput="searchLocation('to')" autocomplete="off">
                         <div class="search-wrapper"><div class="suggestions" id="suggestions-to"></div></div>
                         <input type="hidden" id="filter-to-hidden">
                     </div>
@@ -247,14 +248,14 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     <div class="scroll-body" id="home-scroll-body"><div id="feed-container" class="feed-container"></div></div>
     <div class="nav-fixed" id="bottom-nav">
         <button class="nav-item active" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
-        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
-        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
-        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
         <div class="nav-install-wrapper" id="nav-install-wrapper">
             <button class="nav-install-btn" id="nav-install-btn" onclick="forceInstall()">
                 <span class="install-icon">📲</span> Install <span class="install-badge">NEW</span>
             </button>
         </div>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
     </div>
 </div>
 
@@ -271,14 +272,14 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div class="grid-2">
             <div><label>📍 Pickup</label>
                 <div style="position:relative;width:100%">
-                    <input type="text" id="search-pl-pickup" placeholder="📍 Search Location" oninput="searchLocation('pl-pickup')" autocomplete="off">
+                    <input type="text" id="search-pl-pickup" placeholder="📍 Search Location" onclick="selectInputText(this)" oninput="searchLocation('pl-pickup')" autocomplete="off">
                     <div class="search-wrapper"><div class="suggestions" id="suggestions-pl-pickup"></div></div>
                     <input type="hidden" id="pl-pickup-hidden">
                 </div>
             </div>
             <div><label>📍 Drop</label>
                 <div style="position:relative;width:100%">
-                    <input type="text" id="search-pl-drop" placeholder="📍 Search Location" oninput="searchLocation('pl-drop')" autocomplete="off">
+                    <input type="text" id="search-pl-drop" placeholder="📍 Search Location" onclick="selectInputText(this)" oninput="searchLocation('pl-drop')" autocomplete="off">
                     <div class="search-wrapper"><div class="suggestions" id="suggestions-pl-drop"></div></div>
                     <input type="hidden" id="pl-drop-hidden">
                 </div>
@@ -289,14 +290,14 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
     <div class="nav-fixed" id="bottom-nav2">
         <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
-        <button class="nav-item active" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
-        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
-        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
         <div class="nav-install-wrapper" id="nav-install-wrapper2">
             <button class="nav-install-btn" onclick="forceInstall()">
                 <span class="install-icon">📲</span> Install <span class="install-badge">NEW</span>
             </button>
         </div>
+        <button class="nav-item active" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
     </div>
 </div>
 
@@ -310,7 +311,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div class="form-group"><label>Vehicle Number</label><div style="display:flex;gap:8px"><input class="form-control" id="pt-number" style="flex:2"><button class="btn-primary" style="width:auto;padding:10px 16px" onclick="autoFetchVehicle()">🔍 Auto-Fetch</button></div></div>
         <div class="form-group"><label>📍 Location</label>
             <div style="position:relative;width:100%">
-                <input type="text" id="search-pt-location" placeholder="📍 Search Location" oninput="searchLocation('pt-location')" autocomplete="off">
+                <input type="text" id="search-pt-location" placeholder="📍 Search Location" onclick="selectInputText(this)" oninput="searchLocation('pt-location')" autocomplete="off">
                 <div class="search-wrapper"><div class="suggestions" id="suggestions-pt-location"></div></div>
                 <input type="hidden" id="pt-location-hidden">
             </div>
@@ -321,14 +322,14 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
     <div class="nav-fixed" id="bottom-nav3">
         <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
-        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
-        <button class="nav-item active" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
-        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
         <div class="nav-install-wrapper" id="nav-install-wrapper3">
             <button class="nav-install-btn" onclick="forceInstall()">
                 <span class="install-icon">📲</span> Install <span class="install-badge">NEW</span>
             </button>
         </div>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item active" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
     </div>
 </div>
 
@@ -358,14 +359,14 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
     <div class="nav-fixed" id="bottom-nav4">
         <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
-        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
-        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
-        <button class="nav-item active" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
         <div class="nav-install-wrapper" id="nav-install-wrapper4">
             <button class="nav-install-btn" onclick="forceInstall()">
                 <span class="install-icon">📲</span> Install <span class="install-badge">NEW</span>
             </button>
         </div>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item active" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
     </div>
 </div>
 
@@ -381,14 +382,14 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
     <div class="nav-fixed" id="bottom-nav5">
         <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
-        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
-        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
-        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
         <div class="nav-install-wrapper" id="nav-install-wrapper5">
             <button class="nav-install-btn" onclick="forceInstall()">
                 <span class="install-icon">📲</span> Install <span class="install-badge">NEW</span>
             </button>
         </div>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
     </div>
 </div>
 
@@ -435,7 +436,29 @@ function $(id){return document.getElementById(id)}
 function toast(msg){alert(msg)}
 
 // ============================================================
-// LOCATION HELPERS - Using PIN_ID as unique identifier
+// ✅ SELECT ALL TEXT ON CLICK
+// ============================================================
+function selectInputText(input){
+    input.select();
+    input.classList.add('selected');
+}
+
+// Remove selection highlight on blur or typing
+document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('.search-wrapper input').forEach(function(input){
+        input.addEventListener('blur', function(){
+            this.classList.remove('selected');
+        });
+        input.addEventListener('keydown', function(e){
+            if(e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete'){
+                this.classList.remove('selected');
+            }
+        });
+    });
+});
+
+// ============================================================
+// LOCATION HELPERS
 // ============================================================
 function getLoc(pinId){
     if(!pinId) return null;
@@ -462,7 +485,7 @@ function dist(lat1,lng1,lat2,lng2){
 }
 
 // ============================================================
-// SEARCH - Fixed selection with proper event handling
+// SEARCH LOCATION - Using event delegation
 // ============================================================
 function searchLocation(ctx){
     var inp=$('search-'+ctx);
@@ -510,41 +533,36 @@ function searchLocation(ctx){
     sug.classList.add('show');
 }
 
-// ✅ FIXED: selectLoc with proper parameter handling
+// ============================================================
+// SELECT LOCATION
+// ============================================================
 function selectLoc(ctx, pinId){
     var l=getLoc(pinId);
-    if(!l) {
-        console.log('❌ Location not found for pinId:', pinId);
-        return;
-    }
+    if(!l) return;
     
     var dn=getLocDisplayName(l);
-    
-    // Get the input field
-    var searchInput=$('search-'+ctx);
-    if(searchInput){
-        searchInput.value=dn;
+    var inp=$('search-'+ctx);
+    if(inp){
+        inp.value=dn;
+        setTimeout(function(){
+            inp.select();
+            inp.classList.add('selected');
+        }, 100);
     }
     
-    // Get hidden field for storing pin_id
     var hid=null;
     if(ctx==='to') hid='filter-to-hidden';
     else if(ctx==='pl-pickup') hid='pl-pickup-hidden';
     else if(ctx==='pl-drop') hid='pl-drop-hidden';
     else if(ctx==='pt-location') hid='pt-location-hidden';
+    if(hid && $(hid)) $(hid).value=pinId;
     
-    if(hid && $(hid)){
-        $(hid).value=pinId;
-    }
-    
-    // Close suggestions
     var sug=$('suggestions-'+ctx);
     if(sug){
         sug.classList.remove('show');
         sug.innerHTML='';
     }
     
-    // Update state
     if(ctx==='home'){
         homePinId=pinId;
         localStorage.setItem('rt_home_location', JSON.stringify({pinId:pinId, displayName:dn}));
@@ -555,7 +573,9 @@ function selectLoc(ctx, pinId){
     }
 }
 
-// Close suggestions when clicking outside
+// ============================================================
+// EVENT DELEGATION for suggestion clicks
+// ============================================================
 document.addEventListener('click', function(e){
     var item = e.target.closest('.item');
     if(item){
@@ -567,14 +587,53 @@ document.addEventListener('click', function(e){
     }
 });
 
+// Close suggestions when clicking outside
+document.addEventListener('click', function(e){
+    document.querySelectorAll('.suggestions').forEach(function(s){
+        var parent = s.parentElement;
+        if(parent && !parent.contains(e.target)){
+            s.classList.remove('show');
+            s.innerHTML='';
+        }
+    });
+});
+
 // ============================================================
 // PWA INSTALL
 // ============================================================
 if(window.matchMedia('(display-mode: standalone)').matches) installed=true;
-function updateInstall(){var m=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);var s=m&&!window.matchMedia('(display-mode: standalone)').matches&&!installed;document.querySelectorAll('.nav-install-wrapper').forEach(function(e){e.classList.toggle('show',s)})}
-window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();prompt=e;updateInstall()});
-window.addEventListener('appinstalled',function(){installed=true;prompt=null;updateInstall();toast('🎉 ReturnTruck installed!')});
-function forceInstall(){if(prompt){prompt.prompt();prompt.userChoice.then(function(c){if(c.outcome==='accepted')toast('🎉 Installing...');prompt=null;updateInstall()})}else{if(navigator.userAgent.match(/Android/i))toast('📱 Tap Chrome menu → "Install app"');else if(navigator.userAgent.match(/iPhone|iPad|iPod/i))toast('📱 Tap Share → "Add to Home Screen"');else toast('📱 Open this page in Chrome on your phone')}}
+function updateInstall(){
+    var m=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    var s=m&&!window.matchMedia('(display-mode: standalone)').matches&&!installed;
+    document.querySelectorAll('.nav-install-wrapper').forEach(function(e){
+        e.classList.toggle('show',s);
+    });
+}
+window.addEventListener('beforeinstallprompt',function(e){
+    e.preventDefault();
+    prompt=e;
+    updateInstall();
+});
+window.addEventListener('appinstalled',function(){
+    installed=true;
+    prompt=null;
+    updateInstall();
+    toast('🎉 ReturnTruck installed!');
+});
+function forceInstall(){
+    if(prompt){
+        prompt.prompt();
+        prompt.userChoice.then(function(c){
+            if(c.outcome==='accepted') toast('🎉 Installing...');
+            prompt=null;
+            updateInstall();
+        });
+    }else{
+        if(navigator.userAgent.match(/Android/i)) toast('📱 Tap Chrome menu → "Install app"');
+        else if(navigator.userAgent.match(/iPhone|iPad|iPod/i)) toast('📱 Tap Share → "Add to Home Screen"');
+        else toast('📱 Open this page in Chrome on your phone');
+    }
+}
 setTimeout(updateInstall,3000);
 
 // ============================================================
@@ -743,7 +802,7 @@ function showResetOTP(){
 }
 
 // ============================================================
-// RENDER FEED - Using PIN_ID for locations
+// RENDER FEED
 // ============================================================
 async function renderFeed(){
 try{
@@ -879,146 +938,70 @@ function handleShareClick(){if(navigator.share){navigator.share({title:'ReturnTr
 function autoFetchVehicle(){toast('🔍 Vehicle details fetched!')}
 
 // ============================================================
-// ✅ PUBLISH LOAD - Stores PIN_ID in Supabase
+// PUBLISH LOAD
 // ============================================================
 function publishLoad(){
-    if(!user){
-        toast('⚠️ Please login first');
+    if(!user){toast('⚠️ Please login first');return;}
+    var pickupPinId=$('pl-pickup-hidden').value;
+    var dropPinId=$('pl-drop-hidden').value;
+    if(!$('pl-material').value || !pickupPinId || !dropPinId){
+        toast('⚠️ Please fill all required fields');
         return;
     }
-    
-    var material = $('pl-material').value;
-    var weight = $('pl-weight').value;
-    var dim = $('pl-dim').value;
-    var pickupPinId = $('pl-pickup-hidden').value;
-    var dropPinId = $('pl-drop-hidden').value;
-    var rate = $('pl-rate').value;
-    var date = $('pl-date').value;
-    
-    if(!material || !pickupPinId || !dropPinId){
-        toast('⚠️ Please fill all required fields (Material, Pickup, Drop)');
-        return;
-    }
-    
-    // Get pickup location details
-    var pickupLoc = getLoc(pickupPinId);
-    var dropLoc = getLoc(dropPinId);
-    
     toast('⏳ Publishing load...');
-    
-    var loadData = {
-        material: material,
-        weight: parseInt(weight) || 0,
-        dimensions: dim || '',
-        pickup_pin_id: pickupPinId,  // Store PIN_ID in Supabase
-        drop_pin_id: dropPinId,      // Store PIN_ID in Supabase
-        rate: parseFloat(rate) || 0,
-        date: date || new Date().toISOString().split('T')[0],
-        company: user.company_name || '',
-        mobile: user.mobile,
-        status: 1,
-        views: 0,
-        interests: [],
-        shares: 0,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+    var loadData={
+        material:$('pl-material').value,
+        weight:parseInt($('pl-weight').value)||0,
+        dimensions:$('pl-dim').value||'',
+        pickup_pin_id:pickupPinId,
+        drop_pin_id:dropPinId,
+        rate:parseFloat($('pl-rate').value)||0,
+        date:$('pl-date').value||new Date().toISOString().split('T')[0],
+        company:user.company_name||'',
+        mobile:user.mobile,
+        status:1,
+        views:0,
+        interests:[],
+        shares:0,
+        created_at:new Date().toISOString(),
+        updated_at:new Date().toISOString()
     };
-    
-    console.log('📤 Publishing load with PIN_IDs:', loadData);
-    
-    sb.from('active_loads').insert(loadData)
-    .then(function(result){
-        if(result.error){
-            console.error('Publish error:', result.error);
-            toast('❌ Error publishing load: ' + result.error.message);
-        }else{
-            toast('✅ Load published successfully!');
-            // Reset form
-            $('pl-material').value = '';
-            $('pl-weight').value = '';
-            $('pl-dim').value = '';
-            $('pl-pickup-hidden').value = '';
-            $('pl-drop-hidden').value = '';
-            $('search-pl-pickup').value = '';
-            $('search-pl-drop').value = '';
-            $('pl-rate').value = '';
-            $('pl-date').value = '';
-            goHome();
-        }
-    })
-    .catch(function(e){
-        console.error('Publish error:', e);
-        toast('❌ Error publishing load');
-    });
+    sb.from('active_loads').insert(loadData).then(function(result){
+        if(result.error){toast('❌ Error: '+result.error.message)}else{toast('✅ Load published!');goHome()}
+    }).catch(function(e){toast('❌ Error publishing load')});
 }
 
 // ============================================================
-// ✅ PUBLISH TRUCK - Stores PIN_ID in Supabase
+// PUBLISH TRUCK
 // ============================================================
 function publishTruck(){
-    if(!user){
-        toast('⚠️ Please login first');
-        return;
-    }
-    
-    var truckNo = $('pt-number').value;
-    var locationPinId = $('pt-location-hidden').value;
-    var available = $('pt-available').value;
-    var rateKm = $('pt-rate-km').value;
-    var driver = $('pt-driver').value;
-    var driverMobile = $('pt-driver-mobile').value;
-    
-    if(!truckNo || !locationPinId){
+    if(!user){toast('⚠️ Please login first');return;}
+    var locationPinId=$('pt-location-hidden').value;
+    if(!$('pt-number').value || !locationPinId){
         toast('⚠️ Please fill Vehicle Number and Location');
         return;
     }
-    
-    var locationLoc = getLoc(locationPinId);
-    
     toast('⏳ Listing truck...');
-    
-    var truckData = {
-        truck_no: truckNo,
-        location_pin_id: locationPinId,  // Store PIN_ID in Supabase
-        available_from: available || new Date().toISOString().split('T')[0],
-        rate_km: parseFloat(rateKm) || 0,
-        driver_name: driver || '',
-        driver_mobile: driverMobile || '',
-        company_name: user.fleet_company || user.company_name || '',
-        mobile: user.mobile,
-        vehicle_type: 'container', // Default
-        status: 1,
-        views: 0,
-        interested: [],
-        share: 0,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+    var truckData={
+        truck_no:$('pt-number').value,
+        location_pin_id:locationPinId,
+        available_from:$('pt-available').value||new Date().toISOString().split('T')[0],
+        rate_km:parseFloat($('pt-rate-km').value)||0,
+        driver_name:$('pt-driver').value||'',
+        driver_mobile:$('pt-driver-mobile').value||'',
+        company_name:user.fleet_company||user.company_name||'',
+        mobile:user.mobile,
+        vehicle_type:'container',
+        status:1,
+        views:0,
+        interested:[],
+        share:0,
+        created_at:new Date().toISOString(),
+        updated_at:new Date().toISOString()
     };
-    
-    console.log('📤 Listing truck with PIN_ID:', truckData);
-    
-    sb.from('active_trucks').insert(truckData)
-    .then(function(result){
-        if(result.error){
-            console.error('Publish error:', result.error);
-            toast('❌ Error listing truck: ' + result.error.message);
-        }else{
-            toast('✅ Truck listed successfully!');
-            // Reset form
-            $('pt-number').value = '';
-            $('pt-location-hidden').value = '';
-            $('search-pt-location').value = '';
-            $('pt-available').value = '';
-            $('pt-rate-km').value = '';
-            $('pt-driver').value = '';
-            $('pt-driver-mobile').value = '';
-            goHome();
-        }
-    })
-    .catch(function(e){
-        console.error('Publish error:', e);
-        toast('❌ Error listing truck');
-    });
+    sb.from('active_trucks').insert(truckData).then(function(result){
+        if(result.error){toast('❌ Error: '+result.error.message)}else{toast('✅ Truck listed!');goHome()}
+    }).catch(function(e){toast('❌ Error listing truck')});
 }
 
 // ============================================================
