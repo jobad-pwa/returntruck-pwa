@@ -3,975 +3,365 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ReturnTruck - Find Loads & Trucks</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<title>Location Selection Test</title>
 <style>
 *{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
-body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
-.card{max-width:420px;width:100%;background:#fff;border-radius:24px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);display:flex;flex-direction:column;height:95vh;max-height:800px}
-.hidden{display:none !important}
-.header{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #e2e8f0}
-.logo{font-size:20px;font-weight:900;color:#2563eb}
-.avatar{width:36px;height:36px;border-radius:50%;background:#64748b;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;cursor:pointer}
-.profile-dropdown{position:absolute;top:45px;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:160px;z-index:100;display:none}
-.profile-dropdown.show{display:block}
-.dropdown-item{padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:#1e293b;cursor:pointer;border:none;background:transparent;width:100%}
-.dropdown-item:hover{background:#f8fafc}
-.dropdown-divider{height:1px;background:#e2e8f0;margin:4px 12px}
-.header-right{position:relative;display:flex;align-items:center;gap:8px}
-.scroll-body{flex:1;overflow-y:auto;padding:12px 0}
-.input-field{width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;margin-bottom:12px}
-.input-field:focus{border-color:#2563eb;outline:none}
-.btn-primary{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px}
+body{background:#f3f4f6;margin:0;padding:20px;display:flex;justify-content:center;align-items:center;min-height:100vh}
+.card{max-width:480px;width:100%;background:#fff;border-radius:16px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+h1{font-size:20px;color:#2563eb;margin:0 0 4px}
+.sub{font-size:13px;color:#64748b;margin-bottom:16px}
+.search-wrapper{position:relative;margin-bottom:16px}
+.search-wrapper input{width:100%;padding:12px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:16px;background:#fff;outline:none}
+.search-wrapper input:focus{border-color:#2563eb}
+.search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:10px;margin-top:4px;max-height:220px;overflow-y:auto;z-index:50;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.search-wrapper .suggestions.show{display:block}
+.search-wrapper .suggestions .item{padding:12px 16px;font-size:14px;color:#1e293b;cursor:pointer;border-bottom:1px solid #f1f5f9}
+.search-wrapper .suggestions .item:hover{background:#f1f5f9}
+.search-wrapper .suggestions .item:last-child{border-bottom:none}
+.search-wrapper .suggestions .item .highlight{background:#dbeafe;font-weight:600}
+.result-box{background:#f8fafc;border-radius:10px;padding:16px;border:1px solid #e2e8f0;margin-top:12px}
+.result-box .label{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase}
+.result-box .value{font-size:15px;font-weight:600;color:#1e293b;margin-top:4px;word-break:break-all}
+.result-box .pin-id{font-size:12px;color:#2563eb;font-family:monospace;margin-top:2px}
+.status{font-size:13px;padding:8px 12px;border-radius:8px;margin-top:12px;display:none}
+.status.success{background:#dcfce7;color:#166534;display:block}
+.status.error{background:#fef2f2;color:#991b1b;display:block}
+.status.info{background:#dbeafe;color:#1e40af;display:block}
+.clear-btn{padding:8px 16px;background:#ef4444;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600}
+.clear-btn:hover{background:#dc2626}
+.flex{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.btn{flex:1;padding:10px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;min-width:80px}
+.btn-primary{background:#2563eb;color:#fff}
 .btn-primary:hover{background:#1d4ed8}
-.btn-back{width:100%;padding:14px;background:#6b7280;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer}
-.btn-success{background:#16a34a;color:#fff;border:none;border-radius:12px;padding:14px;font-size:16px;font-weight:600;cursor:pointer;width:100%;margin-bottom:10px}
+.btn-success{background:#16a34a;color:#fff}
 .btn-success:hover{background:#15803d}
-.btn-danger{background:#dc2626;color:#fff;border:none;border-radius:12px;padding:14px;font-size:16px;font-weight:600;cursor:pointer;width:100%;margin-bottom:10px}
-.btn-danger:hover{background:#b91c1c}
-.error-text{color:#dc2626;font-size:13px;text-align:center;margin-top:4px;display:none}
-.success-text{color:#16a34a;font-size:13px;text-align:center;margin-top:4px;display:none}
-.otp-input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border:2px solid #e2e8f0;border-radius:12px;background:#fff}
-.otp-input:focus{border-color:#2563eb;outline:none}
-.resend-btn{background:transparent;border:none;color:#2563eb;font-weight:600;cursor:pointer;font-size:13px;text-decoration:underline}
-.resend-btn:disabled{color:#94a3b8;cursor:not-allowed}
-.nav-fixed{display:flex;justify-content:space-around;border-top:1px solid #e2e8f0;padding-top:8px}
-.nav-item{display:flex;flex-direction:column;align-items:center;color:#94a3b8;font-size:9px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px}
-.nav-item.active{color:#2563eb}
-.nav-item .icon{font-size:22px;margin-bottom:2px}
-.guest-banner{background:#2563eb;color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer}
-.login-divider{display:flex;align-items:center;gap:12px;margin:16px 0}
-.login-divider div{flex:1;height:1px;background:#e2e8f0}
-.login-divider span{font-size:10px;color:#94a3b8}
-.location-row{display:flex;gap:8px;margin-bottom:8px}
-.location-row input{flex:2;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px}
-.location-row select{flex:1;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;background:#fff}
-.type-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;background:#e2e8f0;padding:3px;border-radius:10px;margin-bottom:6px}
-.type-tabs button{padding:6px 4px;font-size:11px;font-weight:700;border:none;border-radius:8px;cursor:pointer}
-.type-tabs .active{background:#fff;color:#1e293b}
-.type-tabs .inactive{background:transparent;color:#64748b}
-.feed-card{border:1px solid #e2e8f0;border-radius:12px;padding:12px;margin-bottom:10px;cursor:pointer}
-.feed-card:hover{border-color:#2563eb;background:#f8faff}
-.feed-card .title{font-weight:700;font-size:15px}
-.feed-card .company{font-size:12px;color:#2563eb;font-weight:600}
-.feed-card .meta{font-size:11px;color:#64748b;margin-top:4px}
-.feed-card .stats{display:flex;gap:12px;font-size:10px;color:#94a3b8;margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9}
-.type-badge{font-size:8px;padding:2px 8px;border-radius:4px;font-weight:700;text-transform:uppercase}
-.type-badge.load{background:#dbeafe;color:#1e40af}
-.type-badge.truck{background:#dcfce7;color:#166534}
-.results-count{font-size:9px;font-weight:700;color:#94a3b8;margin-bottom:6px}
-.profile-header-card{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:12px;padding:16px;color:#fff;margin-bottom:16px}
-.profile-section{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px}
-.section-btn{padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer}
-.form-control{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;background:#fff}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.detail-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:12px}
-.detail-actions button{padding:10px;border-radius:10px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:10px}
-.btn-call{background:#16a34a}
-.btn-contact{background:#2563eb}
-.btn-bid{background:#8b5cf6}
-.btn-share{background:#25D366}
-.otp-sent-msg{background:#dbeafe;border-radius:8px;padding:10px;margin:8px 0;text-align:center;font-size:13px;color:#1e40af}
-.otp-sent-msg .wa-number{font-weight:700;color:#075e54}
-.whatsapp-btn{background:#25D366;color:#fff;border:none;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;width:100%;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px}
-.whatsapp-btn:hover{background:#1da851}
+.btn-gray{background:#6b7280;color:#fff}
+.btn-gray:hover{background:#4b5563}
+.log-box{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:12px;font-family:monospace;font-size:11px;max-height:200px;overflow-y:auto;margin-top:12px;white-space:pre-wrap;word-break:break-all}
+.log-box .pass{color:#4ade80}
+.log-box .fail{color:#f87171}
+.log-box .info{color:#60a5fa}
+.log-box .highlight{color:#f472b6}
 </style>
 </head>
 <body>
-
-<div class="card" id="app">
-
-<!-- ==================== LOGIN SCREEN ==================== -->
-<div id="login-screen">
-    <div style="text-align:center;padding:10px 0">
-        <div style="font-size:60px">🚛</div>
-        <div style="font-size:24px;font-weight:900;color:#2563eb">ReturnTruck</div>
-        <div style="font-size:13px;color:#64748b">Find Loads • Post Trucks • Connect Agents</div>
+<div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div>
+            <h1>📍 Location Selection Test</h1>
+            <div class="sub">Test search & selection for Home and Filter locations</div>
+        </div>
+        <button class="clear-btn" onclick="clearAll()">🗑️ Clear</button>
     </div>
 
-    <div style="background:#eff6ff;border-radius:12px;padding:12px;margin-bottom:12px">
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;text-align:center">
-            <div><span style="font-size:16px">📦</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Load Givers</div></div>
-            <div><span style="font-size:16px">🚛</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Fleet Ops</div></div>
-            <div><span style="font-size:16px">🤝</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Agents</div></div>
-            <div><span style="font-size:16px">👤</span><div style="font-size:18px;font-weight:800;color:#1d4ed8">0</div><div style="font-size:8px;font-weight:600;color:#475569">Users</div></div>
+    <!-- ==================== HOME LOCATION ==================== -->
+    <div style="margin-bottom:16px;padding:12px;background:#f1f5f9;border-radius:10px">
+        <div style="font-size:12px;font-weight:700;color:#1e293b;margin-bottom:6px">🏠 Home Location</div>
+        <div class="search-wrapper">
+            <input type="text" id="search-home" placeholder="Search location..." oninput="searchLocation('home')" autocomplete="off">
+            <div class="suggestions" id="suggestions-home"></div>
         </div>
+        <div id="home-selected" style="font-size:13px;color:#94a3b8">No location selected</div>
     </div>
 
-    <div id="step1">
-        <input type="tel" id="mobile" class="input-field" placeholder="Enter Mobile Number" maxlength="10" autofocus>
-        <div id="mobile-status" style="font-size:12px;color:#94a3b8;text-align:center;margin-top:4px"></div>
-        <div class="login-divider"><div></div><span>or continue as</span><div></div></div>
-        <button style="width:100%;padding:12px;border:1.5px solid #8b5cf6;border-radius:12px;font-size:14px;font-weight:600;color:#8b5cf6;background:transparent;cursor:pointer" onclick="continueAsGuest()">👤 Guest</button>
+    <!-- ==================== TO LOCATION (Filter) ==================== -->
+    <div style="margin-bottom:16px;padding:12px;background:#f1f5f9;border-radius:10px">
+        <div style="font-size:12px;font-weight:700;color:#1e293b;margin-bottom:6px">📍 To Location (Filter)</div>
+        <div class="search-wrapper">
+            <input type="text" id="search-to" placeholder="Search location..." oninput="searchLocation('to')" autocomplete="off">
+            <div class="suggestions" id="suggestions-to"></div>
+        </div>
+        <div id="to-selected" style="font-size:13px;color:#94a3b8">No location selected</div>
     </div>
 
-    <div id="step2" class="hidden">
-        <div style="text-align:center;margin-bottom:16px">
-            <div id="display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
-            <div style="font-size:14px;color:#475569">Enter your 4-digit PIN</div>
-        </div>
-        <input type="password" id="pin" class="input-field" placeholder="Enter 4-digit PIN" maxlength="4" style="letter-spacing:4px">
-        <div id="pin-error" class="error-text">❌ Incorrect PIN. Please try again.</div>
-        <div style="font-size:12px;text-align:center;margin-bottom:12px;color:#64748b">
-            Forgot PIN? <span style="color:#2563eb;cursor:pointer;font-weight:600" onclick="showResetOTP()">Reset PIN</span>
-        </div>
-        <button onclick="submitPin()" id="submitBtn" class="btn-success">🔐 Login</button>
-        <button onclick="resetForm()" class="btn-back">← Change Number</button>
+    <!-- ==================== STATUS ==================== -->
+    <div id="status" class="status"></div>
+
+    <!-- ==================== RESULT ==================== -->
+    <div class="result-box">
+        <div class="label">📌 Selected Location</div>
+        <div class="value" id="selected-display">None</div>
+        <div class="pin-id" id="selected-pin-id">PIN_ID: -</div>
     </div>
 
-    <div id="step3" class="hidden">
-        <div style="text-align:center;margin-bottom:12px">
-            <div id="wa-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
-            <div style="font-size:13px;color:#475569">Enter OTP sent to your WhatsApp</div>
-        </div>
-
-        <!-- WhatsApp OTP Sent Message -->
-        <div class="otp-sent-msg" id="otp-sent-msg">
-            📱 OTP sent to WhatsApp number: <span class="wa-number" id="wa-number-display">---</span>
-            <div style="font-size:11px;margin-top:4px;color:#64748b">Didn't receive? Click below to resend</div>
-        </div>
-
-        <!-- Open WhatsApp Button -->
-        <button class="whatsapp-btn" onclick="openWhatsApp()">
-            <span style="font-size:20px">💬</span> Open WhatsApp
-        </button>
-
-        <div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px">
-            <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
-            <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
-            <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
-            <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
-            <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
-            <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
-        </div>
-        <div id="otp-error" class="error-text">❌ Invalid OTP. Please try again.</div>
-        <div id="otp-success" class="success-text">✅ OTP verified successfully!</div>
-        <div style="text-align:center;font-size:13px;color:#64748b;margin-bottom:8px">⏳ <span id="otp-timer">5:00</span></div>
-        <div style="text-align:center;margin-bottom:12px">
-            <button class="resend-btn" id="resend-otp-btn" onclick="resendOTP()">📱 Resend OTP</button>
-        </div>
-        <button onclick="verifyOTP()" id="verify-btn" class="btn-success">✅ Verify</button>
-        <button onclick="resetForm()" class="btn-back">← Change Number</button>
+    <!-- ==================== BUTTONS ==================== -->
+    <div class="flex">
+        <button class="btn btn-primary" onclick="testAll()">🔍 Test All</button>
+        <button class="btn btn-success" onclick="testHome()">🏠 Test Home</button>
+        <button class="btn btn-gray" onclick="testTo()">📍 Test To</button>
     </div>
 
-    <div id="step4" class="hidden">
-        <div style="text-align:center;margin-bottom:16px">
-            <div id="reg-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
-            <div style="font-size:13px;color:#475569">Set your 4-digit PIN for login</div>
-        </div>
-        <input type="password" id="reg-pin" class="input-field" placeholder="New PIN (4 digits)" maxlength="4">
-        <input type="password" id="reg-pin-confirm" class="input-field" placeholder="Confirm PIN" maxlength="4">
-        <button onclick="registerUser()" id="register-btn" class="btn-success">✅ Create Account</button>
-        <button onclick="resetForm()" class="btn-back">← Change Number</button>
-    </div>
-
-    <div style="background:#fef3c7;border-left:4px solid #f59e0b;border-radius:8px;padding:12px;margin-top:12px;font-size:10px;color:#92400e">
-        <div style="font-weight:700;font-size:11px">⚠️ Disclaimer</div>
-        ReturnTruck is a FREE connecting platform. No charges from any party.
-    </div>
-</div>
-
-<!-- ==================== HOME PAGE ==================== -->
-<div id="home-page" class="hidden" style="display:flex;flex-direction:column;height:100%">
-    <div class="header">
-        <div class="logo">🚛 ReturnTruck</div>
-        <div class="header-right">
-            <div class="avatar" id="avatar-btn" onclick="toggleDropdown()">GU</div>
-            <div class="profile-dropdown" id="profile-dropdown">
-                <button class="dropdown-item" onclick="closeDropdown();goToProfile()">👤 View Profile</button>
-                <button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button>
-                <div class="dropdown-divider"></div>
-                <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="guest-banner" class="guest-banner hidden">
-        <span>👋 Welcome, Guest!</span>
-        <button class="btn-login" onclick="showLogin()">🔐 Login</button>
-    </div>
-
-    <div style="flex-shrink:0">
-        <div class="location-row">
-            <input type="text" id="search-home" placeholder="📍 Location/PIN">
-            <select id="radius-select">
-                <option value="5">5 KM</option>
-                <option value="10">10 KM</option>
-                <option value="25">25 KM</option>
-                <option value="50" selected>50 KM</option>
-                <option value="100">100 KM</option>
-            </select>
-        </div>
-        <div class="type-tabs">
-            <button id="tab-all" class="active" onclick="setTab('ALL')">All</button>
-            <button id="tab-loads" class="inactive" onclick="setTab('LOAD')">Loads</button>
-            <button id="tab-trucks" class="inactive" onclick="setTab('TRUCK')">Trucks</button>
-            <button id="tab-agents" class="inactive" onclick="setTab('AGENT')">Agents</button>
-        </div>
-        <div class="results-count"><span id="results-count">Showing 0 Records</span></div>
-    </div>
-
-    <div class="scroll-body" id="feed-container">
-        <div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>
-    </div>
-
-    <div class="nav-fixed">
-        <button class="nav-item active" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
-        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
-        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
-        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
-    </div>
-</div>
-
-<!-- ==================== PROFILE PAGE ==================== -->
-<div id="profile-page" class="hidden" style="display:flex;flex-direction:column;height:100%">
-    <div class="header">
-        <div class="logo">🚛 ReturnTruck</div>
-        <div style="display:flex;gap:8px;align-items:center">
-            <button onclick="goHome()" style="background:transparent;border:none;font-weight:600;color:#64748b;cursor:pointer">← Back</button>
-            <div class="avatar" onclick="toggleDropdown()">GU</div>
-        </div>
-    </div>
-    <div class="scroll-body">
-        <div class="profile-header-card">
-            <div style="font-size:11px;opacity:.8">Welcome,</div>
-            <div id="profile-mobile" style="font-size:20px;font-weight:700">--</div>
-        </div>
-        <div class="profile-section">
-            <div style="font-weight:700;margin-bottom:8px">📦 Load Giver</div>
-            <input class="form-control" style="margin-bottom:8px" type="text" id="lg-company" placeholder="Company Name">
-            <button class="section-btn" onclick="saveProfile()">💾 Save</button>
-        </div>
-        <div class="profile-section">
-            <div style="font-weight:700;margin-bottom:8px">🚛 Fleet Operator</div>
-            <input class="form-control" style="margin-bottom:8px" type="text" id="fo-company" placeholder="Company Name">
-            <button class="section-btn" onclick="saveProfile()">💾 Save</button>
-        </div>
-    </div>
-    <div class="nav-fixed">
-        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
-        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
-        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
-        <button class="nav-item active" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
-    </div>
-</div>
-
-<!-- ==================== POST LOAD PAGE ==================== -->
-<div id="postload-page" class="hidden" style="display:flex;flex-direction:column;height:100%">
-    <div class="header">
-        <div class="logo">📦 Post Load</div>
-        <button onclick="goHome()" style="background:transparent;border:none;font-weight:600;color:#64748b;cursor:pointer">Cancel</button>
-    </div>
-    <div class="scroll-body">
-        <select class="form-control" style="margin-bottom:12px"><option>Select Material</option><option>Steel Pipes</option><option>Cement</option></select>
-        <div class="grid-2">
-            <input class="form-control" placeholder="Weight (Kg)" type="number">
-            <input class="form-control" placeholder="Dimensions (ft)">
-        </div>
-        <div class="grid-2">
-            <input class="form-control" placeholder="📍 Pickup">
-            <input class="form-control" placeholder="📍 Drop">
-        </div>
-        <div class="grid-2">
-            <input class="form-control" placeholder="Rate (₹)">
-            <input class="form-control" type="date">
-        </div>
-        <button class="btn-success">📤 Publish Load</button>
-    </div>
-    <div class="nav-fixed">
-        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
-        <button class="nav-item active" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
-        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
-        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
-    </div>
-</div>
-
-<!-- ==================== POST TRUCK PAGE ==================== -->
-<div id="posttruck-page" class="hidden" style="display:flex;flex-direction:column;height:100%">
-    <div class="header">
-        <div class="logo">🚛 Post Truck</div>
-        <button onclick="goHome()" style="background:transparent;border:none;font-weight:600;color:#64748b;cursor:pointer">Cancel</button>
-    </div>
-    <div class="scroll-body">
-        <input class="form-control" style="margin-bottom:12px" placeholder="Vehicle Number">
-        <input class="form-control" style="margin-bottom:12px" placeholder="📍 Location">
-        <div class="grid-2">
-            <input class="form-control" type="date">
-            <input class="form-control" placeholder="Rate / KM">
-        </div>
-        <div class="grid-2">
-            <input class="form-control" placeholder="Driver Name">
-            <input class="form-control" placeholder="Driver Mobile" maxlength="10">
-        </div>
-        <button class="btn-success">📤 List Truck</button>
-    </div>
-    <div class="nav-fixed">
-        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
-        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
-        <button class="nav-item active" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
-        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
-    </div>
-</div>
-
+    <!-- ==================== LOG ==================== -->
+    <div class="log-box" id="log">⏳ Waiting for tests...</div>
 </div>
 
 <script>
 // ============================================================
-// CONFIG
+// STATIC LOCATION DATA (Same as index.html)
 // ============================================================
-var SB_URL = 'https://ghjoffovatgvhzxlupef.supabase.co';
-var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
-var EDGE_URL = 'https://ghjoffovatgvhzxlupef.supabase.co/functions/v1';
-var sb = window.supabase.createClient(SB_URL, SB_KEY);
-
-var user = null;
-var guest = false;
-var mobile = '';
-var otpTimer = null;
-var otpSeconds = 300;
-var otpVerified = false;
-var generatedOTP = '';
-var isResetFlow = false;
-
-function $(id) { return document.getElementById(id); }
-function toast(msg) { alert(msg); }
+var LOCATIONS = [
+  {pin_id:"53300104", pincode:"533001", name:"Kakinada", district:"Kakinada", state:"AP", lat:16.9550556, lng:82.2354722},
+  {pin_id:"53340114", pincode:"533401", name:"Tuni", district:"Kakinada", state:"AP", lat:17.3581389, lng:82.5455278},
+  {pin_id:"53340604", pincode:"533406", name:"Annavaram", district:"Kakinada", state:"AP", lat:17.2830278, lng:82.4064444},
+  {pin_id:"53342905", pincode:"533429", name:"Yeleswaram", district:"Kakinada", state:"AP", lat:17.2893333, lng:82.1058889},
+  {pin_id:"52400103", pincode:"524001", name:"Nellore", district:"SPSR NELLORE", state:"AP", lat:14.451895, lng:79.980856},
+  {pin_id:"52400405", pincode:"524004", name:"Buja Buja Nellore", district:"SPSR NELLORE", state:"AP", lat:14.393973, lng:79.938857},
+  {pin_id:"52420106", pincode:"524201", name:"Kavali", district:"SPSR NELLORE", state:"AP", lat:14.91658, lng:79.993121},
+  {pin_id:"52434404", pincode:"524344", name:"Muthukur", district:"SPSR NELLORE", state:"AP", lat:14.5749722, lng:80.1420833},
+  {pin_id:"50000101", pincode:"500001", name:"Hyderabad G.P.O.", district:"HYDERABAD", state:"TG", lat:17.387993, lng:78.47652},
+  {pin_id:"50000802", pincode:"500008", name:"Lungeruse", district:"HYDERABAD", state:"TG", lat:17.37586111, lng:78.42025},
+  {pin_id:"50000803", pincode:"500008", name:"Toli Chowki", district:"HYDERABAD", state:"TG", lat:17.65252778, lng:78.68886111},
+  {pin_id:"50004501", pincode:"500045", name:"Yousufguda", district:"HYDERABAD", state:"TG", lat:17.441504, lng:78.424536},
+  {pin_id:"50004902", pincode:"500049", name:"Miyapur", district:"MEDCHAL MALKAJGIRI", state:"TG", lat:17.49253338, lng:78.35148793},
+  {pin_id:"50006201", pincode:"500062", name:"Ecil", district:"MEDCHAL MALKAJGIRI", state:"TG", lat:17.465795, lng:78.570653},
+  {pin_id:"50007503", pincode:"500075", name:"Gandipet", district:"RANGA REDDY", state:"TG", lat:17.38471, lng:78.320332},
+  {pin_id:"50007504", pincode:"500075", name:"Kokapet", district:"RANGA REDDY", state:"TG", lat:17.38471, lng:78.320332},
+  {pin_id:"50009201", pincode:"500092", name:"Boduppal", district:"MEDCHAL MALKAJGIRI", state:"TG", lat:17.42022, lng:78.58452},
+  {pin_id:"50009702", pincode:"500097", name:"Meerpet", district:"RANGA REDDY", state:"TG", lat:17.320999, lng:78.530474},
+  {pin_id:"50009801", pincode:"500098", name:"Medipalli", district:"MEDCHAL MALKAJGIRI", state:"TG", lat:17.40909, lng:78.60141},
+  {pin_id:"50011201", pincode:"500112", name:"Badangpet", district:"HYDERABAD", state:"TG", lat:17.30505, lng:78.525178}
+];
 
 // ============================================================
-// DOM HELPERS
+// STATE
 // ============================================================
-function showPage(id) {
-    var pages = ['login-screen', 'home-page', 'profile-page', 'postload-page', 'posttruck-page'];
-    pages.forEach(function(p) {
-        var el = $(p);
-        if (el) {
-            if (p === id) {
-                el.classList.remove('hidden');
-                el.style.display = 'flex';
-            } else {
-                el.classList.add('hidden');
-                el.style.display = 'none';
-            }
-        }
-    });
+var selectedHome = null;
+var selectedTo = null;
+
+function $(id){return document.getElementById(id)}
+
+// ============================================================
+// LOGGING
+// ============================================================
+function log(msg, type){
+    var el = $('log');
+    var time = new Date().toLocaleTimeString();
+    var colors = { pass: 'pass', fail: 'fail', info: 'info', highlight: 'highlight' };
+    el.innerHTML += '[' + time + '] <span class="' + (colors[type] || 'info') + '">' + msg + '</span>\n';
+    el.scrollTop = el.scrollHeight;
 }
 
-function resetForm() {
-    otpVerified = false;
-    isResetFlow = false;
-    if (otpTimer) clearInterval(otpTimer);
-    ['step2', 'step3', 'step4'].forEach(function(i) { $(i).classList.add('hidden'); });
-    $('step1').classList.remove('hidden');
-    showPage('login-screen');
-    var inputs = document.querySelectorAll('.otp-input');
-    for (var i = 0; i < inputs.length; i++) { inputs[i].value = ''; }
-    $('pin-error').style.display = 'none';
-    $('otp-error').style.display = 'none';
-    $('otp-success').style.display = 'none';
-    $('verify-btn').disabled = false;
-    $('verify-btn').textContent = '✅ Verify';
-    $('otp-sent-msg').style.display = 'block';
+function clearAll(){
+    $('log').innerHTML = '';
+    $('status').className = 'status';
+    $('status').style.display = 'none';
+    $('selected-display').textContent = 'None';
+    $('selected-pin-id').textContent = 'PIN_ID: -';
+    selectedHome = null;
+    selectedTo = null;
+    $('home-selected').textContent = 'No location selected';
+    $('to-selected').textContent = 'No location selected';
+    document.querySelectorAll('.suggestions').forEach(function(s){ s.classList.remove('show'); s.innerHTML=''; });
+    document.querySelectorAll('.search-wrapper input').forEach(function(i){ i.value=''; });
+    log('🗑️ Cleared', 'info');
 }
 
-function showLogin() { resetForm(); $('mobile').focus(); }
+function setStatus(text, type){
+    var el = $('status');
+    el.textContent = text;
+    el.className = 'status ' + type;
+    el.style.display = 'block';
+}
 
 // ============================================================
-// OTP HELPERS
+// LOCATION HELPERS
 // ============================================================
-function otpInput(el) {
-    if (el.value.length === 1) {
-        var next = el.nextElementSibling;
-        if (next) next.focus();
+function getLoc(pinId){
+    if(!pinId) return null;
+    for(var i=0;i<LOCATIONS.length;i++){
+        if(LOCATIONS[i].pin_id===pinId) return LOCATIONS[i];
     }
-    $('otp-error').style.display = 'none';
+    return null;
 }
 
-function startOTPTimer() {
-    otpSeconds = 300;
-    otpVerified = false;
-    if (otpTimer) clearInterval(otpTimer);
-    var timerDisplay = $('otp-timer');
-    var resendBtn = $('resend-otp-btn');
-    resendBtn.disabled = true;
-    $('otp-success').style.display = 'none';
-    otpTimer = setInterval(function() {
-        otpSeconds--;
-        var m = Math.floor(otpSeconds / 60);
-        var s = otpSeconds % 60;
-        timerDisplay.textContent = m + ':' + (s < 10 ? '0' : '') + s;
-        if (otpSeconds <= 0) {
-            clearInterval(otpTimer);
-            $('verify-btn').disabled = true;
-            $('verify-btn').textContent = '⏳ Expired';
-            resendBtn.disabled = false;
-            toast('⏳ OTP expired. Click Resend');
+function getLocDisplayName(loc){
+    if(!loc) return 'Unknown';
+    return loc.name+', '+loc.district+', '+loc.state+' ('+loc.pincode+')';
+}
+
+function getLocName(pinId){
+    var l=getLoc(pinId);
+    return l ? getLocDisplayName(l) : pinId||'Unknown';
+}
+
+// ============================================================
+// ✅ FIXED: SEARCH LOCATION - Using Event Delegation
+// ============================================================
+function searchLocation(ctx){
+    var inp=$('search-'+ctx);
+    var sug=$('suggestions-'+ctx);
+    if(!inp||!sug) return;
+    var q=inp.value.trim();
+    if(!q){
+        sug.classList.remove('show');
+        sug.innerHTML='';
+        return;
+    }
+    
+    var res=[];
+    var ql=q.toLowerCase();
+    for(var i=0;i<LOCATIONS.length;i++){
+        var l=LOCATIONS[i];
+        if(l.name.toLowerCase().includes(ql) || 
+           l.pincode.includes(q) || 
+           l.district.toLowerCase().includes(ql) ||
+           l.state.toLowerCase().includes(ql) ||
+           l.pin_id.toLowerCase().includes(ql)){
+            res.push(l);
+            if(res.length>=10) break;
         }
+    }
+    
+    if(!res.length){
+        sug.classList.remove('show');
+        sug.innerHTML='';
+        return;
+    }
+    
+    var html='';
+    for(var j=0;j<res.length;j++){
+        var l=res[j];
+        var dn=getLocDisplayName(l);
+        var idx=dn.toLowerCase().indexOf(ql);
+        var dh=dn;
+        if(idx!==-1){
+            dh=dn.substring(0,idx)+'<span class="highlight">'+dn.substring(idx,idx+q.length)+'</span>'+dn.substring(idx+q.length);
+        }
+        // ✅ Use data attributes instead of inline onclick
+        html+='<div class="item" data-ctx="'+ctx+'" data-pinid="'+l.pin_id+'">'+dh+'</div>';
+    }
+    sug.innerHTML=html;
+    sug.classList.add('show');
+}
+
+// ============================================================
+// ✅ FIXED: SELECT LOCATION - Called from event delegation
+// ============================================================
+function selectLoc(ctx, pinId){
+    var l=getLoc(pinId);
+    if(!l){
+        log('❌ Location not found for pinId: ' + pinId, 'fail');
+        setStatus('❌ Location not found', 'error');
+        return;
+    }
+    
+    var dn=getLocDisplayName(l);
+    
+    // Update input field
+    var inp=$('search-'+ctx);
+    if(inp){
+        inp.value=dn;
+    }
+    
+    // Update selected display
+    if(ctx==='home'){
+        selectedHome = pinId;
+        $('home-selected').textContent = '✅ Selected: ' + dn;
+        $('home-selected').style.color = '#16a34a';
+        log('🏠 Home selected: ' + dn + ' (PIN_ID: ' + pinId + ')', 'pass');
+    }else if(ctx==='to'){
+        selectedTo = pinId;
+        $('to-selected').textContent = '✅ Selected: ' + dn;
+        $('to-selected').style.color = '#16a34a';
+        log('📍 To selected: ' + dn + ' (PIN_ID: ' + pinId + ')', 'pass');
+    }
+    
+    // Update result box
+    $('selected-display').textContent = dn;
+    $('selected-pin-id').textContent = 'PIN_ID: ' + pinId;
+    
+    // Close suggestions
+    var sug=$('suggestions-'+ctx);
+    if(sug){
+        sug.classList.remove('show');
+        sug.innerHTML='';
+    }
+    
+    setStatus('✅ Selected: ' + dn, 'success');
+}
+
+// ============================================================
+// ✅ EVENT DELEGATION - Handles all suggestion clicks
+// ============================================================
+document.addEventListener('click', function(e){
+    // Find if clicked element is a .item or inside one
+    var item = e.target.closest('.item');
+    if(item){
+        var ctx = item.dataset.ctx;
+        var pinId = item.dataset.pinid;
+        if(ctx && pinId){
+            log('🔍 Clicked: ctx=' + ctx + ', pinId=' + pinId, 'info');
+            selectLoc(ctx, pinId);
+        }else{
+            log('⚠️ Missing data attributes on clicked item', 'fail');
+        }
+    }
+});
+
+// ============================================================
+// TESTS
+// ============================================================
+function testHome(){
+    log('🏠 Testing Home search...', 'info');
+    var inp=$('search-home');
+    if(inp){
+        inp.value = 'Yousufguda';
+        inp.dispatchEvent(new Event('input'));
+        setStatus('🔍 Searching for "Yousufguda"', 'info');
+        log('🔍 Searching: Yousufguda', 'info');
+    }
+}
+
+function testTo(){
+    log('📍 Testing To search...', 'info');
+    var inp=$('search-to');
+    if(inp){
+        inp.value = 'Kakinada';
+        inp.dispatchEvent(new Event('input'));
+        setStatus('🔍 Searching for "Kakinada"', 'info');
+        log('🔍 Searching: Kakinada', 'info');
+    }
+}
+
+function testAll(){
+    log('🚀 Testing all...', 'info');
+    testHome();
+    setTimeout(function(){
+        testTo();
     }, 1000);
 }
 
-function generateOTP() {
-    var otp = '';
-    for (var i = 0; i < 6; i++) {
-        otp += Math.floor(Math.random() * 10);
-    }
-    return otp;
-}
-
 // ============================================================
-// WHATSAPP INTEGRATION - Browser Level
+// AUTO-RUN ON LOAD
 // ============================================================
-
-function openWhatsApp() {
-    if (!mobile) {
-        toast('⚠️ Mobile number required');
-        return;
-    }
-    // Format mobile number for WhatsApp (remove any non-digit characters)
-    var cleanMobile = mobile.replace(/\D/g, '');
-    // Add country code if not present (assuming +91 for India)
-    if (cleanMobile.length === 10) {
-        cleanMobile = '91' + cleanMobile;
-    }
-    // Create WhatsApp message with OTP
-    var message = 'Your ReturnTruck OTP is: ' + generatedOTP;
-    var waUrl = 'https://wa.me/' + cleanMobile + '?text=' + encodeURIComponent(message);
-    // Open WhatsApp in new window
-    window.open(waUrl, '_blank');
-    toast('💬 Opening WhatsApp... Please check your phone');
-}
-
-function sendOTPToWhatsApp(mobileNum) {
-    var otp = generateOTP();
-    generatedOTP = otp;
+document.addEventListener('DOMContentLoaded', function(){
+    log('🚀 Location Selection Test initialized', 'info');
+    log('📊 Total locations: ' + LOCATIONS.length, 'info');
+    log('💡 Type a location name to search', 'info');
+    log('💡 Click on any suggestion to select', 'info');
+    log('----------------------------------------', 'info');
     
-    // Display OTP sent message
-    $('otp-sent-msg').style.display = 'block';
-    $('wa-number-display').textContent = mobileNum;
-    $('otp-display-box').style.display = 'none'; // Hide OTP display for security
-    
-    // Show the WhatsApp button
-    var waBtn = document.querySelector('.whatsapp-btn');
-    if (waBtn) waBtn.style.display = 'flex';
-    
-    toast('📱 OTP generated. Click "Open WhatsApp" to send it');
-    
-    // Auto-fill OTP for demo (remove in production)
-    setTimeout(function() {
-        var inputs = document.querySelectorAll('.otp-input');
-        for (var i = 0; i < inputs.length && i < otp.length; i++) {
-            inputs[i].value = otp[i];
-        }
+    // Auto-run test
+    setTimeout(function(){
+        testHome();
     }, 500);
-    return otp;
-}
-
-// ============================================================
-// AUTH FUNCTIONS
-// ============================================================
-function continueAsGuest() {
-    guest = true;
-    user = null;
-    localStorage.setItem('rt_user', JSON.stringify({ guest: true }));
-    showHome();
-    toast('👤 You are browsing as guest');
-}
-
-function showHome() {
-    showPage('home-page');
-    updateGuestUI();
-    var b = $('guest-banner');
-    if (b) {
-        b.style.display = guest ? 'flex' : 'none';
-    }
-    var avatar = $('avatar-btn');
-    if (avatar) {
-        avatar.textContent = guest ? 'GU' : (user ? user.mobile ? user.mobile.substring(0, 2) : 'U' : 'U');
-    }
-}
-
-function updateGuestUI() {
-    var b = $('guest-banner');
-    if (b) {
-        b.style.display = guest ? 'flex' : 'none';
-        if (guest) b.classList.remove('hidden');
-        else b.classList.add('hidden');
-    }
-}
-
-function toggleDropdown() {
-    var d = $('profile-dropdown');
-    if (d) d.classList.toggle('show');
-}
-
-function closeDropdown() {
-    var d = $('profile-dropdown');
-    if (d) d.classList.remove('show');
-}
-
-// ============================================================
-// MOBILE INPUT - Check user on entry
-// ============================================================
-$('mobile').addEventListener('input', function(e) {
-    var m = this.value.trim();
-    if (m.length === 10) {
-        mobile = m;
-        checkUserAndShowStep(m);
-    }
 });
 
-async function checkUserAndShowStep(mobileNum) {
-    try {
-        var resp = await fetch(EDGE_URL + '/login-user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': 'Bearer ' + SB_KEY
-            },
-            body: JSON.stringify({ mobile: mobileNum, action: 'check' })
-        });
-        var result = await resp.json();
-        if (result.exists === true) {
-            $('step1').classList.add('hidden');
-            $('step2').classList.remove('hidden');
-            $('display-mobile').textContent = mobileNum;
-            $('mobile-status').textContent = '✅ Existing user - Enter your PIN';
-            $('mobile-status').style.color = '#16a34a';
-            $('pin').value = '';
-            $('pin').focus();
-            $('pin-error').style.display = 'none';
-        } else {
-            $('step1').classList.add('hidden');
-            $('step3').classList.remove('hidden');
-            $('wa-display-mobile').textContent = mobileNum;
-            $('mobile-status').textContent = '📝 New user - Verify OTP to create account';
-            $('mobile-status').style.color = '#f59e0b';
-            $('otp-error').style.display = 'none';
-            $('otp-success').style.display = 'none';
-            var otp = sendOTPToWhatsApp(mobileNum);
-            generatedOTP = otp;
-            startOTPTimer();
-        }
-    } catch (e) {
-        $('step1').classList.add('hidden');
-        $('step2').classList.remove('hidden');
-        $('display-mobile').textContent = mobileNum;
-    }
-}
-
-// ============================================================
-// ✅ LOGIN - Fixed: Wrong PIN stays on same page
-// ============================================================
-window.submitPin = async function() {
-    var pin = $('pin').value.trim();
-    if (!pin || pin.length !== 4) {
-        toast('⚠️ Enter 4-digit PIN');
-        $('pin').focus();
-        return;
-    }
-
-    var btn = $('submitBtn');
-    btn.textContent = '⏳ Checking...';
-    btn.disabled = true;
-    $('pin-error').style.display = 'none';
-
-    try {
-        var resp = await fetch(EDGE_URL + '/login-user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': 'Bearer ' + SB_KEY
-            },
-            body: JSON.stringify({
-                mobile: mobile,
-                action: 'login',
-                pin: pin
-            })
-        });
-        var result = await resp.json();
-
-        console.log('Login response:', result);
-
-        if (result.success === true && result.user) {
-            user = result.user;
-            user.mobile = mobile;
-            localStorage.setItem('rt_user', JSON.stringify({
-                mobile: user.mobile,
-                user: user
-            }));
-            guest = false;
-            btn.textContent = '🔐 Login';
-            btn.disabled = false;
-            showHome();
-            return;
-        } else if (result.isNewUser === true) {
-            toast('📝 New user. Please verify OTP to create account.');
-            $('step2').classList.add('hidden');
-            $('step3').classList.remove('hidden');
-            $('wa-display-mobile').textContent = mobile;
-            $('otp-error').style.display = 'none';
-            $('otp-success').style.display = 'none';
-            var otp = sendOTPToWhatsApp(mobile);
-            generatedOTP = otp;
-            startOTPTimer();
-        } else if (result.source === 'archived') {
-            toast('📦 Archived account found. Please login to restore.');
-            $('pin').value = '';
-            $('pin').focus();
-        } else {
-            // ❌ Wrong PIN - Stay on PIN screen with error
-            $('pin-error').style.display = 'block';
-            $('pin').value = '';
-            $('pin').focus();
-            $('pin').placeholder = 'Enter correct 4-digit PIN';
-            $('pin').style.borderColor = '#ef4444';
-            setTimeout(function() {
-                $('pin').style.borderColor = '#e2e8f0';
-            }, 1500);
-        }
-    } catch (e) {
-        console.error('Login error:', e);
-        toast('❌ Login error. Please try again.');
-        $('pin').value = '';
-        $('pin').focus();
-    } finally {
-        btn.textContent = '🔐 Login';
-        btn.disabled = false;
-    }
-};
-
-// ============================================================
-// OTP VERIFICATION
-// ============================================================
-function verifyOTP() {
-    var inputs = document.querySelectorAll('.otp-input');
-    var otp = '';
-    for (var i = 0; i < inputs.length; i++) { otp += inputs[i].value; }
-    if (otp.length !== 6) {
-        $('otp-error').style.display = 'block';
-        $('otp-error').textContent = '❌ Enter complete 6-digit OTP';
-        return;
-    }
-    if (otp === generatedOTP) {
-        otpVerified = true;
-        $('otp-error').style.display = 'none';
-        $('otp-success').style.display = 'block';
-        clearInterval(otpTimer);
-        toast('✅ OTP verified!');
-        setTimeout(function() {
-            $('step3').classList.add('hidden');
-            $('step4').classList.remove('hidden');
-            $('reg-display-mobile').textContent = mobile;
-        }, 500);
-    } else {
-        $('otp-error').style.display = 'block';
-        $('otp-error').textContent = '❌ Invalid OTP. Please try again.';
-        var inputs = document.querySelectorAll('.otp-input');
-        for (var i = 0; i < inputs.length; i++) { inputs[i].value = ''; }
-        inputs[0].focus();
-    }
-}
-
-function resendOTP() {
-    if (otpSeconds > 0) {
-        toast('⏳ Please wait for OTP to expire');
-        return;
-    }
-    var newOTP = sendOTPToWhatsApp(mobile);
-    generatedOTP = newOTP;
-    startOTPTimer();
-    $('verify-btn').disabled = false;
-    $('verify-btn').textContent = '✅ Verify';
-    $('otp-success').style.display = 'none';
-    toast('📱 New OTP generated');
-}
-
-function showResetOTP() {
-    isResetFlow = true;
-    $('step2').classList.add('hidden');
-    $('step3').classList.remove('hidden');
-    $('wa-display-mobile').textContent = mobile;
-    $('otp-error').style.display = 'none';
-    $('otp-success').style.display = 'none';
-    var otp = sendOTPToWhatsApp(mobile);
-    generatedOTP = otp;
-    startOTPTimer();
-    toast('📱 OTP generated for PIN reset');
-}
-
-// ============================================================
-// REGISTER
-// ============================================================
-async function registerUser() {
-    if (!otpVerified) {
-        toast('⚠️ Please verify OTP first');
-        return;
-    }
-
-    var pin = $('reg-pin').value.trim();
-    var conf = $('reg-pin-confirm').value.trim();
-    if (!pin || pin.length !== 4) {
-        toast('⚠️ Enter 4-digit PIN');
-        $('reg-pin').focus();
-        return;
-    }
-    if (pin !== conf) {
-        toast('⚠️ PINs do not match');
-        $('reg-pin-confirm').value = '';
-        $('reg-pin-confirm').focus();
-        return;
-    }
-
-    var btn = $('register-btn');
-    btn.textContent = '⏳ Creating...';
-    btn.disabled = true;
-
-    try {
-        var resp = await fetch(EDGE_URL + '/register-user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': 'Bearer ' + SB_KEY
-            },
-            body: JSON.stringify({
-                mobile: mobile,
-                pin: pin,
-                name: '',
-                company_name: '',
-                location: null
-            })
-        });
-        var result = await resp.json();
-
-        if (result.success === true && result.user) {
-            user = result.user;
-            user.mobile = mobile;
-            localStorage.setItem('rt_user', JSON.stringify({
-                mobile: user.mobile,
-                user: user
-            }));
-            guest = false;
-            toast('✅ Account created successfully!');
-            showHome();
-            return;
-        } else if (result.code === 'USER_EXISTS_ACTIVE') {
-            toast('⚠️ User already registered. Please login.');
-            resetForm();
-            $('mobile').value = mobile;
-            $('step1').classList.add('hidden');
-            $('step2').classList.remove('hidden');
-            $('display-mobile').textContent = mobile;
-        } else if (result.code === 'USER_ARCHIVED') {
-            toast('📦 Archived account. Please login to restore.');
-            resetForm();
-            $('mobile').value = mobile;
-            $('step1').classList.add('hidden');
-            $('step2').classList.remove('hidden');
-            $('display-mobile').textContent = mobile;
-        } else {
-            toast('❌ ' + (result.error || 'Registration failed'));
-        }
-    } catch (e) {
-        console.error('Registration error:', e);
-        toast('❌ Registration error. Please try again.');
-    } finally {
-        btn.textContent = '✅ Create Account';
-        btn.disabled = false;
-    }
-}
-
-// ============================================================
-// CHANGE PIN
-// ============================================================
-function openChangePin() {
-    if (!user) {
-        toast('⚠️ Please login first');
-        return;
-    }
-    var currentPin = prompt('Enter your current PIN:');
-    if (currentPin === null) return;
-    if (!currentPin || currentPin.length !== 4) {
-        toast('⚠️ Enter valid 4-digit current PIN');
-        return;
-    }
-    var newPin = prompt('Enter new 4-digit PIN:');
-    if (newPin === null) return;
-    if (!newPin || newPin.length !== 4) {
-        toast('⚠️ Enter valid 4-digit new PIN');
-        return;
-    }
-    var confirmPin = prompt('Confirm new PIN:');
-    if (confirmPin === null) return;
-    if (newPin !== confirmPin) {
-        toast('⚠️ PINs do not match');
-        return;
-    }
-
-    toast('⏳ Changing PIN...');
-    fetch(EDGE_URL + '/change-pin', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': 'Bearer ' + SB_KEY
-        },
-        body: JSON.stringify({
-            mobile: user.mobile,
-            current_pin: currentPin,
-            new_pin: newPin
-        })
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(result) {
-        if (result.success === true) {
-            toast('✅ PIN changed successfully!');
-        } else {
-            toast('❌ ' + (result.error || 'Failed to change PIN. Current PIN may be incorrect.'));
-        }
-    })
-    .catch(function(e) {
-        console.error('Change PIN error:', e);
-        toast('❌ Change PIN failed. Please try again.');
-    });
-}
-
-// ============================================================
-// RESET PIN
-// ============================================================
-function resetPIN() {
-    if (!otpVerified) {
-        toast('⚠️ Please verify OTP first');
-        return;
-    }
-
-    var newPin = prompt('Enter new 4-digit PIN:');
-    if (newPin === null) return;
-    if (!newPin || newPin.length !== 4) {
-        toast('⚠️ Enter valid 4-digit PIN');
-        return;
-    }
-    var confirmPin = prompt('Confirm new PIN:');
-    if (confirmPin === null) return;
-    if (newPin !== confirmPin) {
-        toast('⚠️ PINs do not match');
-        return;
-    }
-
-    toast('⏳ Resetting PIN...');
-    fetch(EDGE_URL + '/login-user', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': 'Bearer ' + SB_KEY
-        },
-        body: JSON.stringify({
-            mobile: mobile,
-            action: 'reset_pin',
-            new_pin: newPin
-        })
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(result) {
-        if (result.success === true) {
-            toast('✅ PIN reset successfully!');
-            if (result.user) {
-                user = result.user;
-                localStorage.setItem('rt_user', JSON.stringify({
-                    mobile: user.mobile,
-                    user: user
-                }));
-                guest = false;
-                showHome();
+// Handle Enter key
+document.querySelectorAll('.search-wrapper input').forEach(function(input){
+    input.addEventListener('keydown', function(e){
+        if(e.key === 'Enter'){
+            var ctx = this.id.replace('search-', '');
+            var sug = $('suggestions-'+ctx);
+            if(sug && sug.querySelector('.item')){
+                var firstItem = sug.querySelector('.item');
+                var pinId = firstItem.dataset.pinid;
+                if(pinId){
+                    selectLoc(ctx, pinId);
+                }
             }
-        } else {
-            toast('❌ ' + (result.error || 'Failed to reset PIN'));
         }
-    })
-    .catch(function(e) {
-        console.error('Reset PIN error:', e);
-        toast('❌ Reset PIN failed. Please try again.');
     });
-}
-
-// ============================================================
-// NAVIGATION
-// ============================================================
-function goHome() {
-    showPage('home-page');
-    document.querySelectorAll('.nav-item').forEach(function(e) { e.classList.remove('active'); });
-    document.querySelectorAll('.nav-fixed .nav-item')[0].classList.add('active');
-}
-
-function goToProfile() {
-    if (guest || !user) { showLogin(); return; }
-    showPage('profile-page');
-    document.querySelectorAll('.nav-item').forEach(function(e) { e.classList.remove('active'); });
-    document.querySelectorAll('.nav-fixed .nav-item')[3].classList.add('active');
-    $('profile-mobile').textContent = user.mobile || '--';
-}
-
-function goPostLoad() {
-    if (guest || !user) { showLogin(); return; }
-    showPage('postload-page');
-    document.querySelectorAll('.nav-item').forEach(function(e) { e.classList.remove('active'); });
-    document.querySelectorAll('.nav-fixed .nav-item')[1].classList.add('active');
-}
-
-function goPostTruck() {
-    if (guest || !user) { showLogin(); return; }
-    showPage('posttruck-page');
-    document.querySelectorAll('.nav-item').forEach(function(e) { e.classList.remove('active'); });
-    document.querySelectorAll('.nav-fixed .nav-item')[2].classList.add('active');
-}
-
-function saveProfile() { toast('✅ Profile saved!'); }
-function setTab(t) {
-    document.querySelectorAll('.type-tabs button').forEach(function(b) { b.className = 'inactive'; });
-    var map = { 'ALL': 'tab-all', 'LOAD': 'tab-loads', 'TRUCK': 'tab-trucks', 'AGENT': 'tab-agents' };
-    var el = $(map[t]);
-    if (el) el.className = 'active';
-}
-function logout() {
-    if (confirm('Logout?')) {
-        localStorage.removeItem('rt_user');
-        window.location.reload();
-    }
-}
-
-// Enter key handlers
-$('pin').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') submitPin();
-    $('pin-error').style.display = 'none';
-});
-$('reg-pin').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') $('reg-pin-confirm').focus();
-});
-$('reg-pin-confirm').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') registerUser();
-});
-
-// ============================================================
-// INIT
-// ============================================================
-document.addEventListener('DOMContentLoaded', function() {
-    var saved = localStorage.getItem('rt_user');
-    if (saved) {
-        var sd = JSON.parse(saved);
-        if (sd.guest) {
-            guest = true;
-            user = null;
-        } else if (sd.user) {
-            user = sd.user;
-            guest = false;
-        }
-        showHome();
-    } else {
-        showPage('login-screen');
-        $('step1').classList.remove('hidden');
-    }
 });
 </script>
 </body>
