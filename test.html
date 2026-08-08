@@ -3,144 +3,117 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Location Selection Test</title>
+<title>Install Button Test</title>
 <style>
 *{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
-body{background:#f3f4f6;margin:0;padding:20px;display:flex;justify-content:center;align-items:center;min-height:100vh}
-.card{max-width:480px;width:100%;background:#fff;border-radius:16px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
-h1{font-size:20px;color:#2563eb;margin:0 0 4px}
-.sub{font-size:13px;color:#64748b;margin-bottom:16px}
-.search-wrapper{position:relative;margin-bottom:8px}
-.search-wrapper input{width:100%;padding:12px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:16px;background:#fff;outline:none}
-.search-wrapper input:focus{border-color:#2563eb}
-.search-wrapper input.selected{background:#e8f0fe;border-color:#2563eb}
-.search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:10px;margin-top:4px;max-height:220px;overflow-y:auto;z-index:50;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
-.search-wrapper .suggestions.show{display:block}
-.search-wrapper .suggestions .item{padding:12px 16px;font-size:14px;color:#1e293b;cursor:pointer;border-bottom:1px solid #f1f5f9}
-.search-wrapper .suggestions .item:hover{background:#f1f5f9}
-.search-wrapper .suggestions .item:last-child{border-bottom:none}
-.search-wrapper .suggestions .item .highlight{background:#dbeafe;font-weight:600}
-.selected-display{font-size:13px;color:#64748b;padding:4px 0}
-.selected-display .label{font-weight:600;color:#1e293b}
-.selected-display .value{color:#2563eb}
-.pin-id-display{font-size:11px;color:#94a3b8;font-family:monospace}
-.status{font-size:13px;padding:8px 12px;border-radius:8px;margin-top:8px;display:none}
-.status.success{background:#dcfce7;color:#166534;display:block}
-.status.error{background:#fef2f2;color:#991b1b;display:block}
-.status.info{background:#dbeafe;color:#1e40af;display:block}
-.clear-btn{padding:8px 16px;background:#ef4444;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600}
-.clear-btn:hover{background:#dc2626}
-.flex{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-.btn{flex:1;padding:10px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;min-width:80px}
+body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
+.card{max-width:420px;width:100%;background:#fff;border-radius:24px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);display:flex;flex-direction:column;height:95vh;max-height:800px;position:relative;overflow:hidden}
+
+/* Header */
+.header-fixed{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #f1f5f9;background:#fff;z-index:10;width:100%;min-height:50px}
+.logo{font-size:20px;font-weight:900;color:#2563eb;display:flex;align-items:center;gap:6px}
+.logo-icon{font-size:28px}.logo-text{font-size:20px;font-weight:900;color:#2563eb}
+.avatar{width:36px;height:36px;border-radius:50%;background:#64748b;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;cursor:pointer}
+
+/* Content */
+.scroll-body{flex:1;overflow-y:auto;padding:16px 0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.test-box{background:#f8fafc;border:2px dashed #94a3b8;border-radius:12px;padding:24px;text-align:center;width:100%}
+.test-box .icon{font-size:48px;display:block;margin-bottom:12px}
+.test-box h3{font-size:16px;color:#1e293b;margin:0 0 8px}
+.test-box p{font-size:13px;color:#64748b;margin:0}
+.status-box{margin-top:16px;padding:12px;border-radius:8px;width:100%;text-align:center;font-size:13px;font-weight:600}
+.status-box.success{background:#dcfce7;color:#166534}
+.status-box.error{background:#fef2f2;color:#991b1b}
+.status-box.info{background:#dbeafe;color:#1e40af}
+.status-box.pending{background:#fef3c7;color:#92400e}
+
+/* Bottom Navigation */
+.nav-fixed{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e2e8f0;background:#fff;position:relative;z-index:10;min-height:65px;width:100%;padding-bottom:5px;margin-top:auto}
+.nav-item{display:flex;flex-direction:column;align-items:center;color:#94a3b8;font-size:9px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px;position:relative;z-index:2}
+.nav-item.active{color:#2563eb}
+.nav-item .icon{font-size:22px;margin-bottom:2px}
+.nav-item .label{font-size:9px;text-transform:uppercase;letter-spacing:.05em}
+
+/* Install Button - Floating above nav */
+.nav-install-wrapper{position:absolute;left:50%;top:-22px;transform:translateX(-50%);z-index:5;display:none}
+.nav-install-wrapper.show{display:block}
+.nav-install-btn{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;border-radius:30px;padding:4px 14px;font-size:10px;font-weight:700;cursor:pointer;box-shadow:0 4px 15px rgba(37,99,235,0.4);display:flex;align-items:center;gap:4px;white-space:nowrap;animation:pulse-install 2s infinite;letter-spacing:0.3px}
+.nav-install-btn .install-icon{font-size:12px}
+.nav-install-btn .install-badge{background:#ef4444;color:#fff;font-size:6px;font-weight:700;padding:1px 5px;border-radius:10px;margin-left:2px}
+@keyframes pulse-install{0%{transform:scale(1);box-shadow:0 4px 15px rgba(37,99,235,0.4)}50%{transform:scale(1.05);box-shadow:0 4px 25px rgba(37,99,235,0.6)}100%{transform:scale(1);box-shadow:0 4px 15px rgba(37,99,235,0.4)}}
+
+/* Controls */
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;width:100%}
+.controls button{flex:1;padding:8px 12px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;min-width:60px}
 .btn-primary{background:#2563eb;color:#fff}
 .btn-primary:hover{background:#1d4ed8}
 .btn-success{background:#16a34a;color:#fff}
 .btn-success:hover{background:#15803d}
+.btn-danger{background:#dc2626;color:#fff}
+.btn-danger:hover{background:#b91c1c}
 .btn-gray{background:#6b7280;color:#fff}
 .btn-gray:hover{background:#4b5563}
-.btn-warning{background:#f59e0b;color:#000}
-.btn-warning:hover{background:#d97706}
-.log-box{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:12px;font-family:monospace;font-size:11px;max-height:200px;overflow-y:auto;margin-top:12px;white-space:pre-wrap;word-break:break-all}
+
+.log-box{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:12px;font-family:monospace;font-size:11px;max-height:120px;overflow-y:auto;margin-top:12px;width:100%;white-space:pre-wrap;word-break:break-all}
 .log-box .pass{color:#4ade80}
 .log-box .fail{color:#f87171}
 .log-box .info{color:#60a5fa}
 .log-box .highlight{color:#f472b6}
-.section-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin-bottom:12px}
-.section-box .section-title{font-size:12px;font-weight:700;color:#1e293b;margin-bottom:6px}
-.hint{font-size:11px;color:#94a3b8;margin-top:4px;font-style:italic}
 </style>
 </head>
 <body>
 <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div>
-            <h1>📍 Location Selection Test</h1>
-            <div class="sub">Click on input to select text for easy delete</div>
-        </div>
-        <button class="clear-btn" onclick="clearAll()">🗑️ Clear</button>
+
+    <!-- HEADER -->
+    <div class="header-fixed">
+        <div class="logo"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></div>
+        <div class="avatar">GU</div>
     </div>
 
-    <!-- ==================== HOME LOCATION ==================== -->
-    <div class="section-box">
-        <div class="section-title">🏠 Home Location</div>
-        <div class="search-wrapper">
-            <input type="text" id="search-home" placeholder="Search location..." 
-                   oninput="searchLocation('home')" 
-                   onclick="selectInputText(this)"
-                   autocomplete="off">
-            <div class="suggestions" id="suggestions-home"></div>
+    <!-- CONTENT -->
+    <div class="scroll-body">
+        <div class="test-box">
+            <span class="icon">📲</span>
+            <h3>Install Button Test</h3>
+            <p>Check if install button appears at bottom navigation</p>
         </div>
-        <div class="selected-display" id="home-selected">
-            <span class="label">Selected:</span> <span class="value">None</span>
+
+        <div id="status-box" class="status-box info">⏳ Checking install status...</div>
+
+        <div class="controls">
+            <button class="btn-primary" onclick="showInstall()">👆 Show Install</button>
+            <button class="btn-success" onclick="hideInstall()">👆 Hide Install</button>
+            <button class="btn-danger" onclick="toggleInstall()">🔄 Toggle</button>
+            <button class="btn-gray" onclick="clearLog()">🗑️ Clear</button>
         </div>
-        <div class="pin-id-display" id="home-pin-id">PIN_ID: -</div>
-        <div class="hint">💡 Click on the input field to select all text for easy deletion</div>
+
+        <div class="log-box" id="log">⏳ Waiting for tests...</div>
     </div>
 
-    <!-- ==================== TO LOCATION (Filter) ==================== -->
-    <div class="section-box">
-        <div class="section-title">📍 To Location (Filter)</div>
-        <div class="search-wrapper">
-            <input type="text" id="search-to" placeholder="Search location..." 
-                   oninput="searchLocation('to')" 
-                   onclick="selectInputText(this)"
-                   autocomplete="off">
-            <div class="suggestions" id="suggestions-to"></div>
+    <!-- BOTTOM NAVIGATION -->
+    <div class="nav-fixed" id="bottom-nav">
+        <button class="nav-item active"><span class="icon">🏠</span><span class="label">Home</span></button>
+
+        <!-- INSTALL BUTTON -->
+        <div class="nav-install-wrapper" id="nav-install-wrapper">
+            <button class="nav-install-btn" id="nav-install-btn" onclick="forceInstall()">
+                <span class="install-icon">📲</span> Install <span class="install-badge">NEW</span>
+            </button>
         </div>
-        <div class="selected-display" id="to-selected">
-            <span class="label">Selected:</span> <span class="value">None</span>
-        </div>
-        <div class="pin-id-display" id="to-pin-id">PIN_ID: -</div>
-        <div class="hint">💡 Click on the input field to select all text for easy deletion</div>
+
+        <button class="nav-item"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item"><span class="icon">👤</span><span class="label">Profile</span></button>
     </div>
 
-    <!-- ==================== STATUS ==================== -->
-    <div id="status" class="status"></div>
-
-    <!-- ==================== BUTTONS ==================== -->
-    <div class="flex">
-        <button class="btn btn-primary" onclick="testAll()">🔍 Test All</button>
-        <button class="btn btn-success" onclick="testHome()">🏠 Test Home</button>
-        <button class="btn btn-gray" onclick="testTo()">📍 Test To</button>
-        <button class="btn btn-warning" onclick="testSelectAll()">📝 Test Select All</button>
-    </div>
-
-    <!-- ==================== LOG ==================== -->
-    <div class="log-box" id="log">⏳ Waiting for tests...</div>
 </div>
 
 <script>
 // ============================================================
-// STATIC LOCATION DATA
-// ============================================================
-var LOCATIONS = [
-  {pin_id:"53300104", pincode:"533001", name:"Kakinada", district:"Kakinada", state:"AP", lat:16.9550556, lng:82.2354722},
-  {pin_id:"53340114", pincode:"533401", name:"Tuni", district:"Kakinada", state:"AP", lat:17.3581389, lng:82.5455278},
-  {pin_id:"53340604", pincode:"533406", name:"Annavaram", district:"Kakinada", state:"AP", lat:17.2830278, lng:82.4064444},
-  {pin_id:"53342905", pincode:"533429", name:"Yeleswaram", district:"Kakinada", state:"AP", lat:17.2893333, lng:82.1058889},
-  {pin_id:"52400103", pincode:"524001", name:"Nellore", district:"SPSR NELLORE", state:"AP", lat:14.451895, lng:79.980856},
-  {pin_id:"52400405", pincode:"524004", name:"Buja Buja Nellore", district:"SPSR NELLORE", state:"AP", lat:14.393973, lng:79.938857},
-  {pin_id:"52420106", pincode:"524201", name:"Kavali", district:"SPSR NELLORE", state:"AP", lat:14.91658, lng:79.993121},
-  {pin_id:"52434404", pincode:"524344", name:"Muthukur", district:"SPSR NELLORE", state:"AP", lat:14.5749722, lng:80.1420833},
-  {pin_id:"50000101", pincode:"500001", name:"Hyderabad G.P.O.", district:"HYDERABAD", state:"TG", lat:17.387993, lng:78.47652},
-  {pin_id:"50000802", pincode:"500008", name:"Lungeruse", district:"HYDERABAD", state:"TG", lat:17.37586111, lng:78.42025},
-  {pin_id:"50000803", pincode:"500008", name:"Toli Chowki", district:"HYDERABAD", state:"TG", lat:17.65252778, lng:78.68886111},
-  {pin_id:"50004501", pincode:"500045", name:"Yousufguda", district:"HYDERABAD", state:"TG", lat:17.441504, lng:78.424536},
-  {pin_id:"50004902", pincode:"500049", name:"Miyapur", district:"MEDCHAL MALKAJGIRI", state:"TG", lat:17.49253338, lng:78.35148793},
-  {pin_id:"50006201", pincode:"500062", name:"Ecil", district:"MEDCHAL MALKAJGIRI", state:"TG", lat:17.465795, lng:78.570653},
-  {pin_id:"50007503", pincode:"500075", name:"Gandipet", district:"RANGA REDDY", state:"TG", lat:17.38471, lng:78.320332},
-  {pin_id:"50007504", pincode:"500075", name:"Kokapet", district:"RANGA REDDY", state:"TG", lat:17.38471, lng:78.320332},
-  {pin_id:"50009201", pincode:"500092", name:"Boduppal", district:"MEDCHAL MALKAJGIRI", state:"TG", lat:17.42022, lng:78.58452},
-  {pin_id:"50009702", pincode:"500097", name:"Meerpet", district:"RANGA REDDY", state:"TG", lat:17.320999, lng:78.530474},
-  {pin_id:"50009801", pincode:"500098", name:"Medipalli", district:"MEDCHAL MALKAJGIRI", state:"TG", lat:17.40909, lng:78.60141},
-  {pin_id:"50011201", pincode:"500112", name:"Badangpet", district:"HYDERABAD", state:"TG", lat:17.30505, lng:78.525178}
-];
-
-// ============================================================
 // STATE
 // ============================================================
-var selectedHome = null;
-var selectedTo = null;
+var installed = false;
+var prompt = null;
 
 function $(id){return document.getElementById(id)}
 
@@ -155,272 +128,200 @@ function log(msg, type){
     el.scrollTop = el.scrollHeight;
 }
 
-function clearAll(){
+function clearLog(){
     $('log').innerHTML = '';
-    $('status').className = 'status';
-    $('status').style.display = 'none';
-    selectedHome = null;
-    selectedTo = null;
-    document.querySelectorAll('.search-wrapper input').forEach(function(i){ 
-        i.value='';
-        i.classList.remove('selected');
-    });
-    $('home-selected').innerHTML = '<span class="label">Selected:</span> <span class="value">None</span>';
-    $('to-selected').innerHTML = '<span class="label">Selected:</span> <span class="value">None</span>';
-    $('home-pin-id').textContent = 'PIN_ID: -';
-    $('to-pin-id').textContent = 'PIN_ID: -';
-    document.querySelectorAll('.suggestions').forEach(function(s){ s.classList.remove('show'); s.innerHTML=''; });
-    log('🗑️ Cleared', 'info');
+    log('🗑️ Log cleared', 'info');
 }
 
 function setStatus(text, type){
-    var el = $('status');
+    var el = $('status-box');
     el.textContent = text;
-    el.className = 'status ' + type;
-    el.style.display = 'block';
+    el.className = 'status-box ' + (type || 'info');
 }
 
 // ============================================================
-// ✅ FIX: SELECT ALL TEXT ON CLICK
+// INSTALL BUTTON FUNCTIONS
 // ============================================================
-function selectInputText(input){
-    // Select all text in the input field
-    input.select();
-    input.classList.add('selected');
-    log('📝 Text selected in: ' + input.id, 'info');
+
+// Check if app is already installed
+if(window.matchMedia('(display-mode: standalone)').matches){
+    installed = true;
 }
 
-// Remove selection highlight when focus is lost
-document.addEventListener('DOMContentLoaded', function(){
-    document.querySelectorAll('.search-wrapper input').forEach(function(input){
-        input.addEventListener('blur', function(){
-            this.classList.remove('selected');
-        });
-        input.addEventListener('keydown', function(e){
-            // If user starts typing, clear the selection
-            if(e.key.length === 1 || e.key === 'Backspace'){
-                this.classList.remove('selected');
+function updateInstallButton(){
+    // Show install button only if:
+    // 1. User is on mobile
+    // 2. Not already installed
+    // 3. Not in standalone mode
+    var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    var show = isMobile && !window.matchMedia('(display-mode: standalone)').matches && !installed;
+    
+    var wrapper = $('nav-install-wrapper');
+    if(wrapper){
+        wrapper.classList.toggle('show', show);
+        if(show){
+            log('✅ Install button SHOWING (mobile, not installed)', 'pass');
+            setStatus('✅ Install button is visible', 'success');
+        }else{
+            log('❌ Install button HIDDEN (not mobile or already installed)', 'fail');
+            if(installed){
+                setStatus('📱 App already installed', 'success');
+            }else if(!isMobile){
+                setStatus('💻 Desktop browser - no install button', 'info');
+            }else{
+                setStatus('⏳ Install button hidden', 'pending');
+            }
+        }
+    }
+}
+
+// Show install button manually (for testing)
+function showInstall(){
+    var wrapper = $('nav-install-wrapper');
+    if(wrapper){
+        wrapper.classList.add('show');
+        log('👆 Install button SHOWN (manual)', 'pass');
+        setStatus('✅ Install button manually shown', 'success');
+    }
+}
+
+// Hide install button manually (for testing)
+function hideInstall(){
+    var wrapper = $('nav-install-wrapper');
+    if(wrapper){
+        wrapper.classList.remove('show');
+        log('👆 Install button HIDDEN (manual)', 'info');
+        setStatus('❌ Install button manually hidden', 'error');
+    }
+}
+
+// Toggle install button (for testing)
+function toggleInstall(){
+    var wrapper = $('nav-install-wrapper');
+    if(wrapper){
+        wrapper.classList.toggle('show');
+        var isShown = wrapper.classList.contains('show');
+        log('🔄 Toggle: ' + (isShown ? 'SHOWING' : 'HIDDEN'), isShown ? 'pass' : 'info');
+        setStatus(isShown ? '✅ Install button visible' : '❌ Install button hidden', isShown ? 'success' : 'error');
+    }
+}
+
+// Force install (simulate)
+function forceInstall(){
+    log('📲 Install button clicked!', 'highlight');
+    setStatus('📲 Install requested...', 'pending');
+    toast('📲 Install button clicked! (simulated)');
+    
+    // Simulate installation
+    if(prompt){
+        prompt.prompt();
+        prompt.userChoice.then(function(c){
+            if(c.outcome === 'accepted'){
+                installed = true;
+                updateInstallButton();
+                toast('🎉 App installed!');
             }
         });
-    });
+    }else{
+        // For demo: simulate install
+        setTimeout(function(){
+            installed = true;
+            updateInstallButton();
+            toast('🎉 App "installed" (simulated)');
+        }, 1500);
+    }
+}
+
+// ============================================================
+// PWA EVENTS
+// ============================================================
+
+// Listen for beforeinstallprompt
+window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    prompt = e;
+    log('📱 beforeinstallprompt fired!', 'pass');
+    setStatus('📱 Install prompt ready', 'success');
+    updateInstallButton();
+});
+
+// Listen for app installed
+window.addEventListener('appinstalled', function(){
+    installed = true;
+    prompt = null;
+    log('🎉 App installed successfully!', 'pass');
+    setStatus('🎉 App installed!', 'success');
+    updateInstallButton();
 });
 
 // ============================================================
-// LOCATION HELPERS
+// TOAST (simple alert)
 // ============================================================
-function getLoc(pinId){
-    if(!pinId) return null;
-    for(var i=0;i<LOCATIONS.length;i++){
-        if(LOCATIONS[i].pin_id===pinId) return LOCATIONS[i];
-    }
-    return null;
-}
-
-function getLocDisplayName(loc){
-    if(!loc) return 'Unknown';
-    return loc.name+', '+loc.district+', '+loc.state+' ('+loc.pincode+')';
+function toast(msg){
+    alert(msg);
 }
 
 // ============================================================
-// SEARCH LOCATION
-// ============================================================
-function searchLocation(ctx){
-    var inp=$('search-'+ctx);
-    var sug=$('suggestions-'+ctx);
-    if(!inp||!sug) return;
-    var q=inp.value.trim();
-    if(!q){
-        sug.classList.remove('show');
-        sug.innerHTML='';
-        return;
-    }
-    
-    var res=[];
-    var ql=q.toLowerCase();
-    for(var i=0;i<LOCATIONS.length;i++){
-        var l=LOCATIONS[i];
-        if(l.name.toLowerCase().includes(ql) || 
-           l.pincode.includes(q) || 
-           l.district.toLowerCase().includes(ql) ||
-           l.state.toLowerCase().includes(ql) ||
-           l.pin_id.toLowerCase().includes(ql)){
-            res.push(l);
-            if(res.length>=10) break;
-        }
-    }
-    
-    if(!res.length){
-        sug.classList.remove('show');
-        sug.innerHTML='';
-        return;
-    }
-    
-    var html='';
-    for(var j=0;j<res.length;j++){
-        var l=res[j];
-        var dn=getLocDisplayName(l);
-        var idx=dn.toLowerCase().indexOf(ql);
-        var dh=dn;
-        if(idx!==-1){
-            dh=dn.substring(0,idx)+'<span class="highlight">'+dn.substring(idx,idx+q.length)+'</span>'+dn.substring(idx+q.length);
-        }
-        html+='<div class="item" data-ctx="'+ctx+'" data-pinid="'+l.pin_id+'">'+dh+'</div>';
-    }
-    sug.innerHTML=html;
-    sug.classList.add('show');
-}
-
-// ============================================================
-// SELECT LOCATION
-// ============================================================
-function selectLoc(ctx, pinId){
-    var l=getLoc(pinId);
-    if(!l){
-        log('❌ Location not found for pinId: ' + pinId, 'fail');
-        setStatus('❌ Location not found', 'error');
-        return;
-    }
-    
-    var dn=getLocDisplayName(l);
-    
-    // Update input field
-    var inp=$('search-'+ctx);
-    if(inp){
-        inp.value=dn;
-        // Auto-select the text after setting value
-        setTimeout(function(){
-            inp.select();
-            inp.classList.add('selected');
-        }, 100);
-    }
-    
-    // Update selected display
-    if(ctx==='home'){
-        selectedHome = pinId;
-        $('home-selected').innerHTML = '<span class="label">Selected:</span> <span class="value" style="color:#16a34a">' + dn + '</span>';
-        $('home-pin-id').textContent = 'PIN_ID: ' + pinId;
-        log('🏠 Home selected: ' + dn + ' (PIN_ID: ' + pinId + ')', 'pass');
-    }else if(ctx==='to'){
-        selectedTo = pinId;
-        $('to-selected').innerHTML = '<span class="label">Selected:</span> <span class="value" style="color:#16a34a">' + dn + '</span>';
-        $('to-pin-id').textContent = 'PIN_ID: ' + pinId;
-        log('📍 To selected: ' + dn + ' (PIN_ID: ' + pinId + ')', 'pass');
-    }
-    
-    // Close suggestions
-    var sug=$('suggestions-'+ctx);
-    if(sug){
-        sug.classList.remove('show');
-        sug.innerHTML='';
-    }
-    
-    setStatus('✅ Selected: ' + dn, 'success');
-}
-
-// ============================================================
-// EVENT DELEGATION - Handles all suggestion clicks
-// ============================================================
-document.addEventListener('click', function(e){
-    var item = e.target.closest('.item');
-    if(item){
-        var ctx = item.dataset.ctx;
-        var pinId = item.dataset.pinid;
-        if(ctx && pinId){
-            log('🔍 Clicked: ctx=' + ctx + ', pinId=' + pinId, 'info');
-            selectLoc(ctx, pinId);
-        }
-    }
-});
-
-// ============================================================
-// TESTS
-// ============================================================
-function testHome(){
-    log('🏠 Testing Home search...', 'info');
-    var inp=$('search-home');
-    if(inp){
-        inp.value = 'Yousufguda';
-        inp.dispatchEvent(new Event('input'));
-        setStatus('🔍 Searching for "Yousufguda"', 'info');
-        log('🔍 Searching: Yousufguda', 'info');
-        // Auto-select after setting value
-        setTimeout(function(){
-            inp.select();
-            inp.classList.add('selected');
-        }, 200);
-    }
-}
-
-function testTo(){
-    log('📍 Testing To search...', 'info');
-    var inp=$('search-to');
-    if(inp){
-        inp.value = 'Kakinada';
-        inp.dispatchEvent(new Event('input'));
-        setStatus('🔍 Searching for "Kakinada"', 'info');
-        log('🔍 Searching: Kakinada', 'info');
-        setTimeout(function(){
-            inp.select();
-            inp.classList.add('selected');
-        }, 200);
-    }
-}
-
-function testSelectAll(){
-    log('📝 Testing select all on click...', 'info');
-    var inputs = document.querySelectorAll('.search-wrapper input');
-    inputs.forEach(function(input){
-        if(input.value){
-            input.select();
-            input.classList.add('selected');
-            log('📝 Selected text in: ' + input.id + ' = "' + input.value + '"', 'pass');
-        }else{
-            log('⚠️ ' + input.id + ' is empty', 'fail');
-        }
-    });
-    setStatus('📝 Select All tested', 'info');
-}
-
-function testAll(){
-    log('🚀 Testing all...', 'info');
-    testHome();
-    setTimeout(function(){
-        testTo();
-    }, 1000);
-}
-
-// ============================================================
-// AUTO-RUN ON LOAD
+// INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', function(){
-    log('🚀 Location Selection Test initialized', 'info');
-    log('📊 Total locations: ' + LOCATIONS.length, 'info');
-    log('💡 Type a location name to search', 'info');
-    log('💡 Click on any suggestion to select', 'info');
-    log('💡 Click on input field to select ALL text for easy delete', 'highlight');
+    log('🚀 Install Button Test initialized', 'info');
+    log('📱 Device: ' + navigator.userAgent, 'info');
+    log('📱 Standalone mode: ' + (window.matchMedia('(display-mode: standalone)').matches ? 'YES' : 'NO'), 'info');
+    log('📱 Installed: ' + (installed ? 'YES' : 'NO'), 'info');
     log('----------------------------------------', 'info');
     
-    // Auto-run test
+    // Update install button on load
     setTimeout(function(){
-        testHome();
+        updateInstallButton();
     }, 500);
+    
+    // Also update after 3 seconds (for demo)
+    setTimeout(function(){
+        log('🔄 Re-checking install status...', 'info');
+        updateInstallButton();
+    }, 3000);
 });
 
-// Handle Enter key
-document.querySelectorAll('.search-wrapper input').forEach(function(input){
-    input.addEventListener('keydown', function(e){
-        if(e.key === 'Enter'){
-            var ctx = this.id.replace('search-', '');
-            var sug = $('suggestions-'+ctx);
-            if(sug && sug.querySelector('.item')){
-                var firstItem = sug.querySelector('.item');
-                var pinId = firstItem.dataset.pinid;
-                if(pinId){
-                    selectLoc(ctx, pinId);
-                }
-            }
-        }
-    });
+// ============================================================
+// TEST SCENARIOS - Quick test buttons
+// ============================================================
+
+// Simulate mobile device (for testing in desktop)
+function simulateMobile(){
+    // Only for testing - doesn't actually change userAgent
+    log('📱 Simulating mobile...', 'info');
+    // Force show install button
+    var wrapper = $('nav-install-wrapper');
+    if(wrapper){
+        wrapper.classList.add('show');
+        setStatus('✅ Simulated mobile - install button shown', 'success');
+        log('✅ Install button forced to show (simulation)', 'pass');
+    }
+}
+
+// Simulate installed (for testing)
+function simulateInstalled(){
+    installed = true;
+    prompt = null;
+    log('📱 Simulating app installed...', 'info');
+    updateInstallButton();
+    setStatus('📱 Simulated installed', 'success');
+    log('✅ Install button hidden (simulated installed)', 'pass');
+}
+
+// Add simulation buttons dynamically
+document.addEventListener('DOMContentLoaded', function(){
+    var controls = document.querySelector('.controls');
+    var simDiv = document.createElement('div');
+    simDiv.className = 'controls';
+    simDiv.style.marginTop = '6px';
+    simDiv.innerHTML = `
+        <button class="btn-primary" onclick="simulateMobile()">📱 Simulate Mobile</button>
+        <button class="btn-success" onclick="simulateInstalled()">✅ Simulate Installed</button>
+        <button class="btn-gray" onclick="updateInstallButton()">🔄 Re-check</button>
+    `;
+    controls.parentNode.insertBefore(simDiv, controls.nextSibling);
 });
 </script>
 </body>
