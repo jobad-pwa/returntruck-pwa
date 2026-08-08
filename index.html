@@ -504,8 +504,7 @@ function searchLocation(ctx){
         if(idx!==-1){
             dh=dn.substring(0,idx)+'<span class="highlight">'+dn.substring(idx,idx+q.length)+'</span>'+dn.substring(idx+q.length);
         }
-        // ✅ Fix: Use onclick with proper string escaping
-        html+='<div class="item" data-pinid="'+l.pin_id+'" data-ctx="'+ctx+'" onclick="selectLoc(\''+ctx+'\',\''+l.pin_id+'\')">'+dh+'</div>';
+        html+='<div class="item" onclick="selectLoc(\''+ctx+'\',\''+l.pin_id+'\')">'+dh+'</div>';
     }
     sug.innerHTML=html;
     sug.classList.add('show');
@@ -513,7 +512,6 @@ function searchLocation(ctx){
 
 // ✅ FIXED: selectLoc with proper parameter handling
 function selectLoc(ctx, pinId){
-    // Find the location
     var l=getLoc(pinId);
     if(!l) {
         console.log('❌ Location not found for pinId:', pinId);
@@ -521,7 +519,6 @@ function selectLoc(ctx, pinId){
     }
     
     var dn=getLocDisplayName(l);
-    console.log('✅ Selected:', ctx, dn, 'pinId:', pinId);
     
     // Get the input field
     var searchInput=$('search-'+ctx);
@@ -529,7 +526,7 @@ function selectLoc(ctx, pinId){
         searchInput.value=dn;
     }
     
-    // Get hidden field
+    // Get hidden field for storing pin_id
     var hid=null;
     if(ctx==='to') hid='filter-to-hidden';
     else if(ctx==='pl-pickup') hid='pl-pickup-hidden';
@@ -745,7 +742,7 @@ function showResetOTP(){
 }
 
 // ============================================================
-// RENDER FEED
+// RENDER FEED - Using PIN_ID for locations
 // ============================================================
 async function renderFeed(){
 try{
@@ -879,8 +876,149 @@ function expressInterest(){toast('✅ Interest expressed!')}
 function contactUser(){toast('📧 Contact details shared!')}
 function handleShareClick(){if(navigator.share){navigator.share({title:'ReturnTruck',text:'Check out this listing on ReturnTruck!',url:window.location.href})}else{toast('📋 Link copied!')}}
 function autoFetchVehicle(){toast('🔍 Vehicle details fetched!')}
-function publishLoad(){toast('📦 Load published!')}
-function publishTruck(){toast('🚛 Truck listed!')}
+
+// ============================================================
+// ✅ PUBLISH LOAD - Stores PIN_ID in Supabase
+// ============================================================
+function publishLoad(){
+    if(!user){
+        toast('⚠️ Please login first');
+        return;
+    }
+    
+    var material = $('pl-material').value;
+    var weight = $('pl-weight').value;
+    var dim = $('pl-dim').value;
+    var pickupPinId = $('pl-pickup-hidden').value;
+    var dropPinId = $('pl-drop-hidden').value;
+    var rate = $('pl-rate').value;
+    var date = $('pl-date').value;
+    
+    if(!material || !pickupPinId || !dropPinId){
+        toast('⚠️ Please fill all required fields (Material, Pickup, Drop)');
+        return;
+    }
+    
+    // Get pickup location details
+    var pickupLoc = getLoc(pickupPinId);
+    var dropLoc = getLoc(dropPinId);
+    
+    toast('⏳ Publishing load...');
+    
+    var loadData = {
+        material: material,
+        weight: parseInt(weight) || 0,
+        dimensions: dim || '',
+        pickup_pin_id: pickupPinId,  // Store PIN_ID in Supabase
+        drop_pin_id: dropPinId,      // Store PIN_ID in Supabase
+        rate: parseFloat(rate) || 0,
+        date: date || new Date().toISOString().split('T')[0],
+        company: user.company_name || '',
+        mobile: user.mobile,
+        status: 1,
+        views: 0,
+        interests: [],
+        shares: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+    };
+    
+    console.log('📤 Publishing load with PIN_IDs:', loadData);
+    
+    sb.from('active_loads').insert(loadData)
+    .then(function(result){
+        if(result.error){
+            console.error('Publish error:', result.error);
+            toast('❌ Error publishing load: ' + result.error.message);
+        }else{
+            toast('✅ Load published successfully!');
+            // Reset form
+            $('pl-material').value = '';
+            $('pl-weight').value = '';
+            $('pl-dim').value = '';
+            $('pl-pickup-hidden').value = '';
+            $('pl-drop-hidden').value = '';
+            $('search-pl-pickup').value = '';
+            $('search-pl-drop').value = '';
+            $('pl-rate').value = '';
+            $('pl-date').value = '';
+            goHome();
+        }
+    })
+    .catch(function(e){
+        console.error('Publish error:', e);
+        toast('❌ Error publishing load');
+    });
+}
+
+// ============================================================
+// ✅ PUBLISH TRUCK - Stores PIN_ID in Supabase
+// ============================================================
+function publishTruck(){
+    if(!user){
+        toast('⚠️ Please login first');
+        return;
+    }
+    
+    var truckNo = $('pt-number').value;
+    var locationPinId = $('pt-location-hidden').value;
+    var available = $('pt-available').value;
+    var rateKm = $('pt-rate-km').value;
+    var driver = $('pt-driver').value;
+    var driverMobile = $('pt-driver-mobile').value;
+    
+    if(!truckNo || !locationPinId){
+        toast('⚠️ Please fill Vehicle Number and Location');
+        return;
+    }
+    
+    var locationLoc = getLoc(locationPinId);
+    
+    toast('⏳ Listing truck...');
+    
+    var truckData = {
+        truck_no: truckNo,
+        location_pin_id: locationPinId,  // Store PIN_ID in Supabase
+        available_from: available || new Date().toISOString().split('T')[0],
+        rate_km: parseFloat(rateKm) || 0,
+        driver_name: driver || '',
+        driver_mobile: driverMobile || '',
+        company_name: user.fleet_company || user.company_name || '',
+        mobile: user.mobile,
+        vehicle_type: 'container', // Default
+        status: 1,
+        views: 0,
+        interested: [],
+        share: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+    };
+    
+    console.log('📤 Listing truck with PIN_ID:', truckData);
+    
+    sb.from('active_trucks').insert(truckData)
+    .then(function(result){
+        if(result.error){
+            console.error('Publish error:', result.error);
+            toast('❌ Error listing truck: ' + result.error.message);
+        }else{
+            toast('✅ Truck listed successfully!');
+            // Reset form
+            $('pt-number').value = '';
+            $('pt-location-hidden').value = '';
+            $('search-pt-location').value = '';
+            $('pt-available').value = '';
+            $('pt-rate-km').value = '';
+            $('pt-driver').value = '';
+            $('pt-driver-mobile').value = '';
+            goHome();
+        }
+    })
+    .catch(function(e){
+        console.error('Publish error:', e);
+        toast('❌ Error listing truck');
+    });
+}
 
 // ============================================================
 // AUTH
