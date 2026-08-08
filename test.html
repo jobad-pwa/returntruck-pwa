@@ -10,20 +10,21 @@ body{background:#f3f4f6;margin:0;padding:20px;display:flex;justify-content:cente
 .card{max-width:480px;width:100%;background:#fff;border-radius:16px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
 h1{font-size:20px;color:#2563eb;margin:0 0 4px}
 .sub{font-size:13px;color:#64748b;margin-bottom:16px}
-.search-wrapper{position:relative;margin-bottom:16px}
+.search-wrapper{position:relative;margin-bottom:8px}
 .search-wrapper input{width:100%;padding:12px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:16px;background:#fff;outline:none}
 .search-wrapper input:focus{border-color:#2563eb}
+.search-wrapper input.selected{background:#e8f0fe;border-color:#2563eb}
 .search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:10px;margin-top:4px;max-height:220px;overflow-y:auto;z-index:50;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
 .search-wrapper .suggestions.show{display:block}
 .search-wrapper .suggestions .item{padding:12px 16px;font-size:14px;color:#1e293b;cursor:pointer;border-bottom:1px solid #f1f5f9}
 .search-wrapper .suggestions .item:hover{background:#f1f5f9}
 .search-wrapper .suggestions .item:last-child{border-bottom:none}
 .search-wrapper .suggestions .item .highlight{background:#dbeafe;font-weight:600}
-.result-box{background:#f8fafc;border-radius:10px;padding:16px;border:1px solid #e2e8f0;margin-top:12px}
-.result-box .label{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase}
-.result-box .value{font-size:15px;font-weight:600;color:#1e293b;margin-top:4px;word-break:break-all}
-.result-box .pin-id{font-size:12px;color:#2563eb;font-family:monospace;margin-top:2px}
-.status{font-size:13px;padding:8px 12px;border-radius:8px;margin-top:12px;display:none}
+.selected-display{font-size:13px;color:#64748b;padding:4px 0}
+.selected-display .label{font-weight:600;color:#1e293b}
+.selected-display .value{color:#2563eb}
+.pin-id-display{font-size:11px;color:#94a3b8;font-family:monospace}
+.status{font-size:13px;padding:8px 12px;border-radius:8px;margin-top:8px;display:none}
 .status.success{background:#dcfce7;color:#166534;display:block}
 .status.error{background:#fef2f2;color:#991b1b;display:block}
 .status.info{background:#dbeafe;color:#1e40af;display:block}
@@ -37,11 +38,16 @@ h1{font-size:20px;color:#2563eb;margin:0 0 4px}
 .btn-success:hover{background:#15803d}
 .btn-gray{background:#6b7280;color:#fff}
 .btn-gray:hover{background:#4b5563}
+.btn-warning{background:#f59e0b;color:#000}
+.btn-warning:hover{background:#d97706}
 .log-box{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:12px;font-family:monospace;font-size:11px;max-height:200px;overflow-y:auto;margin-top:12px;white-space:pre-wrap;word-break:break-all}
 .log-box .pass{color:#4ade80}
 .log-box .fail{color:#f87171}
 .log-box .info{color:#60a5fa}
 .log-box .highlight{color:#f472b6}
+.section-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin-bottom:12px}
+.section-box .section-title{font-size:12px;font-weight:700;color:#1e293b;margin-bottom:6px}
+.hint{font-size:11px;color:#94a3b8;margin-top:4px;font-style:italic}
 </style>
 </head>
 <body>
@@ -49,46 +55,54 @@ h1{font-size:20px;color:#2563eb;margin:0 0 4px}
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
         <div>
             <h1>📍 Location Selection Test</h1>
-            <div class="sub">Test search & selection for Home and Filter locations</div>
+            <div class="sub">Click on input to select text for easy delete</div>
         </div>
         <button class="clear-btn" onclick="clearAll()">🗑️ Clear</button>
     </div>
 
     <!-- ==================== HOME LOCATION ==================== -->
-    <div style="margin-bottom:16px;padding:12px;background:#f1f5f9;border-radius:10px">
-        <div style="font-size:12px;font-weight:700;color:#1e293b;margin-bottom:6px">🏠 Home Location</div>
+    <div class="section-box">
+        <div class="section-title">🏠 Home Location</div>
         <div class="search-wrapper">
-            <input type="text" id="search-home" placeholder="Search location..." oninput="searchLocation('home')" autocomplete="off">
+            <input type="text" id="search-home" placeholder="Search location..." 
+                   oninput="searchLocation('home')" 
+                   onclick="selectInputText(this)"
+                   autocomplete="off">
             <div class="suggestions" id="suggestions-home"></div>
         </div>
-        <div id="home-selected" style="font-size:13px;color:#94a3b8">No location selected</div>
+        <div class="selected-display" id="home-selected">
+            <span class="label">Selected:</span> <span class="value">None</span>
+        </div>
+        <div class="pin-id-display" id="home-pin-id">PIN_ID: -</div>
+        <div class="hint">💡 Click on the input field to select all text for easy deletion</div>
     </div>
 
     <!-- ==================== TO LOCATION (Filter) ==================== -->
-    <div style="margin-bottom:16px;padding:12px;background:#f1f5f9;border-radius:10px">
-        <div style="font-size:12px;font-weight:700;color:#1e293b;margin-bottom:6px">📍 To Location (Filter)</div>
+    <div class="section-box">
+        <div class="section-title">📍 To Location (Filter)</div>
         <div class="search-wrapper">
-            <input type="text" id="search-to" placeholder="Search location..." oninput="searchLocation('to')" autocomplete="off">
+            <input type="text" id="search-to" placeholder="Search location..." 
+                   oninput="searchLocation('to')" 
+                   onclick="selectInputText(this)"
+                   autocomplete="off">
             <div class="suggestions" id="suggestions-to"></div>
         </div>
-        <div id="to-selected" style="font-size:13px;color:#94a3b8">No location selected</div>
+        <div class="selected-display" id="to-selected">
+            <span class="label">Selected:</span> <span class="value">None</span>
+        </div>
+        <div class="pin-id-display" id="to-pin-id">PIN_ID: -</div>
+        <div class="hint">💡 Click on the input field to select all text for easy deletion</div>
     </div>
 
     <!-- ==================== STATUS ==================== -->
     <div id="status" class="status"></div>
-
-    <!-- ==================== RESULT ==================== -->
-    <div class="result-box">
-        <div class="label">📌 Selected Location</div>
-        <div class="value" id="selected-display">None</div>
-        <div class="pin-id" id="selected-pin-id">PIN_ID: -</div>
-    </div>
 
     <!-- ==================== BUTTONS ==================== -->
     <div class="flex">
         <button class="btn btn-primary" onclick="testAll()">🔍 Test All</button>
         <button class="btn btn-success" onclick="testHome()">🏠 Test Home</button>
         <button class="btn btn-gray" onclick="testTo()">📍 Test To</button>
+        <button class="btn btn-warning" onclick="testSelectAll()">📝 Test Select All</button>
     </div>
 
     <!-- ==================== LOG ==================== -->
@@ -97,7 +111,7 @@ h1{font-size:20px;color:#2563eb;margin:0 0 4px}
 
 <script>
 // ============================================================
-// STATIC LOCATION DATA (Same as index.html)
+// STATIC LOCATION DATA
 // ============================================================
 var LOCATIONS = [
   {pin_id:"53300104", pincode:"533001", name:"Kakinada", district:"Kakinada", state:"AP", lat:16.9550556, lng:82.2354722},
@@ -145,14 +159,17 @@ function clearAll(){
     $('log').innerHTML = '';
     $('status').className = 'status';
     $('status').style.display = 'none';
-    $('selected-display').textContent = 'None';
-    $('selected-pin-id').textContent = 'PIN_ID: -';
     selectedHome = null;
     selectedTo = null;
-    $('home-selected').textContent = 'No location selected';
-    $('to-selected').textContent = 'No location selected';
+    document.querySelectorAll('.search-wrapper input').forEach(function(i){ 
+        i.value='';
+        i.classList.remove('selected');
+    });
+    $('home-selected').innerHTML = '<span class="label">Selected:</span> <span class="value">None</span>';
+    $('to-selected').innerHTML = '<span class="label">Selected:</span> <span class="value">None</span>';
+    $('home-pin-id').textContent = 'PIN_ID: -';
+    $('to-pin-id').textContent = 'PIN_ID: -';
     document.querySelectorAll('.suggestions').forEach(function(s){ s.classList.remove('show'); s.innerHTML=''; });
-    document.querySelectorAll('.search-wrapper input').forEach(function(i){ i.value=''; });
     log('🗑️ Cleared', 'info');
 }
 
@@ -162,6 +179,31 @@ function setStatus(text, type){
     el.className = 'status ' + type;
     el.style.display = 'block';
 }
+
+// ============================================================
+// ✅ FIX: SELECT ALL TEXT ON CLICK
+// ============================================================
+function selectInputText(input){
+    // Select all text in the input field
+    input.select();
+    input.classList.add('selected');
+    log('📝 Text selected in: ' + input.id, 'info');
+}
+
+// Remove selection highlight when focus is lost
+document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('.search-wrapper input').forEach(function(input){
+        input.addEventListener('blur', function(){
+            this.classList.remove('selected');
+        });
+        input.addEventListener('keydown', function(e){
+            // If user starts typing, clear the selection
+            if(e.key.length === 1 || e.key === 'Backspace'){
+                this.classList.remove('selected');
+            }
+        });
+    });
+});
 
 // ============================================================
 // LOCATION HELPERS
@@ -179,13 +221,8 @@ function getLocDisplayName(loc){
     return loc.name+', '+loc.district+', '+loc.state+' ('+loc.pincode+')';
 }
 
-function getLocName(pinId){
-    var l=getLoc(pinId);
-    return l ? getLocDisplayName(l) : pinId||'Unknown';
-}
-
 // ============================================================
-// ✅ FIXED: SEARCH LOCATION - Using Event Delegation
+// SEARCH LOCATION
 // ============================================================
 function searchLocation(ctx){
     var inp=$('search-'+ctx);
@@ -227,7 +264,6 @@ function searchLocation(ctx){
         if(idx!==-1){
             dh=dn.substring(0,idx)+'<span class="highlight">'+dn.substring(idx,idx+q.length)+'</span>'+dn.substring(idx+q.length);
         }
-        // ✅ Use data attributes instead of inline onclick
         html+='<div class="item" data-ctx="'+ctx+'" data-pinid="'+l.pin_id+'">'+dh+'</div>';
     }
     sug.innerHTML=html;
@@ -235,7 +271,7 @@ function searchLocation(ctx){
 }
 
 // ============================================================
-// ✅ FIXED: SELECT LOCATION - Called from event delegation
+// SELECT LOCATION
 // ============================================================
 function selectLoc(ctx, pinId){
     var l=getLoc(pinId);
@@ -251,24 +287,25 @@ function selectLoc(ctx, pinId){
     var inp=$('search-'+ctx);
     if(inp){
         inp.value=dn;
+        // Auto-select the text after setting value
+        setTimeout(function(){
+            inp.select();
+            inp.classList.add('selected');
+        }, 100);
     }
     
     // Update selected display
     if(ctx==='home'){
         selectedHome = pinId;
-        $('home-selected').textContent = '✅ Selected: ' + dn;
-        $('home-selected').style.color = '#16a34a';
+        $('home-selected').innerHTML = '<span class="label">Selected:</span> <span class="value" style="color:#16a34a">' + dn + '</span>';
+        $('home-pin-id').textContent = 'PIN_ID: ' + pinId;
         log('🏠 Home selected: ' + dn + ' (PIN_ID: ' + pinId + ')', 'pass');
     }else if(ctx==='to'){
         selectedTo = pinId;
-        $('to-selected').textContent = '✅ Selected: ' + dn;
-        $('to-selected').style.color = '#16a34a';
+        $('to-selected').innerHTML = '<span class="label">Selected:</span> <span class="value" style="color:#16a34a">' + dn + '</span>';
+        $('to-pin-id').textContent = 'PIN_ID: ' + pinId;
         log('📍 To selected: ' + dn + ' (PIN_ID: ' + pinId + ')', 'pass');
     }
-    
-    // Update result box
-    $('selected-display').textContent = dn;
-    $('selected-pin-id').textContent = 'PIN_ID: ' + pinId;
     
     // Close suggestions
     var sug=$('suggestions-'+ctx);
@@ -281,10 +318,9 @@ function selectLoc(ctx, pinId){
 }
 
 // ============================================================
-// ✅ EVENT DELEGATION - Handles all suggestion clicks
+// EVENT DELEGATION - Handles all suggestion clicks
 // ============================================================
 document.addEventListener('click', function(e){
-    // Find if clicked element is a .item or inside one
     var item = e.target.closest('.item');
     if(item){
         var ctx = item.dataset.ctx;
@@ -292,8 +328,6 @@ document.addEventListener('click', function(e){
         if(ctx && pinId){
             log('🔍 Clicked: ctx=' + ctx + ', pinId=' + pinId, 'info');
             selectLoc(ctx, pinId);
-        }else{
-            log('⚠️ Missing data attributes on clicked item', 'fail');
         }
     }
 });
@@ -309,6 +343,11 @@ function testHome(){
         inp.dispatchEvent(new Event('input'));
         setStatus('🔍 Searching for "Yousufguda"', 'info');
         log('🔍 Searching: Yousufguda', 'info');
+        // Auto-select after setting value
+        setTimeout(function(){
+            inp.select();
+            inp.classList.add('selected');
+        }, 200);
     }
 }
 
@@ -320,7 +359,26 @@ function testTo(){
         inp.dispatchEvent(new Event('input'));
         setStatus('🔍 Searching for "Kakinada"', 'info');
         log('🔍 Searching: Kakinada', 'info');
+        setTimeout(function(){
+            inp.select();
+            inp.classList.add('selected');
+        }, 200);
     }
+}
+
+function testSelectAll(){
+    log('📝 Testing select all on click...', 'info');
+    var inputs = document.querySelectorAll('.search-wrapper input');
+    inputs.forEach(function(input){
+        if(input.value){
+            input.select();
+            input.classList.add('selected');
+            log('📝 Selected text in: ' + input.id + ' = "' + input.value + '"', 'pass');
+        }else{
+            log('⚠️ ' + input.id + ' is empty', 'fail');
+        }
+    });
+    setStatus('📝 Select All tested', 'info');
 }
 
 function testAll(){
@@ -339,6 +397,7 @@ document.addEventListener('DOMContentLoaded', function(){
     log('📊 Total locations: ' + LOCATIONS.length, 'info');
     log('💡 Type a location name to search', 'info');
     log('💡 Click on any suggestion to select', 'info');
+    log('💡 Click on input field to select ALL text for easy delete', 'highlight');
     log('----------------------------------------', 'info');
     
     // Auto-run test
