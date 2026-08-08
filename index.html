@@ -200,7 +200,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div id="guest-banner" class="guest-banner hidden"><span>👋 Welcome, Guest!</span><button class="btn-login" onclick="showLogin()">🔐 Login</button></div>
         <div class="location-row">
             <div class="location-input">
-                <input type="text" id="search-home" placeholder="📍 Location" oninput="searchLocation('home')" autocomplete="off">
+                <input type="text" id="search-home" placeholder="📍 Search Location" oninput="searchLocation('home')" autocomplete="off">
                 <div class="search-wrapper"><div class="suggestions" id="suggestions-home"></div></div>
             </div>
             <div class="radius-select">
@@ -224,7 +224,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <div>
                     <label>📍 To Location</label>
                     <div style="position:relative;width:100%">
-                        <input type="text" id="search-to" placeholder="📍 Location" oninput="searchLocation('to')" autocomplete="off">
+                        <input type="text" id="search-to" placeholder="📍 Search Location" oninput="searchLocation('to')" autocomplete="off">
                         <div class="search-wrapper"><div class="suggestions" id="suggestions-to"></div></div>
                         <input type="hidden" id="filter-to-hidden">
                     </div>
@@ -271,14 +271,14 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div class="grid-2">
             <div><label>📍 Pickup</label>
                 <div style="position:relative;width:100%">
-                    <input type="text" id="search-pl-pickup" placeholder="📍 Location" oninput="searchLocation('pl-pickup')" autocomplete="off">
+                    <input type="text" id="search-pl-pickup" placeholder="📍 Search Location" oninput="searchLocation('pl-pickup')" autocomplete="off">
                     <div class="search-wrapper"><div class="suggestions" id="suggestions-pl-pickup"></div></div>
                     <input type="hidden" id="pl-pickup-hidden">
                 </div>
             </div>
             <div><label>📍 Drop</label>
                 <div style="position:relative;width:100%">
-                    <input type="text" id="search-pl-drop" placeholder="📍 Location" oninput="searchLocation('pl-drop')" autocomplete="off">
+                    <input type="text" id="search-pl-drop" placeholder="📍 Search Location" oninput="searchLocation('pl-drop')" autocomplete="off">
                     <div class="search-wrapper"><div class="suggestions" id="suggestions-pl-drop"></div></div>
                     <input type="hidden" id="pl-drop-hidden">
                 </div>
@@ -310,7 +310,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div class="form-group"><label>Vehicle Number</label><div style="display:flex;gap:8px"><input class="form-control" id="pt-number" style="flex:2"><button class="btn-primary" style="width:auto;padding:10px 16px" onclick="autoFetchVehicle()">🔍 Auto-Fetch</button></div></div>
         <div class="form-group"><label>📍 Location</label>
             <div style="position:relative;width:100%">
-                <input type="text" id="search-pt-location" placeholder="📍 Location" oninput="searchLocation('pt-location')" autocomplete="off">
+                <input type="text" id="search-pt-location" placeholder="📍 Search Location" oninput="searchLocation('pt-location')" autocomplete="off">
                 <div class="search-wrapper"><div class="suggestions" id="suggestions-pt-location"></div></div>
                 <input type="hidden" id="pt-location-hidden">
             </div>
@@ -444,17 +444,14 @@ function getLoc(pinId){
     return null;
 }
 
-function getLocName(pinId){
-    var l=getLoc(pinId);
-    return l ? l.name+', '+l.district+', '+l.state : pinId||'Unknown';
+function getLocDisplayName(loc){
+    if(!loc) return 'Unknown';
+    return loc.name+', '+loc.district+', '+loc.state+' ('+loc.pincode+')';
 }
 
-function getLocByPincode(pincode){
-    var results=[];
-    for(var i=0;i<LOCATIONS.length;i++){
-        if(LOCATIONS[i].pincode===pincode) results.push(LOCATIONS[i]);
-    }
-    return results;
+function getLocName(pinId){
+    var l=getLoc(pinId);
+    return l ? getLocDisplayName(l) : pinId||'Unknown';
 }
 
 function dist(lat1,lng1,lat2,lng2){
@@ -464,7 +461,7 @@ function dist(lat1,lng1,lat2,lng2){
 }
 
 // ============================================================
-// SEARCH - Search by PIN_ID or pincode or name (display name only)
+// SEARCH - Clean display: Name, District, State (Pincode)
 // ============================================================
 function searchLocation(ctx){
     var inp=$('search-'+ctx),sug=$('suggestions-'+ctx);
@@ -477,11 +474,11 @@ function searchLocation(ctx){
         var l=LOCATIONS[i];
         if(l.name.toLowerCase().includes(ql) || 
            l.pincode.includes(q) || 
-           l.pin_id.toLowerCase().includes(ql) ||
            l.district.toLowerCase().includes(ql) ||
-           l.state.toLowerCase().includes(ql)){
+           l.state.toLowerCase().includes(ql) ||
+           l.pin_id.toLowerCase().includes(ql)){
             res.push(l);
-            if(res.length>=8) break;
+            if(res.length>=10) break;
         }
     }
     
@@ -490,21 +487,22 @@ function searchLocation(ctx){
     var html='';
     for(var j=0;j<res.length;j++){
         var l=res[j];
-        // Display name only, no PIN_ID
-        var dn=l.name+', '+l.district+', '+l.state;
+        // Display: Name, District, State (Pincode)
+        var dn=l.name+', '+l.district+', '+l.state+' ('+l.pincode+')';
         var idx=dn.toLowerCase().indexOf(ql), dh=dn;
         if(idx!==-1) dh=dn.substring(0,idx)+'<span class="highlight">'+dn.substring(idx,idx+q.length)+'</span>'+dn.substring(idx+q.length);
-        html+='<div class="item" onclick="selectLoc(\''+ctx+'\',\''+l.pin_id+'\',\''+l.name+'\',\''+l.state+'\')">'+dh+'</div>';
+        html+='<div class="item" onclick="selectLoc(\''+ctx+'\',\''+l.pin_id+'\')">'+dh+'</div>';
     }
     sug.innerHTML=html;
     sug.classList.add('show');
 }
 
-function selectLoc(ctx,pinId,name,state){
+function selectLoc(ctx,pinId){
     var l=getLoc(pinId);
     if(!l) return;
-    // Display name only, no PIN_ID
-    var dn=l.name+', '+l.district+', '+l.state;
+    
+    // Display: Name, District, State (Pincode)
+    var dn=l.name+', '+l.district+', '+l.state+' ('+l.pincode+')';
     var hid=null;
     if(ctx==='to') hid='filter-to-hidden';
     else if(ctx==='pl-pickup') hid='pl-pickup-hidden';
@@ -568,7 +566,7 @@ function autoLocate(){
                     if(d<minD){minD=d;near=l;}
                 }
                 if(near&&minD<100){
-                    var dn=near.name+', '+near.district+', '+near.state;
+                    var dn=near.name+', '+near.district+', '+near.state+' ('+near.pincode+')';
                     inp.value=dn;
                     homePinId=near.pin_id;
                     localStorage.setItem('rt_home_location',JSON.stringify({pinId:near.pin_id,displayName:dn}));
@@ -583,7 +581,7 @@ function autoLocate(){
                     for(var i=0;i<LOCATIONS.length;i++){
                         var l=LOCATIONS[i];
                         if(l.name.toLowerCase()===city.toLowerCase() || l.district.toLowerCase()===city.toLowerCase()){
-                            var dn=l.name+', '+l.district+', '+l.state;
+                            var dn=l.name+', '+l.district+', '+l.state+' ('+l.pincode+')';
                             inp.value=dn;
                             homePinId=l.pin_id;
                             localStorage.setItem('rt_home_location',JSON.stringify({pinId:l.pin_id,displayName:dn}));
