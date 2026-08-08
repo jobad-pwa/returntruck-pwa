@@ -504,7 +504,7 @@ function searchLocation(ctx){
         if(idx!==-1){
             dh=dn.substring(0,idx)+'<span class="highlight">'+dn.substring(idx,idx+q.length)+'</span>'+dn.substring(idx+q.length);
         }
-        html+='<div class="item" onclick="selectLoc(\''+ctx+'\',\''+l.pin_id+'\')">'+dh+'</div>';
+        html+='<div class="item" data-ctx="'+ctx+'" data-pinid="'+l.pin_id+'">'+dh+'</div>';
     }
     sug.innerHTML=html;
     sug.classList.add('show');
@@ -557,13 +557,14 @@ function selectLoc(ctx, pinId){
 
 // Close suggestions when clicking outside
 document.addEventListener('click', function(e){
-    document.querySelectorAll('.suggestions').forEach(function(s){
-        var parent = s.parentElement;
-        if(parent && !parent.contains(e.target)){
-            s.classList.remove('show');
-            s.innerHTML='';
+    var item = e.target.closest('.item');
+    if(item){
+        var ctx = item.dataset.ctx;
+        var pinId = item.dataset.pinid;
+        if(ctx && pinId){
+            selectLoc(ctx, pinId);
         }
-    });
+    }
 });
 
 // ============================================================
