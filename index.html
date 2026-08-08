@@ -438,6 +438,7 @@ function toast(msg){alert(msg)}
 // LOCATION HELPERS - Using PIN_ID as unique identifier
 // ============================================================
 function getLoc(pinId){
+    if(!pinId) return null;
     for(var i=0;i<LOCATIONS.length;i++){
         if(LOCATIONS[i].pin_id===pinId) return LOCATIONS[i];
     }
@@ -461,15 +462,21 @@ function dist(lat1,lng1,lat2,lng2){
 }
 
 // ============================================================
-// SEARCH - Fixed selection
+// SEARCH - Fixed selection with proper event handling
 // ============================================================
 function searchLocation(ctx){
-    var inp=$('search-'+ctx), sug=$('suggestions-'+ctx);
+    var inp=$('search-'+ctx);
+    var sug=$('suggestions-'+ctx);
     if(!inp||!sug) return;
     var q=inp.value.trim();
-    if(!q){sug.classList.remove('show'); return}
+    if(!q){
+        sug.classList.remove('show');
+        sug.innerHTML='';
+        return;
+    }
     
-    var res=[], ql=q.toLowerCase();
+    var res=[];
+    var ql=q.toLowerCase();
     for(var i=0;i<LOCATIONS.length;i++){
         var l=LOCATIONS[i];
         if(l.name.toLowerCase().includes(ql) || 
@@ -482,48 +489,65 @@ function searchLocation(ctx){
         }
     }
     
-    if(!res.length){sug.classList.remove('show'); return}
+    if(!res.length){
+        sug.classList.remove('show');
+        sug.innerHTML='';
+        return;
+    }
     
     var html='';
     for(var j=0;j<res.length;j++){
         var l=res[j];
         var dn=getLocDisplayName(l);
-        var idx=dn.toLowerCase().indexOf(ql), dh=dn;
-        if(idx!==-1) dh=dn.substring(0,idx)+'<span class="highlight">'+dn.substring(idx,idx+q.length)+'</span>'+dn.substring(idx+q.length);
-        // ✅ FIX: Properly pass pin_id and display name
-        html+='<div class="item" onclick="selectLoc(\''+ctx+'\',\''+l.pin_id+'\')">'+dh+'</div>';
+        var idx=dn.toLowerCase().indexOf(ql);
+        var dh=dn;
+        if(idx!==-1){
+            dh=dn.substring(0,idx)+'<span class="highlight">'+dn.substring(idx,idx+q.length)+'</span>'+dn.substring(idx+q.length);
+        }
+        // ✅ Fix: Use onclick with proper string escaping
+        html+='<div class="item" data-pinid="'+l.pin_id+'" data-ctx="'+ctx+'" onclick="selectLoc(\''+ctx+'\',\''+l.pin_id+'\')">'+dh+'</div>';
     }
     sug.innerHTML=html;
     sug.classList.add('show');
 }
 
-// ✅ FIXED: selectLoc with proper parameters
+// ✅ FIXED: selectLoc with proper parameter handling
 function selectLoc(ctx, pinId){
+    // Find the location
     var l=getLoc(pinId);
     if(!l) {
-        console.log('Location not found for pinId:', pinId);
+        console.log('❌ Location not found for pinId:', pinId);
         return;
     }
     
     var dn=getLocDisplayName(l);
+    console.log('✅ Selected:', ctx, dn, 'pinId:', pinId);
+    
+    // Get the input field
+    var searchInput=$('search-'+ctx);
+    if(searchInput){
+        searchInput.value=dn;
+    }
+    
+    // Get hidden field
     var hid=null;
     if(ctx==='to') hid='filter-to-hidden';
     else if(ctx==='pl-pickup') hid='pl-pickup-hidden';
     else if(ctx==='pl-drop') hid='pl-drop-hidden';
     else if(ctx==='pt-location') hid='pt-location-hidden';
     
-    // Set the input value
-    var searchInput=$('search-'+ctx);
-    if(searchInput) searchInput.value=dn;
-    
-    // Set hidden field if exists
-    if(hid) $(hid).value=pinId;
+    if(hid && $(hid)){
+        $(hid).value=pinId;
+    }
     
     // Close suggestions
     var sug=$('suggestions-'+ctx);
-    if(sug) sug.classList.remove('show');
+    if(sug){
+        sug.classList.remove('show');
+        sug.innerHTML='';
+    }
     
-    // Update state based on context
+    // Update state
     if(ctx==='home'){
         homePinId=pinId;
         localStorage.setItem('rt_home_location', JSON.stringify({pinId:pinId, displayName:dn}));
@@ -532,14 +556,16 @@ function selectLoc(ctx, pinId){
         toPinId=pinId;
         applyFilters();
     }
-    
-    console.log('✅ Selected:', ctx, dn, 'pinId:', pinId);
 }
 
-// Close suggestions
+// Close suggestions when clicking outside
 document.addEventListener('click', function(e){
     document.querySelectorAll('.suggestions').forEach(function(s){
-        if(!s.parentElement.contains(e.target)) s.classList.remove('show');
+        var parent = s.parentElement;
+        if(parent && !parent.contains(e.target)){
+            s.classList.remove('show');
+            s.innerHTML='';
+        }
     });
 });
 
@@ -554,7 +580,7 @@ function forceInstall(){if(prompt){prompt.prompt();prompt.userChoice.then(functi
 setTimeout(updateInstall,3000);
 
 // ============================================================
-// AUTO-LOCATE - Find nearest location by PIN_ID
+// AUTO-LOCATE
 // ============================================================
 function autoLocate(){
     var inp=$('search-home');
@@ -719,7 +745,7 @@ function showResetOTP(){
 }
 
 // ============================================================
-// RENDER FEED - Using PIN_ID for locations
+// RENDER FEED
 // ============================================================
 async function renderFeed(){
 try{
@@ -928,7 +954,7 @@ $('reg-pin').addEventListener('keydown',function(e){if(e.key==='Enter')$('reg-pi
 $('reg-pin-confirm').addEventListener('keydown',function(e){if(e.key==='Enter')registerUser()});
 
 // ============================================================
-// SUBMIT PIN - Wrong PIN stays on same page
+// SUBMIT PIN
 // ============================================================
 window.submitPin = async function() {
     var pin = $('pin').value.trim();
