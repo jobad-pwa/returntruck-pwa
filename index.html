@@ -668,21 +668,12 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div style="font-size:10px;color:#94a3b8;margin-top:4px">Only letters and numbers, no spaces or special characters</div>
         </div>
 
-        <!-- Vehicle Type Dropdown -->
+        <!-- Vehicle Type Dropdown (Static data from VEHICLE_TYPES) -->
         <div class="profile-section">
             <label class="form-label">🚛 Vehicle Type *</label>
             <div class="vehicle-type-select">
                 <input class="form-control" id="td-vehicle-type" placeholder="Type or select vehicle type..." onclick="showVehicleDropdown()" oninput="filterVehicleTypes(this.value)" autocomplete="off">
-                <div class="dropdown" id="td-vehicle-dropdown">
-                    <div class="item" onclick="selectVehicleType('Highbed-40x8x8 (22 Ton)')">Highbed-40x8x8 (22 Ton)</div>
-                    <div class="item" onclick="selectVehicleType('Lowbed-40x10x10 (28 Ton)')">Lowbed-40x10x10 (28 Ton)</div>
-                    <div class="item" onclick="selectVehicleType('Container-22x8x8 (16 Ton)')">Container-22x8x8 (16 Ton)</div>
-                    <div class="item" onclick="selectVehicleType('ODC (Over-Dimen Cargo)')">ODC (Over-Dimen Cargo)</div>
-                    <div class="item" onclick="selectVehicleType('Flatbed-30x8x8 (18 Ton)')">Flatbed-30x8x8 (18 Ton)</div>
-                    <div class="item" onclick="selectVehicleType('Tipper-20x8x8 (25 Ton)')">Tipper-20x8x8 (25 Ton)</div>
-                    <div class="item" onclick="selectVehicleType('Semi-Lowbed-35x9x9 (25 Ton)')">Semi-Lowbed-35x9x9 (25 Ton)</div>
-                    <div class="item" style="color:#2563eb;font-weight:600" onclick="addNewVehicleType()">+ Add New</div>
-                </div>
+                <div class="dropdown" id="td-vehicle-dropdown"></div>
             </div>
         </div>
 
@@ -696,20 +687,12 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
         </div>
 
-        <!-- Max Weight & ODC -->
+        <!-- ODC Allowed (Weight removed as it's stored per vehicle type) -->
         <div class="profile-section">
-            <div class="grid-2">
-                <div>
-                    <label class="form-label">⚖️ Max Weight (Kg)</label>
-                    <input class="form-control" id="td-max-weight" type="number" value="22000">
-                </div>
-                <div>
-                    <label class="form-label">🚛 ODC Allowed</label>
-                    <div style="display:flex;gap:12px;margin-top:4px">
-                        <label style="font-size:13px;display:flex;align-items:center;gap:4px"><input type="radio" name="td-odc" value="true" checked> Yes</label>
-                        <label style="font-size:13px;display:flex;align-items:center;gap:4px"><input type="radio" name="td-odc" value="false"> No</label>
-                    </div>
-                </div>
+            <label class="form-label">🚛 ODC Allowed</label>
+            <div style="display:flex;gap:12px;margin-top:4px">
+                <label style="font-size:13px;display:flex;align-items:center;gap:4px"><input type="radio" name="td-odc" value="true" checked> Yes</label>
+                <label style="font-size:13px;display:flex;align-items:center;gap:4px"><input type="radio" name="td-odc" value="false"> No</label>
             </div>
         </div>
 
@@ -804,7 +787,7 @@ var LOCATIONS = [
 ];
 
 // ============================================================
-// VEHICLE TYPES - Static data stored in index.html
+// VEHICLE TYPES - Static data stored in index.html (NO "Add New" option)
 // ============================================================
 var VEHICLE_TYPES = [
   'Highbed-40x8x8 (22 Ton)',
@@ -832,7 +815,7 @@ var vehicles=[],routes=[],agentRoutes=[],truckRoutes=[];
 var selectedVehicle=null;
 
 function $(id){return document.getElementById(id)}
-function toast(msg){alert(msg)}
+function toast(msg){alert(msg)} // Keep for login errors only
 
 // ============================================================
 // SELECT ALL TEXT ON CLICK
@@ -849,19 +832,18 @@ document.addEventListener('DOMContentLoaded', function(){
             if(e.key.length===1||e.key==='Backspace'||e.key==='Delete') this.classList.remove('selected');
         });
     });
+    // Initialize vehicle type dropdown
+    populateVehicleTypes();
 });
 
 // ============================================================
-// ✅ VEHICLE NUMBER VALIDATION - Only letters and numbers, NO special chars
+// ✅ VEHICLE NUMBER VALIDATION - Only letters and numbers
 // ============================================================
 function validateVehicleNumberInput(input){
-    // Remove any non-alphanumeric characters (spaces, special chars, etc.)
     var cleaned = input.value.replace(/[^A-Za-z0-9]/g, '');
     if(input.value !== cleaned){
         input.value = cleaned;
-        toast('⚠️ Only letters and numbers allowed');
     }
-    // Remove spaces
     input.value = input.value.replace(/\s/g, '');
 }
 
@@ -875,8 +857,17 @@ function validateAndSearchVehicle(value){
 }
 
 // ============================================================
-// ✅ VEHICLE TYPE DROPDOWN
+// ✅ VEHICLE TYPE DROPDOWN - Static data from VEHICLE_TYPES
 // ============================================================
+function populateVehicleTypes(){
+    var dropdown=$('td-vehicle-dropdown');
+    var html='';
+    VEHICLE_TYPES.forEach(function(type){
+        html+='<div class="item" onclick="selectVehicleType(\''+type+'\')">'+type+'</div>';
+    });
+    dropdown.innerHTML=html;
+}
+
 function showVehicleDropdown(){
     var dropdown=$('td-vehicle-dropdown');
     dropdown.classList.add('show');
@@ -885,7 +876,7 @@ function showVehicleDropdown(){
 
 function filterVehicleTypes(query){
     var dropdown=$('td-vehicle-dropdown');
-    var items=dropdown.querySelectorAll('.item:not(:last-child)');
+    var items=dropdown.querySelectorAll('.item');
     var q=query.toLowerCase().trim();
     var hasMatch=false;
     items.forEach(function(item){
@@ -897,7 +888,6 @@ function filterVehicleTypes(query){
             item.style.display='none';
         }
     });
-    // Show dropdown only if there's a match or query is empty
     if(!q || hasMatch){
         dropdown.classList.add('show');
     }else{
@@ -908,21 +898,6 @@ function filterVehicleTypes(query){
 function selectVehicleType(type){
     $('td-vehicle-type').value=type;
     $('td-vehicle-dropdown').classList.remove('show');
-}
-
-function addNewVehicleType(){
-    var newType=prompt('Enter new vehicle type (e.g., Flatbed-30x8x8 (18 Ton)):');
-    if(newType && newType.trim()){
-        VEHICLE_TYPES.push(newType.trim());
-        var dropdown=$('td-vehicle-dropdown');
-        var newItem=document.createElement('div');
-        newItem.className='item';
-        newItem.textContent=newType.trim();
-        newItem.onclick=function(){ selectVehicleType(this.textContent); };
-        dropdown.insertBefore(newItem, dropdown.lastElementChild);
-        selectVehicleType(newType.trim());
-        toast('✅ New vehicle type added!');
-    }
 }
 
 // Close dropdown on outside click
@@ -1076,27 +1051,23 @@ function selectVehicle(id, number, type, dims, weight){
         vehicles.push(number);
         renderVehicles();
     }
-    toast('✅ Vehicle selected: '+number);
 }
 
 function addSelectedVehicle(){
     var input=$('edit-vehicle-input');
     var val=input.value.trim().toUpperCase();
-    if(!val){ toast('⚠️ Enter or select a vehicle number'); return; }
-    if(vehicles.includes(val)){ toast('⚠️ Vehicle already added'); return; }
-    // Check if vehicle exists in active_vehicles
+    if(!val){ return; }
+    if(vehicles.includes(val)){ return; }
     sb.from('active_vehicles').select('*').eq('vehicle_number', val).eq('modified_by', user.mobile).maybeSingle()
     .then(function(result){
         if(result.data){
             vehicles.push(val);
             renderVehicles();
             input.value='';
-            toast('✅ Vehicle added: '+val);
         }else{
-            toast('ℹ️ Vehicle not found. Please add details.');
             openTruckDetailsWithNumber(val);
         }
-    }).catch(function(){ toast('❌ Error checking vehicle'); });
+    }).catch(function(){});
 }
 
 function openTruckDetailsWithNumber(number){
@@ -1163,7 +1134,7 @@ function editVehicle(id){
 function deleteVehicle(id, number){
     if(!confirm('Delete vehicle '+number+'?')) return;
     sb.from('active_vehicles').delete().eq('id',id).then(function(result){
-        if(result.error){ toast('❌ Error: '+result.error.message); return; }
+        if(result.error){ return; }
         var current=user.vehicle_no||[];
         current=current.filter(function(v){ return v!==number; });
         sb.from('active_users').update({vehicle_no:current}).eq('mobile',user.mobile).then(function(){
@@ -1171,30 +1142,30 @@ function deleteVehicle(id, number){
         });
         vehicles=vehicles.filter(function(v){ return v!==number; });
         renderVehicles();
-        toast('🗑️ Vehicle deleted');
         loadProfileVehicles();
         loadStats();
     });
 }
 
-function viewVehicle(id){ toast('👁️ View vehicle: '+id); }
+function viewVehicle(id){}
 
 // ============================================================
 // TRUCK DETAILS PAGE
 // ============================================================
 function openTruckDetails(vehicleNumber){
-    if(!user){ toast('⚠️ Please login first'); return; }
+    if(!user){ return; }
     if(vehicleNumber){ $('td-vehicle-number').value=vehicleNumber; }
     $('td-edit-id').value='';
     $('td-vehicle-type').value='';
     $('td-length').value='40.0';
     $('td-width').value='8.2';
     $('td-height').value='8.0';
-    $('td-max-weight').value='22000';
     document.querySelector('input[name="td-odc"][value="true"]').checked=true;
     $('td-description').value='';
     truckRoutes=[];
     renderTruckRoutes();
+    // Reset vehicle type dropdown
+    populateVehicleTypes();
     switchPage('truck-details-page',4);
 }
 
@@ -1215,33 +1186,31 @@ function renderTruckRoutes(){
 
 function addTruckRoute(){
     var route=$('td-route-hidden').value;
-    if(!route){ toast('⚠️ Select a location first'); return; }
+    if(!route){ return; }
     var routeInt=parseInt(route);
-    if(isNaN(routeInt)){ toast('⚠️ Invalid route'); return; }
-    if(truckRoutes.indexOf(routeInt)!==-1){ toast('⚠️ Route already added'); return; }
+    if(isNaN(routeInt)){ return; }
+    if(truckRoutes.indexOf(routeInt)!==-1){ return; }
     truckRoutes.push(routeInt);
     $('search-td-route').value='';
     $('td-route-hidden').value='';
     renderTruckRoutes();
     var sug=$('suggestions-td-route');
     if(sug){ sug.classList.remove('show'); sug.innerHTML=''; }
-    toast('✅ Route added');
 }
 
 function removeTruckRoute(r){ truckRoutes=truckRoutes.filter(function(x){return x!==r}); renderTruckRoutes(); }
 
 function saveTruckDetails(){
-    if(!user){ toast('⚠️ Please login first'); return; }
+    if(!user){ return; }
     var number=$('td-vehicle-number').value.trim().toUpperCase();
     var editId=$('td-edit-id').value;
-    if(!number){ toast('⚠️ Enter vehicle number'); return; }
-    if(!isValidVehicleNumber(number)){ toast('⚠️ Vehicle number must be 8-11 characters (only letters and numbers)'); return; }
+    if(!number){ return; }
+    if(!isValidVehicleNumber(number)){ return; }
     
     var data={
         vehicle_number: number,
         vehicle_type: $('td-vehicle-type').value.trim()||null,
         dimensions: [parseFloat($('td-length').value)||0, parseFloat($('td-width').value)||0, parseFloat($('td-height').value)||0],
-        max_weight: parseFloat($('td-max-weight').value)||0,
         operating_routes: truckRoutes.length?truckRoutes:null,
         description: $('td-description').value.trim()||null,
         odc_allowed: document.querySelector('input[name="td-odc"]:checked').value==='true',
@@ -1249,10 +1218,9 @@ function saveTruckDetails(){
         latest_update_at: new Date().toISOString()
     };
     
-    toast('⏳ Saving vehicle...');
     var query=editId ? sb.from('active_vehicles').update(data).eq('id',editId) : sb.from('active_vehicles').insert(data);
     query.then(function(result){
-        if(result.error){ toast('❌ Error: '+result.error.message); return; }
+        if(result.error){ return; }
         var current=user.vehicle_no||[];
         if(!current.includes(number)){
             current.push(number);
@@ -1261,10 +1229,9 @@ function saveTruckDetails(){
             });
         }
         if(!vehicles.includes(number)){ vehicles.push(number); renderVehicles(); }
-        toast('✅ Vehicle saved successfully!');
         closeTruckDetails();
         loadProfile();
-    }).catch(function(e){ toast('❌ Error saving vehicle'); });
+    }).catch(function(){});
 }
 
 // ============================================================
@@ -1277,10 +1244,9 @@ function updateInstall(){
     document.querySelectorAll('.nav-install-wrapper').forEach(function(e){ e.classList.toggle('show', show); });
 }
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); prompt=e; updateInstall(); });
-window.addEventListener('appinstalled',function(){ installed=true; prompt=null; updateInstall(); toast('🎉 ReturnTruck installed!'); });
+window.addEventListener('appinstalled',function(){ installed=true; prompt=null; updateInstall(); });
 function forceInstall(){
-    if(prompt){ prompt.prompt(); prompt.userChoice.then(function(c){ if(c.outcome==='accepted') toast('🎉 Installing...'); prompt=null; updateInstall(); }); }
-    else { if(navigator.userAgent.match(/Android/i)) toast('📱 Tap Chrome menu → "Install app"'); else if(navigator.userAgent.match(/iPhone|iPad|iPod/i)) toast('📱 Tap Share → "Add to Home Screen"'); else toast('📱 Open this page in Chrome on your phone'); }
+    if(prompt){ prompt.prompt(); prompt.userChoice.then(function(c){ if(c.outcome==='accepted'){ prompt=null; updateInstall(); } }); }
 }
 setTimeout(updateInstall,3000);
 
@@ -1554,7 +1520,7 @@ function switchProfileTab(tab){
 }
 
 function openEditProfile(){
-    if(!user){toast('⚠️ Please login first');return}
+    if(!user){return}
     $('edit-name').value=user.name||'';
     $('edit-company').value=user.company_name||'';
     $('edit-website').value=user.company_web||'';
@@ -1627,34 +1593,32 @@ function removeVehicle(v){
 
 function addRoute(){
     var route=$('edit-route-hidden').value;
-    if(!route){ toast('⚠️ Select a location first'); return; }
+    if(!route){ return; }
     var routeInt=parseInt(route);
-    if(isNaN(routeInt)){ toast('⚠️ Invalid route'); return; }
-    if(routes.indexOf(routeInt)!==-1){ toast('⚠️ Route already added'); return; }
+    if(isNaN(routeInt)){ return; }
+    if(routes.indexOf(routeInt)!==-1){ return; }
     routes.push(routeInt); 
     $('search-edit-route').value=''; 
     $('edit-route-hidden').value=''; 
     renderRoutes();
     var sug=$('suggestions-edit-route');
     if(sug){ sug.classList.remove('show'); sug.innerHTML=''; }
-    toast('✅ Route added');
 }
 
 function removeRoute(r){ routes=routes.filter(function(x){return x!==r}); renderRoutes(); }
 
 function addAgentRoute(){
     var route=$('edit-agent-route-hidden').value;
-    if(!route){ toast('⚠️ Select a location first'); return; }
+    if(!route){ return; }
     var routeInt=parseInt(route);
-    if(isNaN(routeInt)){ toast('⚠️ Invalid route'); return; }
-    if(agentRoutes.indexOf(routeInt)!==-1){ toast('⚠️ Route already added'); return; }
+    if(isNaN(routeInt)){ return; }
+    if(agentRoutes.indexOf(routeInt)!==-1){ return; }
     agentRoutes.push(routeInt); 
     $('search-edit-agent-route').value=''; 
     $('edit-agent-route-hidden').value=''; 
     renderAgentRoutes();
     var sug=$('suggestions-edit-agent-route');
     if(sug){ sug.classList.remove('show'); sug.innerHTML=''; }
-    toast('✅ Route added');
 }
 
 function removeAgentRoute(r){ agentRoutes=agentRoutes.filter(function(x){return x!==r}); renderAgentRoutes(); }
@@ -1699,27 +1663,24 @@ function saveProfile(){
         updated_at:new Date().toISOString()
     };
     
-    toast('⏳ Saving profile...');
     sb.from('active_users').update(updateData).eq('mobile',user.mobile).then(function(result){
-        if(result.error){ toast('❌ Error: '+result.error.message); }
+        if(result.error){ return; }
         else { 
-            toast('✅ Profile saved successfully!'); 
             Object.assign(user,updateData); 
             closeEditProfile(); 
             loadProfile(); 
         }
-    }).catch(function(e){ toast('❌ Error saving profile'); });
+    }).catch(function(){});
 }
 
 // ============================================================
 // PUBLISH LOAD & TRUCK
 // ============================================================
 function publishLoad(){
-    if(!user){toast('⚠️ Please login first');return}
+    if(!user){return}
     var pickupPinId=$('pl-pickup-hidden').value;
     var dropPinId=$('pl-drop-hidden').value;
-    if(!$('pl-material').value||!pickupPinId||!dropPinId){ toast('⚠️ Please fill all required fields'); return; }
-    toast('⏳ Publishing load...');
+    if(!$('pl-material').value||!pickupPinId||!dropPinId){ return; }
     var loadData={
         material:$('pl-material').value,
         weight:parseInt($('pl-weight').value)||0,
@@ -1738,15 +1699,14 @@ function publishLoad(){
         updated_at:new Date().toISOString()
     };
     sb.from('active_loads').insert(loadData).then(function(result){
-        if(result.error){toast('❌ Error: '+result.error.message)}else{toast('✅ Load published!');goHome()}
-    }).catch(function(e){toast('❌ Error publishing load')});
+        if(result.error){return}else{goHome()}
+    }).catch(function(){});
 }
 
 function publishTruck(){
-    if(!user){toast('⚠️ Please login first');return}
+    if(!user){return}
     var locationPinId=$('pt-location-hidden').value;
-    if(!$('pt-number').value||!locationPinId){ toast('⚠️ Please fill Vehicle Number and Location'); return; }
-    toast('⏳ Listing truck...');
+    if(!$('pt-number').value||!locationPinId){ return; }
     var truckData={
         truck_no:$('pt-number').value,
         location_pin_id:parseInt(locationPinId),
@@ -1765,31 +1725,30 @@ function publishTruck(){
         updated_at:new Date().toISOString()
     };
     sb.from('active_trucks').insert(truckData).then(function(result){
-        if(result.error){toast('❌ Error: '+result.error.message)}else{toast('✅ Truck listed!');goHome()}
-    }).catch(function(e){toast('❌ Error listing truck')});
+        if(result.error){return}else{goHome()}
+    }).catch(function(){});
 }
 
 function autoFetchVehicle(){
     var number=$('pt-number').value.trim().toUpperCase();
-    if(!number){ toast('⚠️ Enter vehicle number first'); return; }
+    if(!number){ return; }
     sb.from('active_vehicles').select('*').eq('vehicle_number', number).eq('modified_by', user.mobile).maybeSingle()
     .then(function(result){
-        if(result.error){ toast('❌ Error: '+result.error.message); return; }
-        if(!result.data){ toast('ℹ️ Vehicle not found. Please add via "Add Vehicle" in profile'); return; }
+        if(result.error){ return; }
+        if(!result.data){ return; }
         var v=result.data;
         $('pt-number').value=v.vehicle_number;
-        toast('✅ Vehicle details fetched!');
-    }).catch(function(e){ toast('❌ Error fetching vehicle'); });
+    }).catch(function(){});
 }
 
 // ============================================================
 // ACTION FUNCTIONS
 // ============================================================
-function editLoadItem(id){ toast('✏️ Edit load: '+id); }
-function deleteLoadItem(id){ if(confirm('Delete this load?')){ sb.from('active_loads').update({status:0}).eq('id',id).then(function(){ toast('🗑️ Load deleted'); loadMyLoads(); loadStats(); }); } }
-function editTruckItem(id){ toast('✏️ Edit truck: '+id); }
-function deleteTruckItem(id, number){ if(confirm('Delete truck '+number+'?')){ sb.from('active_trucks').update({status:0}).eq('id',id).then(function(){ toast('🗑️ Truck deleted'); loadMyTrucks(); loadStats(); }); } }
-function viewInterests(id){ toast('🤝 View interests for ID: '+id); }
+function editLoadItem(id){}
+function deleteLoadItem(id){ if(confirm('Delete this load?')){ sb.from('active_loads').update({status:0}).eq('id',id).then(function(){ loadMyLoads(); loadStats(); }); } }
+function editTruckItem(id){}
+function deleteTruckItem(id, number){ if(confirm('Delete truck '+number+'?')){ sb.from('active_trucks').update({status:0}).eq('id',id).then(function(){ loadMyTrucks(); loadStats(); }); } }
+function viewInterests(id){}
 
 // ============================================================
 // AUTH
@@ -1953,7 +1912,7 @@ function openChangePin(){
         method:'POST',
         headers:{'Content-Type':'application/json','Accept':'application/json','Authorization':'Bearer '+SB_KEY},
         body:JSON.stringify({mobile:user.mobile,current_pin:currentPin,new_pin:newPin})
-    }).then(function(r){return r.json()}).then(function(result){ if(result.success===true) toast('✅ PIN changed successfully!'); }).catch(function(e){console.error('Change PIN error:',e)});
+    }).then(function(r){return r.json()}).then(function(result){ if(result.success===true){}}).catch(function(e){console.error('Change PIN error:',e)});
 }
 
 function logout(){ if(confirm('Logout?')){ localStorage.removeItem('rt_user'); window.location.reload(); } }
@@ -1969,9 +1928,9 @@ function openDetail(type,id){
 }
 
 function makeCall(){ if(detail){ var num=detail.mobile||detail.driver_mobile; if(num) window.location.href='tel:'+num; } }
-function expressInterest(){ toast('✅ Interest expressed!'); }
-function contactUser(){ toast('📧 Contact details shared!'); }
-function handleShareClick(){ if(navigator.share){ navigator.share({title:'ReturnTruck',text:'Check out this listing on ReturnTruck!',url:window.location.href}); } else { toast('📋 Link copied!'); } }
+function expressInterest(){}
+function contactUser(){}
+function handleShareClick(){ if(navigator.share){ navigator.share({title:'ReturnTruck',text:'Check out this listing on ReturnTruck!',url:window.location.href}); } }
 
 // ============================================================
 // HEIGHT
