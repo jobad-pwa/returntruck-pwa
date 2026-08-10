@@ -292,13 +292,13 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                     <label>🚛 Vehicle Type</label>
                     <select id="filter-vehicle" onchange="applyFilters()">
                         <option value="ALL">All</option>
-                        <option value="Highbed">Highbed</option>
-                        <option value="Lowbed">Lowbed</option>
-                        <option value="Container">Container</option>
-                        <option value="ODC">ODC</option>
-                        <option value="Flatbed">Flatbed</option>
-                        <option value="Tipper">Tipper</option>
-                        <option value="Semi-Lowbed">Semi-Lowbed</option>
+                        <option value="Highbed Trailer">Highbed Trailer</option>
+                        <option value="Lowbed Trailer">Lowbed Trailer</option>
+                        <option value="Container Carrier">Container Carrier</option>
+                        <option value="Over-Dimensional Cargo (ODC)">Over-Dimensional Cargo (ODC)</option>
+                        <option value="Open Body Truck">Open Body Truck</option>
+                        <option value="Tipper / Dumper">Tipper / Dumper</option>
+                        <option value="Semi-Lowbed Trailer">Semi-Lowbed Trailer</option>
                     </select>
                 </div>
             </div>
@@ -630,18 +630,18 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div style="font-size:10px;color:#94a3b8;margin-top:4px">Only letters and numbers, 9-11 characters (e.g., MH12AB1234)</div>
         </div>
 
-        <!-- Vehicle Type - Simple Dropdown (same as home filter) -->
+        <!-- Vehicle Type - Using SAME VEHICLE_TYPES as home filter -->
         <div class="profile-section">
             <label class="form-label">🚛 Vehicle Type *</label>
             <select class="form-control" id="td-vehicle-type">
                 <option value="">Select vehicle type...</option>
-                <option value="Highbed">Highbed</option>
-                <option value="Lowbed">Lowbed</option>
-                <option value="Container">Container</option>
-                <option value="ODC">ODC</option>
-                <option value="Flatbed">Flatbed</option>
-                <option value="Tipper">Tipper</option>
-                <option value="Semi-Lowbed">Semi-Lowbed</option>
+                <option value="Highbed Trailer">Highbed Trailer</option>
+                <option value="Lowbed Trailer">Lowbed Trailer</option>
+                <option value="Container Carrier">Container Carrier</option>
+                <option value="Over-Dimensional Cargo (ODC)">Over-Dimensional Cargo (ODC)</option>
+                <option value="Open Body Truck">Open Body Truck</option>
+                <option value="Tipper / Dumper">Tipper / Dumper</option>
+                <option value="Semi-Lowbed Trailer">Semi-Lowbed Trailer</option>
             </select>
         </div>
 
@@ -758,16 +758,16 @@ var LOCATIONS = [
 ];
 
 // ============================================================
-// VEHICLE TYPES - Simplified (no dimensions, just type names)
+// VEHICLE TYPES - Clear, user-friendly names used everywhere
 // ============================================================
 var VEHICLE_TYPES = [
-  'Highbed',
-  'Lowbed',
-  'Container',
-  'ODC',
-  'Flatbed',
-  'Tipper',
-  'Semi-Lowbed'
+  'Highbed Trailer',
+  'Lowbed Trailer',
+  'Container Carrier',
+  'Over-Dimensional Cargo (ODC)',
+  'Open Body Truck',
+  'Tipper / Dumper',
+  'Semi-Lowbed Trailer'
 ];
 
 // ============================================================
