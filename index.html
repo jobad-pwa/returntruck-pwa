@@ -145,6 +145,11 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .status-badge.active{background:#dcfce7;color:#166534}
 .status-badge.draft{background:#fef3c7;color:#92400e}
 .status-badge.expired{background:#fef2f2;color:#991b1b}
+.route-tag{background:#e2e8f0;padding:4px 10px;border-radius:6px;font-size:12px;display:inline-block;margin:2px}
+.route-tag .remove{color:#dc2626;cursor:pointer;margin-left:6px;font-weight:700}
+.route-tag .remove:hover{color:#b91c1c}
+.user-type-checkbox{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
+.user-type-checkbox label{font-size:13px;display:flex;align-items:center;gap:4px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -417,8 +422,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                     <span class="section-badge active" id="lg-badge">✅ Active</span>
                 </div>
                 <div id="lg-profile-display">
-                    <div style="font-weight:600;font-size:15px;color:#1e293b" id="lg-company-display">ABC Steel Traders</div>
-                    <div style="font-size:12px;color:#2563eb" id="lg-web-display">https://www.abcsteel.com</div>
+                    <div style="font-weight:600;font-size:15px;color:#1e293b" id="lg-company-display">Not set</div>
+                    <div style="font-size:12px;color:#2563eb" id="lg-web-display">--</div>
                     <button class="section-btn" style="margin-top:8px" onclick="openEditProfile()">✏️ Edit</button>
                 </div>
             </div>
@@ -519,14 +524,15 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
         </div>
 
-        <!-- User Type -->
+        <!-- User Type - Maps to _int2 array -->
         <div class="profile-section">
             <label class="form-label">🎯 User Type</label>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
-                <label style="font-size:13px;display:flex;align-items:center;gap:4px"><input type="checkbox" id="edit-type-agent" value="agent"> Agent</label>
-                <label style="font-size:13px;display:flex;align-items:center;gap:4px"><input type="checkbox" id="edit-type-loadgiver" value="loadgiver"> Load Giver</label>
-                <label style="font-size:13px;display:flex;align-items:center;gap:4px"><input type="checkbox" id="edit-type-operator" value="operator"> Operator</label>
+            <div class="user-type-checkbox">
+                <label><input type="checkbox" id="edit-type-loadgiver" value="1"> 📦 Load Giver</label>
+                <label><input type="checkbox" id="edit-type-operator" value="2"> 🚛 Operator</label>
+                <label><input type="checkbox" id="edit-type-agent" value="3"> 🤝 Agent</label>
             </div>
+            <div style="font-size:10px;color:#94a3b8;margin-top:4px">Select all that apply</div>
         </div>
 
         <!-- Profile Tabs in Edit -->
@@ -558,11 +564,12 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div class="profile-section">
                 <label class="form-label">🗺️ Preferred Routes</label>
                 <div style="display:flex;gap:6px;margin-bottom:8px">
-                    <input class="form-control" id="edit-route-input" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('edit-route')" style="flex:2">
+                    <input class="form-control" id="search-edit-route" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('edit-route')" style="flex:2">
                     <button class="section-btn" onclick="addRoute()">Add</button>
                 </div>
                 <div class="search-wrapper"><div class="suggestions" id="suggestions-edit-route"></div></div>
-                <div id="edit-routes-list" style="display:flex;flex-wrap:wrap;gap:4px"></div>
+                <input type="hidden" id="edit-route-hidden">
+                <div id="edit-routes-list" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"></div>
             </div>
             <div class="profile-section">
                 <label class="form-label">📝 About / Details</label>
@@ -576,11 +583,12 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div class="profile-section">
                 <label class="form-label">🗺️ Preferred Routes</label>
                 <div style="display:flex;gap:6px;margin-bottom:8px">
-                    <input class="form-control" id="edit-agent-route-input" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('edit-agent-route')" style="flex:2">
+                    <input class="form-control" id="search-edit-agent-route" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('edit-agent-route')" style="flex:2">
                     <button class="section-btn" onclick="addAgentRoute()">Add</button>
                 </div>
                 <div class="search-wrapper"><div class="suggestions" id="suggestions-edit-agent-route"></div></div>
-                <div id="edit-agent-routes-list" style="display:flex;flex-wrap:wrap;gap:4px"></div>
+                <input type="hidden" id="edit-agent-route-hidden">
+                <div id="edit-agent-routes-list" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"></div>
             </div>
             <div class="profile-section">
                 <label class="form-label">📝 About / Details</label>
@@ -695,8 +703,10 @@ document.addEventListener('DOMContentLoaded', function(){
 // ============================================================
 function getLoc(pinId){
     if(!pinId) return null;
+    // PIN_ID can be string or number, convert to string for comparison
+    var pinStr = String(pinId);
     for(var i=0;i<LOCATIONS.length;i++){
-        if(LOCATIONS[i].pin_id===pinId) return LOCATIONS[i];
+        if(String(LOCATIONS[i].pin_id)===pinStr) return LOCATIONS[i];
     }
     return null;
 }
@@ -709,6 +719,10 @@ function getLocDisplayName(loc){
 function getLocName(pinId){
     var l=getLoc(pinId);
     return l ? getLocDisplayName(l) : pinId||'Unknown';
+}
+
+function getLocByPinId(pinId){
+    return getLoc(pinId);
 }
 
 function dist(lat1,lng1,lat2,lng2){
@@ -734,7 +748,7 @@ function searchLocation(ctx){
            l.pincode.includes(q) || 
            l.district.toLowerCase().includes(ql) ||
            l.state.toLowerCase().includes(ql) ||
-           l.pin_id.toLowerCase().includes(ql)){
+           String(l.pin_id).includes(q)){
             res.push(l);
             if(res.length>=10) break;
         }
@@ -1000,8 +1014,22 @@ function loadProfile(){
     if(!user)return;
     $('profile-mobile').textContent=user.mobile||'--';
     if(user.last_active){ var d=new Date(user.last_active); $('profile-last-active').textContent=d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}); }
-    if(user.company_name){ $('lg-company-display').textContent=user.company_name; $('fo-company-display').textContent=user.company_name; }
+    
+    // Load Giver
+    if(user.company_name){ 
+        $('lg-company-display').textContent=user.company_name; 
+        $('fo-company-display').textContent=user.company_name;
+        $('agent-company-display').textContent=user.company_name;
+    }
     if(user.company_web){ $('lg-web-display').textContent=user.company_web; }
+    if(user.load_giver_details){ $('lg-company-display').innerHTML += '<div style="font-size:11px;color:#64748b;margin-top:4px">'+user.load_giver_details.substring(0,100)+'...</div>'; }
+    
+    // Operator
+    if(user.fleet_operator_details){ $('fo-company-display').innerHTML = '<div style="font-size:11px;color:#64748b;margin-top:4px">'+user.fleet_operator_details.substring(0,100)+'...</div>'; }
+    
+    // Agent
+    if(user.agent_details){ $('agent-company-display').innerHTML = '<div style="font-size:11px;color:#64748b;margin-top:4px">'+user.agent_details.substring(0,100)+'...</div>'; }
+    
     // Load user's loads and trucks
     loadMyLoads();
     loadMyTrucks();
@@ -1069,17 +1097,27 @@ function openEditProfile(){
     $('edit-pan').value=user.pan||'';
     $('edit-gst').value=user.gst||'';
     if(user.location){ var loc=getLoc(user.location); if(loc){ $('search-edit-location').value=getLocDisplayName(loc); $('edit-location-hidden').value=user.location; } }
-    // User types
-    if(user.user_type&&user.user_type.length){ user.user_type.forEach(function(t){ if(t==='agent') $('edit-type-agent').checked=true; if(t==='loadgiver') $('edit-type-loadgiver').checked=true; if(t==='operator') $('edit-type-operator').checked=true; }); }
+    
+    // User types - value mapping: 1=Load Giver, 2=Operator, 3=Agent
+    if(user.user_type && user.user_type.length){
+        var types = user.user_type;
+        $('edit-type-loadgiver').checked = types.indexOf(1) !== -1;
+        $('edit-type-operator').checked = types.indexOf(2) !== -1;
+        $('edit-type-agent').checked = types.indexOf(3) !== -1;
+    }
+    
     // Vehicles
     vehicles=user.vehicle_no||[];
     renderVehicles();
-    // Routes
+    
+    // Routes - these are stored as array of PIN_IDs
     routes=user.preferred_routes||[];
     renderRoutes();
+    
     // Agent routes
     agentRoutes=user.agent_routes||[];
     renderAgentRoutes();
+    
     // About fields
     $('edit-lg-about').value=user.load_giver_details||'';
     $('edit-fo-about').value=user.fleet_operator_details||'';
@@ -1095,19 +1133,27 @@ function closeEditProfile(){ goHome(); }
 function renderVehicles(){
     var container=$('edit-vehicles-list');
     if(!vehicles.length){ container.innerHTML='<div style="color:#94a3b8;font-size:12px;padding:4px 0">No vehicles added</div>'; return; }
-    container.innerHTML=vehicles.map(function(v){ return '<span style="background:#e2e8f0;padding:4px 10px;border-radius:6px;font-size:12px;display:inline-block;margin:2px">'+v+' <span style="cursor:pointer;color:#dc2626" onclick="removeVehicle(\''+v+'\')">✕</span></span>'; }).join('');
+    container.innerHTML=vehicles.map(function(v){ return '<span class="route-tag">'+v+' <span class="remove" onclick="removeVehicle(\''+v+'\')">✕</span></span>'; }).join('');
 }
 
 function renderRoutes(){
     var container=$('edit-routes-list');
     if(!routes.length){ container.innerHTML='<span style="color:#94a3b8;font-size:12px;padding:4px 0">No routes added</span>'; return; }
-    container.innerHTML=routes.map(function(r){ var loc=getLoc(r); return '<span style="background:#e2e8f0;padding:4px 10px;border-radius:6px;font-size:12px;display:inline-block;margin:2px">'+(loc?getLocDisplayName(loc):r)+' <span style="cursor:pointer;color:#dc2626" onclick="removeRoute(\''+r+'\')">✕</span></span>'; }).join('');
+    container.innerHTML=routes.map(function(r){ 
+        var loc=getLoc(r); 
+        var display = loc ? getLocDisplayName(loc) : r;
+        return '<span class="route-tag">'+display+' <span class="remove" onclick="removeRoute(\''+r+'\')">✕</span></span>'; 
+    }).join('');
 }
 
 function renderAgentRoutes(){
     var container=$('edit-agent-routes-list');
     if(!agentRoutes.length){ container.innerHTML='<span style="color:#94a3b8;font-size:12px;padding:4px 0">No routes added</span>'; return; }
-    container.innerHTML=agentRoutes.map(function(r){ var loc=getLoc(r); return '<span style="background:#e2e8f0;padding:4px 10px;border-radius:6px;font-size:12px;display:inline-block;margin:2px">'+(loc?getLocDisplayName(loc):r)+' <span style="cursor:pointer;color:#dc2626" onclick="removeAgentRoute(\''+r+'\')">✕</span></span>'; }).join('');
+    container.innerHTML=agentRoutes.map(function(r){ 
+        var loc=getLoc(r); 
+        var display = loc ? getLocDisplayName(loc) : r;
+        return '<span class="route-tag">'+display+' <span class="remove" onclick="removeAgentRoute(\''+r+'\')">✕</span></span>'; 
+    }).join('');
 }
 
 function addVehicle(){
@@ -1123,8 +1169,14 @@ function removeVehicle(v){ vehicles=vehicles.filter(function(x){return x!==v}); 
 function addRoute(){
     var route=$('edit-route-hidden').value;
     if(!route){toast('⚠️ Select a location');return}
-    if(routes.includes(route)){toast('⚠️ Route already added');return}
-    routes.push(route); $('search-edit-route').value=''; $('edit-route-hidden').value=''; renderRoutes();
+    // Convert to integer for database (preferred_routes is _int2)
+    var routeInt = parseInt(route);
+    if(isNaN(routeInt)){toast('⚠️ Invalid route');return}
+    if(routes.indexOf(routeInt) !== -1){toast('⚠️ Route already added');return}
+    routes.push(routeInt); 
+    $('search-edit-route').value=''; 
+    $('edit-route-hidden').value=''; 
+    renderRoutes();
 }
 
 function removeRoute(r){ routes=routes.filter(function(x){return x!==r}); renderRoutes(); }
@@ -1132,8 +1184,13 @@ function removeRoute(r){ routes=routes.filter(function(x){return x!==r}); render
 function addAgentRoute(){
     var route=$('edit-agent-route-hidden').value;
     if(!route){toast('⚠️ Select a location');return}
-    if(agentRoutes.includes(route)){toast('⚠️ Route already added');return}
-    agentRoutes.push(route); $('search-edit-agent-route').value=''; $('edit-agent-route-hidden').value=''; renderAgentRoutes();
+    var routeInt = parseInt(route);
+    if(isNaN(routeInt)){toast('⚠️ Invalid route');return}
+    if(agentRoutes.indexOf(routeInt) !== -1){toast('⚠️ Route already added');return}
+    agentRoutes.push(routeInt); 
+    $('search-edit-agent-route').value=''; 
+    $('edit-agent-route-hidden').value=''; 
+    renderAgentRoutes();
 }
 
 function removeAgentRoute(r){ agentRoutes=agentRoutes.filter(function(x){return x!==r}); renderAgentRoutes(); }
@@ -1154,12 +1211,14 @@ function switchEditTab(tab){
 }
 
 function saveProfile(){
+    // Build user_type array from checkboxes (values: 1, 2, 3)
     var userTypes=[];
-    if($('edit-type-agent').checked) userTypes.push('agent');
-    if($('edit-type-loadgiver').checked) userTypes.push('loadgiver');
-    if($('edit-type-operator').checked) userTypes.push('operator');
+    if($('edit-type-loadgiver').checked) userTypes.push(1);
+    if($('edit-type-operator').checked) userTypes.push(2);
+    if($('edit-type-agent').checked) userTypes.push(3);
     
-    var location=$('edit-location-hidden').value||null;
+    var location=$('edit-location-hidden').value ? parseInt($('edit-location-hidden').value) : null;
+    
     var updateData={
         name:$('edit-name').value||null,
         company_name:$('edit-company').value||null,
@@ -1167,10 +1226,10 @@ function saveProfile(){
         pan:$('edit-pan').value||null,
         gst:$('edit-gst').value||null,
         location:location,
-        user_type:userTypes.length?userTypes:null,
-        vehicle_no:vehicles.length?vehicles:null,
-        preferred_routes:routes.length?routes:null,
-        agent_routes:agentRoutes.length?agentRoutes:null,
+        user_type:userTypes.length ? userTypes : null,
+        vehicle_no:vehicles.length ? vehicles : null,
+        preferred_routes:routes.length ? routes : null,
+        agent_routes:agentRoutes.length ? agentRoutes : null,
         load_giver_details:$('edit-lg-about').value||null,
         fleet_operator_details:$('edit-fo-about').value||null,
         agent_details:$('edit-agent-about').value||null,
@@ -1180,7 +1239,12 @@ function saveProfile(){
     toast('⏳ Saving profile...');
     sb.from('active_users').update(updateData).eq('mobile',user.mobile).then(function(result){
         if(result.error){ toast('❌ Error: '+result.error.message); }
-        else { toast('✅ Profile saved successfully!'); Object.assign(user,updateData); closeEditProfile(); loadProfile(); }
+        else { 
+            toast('✅ Profile saved successfully!'); 
+            Object.assign(user,updateData); 
+            closeEditProfile(); 
+            loadProfile(); 
+        }
     }).catch(function(e){ toast('❌ Error saving profile'); });
 }
 
@@ -1197,8 +1261,8 @@ function publishLoad(){
         material:$('pl-material').value,
         weight:parseInt($('pl-weight').value)||0,
         dimensions:$('pl-dim').value||'',
-        pickup_pin_id:pickupPinId,
-        drop_pin_id:dropPinId,
+        pickup_pin_id:parseInt(pickupPinId),
+        drop_pin_id:parseInt(dropPinId),
         rate:parseFloat($('pl-rate').value)||0,
         expiry_date:$('pl-date').value||null,
         company:user.company_name||'',
@@ -1222,7 +1286,7 @@ function publishTruck(){
     toast('⏳ Listing truck...');
     var truckData={
         truck_no:$('pt-number').value,
-        location_pin_id:locationPinId,
+        location_pin_id:parseInt(locationPinId),
         available_from:$('pt-available').value||null,
         rate_km:parseFloat($('pt-rate-km').value)||0,
         driver_name:$('pt-driver').value||'',
