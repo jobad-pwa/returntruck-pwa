@@ -161,6 +161,12 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .vehicle-suggest-dropdown .item:hover{background:#f1f5f9}
 .vehicle-suggest-dropdown .item .sub{font-size:10px;color:#94a3b8}
 .vehicle-suggest-dropdown .item .add-new{color:#2563eb;font-weight:600}
+.vehicle-type-select{position:relative}
+.vehicle-type-select .dropdown{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:8px;margin-top:4px;max-height:150px;overflow-y:auto;z-index:50;display:none}
+.vehicle-type-select .dropdown.show{display:block}
+.vehicle-type-select .dropdown .item{padding:8px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid #f1f5f9}
+.vehicle-type-select .dropdown .item:hover{background:#f1f5f9}
+.vehicle-type-select .dropdown .item .sub{font-size:10px;color:#94a3b8}
 </style>
 </head>
 <body>
@@ -657,14 +663,25 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <!-- Vehicle Number -->
         <div class="profile-section">
             <label class="form-label">🚛 Vehicle Number *</label>
-            <input class="form-control" id="td-vehicle-number" placeholder="MH-12-AB-1234" style="text-transform:uppercase">
-            <div style="font-size:10px;color:#94a3b8;margin-top:4px">8-11 characters, no spaces</div>
+            <input class="form-control" id="td-vehicle-number" placeholder="MH12AB1234" style="text-transform:uppercase" oninput="validateVehicleNumber(this)">
+            <div style="font-size:10px;color:#94a3b8;margin-top:4px">Only letters and numbers, no spaces or special characters</div>
         </div>
 
-        <!-- Vehicle Type -->
+        <!-- Vehicle Type Dropdown -->
         <div class="profile-section">
-            <label class="form-label">🚛 Vehicle Type</label>
-            <input class="form-control" id="td-vehicle-type" placeholder="Highbed-40x8x8">
+            <label class="form-label">🚛 Vehicle Type *</label>
+            <div class="vehicle-type-select">
+                <input class="form-control" id="td-vehicle-type" placeholder="Type to search..." oninput="filterVehicleTypes(this.value)" autocomplete="off">
+                <div class="dropdown" id="td-vehicle-dropdown">
+                    <div class="item" onclick="selectVehicleType('Highbed-40x8x8 (22 Ton)')">Highbed-40x8x8 (22 Ton)</div>
+                    <div class="item" onclick="selectVehicleType('Lowbed-40x10x10 (28 Ton)')">Lowbed-40x10x10 (28 Ton)</div>
+                    <div class="item" onclick="selectVehicleType('Container-22x8x8 (16 Ton)')">Container-22x8x8 (16 Ton)</div>
+                    <div class="item" onclick="selectVehicleType('ODC (Over-Dimen Cargo)')">ODC (Over-Dimen Cargo)</div>
+                    <div class="item" onclick="selectVehicleType('Flatbed-30x8x8 (18 Ton)')">Flatbed-30x8x8 (18 Ton)</div>
+                    <div class="item" onclick="selectVehicleType('Tipper-20x8x8 (25 Ton)')">Tipper-20x8x8 (25 Ton)</div>
+                    <div class="item" style="color:#2563eb;font-weight:600" onclick="addNewVehicleType()">+ Add New</div>
+                </div>
+            </div>
         </div>
 
         <!-- Dimensions -->
@@ -694,7 +711,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
         </div>
 
-        <!-- Operating Routes -->
+        <!-- Operating Routes with search -->
         <div class="profile-section">
             <label class="form-label">🗺️ Operating Routes</label>
             <div class="route-input-row">
@@ -785,6 +802,18 @@ var LOCATIONS = [
 ];
 
 // ============================================================
+// VEHICLE TYPES
+// ============================================================
+var VEHICLE_TYPES = [
+  'Highbed-40x8x8 (22 Ton)',
+  'Lowbed-40x10x10 (28 Ton)',
+  'Container-22x8x8 (16 Ton)',
+  'ODC (Over-Dimen Cargo)',
+  'Flatbed-30x8x8 (18 Ton)',
+  'Tipper-20x8x8 (25 Ton)'
+];
+
+// ============================================================
 // CONFIG & STATE
 // ============================================================
 var SB_URL='https://ghjoffovatgvhzxlupef.supabase.co';
@@ -817,6 +846,64 @@ document.addEventListener('DOMContentLoaded', function(){
             if(e.key.length===1||e.key==='Backspace'||e.key==='Delete') this.classList.remove('selected');
         });
     });
+});
+
+// ============================================================
+// VEHICLE NUMBER VALIDATION - Only letters and numbers
+// ============================================================
+function validateVehicleNumber(input){
+    // Remove any non-alphanumeric characters
+    input.value = input.value.replace(/[^A-Za-z0-9]/g, '');
+}
+
+function isValidVehicleNumber(number){
+    return /^[A-Za-z0-9]{8,11}$/.test(number);
+}
+
+// ============================================================
+// VEHICLE TYPE DROPDOWN
+// ============================================================
+function filterVehicleTypes(query){
+    var dropdown=$('td-vehicle-dropdown');
+    var items=dropdown.querySelectorAll('.item:not(:last-child)');
+    var q=query.toLowerCase().trim();
+    items.forEach(function(item){
+        if(!q || item.textContent.toLowerCase().includes(q)){
+            item.style.display='block';
+        }else{
+            item.style.display='none';
+        }
+    });
+    dropdown.classList.add('show');
+}
+
+function selectVehicleType(type){
+    $('td-vehicle-type').value=type;
+    $('td-vehicle-dropdown').classList.remove('show');
+}
+
+function addNewVehicleType(){
+    var newType=prompt('Enter new vehicle type (e.g., Flatbed-30x8x8 (18 Ton)):');
+    if(newType && newType.trim()){
+        VEHICLE_TYPES.push(newType.trim());
+        var dropdown=$('td-vehicle-dropdown');
+        var newItem=document.createElement('div');
+        newItem.className='item';
+        newItem.textContent=newType.trim();
+        newItem.onclick=function(){ selectVehicleType(this.textContent); };
+        dropdown.insertBefore(newItem, dropdown.lastElementChild);
+        selectVehicleType(newType.trim());
+        toast('✅ New vehicle type added!');
+    }
+}
+
+// Close dropdown on outside click
+document.addEventListener('click', function(e){
+    var container=e.target.closest('.vehicle-type-select');
+    if(!container){
+        var dropdown=$('td-vehicle-dropdown');
+        if(dropdown) dropdown.classList.remove('show');
+    }
 });
 
 // ============================================================
@@ -926,14 +1013,11 @@ document.addEventListener('click', function(e){
 // ============================================================
 // VEHICLE SEARCH - Search active_vehicles table
 // ============================================================
-var allVehiclesCache=[];
-
 function searchVehicles(query){
     var dropdown=$('vehicle-suggest-dropdown');
     var q=query.trim().toUpperCase();
     if(!q || q.length<2){ dropdown.classList.remove('show'); return; }
     
-    // Search in active_vehicles
     sb.from('active_vehicles').select('*').ilike('vehicle_number', '%'+q+'%').limit(10)
     .then(function(result){
         if(result.error){ console.error(result.error); return; }
@@ -960,7 +1044,6 @@ function selectVehicle(id, number, type, dims, weight){
     selectedVehicle={id:id, number:number, type:type, dimensions:dims, max_weight:weight};
     $('edit-vehicle-input').value=number;
     $('vehicle-suggest-dropdown').classList.remove('show');
-    // Add to vehicles list immediately
     if(!vehicles.includes(number)){
         vehicles.push(number);
         renderVehicles();
@@ -982,7 +1065,6 @@ function addSelectedVehicle(){
             input.value='';
             toast('✅ Vehicle added: '+val);
         }else{
-            // Vehicle not found, open truck details to add
             toast('ℹ️ Vehicle not found. Please add details.');
             $('td-vehicle-number').value=val;
             openTruckDetails();
@@ -1020,13 +1102,11 @@ function loadProfileVehicles(){
                 '</div>'+
             '</div>';
         }).join('');
-        // Update vehicle count in stats
         $('stat-vehicles-count').textContent=vehicles.length;
     }).catch(function(){ container.innerHTML='<div style="color:#ef4444;font-size:12px;text-align:center;padding:8px">Error loading vehicles</div>'; });
 }
 
 function editVehicle(id){
-    // Open truck details with vehicle data
     sb.from('active_vehicles').select('*').eq('id',id).single().then(function(r){
         if(r.data){
             var v=r.data;
@@ -1052,13 +1132,11 @@ function deleteVehicle(id, number){
     if(!confirm('Delete vehicle '+number+'?')) return;
     sb.from('active_vehicles').delete().eq('id',id).then(function(result){
         if(result.error){ toast('❌ Error: '+result.error.message); return; }
-        // Remove from user's vehicle_no
         var current=user.vehicle_no||[];
         current=current.filter(function(v){ return v!==number; });
         sb.from('active_users').update({vehicle_no:current}).eq('mobile',user.mobile).then(function(){
             user.vehicle_no=current;
         });
-        // Remove from vehicles list in edit profile
         vehicles=vehicles.filter(function(v){ return v!==number; });
         renderVehicles();
         toast('🗑️ Vehicle deleted');
@@ -1089,7 +1167,6 @@ function openTruckDetails(vehicleNumber){
 }
 
 function closeTruckDetails(){ 
-    // Refresh vehicles list after closing
     loadProfileVehicles();
     goHome(); 
 }
@@ -1126,7 +1203,7 @@ function saveTruckDetails(){
     var number=$('td-vehicle-number').value.trim().toUpperCase();
     var editId=$('td-edit-id').value;
     if(!number){ toast('⚠️ Enter vehicle number'); return; }
-    if(number.length<8||number.length>11){ toast('⚠️ Vehicle number must be 8-11 characters'); return; }
+    if(!isValidVehicleNumber(number)){ toast('⚠️ Vehicle number must be 8-11 characters (only letters and numbers)'); return; }
     
     var data={
         vehicle_number: number,
@@ -1144,7 +1221,6 @@ function saveTruckDetails(){
     var query=editId ? sb.from('active_vehicles').update(data).eq('id',editId) : sb.from('active_vehicles').insert(data);
     query.then(function(result){
         if(result.error){ toast('❌ Error: '+result.error.message); return; }
-        // Update user's vehicle_no
         var current=user.vehicle_no||[];
         if(!current.includes(number)){
             current.push(number);
@@ -1152,7 +1228,6 @@ function saveTruckDetails(){
                 user.vehicle_no=current;
             });
         }
-        // Update vehicles list in edit profile
         if(!vehicles.includes(number)){ vehicles.push(number); renderVehicles(); }
         toast('✅ Vehicle saved successfully!');
         closeTruckDetails();
@@ -1511,7 +1586,6 @@ function renderAgentRoutes(){
 function removeVehicle(v){ 
     vehicles=vehicles.filter(function(x){return x!==v}); 
     renderVehicles(); 
-    // Also remove from user's vehicle_no
     var current=user.vehicle_no||[];
     current=current.filter(function(x){return x!==v});
     sb.from('active_users').update({vehicle_no:current}).eq('mobile',user.mobile).then(function(){
