@@ -168,7 +168,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .vehicle-type-select .dropdown .item{padding:8px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid #f1f5f9}
 .vehicle-type-select .dropdown .item:hover{background:#f1f5f9}
 .vehicle-type-select .dropdown .item .sub{font-size:10px;color:#94a3b8}
-.vehicle-number-input{font-family:monospace;letter-spacing:0.5px}
+.vehicle-number-input{font-family:monospace;letter-spacing:0.5px;text-transform:uppercase}
 .dim-input input{text-align:center}
 </style>
 </head>
@@ -372,7 +372,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <button class="back-btn" onclick="cancelPost()">Cancel</button>
     </div>
     <div class="scroll-body" id="posttruck-scroll">
-        <div class="form-group"><label>Vehicle Number</label><div style="display:flex;gap:8px"><input class="form-control" id="pt-number" style="flex:2"><button class="btn-primary" style="width:auto;padding:10px 16px" onclick="autoFetchVehicle()">🔍 Auto-Fetch</button></div></div>
+        <div class="form-group"><label>Vehicle Number</label><div style="display:flex;gap:8px"><input class="form-control vehicle-number-input" id="pt-number" style="flex:2" placeholder="MH12AB1234"><button class="btn-primary" style="width:auto;padding:10px 16px" onclick="autoFetchVehicle()">🔍 Auto-Fetch</button></div></div>
         <div class="form-group"><label>📍 Location</label>
             <div style="position:relative;width:100%">
                 <input type="text" id="search-pt-location" placeholder="📍 Search Location" onclick="selectInputText(this)" oninput="searchLocation('pt-location')" autocomplete="off">
@@ -585,16 +585,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <div id="edit-vehicles-list" style="margin-top:8px"></div>
             </div>
             <div class="profile-section">
-                <label class="form-label">🗺️ Preferred Routes</label>
-                <div class="route-input-row">
-                    <input class="form-control" id="search-edit-route" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('edit-route')" autocomplete="off">
-                    <button class="section-btn" onclick="addRoute()">Add</button>
-                </div>
-                <div class="search-wrapper"><div class="suggestions" id="suggestions-edit-route"></div></div>
-                <input type="hidden" id="edit-route-hidden">
-                <div id="edit-routes-list" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"></div>
-            </div>
-            <div class="profile-section">
                 <label class="form-label">📝 About / Details</label>
                 <textarea class="form-control" id="edit-fo-about" rows="3" placeholder="Fleet operator with 5 trucks, regular routes." style="resize:vertical"></textarea>
                 <div style="font-size:10px;color:#94a3b8;text-align:right"><span id="edit-fo-count">0</span>/300</div>
@@ -602,16 +592,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         </div>
 
         <div class="profile-tab-content" id="edit-tab-agent">
-            <div class="profile-section">
-                <label class="form-label">🗺️ Preferred Routes</label>
-                <div class="route-input-row">
-                    <input class="form-control" id="search-edit-agent-route" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('edit-agent-route')" autocomplete="off">
-                    <button class="section-btn" onclick="addAgentRoute()">Add</button>
-                </div>
-                <div class="search-wrapper"><div class="suggestions" id="suggestions-edit-agent-route"></div></div>
-                <input type="hidden" id="edit-agent-route-hidden">
-                <div id="edit-agent-routes-list" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"></div>
-            </div>
             <div class="profile-section">
                 <label class="form-label">📝 About / Details</label>
                 <textarea class="form-control" id="edit-agent-about" rows="3" placeholder="Commission, rate, credit facility etc." style="resize:vertical"></textarea>
@@ -649,8 +629,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <!-- Vehicle Number -->
         <div class="profile-section">
             <label class="form-label">🚛 Vehicle Number *</label>
-            <input class="form-control vehicle-number-input" id="td-vehicle-number" placeholder="MH12AB1234" oninput="validateVehicleNumberInput(this)" autocomplete="off">
-            <div style="font-size:10px;color:#94a3b8;margin-top:4px">Only letters and numbers, no spaces or special characters</div>
+            <input class="form-control vehicle-number-input" id="td-vehicle-number" placeholder="MH12AB1234" oninput="validateVehicleNumberInput(this)" autocomplete="off" maxlength="11">
+            <div style="font-size:10px;color:#94a3b8;margin-top:4px">Only letters and numbers, 9-11 characters (e.g., MH12AB1234)</div>
         </div>
 
         <!-- Vehicle Type Dropdown -->
@@ -681,7 +661,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
         </div>
 
-        <!-- Operating Routes with search - FIXED -->
+        <!-- Operating Routes -->
         <div class="profile-section">
             <label class="form-label">🗺️ Operating Routes</label>
             <div class="route-input-row">
@@ -824,18 +804,43 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 // ============================================================
-// VEHICLE NUMBER VALIDATION
+// VEHICLE NUMBER VALIDATION - Indian format (9-11 characters)
 // ============================================================
 function validateVehicleNumberInput(input){
+    // Remove any non-alphanumeric characters
     var cleaned = input.value.replace(/[^A-Za-z0-9]/g, '');
     if(input.value !== cleaned){
         input.value = cleaned;
     }
+    // Remove spaces
     input.value = input.value.replace(/\s/g, '');
+    // Convert to uppercase for consistency
+    input.value = input.value.toUpperCase();
+    // Limit to 11 characters max (Indian vehicle numbers are 9-11 chars)
+    if(input.value.length > 11){
+        input.value = input.value.substring(0, 11);
+    }
+    // Show validation feedback
+    var len = input.value.length;
+    var hint = input.parentElement.querySelector('.vehicle-hint') || input.nextElementSibling;
+    if(hint && hint.classList && hint.classList.contains('vehicle-hint')){
+        if(len > 0 && len < 9){
+            hint.style.color = '#f59e0b';
+            hint.textContent = '⚠️ Need ' + (9 - len) + ' more characters (9-11 total)';
+        } else if(len >= 9 && len <= 11){
+            hint.style.color = '#16a34a';
+            hint.textContent = '✅ Valid length (' + len + '/9-11)';
+        } else {
+            hint.style.color = '#94a3b8';
+            hint.textContent = 'Only letters and numbers, 9-11 characters (e.g., MH12AB1234)';
+        }
+    }
 }
 
 function isValidVehicleNumber(number){
-    return /^[A-Za-z0-9]{8,11}$/.test(number);
+    // Indian vehicle numbers: 9 to 11 characters (letters and numbers only)
+    // Format: State(2) + District(1-2) + Series(1-2) + Number(1-4) = 9-11 chars
+    return /^[A-Za-z0-9]{9,11}$/.test(number);
 }
 
 function validateAndSearchVehicle(value){
@@ -925,7 +930,7 @@ function dist(lat1,lng1,lat2,lng2){
 }
 
 // ============================================================
-// SEARCH LOCATION - Works for all contexts
+// SEARCH LOCATION
 // ============================================================
 function searchLocation(ctx){
     var inp=$('search-'+ctx);
@@ -975,8 +980,6 @@ function selectLoc(ctx, pinId){
     else if(ctx==='pl-drop') hid='pl-drop-hidden';
     else if(ctx==='pt-location') hid='pt-location-hidden';
     else if(ctx==='edit-location') hid='edit-location-hidden';
-    else if(ctx==='edit-route') hid='edit-route-hidden';
-    else if(ctx==='edit-agent-route') hid='edit-agent-route-hidden';
     else if(ctx==='td-route') hid='td-route-hidden';
     if(hid && $(hid)) $(hid).value=pinId;
     
@@ -1043,6 +1046,10 @@ function addSelectedVehicle(){
     var input=$('edit-vehicle-input');
     var val=input.value.trim().toUpperCase();
     if(!val){ return; }
+    if(!isValidVehicleNumber(val)){ 
+        alert('Vehicle number must be 9-11 characters (letters and numbers only)');
+        return; 
+    }
     if(vehicles.includes(val)){ return; }
     sb.from('active_vehicles').select('*').eq('vehicle_number', val).eq('modified_by', user.mobile).maybeSingle()
     .then(function(result){
@@ -1150,6 +1157,15 @@ function openTruckDetails(vehicleNumber){
     truckRoutes=[];
     renderTruckRoutes();
     populateVehicleTypes();
+    // Add vehicle hint for validation feedback
+    var hint = document.createElement('div');
+    hint.className = 'vehicle-hint';
+    hint.style.cssText = 'font-size:10px;color:#94a3b8;margin-top:4px';
+    hint.textContent = 'Only letters and numbers, 9-11 characters (e.g., MH12AB1234)';
+    var parent = $('td-vehicle-number').parentElement;
+    var existing = parent.querySelector('.vehicle-hint');
+    if(existing) existing.remove();
+    parent.appendChild(hint);
     switchPage('truck-details-page',4);
 }
 
@@ -1188,8 +1204,14 @@ function saveTruckDetails(){
     if(!user){ return; }
     var number=$('td-vehicle-number').value.trim().toUpperCase();
     var editId=$('td-edit-id').value;
-    if(!number){ return; }
-    if(!isValidVehicleNumber(number)){ return; }
+    if(!number){ 
+        alert('Please enter a vehicle number');
+        return; 
+    }
+    if(!isValidVehicleNumber(number)){ 
+        alert('Vehicle number must be 9-11 characters (letters and numbers only)');
+        return; 
+    }
     
     var data={
         vehicle_number: number,
@@ -1204,7 +1226,10 @@ function saveTruckDetails(){
     
     var query=editId ? sb.from('active_vehicles').update(data).eq('id',editId) : sb.from('active_vehicles').insert(data);
     query.then(function(result){
-        if(result.error){ return; }
+        if(result.error){ 
+            alert('Error saving vehicle: ' + (result.error.message || 'Unknown error'));
+            return; 
+        }
         var current=user.vehicle_no||[];
         if(!current.includes(number)){
             current.push(number);
@@ -1215,7 +1240,9 @@ function saveTruckDetails(){
         if(!vehicles.includes(number)){ vehicles.push(number); renderVehicles(); }
         closeTruckDetails();
         loadProfile();
-    }).catch(function(){});
+    }).catch(function(err){ 
+        alert('Error: ' + err.message);
+    });
 }
 
 // ============================================================
@@ -1522,12 +1549,6 @@ function openEditProfile(){
     vehicles=user.vehicle_no||[];
     renderVehicles();
     
-    routes=user.preferred_routes||[];
-    renderRoutes();
-    
-    agentRoutes=user.agent_routes||[];
-    renderAgentRoutes();
-    
     $('edit-lg-about').value=user.load_giver_details||'';
     $('edit-fo-about').value=user.fleet_operator_details||'';
     $('edit-agent-about').value=user.agent_details||'';
@@ -1545,26 +1566,6 @@ function renderVehicles(){
     container.innerHTML=vehicles.map(function(v){ return '<span class="route-tag">'+v+' <span class="remove" onclick="removeVehicle(\''+v+'\')">✕</span></span>'; }).join('');
 }
 
-function renderRoutes(){
-    var container=$('edit-routes-list');
-    if(!routes.length){ container.innerHTML='<span style="color:#94a3b8;font-size:12px;padding:4px 0">No routes added</span>'; return; }
-    container.innerHTML=routes.map(function(r){ 
-        var loc=getLoc(r); 
-        var display = loc ? getLocDisplayName(loc) : r;
-        return '<span class="route-tag">'+display+' <span class="remove" onclick="removeRoute(\''+r+'\')">✕</span></span>'; 
-    }).join('');
-}
-
-function renderAgentRoutes(){
-    var container=$('edit-agent-routes-list');
-    if(!agentRoutes.length){ container.innerHTML='<span style="color:#94a3b8;font-size:12px;padding:4px 0">No routes added</span>'; return; }
-    container.innerHTML=agentRoutes.map(function(r){ 
-        var loc=getLoc(r); 
-        var display = loc ? getLocDisplayName(loc) : r;
-        return '<span class="route-tag">'+display+' <span class="remove" onclick="removeAgentRoute(\''+r+'\')">✕</span></span>'; 
-    }).join('');
-}
-
 function removeVehicle(v){ 
     vehicles=vehicles.filter(function(x){return x!==v}); 
     renderVehicles(); 
@@ -1574,38 +1575,6 @@ function removeVehicle(v){
         user.vehicle_no=current;
     });
 }
-
-function addRoute(){
-    var route=$('edit-route-hidden').value;
-    if(!route){ return; }
-    var routeInt=parseInt(route);
-    if(isNaN(routeInt)){ return; }
-    if(routes.indexOf(routeInt)!==-1){ return; }
-    routes.push(routeInt); 
-    $('search-edit-route').value=''; 
-    $('edit-route-hidden').value=''; 
-    renderRoutes();
-    var sug=$('suggestions-edit-route');
-    if(sug){ sug.classList.remove('show'); sug.innerHTML=''; }
-}
-
-function removeRoute(r){ routes=routes.filter(function(x){return x!==r}); renderRoutes(); }
-
-function addAgentRoute(){
-    var route=$('edit-agent-route-hidden').value;
-    if(!route){ return; }
-    var routeInt=parseInt(route);
-    if(isNaN(routeInt)){ return; }
-    if(agentRoutes.indexOf(routeInt)!==-1){ return; }
-    agentRoutes.push(routeInt); 
-    $('search-edit-agent-route').value=''; 
-    $('edit-agent-route-hidden').value=''; 
-    renderAgentRoutes();
-    var sug=$('suggestions-edit-agent-route');
-    if(sug){ sug.classList.remove('show'); sug.innerHTML=''; }
-}
-
-function removeAgentRoute(r){ agentRoutes=agentRoutes.filter(function(x){return x!==r}); renderAgentRoutes(); }
 
 function updateCharCount(id,countId){
     var el=$(id); if(!el)return;
@@ -1639,8 +1608,6 @@ function saveProfile(){
         location:location,
         user_type:userTypes.length ? userTypes : null,
         vehicle_no:vehicles.length ? vehicles : null,
-        preferred_routes:routes.length ? routes : null,
-        agent_routes:agentRoutes.length ? agentRoutes : null,
         load_giver_details:$('edit-lg-about').value||null,
         fleet_operator_details:$('edit-fo-about').value||null,
         agent_details:$('edit-agent-about').value||null,
@@ -1690,9 +1657,14 @@ function publishLoad(){
 function publishTruck(){
     if(!user){return}
     var locationPinId=$('pt-location-hidden').value;
-    if(!$('pt-number').value||!locationPinId){ return; }
+    var number=$('pt-number').value.trim().toUpperCase();
+    if(!number||!locationPinId){ return; }
+    if(!isValidVehicleNumber(number)){
+        alert('Vehicle number must be 9-11 characters (letters and numbers only)');
+        return;
+    }
     var truckData={
-        truck_no:$('pt-number').value,
+        truck_no:number,
         location_pin_id:parseInt(locationPinId),
         available_from:$('pt-available').value||null,
         rate_km:parseFloat($('pt-rate-km').value)||0,
@@ -1950,6 +1922,19 @@ document.addEventListener('DOMContentLoaded',function(){
             el.addEventListener('input',function(){ updateCharCount(id,countId); }); 
         }
     });
+    
+    // Add vehicle number input hint to truck details page
+    var vehicleInput = $('td-vehicle-number');
+    if(vehicleInput){
+        var hint = document.createElement('div');
+        hint.className = 'vehicle-hint';
+        hint.style.cssText = 'font-size:10px;color:#94a3b8;margin-top:4px';
+        hint.textContent = 'Only letters and numbers, 9-11 characters (e.g., MH12AB1234)';
+        var parent = vehicleInput.parentElement;
+        var existing = parent.querySelector('.vehicle-hint');
+        if(existing) existing.remove();
+        parent.appendChild(hint);
+    }
 });
 </script>
 </body>
