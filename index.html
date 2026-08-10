@@ -91,10 +91,23 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .guest-banner{flex-shrink:0;background:#2563eb;color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .guest-banner.hidden{display:none}
 .guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer}
-.profile-header-card{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:12px;padding:16px;color:#fff;margin-bottom:16px}
+.profile-header-card{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:12px;padding:16px;color:#fff;margin-bottom:12px}
 .profile-section{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px}
-.section-btn{padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer}
+.profile-section .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.profile-section .section-title{font-size:14px;font-weight:700;color:#1e293b}
+.profile-section .section-badge{font-size:9px;padding:2px 10px;border-radius:12px;font-weight:700}
+.section-badge.active{background:#dcfce7;color:#166534}
+.section-badge.required{background:#fef3c7;color:#d97706}
+.section-badge.optional{background:#e2e8f0;color:#64748b}
+.section-btn{padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px}
+.section-btn:hover{background:#1d4ed8}
+.section-btn.secondary{background:#e2e8f0;color:#1e293b}
+.section-btn.secondary:hover{background:#cbd5e1}
+.section-btn.danger{background:#dc2626;color:#fff}
+.section-btn.danger:hover{background:#b91c1c}
 .form-control{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;background:#fff;outline:none}
+.form-control:focus{border-color:#2563eb}
+.form-label{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .detail-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:12px}
 .detail-actions button{width:100%;padding:10px;border-radius:10px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:10px}
@@ -106,6 +119,32 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .success-text{color:#16a34a;font-size:12px;text-align:center;margin-top:4px;display:none}
 .resend-btn{background:transparent;border:none;color:#2563eb;font-weight:600;cursor:pointer;font-size:12px;text-decoration:underline}
 .resend-btn:disabled{color:#94a3b8;cursor:not-allowed}
+.profile-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;background:#e2e8f0;padding:3px;border-radius:10px;margin-bottom:12px}
+.profile-tabs button{padding:8px 4px;font-size:11px;font-weight:700;border:none;border-radius:8px;cursor:pointer}
+.profile-tabs .active{background:#fff;color:#1e293b}
+.profile-tabs .inactive{background:transparent;color:#64748b}
+.profile-tab-content{display:none}
+.profile-tab-content.active{display:block}
+.stat-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.stat-card{background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0}
+.stat-card .icon{font-size:20px;display:block;margin-bottom:2px}
+.stat-card .number{font-size:20px;font-weight:800;color:#1e293b}
+.stat-card .label{font-size:8px;color:#94a3b8;text-transform:uppercase;font-weight:600}
+.list-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin-bottom:8px}
+.list-item .title{font-weight:600;font-size:13px;color:#1e293b}
+.list-item .sub{font-size:11px;color:#64748b;margin-top:2px}
+.list-item .actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.list-item .actions button{padding:4px 10px;font-size:10px;border:none;border-radius:4px;font-weight:600;cursor:pointer}
+.list-item .actions .edit{background:#dbeafe;color:#1e40af}
+.list-item .actions .edit:hover{background:#bfdbfe}
+.list-item .actions .delete{background:#fef2f2;color:#991b1b}
+.list-item .actions .delete:hover{background:#fee2e2}
+.list-item .actions .interests{background:#fef3c7;color:#92400e}
+.list-item .actions .interests:hover{background:#fde68a}
+.status-badge{font-size:9px;padding:2px 8px;border-radius:10px;font-weight:600;display:inline-block}
+.status-badge.active{background:#dcfce7;color:#166534}
+.status-badge.draft{background:#fef3c7;color:#92400e}
+.status-badge.expired{background:#fef2f2;color:#991b1b}
 </style>
 </head>
 <body>
@@ -333,30 +372,110 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
-<!-- PROFILE PAGE -->
+<!-- ==================== PROFILE PAGE ==================== -->
 <div id="profile-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <div class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></div>
         <div class="header-right">
-            <button class="back-btn" onclick="goHome()">← Back</button>
-            <button class="avatar-btn guest" id="avatar-btn-profile" onclick="toggleDropdown()"><span id="avatar-initials-profile">GU</span></button>
+            <button class="avatar-btn" id="avatar-btn-profile" onclick="toggleDropdown()"><span id="avatar-initials-profile">GU</span></button>
             <div class="profile-dropdown" id="profile-dropdown-profile">
                 <button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button>
+                <button class="dropdown-item" onclick="closeDropdown();openEditProfile()">✏️ Edit Profile</button>
                 <div class="dropdown-divider"></div>
                 <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button>
             </div>
         </div>
     </div>
     <div class="scroll-body" id="profile-scroll">
-        <div class="profile-header-card"><div style="font-size:11px;opacity:.8;font-weight:500;text-transform:uppercase">Welcome,</div><div class="mobile" id="profile-mobile">--</div><span style="font-size:10px;background:rgba(255,255,255,.2);padding:2px 12px;border-radius:12px;display:inline-block">⭐ Member</span></div>
-        <div class="profile-section"><div class="section-header"><span class="section-title">📦 Load Giver</span><span id="loadgiver-badge" style="font-size:9px;background:#fef3c7;color:#d97706;padding:2px 10px;border-radius:12px;font-weight:700">⚠️ Required</span></div>
-        <div id="loadgiver-input-area"><input class="form-control" style="margin-bottom:8px" type="text" id="lg-company" placeholder="Company Name"><button class="section-btn" onclick="saveLoadGiverProfile()">💾 Save</button></div>
-        <div id="loadgiver-active-area" style="display:none"><p><strong id="lg-display-company">--</strong></p><button class="section-btn" onclick="editLoadGiver()">✏️ Edit</button></div></div>
-        <div class="profile-section"><div class="section-header"><span class="section-title">🚛 Fleet Operator</span><span id="fleet-badge" style="font-size:9px;background:#fef3c7;color:#d97706;padding:2px 10px;border-radius:12px;font-weight:700">⚠️ Required</span></div>
-        <div id="fleet-input-area"><input class="form-control" style="margin-bottom:8px" type="text" id="fo-company" placeholder="Company Name"><button class="section-btn" onclick="saveFleetProfile()">💾 Save</button></div>
-        <div id="fleet-active-area" style="display:none"><p><strong id="fo-display-company">--</strong></p><button class="section-btn" onclick="editFleet()">✏️ Edit</button><div id="my-trucks-list" style="margin-top:12px"></div></div></div>
-        <div><p style="font-size:11px;font-weight:600;color:#1e293b;margin:0 0 8px 0">📦 My Loads</p><div id="my-loads-container"></div></div>
+        <!-- Profile Header -->
+        <div class="profile-header-card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                    <div style="font-size:11px;opacity:.8;font-weight:500;text-transform:uppercase">Welcome,</div>
+                    <div id="profile-mobile" style="font-size:20px;font-weight:700">--</div>
+                    <div style="font-size:10px;opacity:.7">⭐ last update on <span id="profile-last-active">10 Jan 2026</span></div>
+                </div>
+                <div style="text-align:right">
+                    <div style="font-size:20px">👤</div>
+                    <div style="font-size:10px;background:rgba(255,255,255,.2);padding:2px 12px;border-radius:12px;display:inline-block">⭐ Member</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Tabs -->
+        <div class="profile-tabs">
+            <button class="active" onclick="switchProfileTab('loadgiver')">Load Giver</button>
+            <button class="inactive" onclick="switchProfileTab('operator')">Operator</button>
+            <button class="inactive" onclick="switchProfileTab('agent')">Agent</button>
+        </div>
+
+        <!-- Load Giver Tab -->
+        <div class="profile-tab-content active" id="tab-loadgiver">
+            <div class="profile-section">
+                <div class="section-header">
+                    <span class="section-title">📦 LOAD GIVER PROFILE</span>
+                    <span class="section-badge active" id="lg-badge">✅ Active</span>
+                </div>
+                <div id="lg-profile-display">
+                    <div style="font-weight:600;font-size:15px;color:#1e293b" id="lg-company-display">ABC Steel Traders</div>
+                    <div style="font-size:12px;color:#2563eb" id="lg-web-display">https://www.abcsteel.com</div>
+                    <button class="section-btn" style="margin-top:8px" onclick="openEditProfile()">✏️ Edit</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Operator Tab -->
+        <div class="profile-tab-content" id="tab-operator">
+            <div class="profile-section">
+                <div class="section-header">
+                    <span class="section-title">🚛 FLEET OPERATOR</span>
+                    <span class="section-badge required" id="fo-badge">⚠️ Required</span>
+                </div>
+                <div id="fo-profile-display">
+                    <div style="font-weight:600;font-size:15px;color:#1e293b" id="fo-company-display">Not set</div>
+                    <button class="section-btn" style="margin-top:8px" onclick="openEditProfile()">➕ Create Profile</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agent Tab -->
+        <div class="profile-tab-content" id="tab-agent">
+            <div class="profile-section">
+                <div class="section-header">
+                    <span class="section-title">🤝 AGENT PROFILE</span>
+                    <span class="section-badge optional">Optional</span>
+                </div>
+                <div id="agent-profile-display">
+                    <div style="font-weight:600;font-size:15px;color:#1e293b" id="agent-company-display">Not set</div>
+                    <button class="section-btn" style="margin-top:8px" onclick="openEditProfile()">➕ Create Profile</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div style="margin:12px 0 8px">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px">📊 MY STATISTICS</div>
+            <div class="stat-cards">
+                <div class="stat-card"><span class="icon">📦</span><span class="number" id="stat-loads-count">0</span><span class="label">Loads</span></div>
+                <div class="stat-card"><span class="icon">🚛</span><span class="number" id="stat-trucks-count">0</span><span class="label">Trucks</span></div>
+                <div class="stat-card"><span class="icon">⭐</span><span class="number" id="stat-rating">4.8</span><span class="label">Rating</span></div>
+            </div>
+        </div>
+
+        <!-- My Loads -->
+        <div style="margin-bottom:8px">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px">📦 My Loads (<span id="my-loads-count">0</span>)</div>
+            <div id="my-loads-container"></div>
+        </div>
+
+        <!-- My Trucks -->
+        <div style="margin-bottom:8px">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px">🚛 My Trucks (<span id="my-trucks-count">0</span>)</div>
+            <div id="my-trucks-container"></div>
+        </div>
     </div>
+
+    <!-- Bottom Nav -->
     <div class="nav-fixed" id="bottom-nav4">
         <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
         <div class="nav-install-wrapper" id="nav-install-wrapper4">
@@ -370,7 +489,124 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
-<!-- DETAIL PAGE -->
+<!-- ==================== EDIT PROFILE PAGE ==================== -->
+<div id="edit-profile-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
+    <div class="header-fixed">
+        <span class="logo"><span class="logo-icon">✏️</span><span class="logo-text">Edit Profile</span></span>
+        <button class="back-btn" onclick="closeEditProfile()">✕</button>
+    </div>
+    <div class="scroll-body" id="edit-profile-scroll">
+        <!-- Basic Info -->
+        <div class="profile-section">
+            <div style="font-weight:700;margin-bottom:8px">👤 Personal Info</div>
+            <label class="form-label">Full Name</label>
+            <input class="form-control" id="edit-name" placeholder="Rajesh Kumar" style="margin-bottom:10px">
+            <label class="form-label">🏢 Company Name</label>
+            <input class="form-control" id="edit-company" placeholder="ABC Steel Traders" style="margin-bottom:10px">
+            <label class="form-label">🌐 Company Website</label>
+            <input class="form-control" id="edit-website" placeholder="https://www.abcsteel.com" style="margin-bottom:10px">
+            <div class="grid-2">
+                <div><label class="form-label">📛 PAN Number</label><input class="form-control" id="edit-pan" placeholder="AABCP1234D"></div>
+                <div><label class="form-label">📛 GST Number</label><input class="form-control" id="edit-gst" placeholder="22AABC1234D1ZP"></div>
+            </div>
+            <div style="margin-top:8px">
+                <label class="form-label">📍 Location PIN</label>
+                <div style="position:relative;width:100%">
+                    <input type="text" id="search-edit-location" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('edit-location')" autocomplete="off">
+                    <div class="search-wrapper"><div class="suggestions" id="suggestions-edit-location"></div></div>
+                    <input type="hidden" id="edit-location-hidden">
+                </div>
+            </div>
+        </div>
+
+        <!-- User Type -->
+        <div class="profile-section">
+            <label class="form-label">🎯 User Type</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+                <label style="font-size:13px;display:flex;align-items:center;gap:4px"><input type="checkbox" id="edit-type-agent" value="agent"> Agent</label>
+                <label style="font-size:13px;display:flex;align-items:center;gap:4px"><input type="checkbox" id="edit-type-loadgiver" value="loadgiver"> Load Giver</label>
+                <label style="font-size:13px;display:flex;align-items:center;gap:4px"><input type="checkbox" id="edit-type-operator" value="operator"> Operator</label>
+            </div>
+        </div>
+
+        <!-- Profile Tabs in Edit -->
+        <div class="profile-tabs">
+            <button class="active" onclick="switchEditTab('loadgiver')">Load Giver</button>
+            <button class="inactive" onclick="switchEditTab('operator')">Operator</button>
+            <button class="inactive" onclick="switchEditTab('agent')">Agent</button>
+        </div>
+
+        <!-- Edit - Load Giver Tab -->
+        <div class="profile-tab-content active" id="edit-tab-loadgiver">
+            <div class="profile-section">
+                <label class="form-label">📝 About / Details</label>
+                <textarea class="form-control" id="edit-lg-about" rows="3" placeholder="Steel trading company. Regular shipments of TMT bars, angles." style="resize:vertical"></textarea>
+                <div style="font-size:10px;color:#94a3b8;text-align:right"><span id="edit-lg-count">0</span>/300</div>
+            </div>
+        </div>
+
+        <!-- Edit - Operator Tab -->
+        <div class="profile-tab-content" id="edit-tab-operator">
+            <div class="profile-section">
+                <label class="form-label">🚛 My Vehicles</label>
+                <div style="display:flex;gap:6px;margin-bottom:8px">
+                    <input class="form-control" id="edit-vehicle-input" placeholder="MH-12-AB-1234" style="flex:2">
+                    <button class="section-btn" onclick="addVehicle()">Add</button>
+                </div>
+                <div id="edit-vehicles-list"></div>
+            </div>
+            <div class="profile-section">
+                <label class="form-label">🗺️ Preferred Routes</label>
+                <div style="display:flex;gap:6px;margin-bottom:8px">
+                    <input class="form-control" id="edit-route-input" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('edit-route')" style="flex:2">
+                    <button class="section-btn" onclick="addRoute()">Add</button>
+                </div>
+                <div class="search-wrapper"><div class="suggestions" id="suggestions-edit-route"></div></div>
+                <div id="edit-routes-list" style="display:flex;flex-wrap:wrap;gap:4px"></div>
+            </div>
+            <div class="profile-section">
+                <label class="form-label">📝 About / Details</label>
+                <textarea class="form-control" id="edit-fo-about" rows="3" placeholder="Fleet operator with 5 trucks, regular routes." style="resize:vertical"></textarea>
+                <div style="font-size:10px;color:#94a3b8;text-align:right"><span id="edit-fo-count">0</span>/300</div>
+            </div>
+        </div>
+
+        <!-- Edit - Agent Tab -->
+        <div class="profile-tab-content" id="edit-tab-agent">
+            <div class="profile-section">
+                <label class="form-label">🗺️ Preferred Routes</label>
+                <div style="display:flex;gap:6px;margin-bottom:8px">
+                    <input class="form-control" id="edit-agent-route-input" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('edit-agent-route')" style="flex:2">
+                    <button class="section-btn" onclick="addAgentRoute()">Add</button>
+                </div>
+                <div class="search-wrapper"><div class="suggestions" id="suggestions-edit-agent-route"></div></div>
+                <div id="edit-agent-routes-list" style="display:flex;flex-wrap:wrap;gap:4px"></div>
+            </div>
+            <div class="profile-section">
+                <label class="form-label">📝 About / Details</label>
+                <textarea class="form-control" id="edit-agent-about" rows="3" placeholder="Commission, rate, credit facility etc." style="resize:vertical"></textarea>
+                <div style="font-size:10px;color:#94a3b8;text-align:right"><span id="edit-agent-count">0</span>/300</div>
+            </div>
+        </div>
+
+        <button class="btn-primary" onclick="saveProfile()" style="margin-top:8px">💾 Save Profile</button>
+    </div>
+
+    <!-- Bottom Nav for Edit Profile -->
+    <div class="nav-fixed" id="bottom-nav-edit">
+        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
+        <div class="nav-install-wrapper" id="nav-install-wrapper-edit">
+            <button class="nav-install-btn" onclick="forceInstall()">
+                <span class="install-icon">📲</span> Install <span class="install-badge">NEW</span>
+            </button>
+        </div>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+    </div>
+</div>
+
+<!-- ==================== DETAIL PAGE ==================== -->
 <div id="detail-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span>
@@ -431,28 +667,25 @@ var user=null,guest=false,tab='ALL',items=[],detail=null,mobile='';
 var homePinId=null,toPinId=null,prompt=null,installed=false,filterOpen=true;
 var otpTimer=null,otpSeconds=300,otpVerified=false,generatedOTP='';
 var isResetFlow=false,otpPurpose='registration';
+var profileTab='loadgiver',editTab='loadgiver';
+var vehicles=[],routes=[],agentRoutes=[];
 
 function $(id){return document.getElementById(id)}
 function toast(msg){alert(msg)}
 
 // ============================================================
-// ✅ SELECT ALL TEXT ON CLICK
+// SELECT ALL TEXT ON CLICK
 // ============================================================
 function selectInputText(input){
     input.select();
     input.classList.add('selected');
 }
 
-// Remove selection highlight on blur or typing
 document.addEventListener('DOMContentLoaded', function(){
     document.querySelectorAll('.search-wrapper input').forEach(function(input){
-        input.addEventListener('blur', function(){
-            this.classList.remove('selected');
-        });
+        input.addEventListener('blur', function(){ this.classList.remove('selected'); });
         input.addEventListener('keydown', function(e){
-            if(e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete'){
-                this.classList.remove('selected');
-            }
+            if(e.key.length===1||e.key==='Backspace'||e.key==='Delete') this.classList.remove('selected');
         });
     });
 });
@@ -485,21 +718,16 @@ function dist(lat1,lng1,lat2,lng2){
 }
 
 // ============================================================
-// SEARCH LOCATION - Using event delegation
+// SEARCH LOCATION
 // ============================================================
 function searchLocation(ctx){
     var inp=$('search-'+ctx);
     var sug=$('suggestions-'+ctx);
     if(!inp||!sug) return;
     var q=inp.value.trim();
-    if(!q){
-        sug.classList.remove('show');
-        sug.innerHTML='';
-        return;
-    }
+    if(!q){ sug.classList.remove('show'); sug.innerHTML=''; return; }
     
-    var res=[];
-    var ql=q.toLowerCase();
+    var res=[], ql=q.toLowerCase();
     for(var i=0;i<LOCATIONS.length;i++){
         var l=LOCATIONS[i];
         if(l.name.toLowerCase().includes(ql) || 
@@ -512,11 +740,7 @@ function searchLocation(ctx){
         }
     }
     
-    if(!res.length){
-        sug.classList.remove('show');
-        sug.innerHTML='';
-        return;
-    }
+    if(!res.length){ sug.classList.remove('show'); sug.innerHTML=''; return; }
     
     var html='';
     for(var j=0;j<res.length;j++){
@@ -524,77 +748,48 @@ function searchLocation(ctx){
         var dn=getLocDisplayName(l);
         var idx=dn.toLowerCase().indexOf(ql);
         var dh=dn;
-        if(idx!==-1){
-            dh=dn.substring(0,idx)+'<span class="highlight">'+dn.substring(idx,idx+q.length)+'</span>'+dn.substring(idx+q.length);
-        }
+        if(idx!==-1) dh=dn.substring(0,idx)+'<span class="highlight">'+dn.substring(idx,idx+q.length)+'</span>'+dn.substring(idx+q.length);
         html+='<div class="item" data-ctx="'+ctx+'" data-pinid="'+l.pin_id+'">'+dh+'</div>';
     }
     sug.innerHTML=html;
     sug.classList.add('show');
 }
 
-// ============================================================
-// SELECT LOCATION
-// ============================================================
 function selectLoc(ctx, pinId){
     var l=getLoc(pinId);
     if(!l) return;
-    
     var dn=getLocDisplayName(l);
     var inp=$('search-'+ctx);
-    if(inp){
-        inp.value=dn;
-        setTimeout(function(){
-            inp.select();
-            inp.classList.add('selected');
-        }, 100);
-    }
+    if(inp){ inp.value=dn; setTimeout(function(){ inp.select(); inp.classList.add('selected'); }, 100); }
     
     var hid=null;
     if(ctx==='to') hid='filter-to-hidden';
     else if(ctx==='pl-pickup') hid='pl-pickup-hidden';
     else if(ctx==='pl-drop') hid='pl-drop-hidden';
     else if(ctx==='pt-location') hid='pt-location-hidden';
+    else if(ctx==='edit-location') hid='edit-location-hidden';
+    else if(ctx==='edit-route') hid='edit-route-hidden';
+    else if(ctx==='edit-agent-route') hid='edit-agent-route-hidden';
     if(hid && $(hid)) $(hid).value=pinId;
     
     var sug=$('suggestions-'+ctx);
-    if(sug){
-        sug.classList.remove('show');
-        sug.innerHTML='';
-    }
+    if(sug){ sug.classList.remove('show'); sug.innerHTML=''; }
     
-    if(ctx==='home'){
-        homePinId=pinId;
-        localStorage.setItem('rt_home_location', JSON.stringify({pinId:pinId, displayName:dn}));
-        applyFilters();
-    }else if(ctx==='to'){
-        toPinId=pinId;
-        applyFilters();
-    }
+    if(ctx==='home'){ homePinId=pinId; localStorage.setItem('rt_home_location', JSON.stringify({pinId:pinId, displayName:dn})); applyFilters(); }
+    else if(ctx==='to'){ toPinId=pinId; applyFilters(); }
 }
 
-// ============================================================
-// EVENT DELEGATION for suggestion clicks
-// ============================================================
+// Event delegation for suggestion clicks
 document.addEventListener('click', function(e){
-    var item = e.target.closest('.item');
-    if(item){
-        var ctx = item.dataset.ctx;
-        var pinId = item.dataset.pinid;
-        if(ctx && pinId){
-            selectLoc(ctx, pinId);
-        }
-    }
+    var item=e.target.closest('.item');
+    if(item){ var ctx=item.dataset.ctx; var pinId=item.dataset.pinid; if(ctx&&pinId) selectLoc(ctx, pinId); }
 });
 
-// Close suggestions when clicking outside
+// Close suggestions
 document.addEventListener('click', function(e){
     document.querySelectorAll('.suggestions').forEach(function(s){
-        var parent = s.parentElement;
-        if(parent && !parent.contains(e.target)){
-            s.classList.remove('show');
-            s.innerHTML='';
-        }
+        var parent=s.parentElement;
+        if(parent && !parent.contains(e.target)){ s.classList.remove('show'); s.innerHTML=''; }
     });
 });
 
@@ -603,36 +798,15 @@ document.addEventListener('click', function(e){
 // ============================================================
 if(window.matchMedia('(display-mode: standalone)').matches) installed=true;
 function updateInstall(){
-    var m=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    var s=m&&!window.matchMedia('(display-mode: standalone)').matches&&!installed;
-    document.querySelectorAll('.nav-install-wrapper').forEach(function(e){
-        e.classList.toggle('show',s);
-    });
+    var isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    var show=isMobile&&!window.matchMedia('(display-mode: standalone)').matches&&!installed;
+    document.querySelectorAll('.nav-install-wrapper').forEach(function(e){ e.classList.toggle('show', show); });
 }
-window.addEventListener('beforeinstallprompt',function(e){
-    e.preventDefault();
-    prompt=e;
-    updateInstall();
-});
-window.addEventListener('appinstalled',function(){
-    installed=true;
-    prompt=null;
-    updateInstall();
-    toast('🎉 ReturnTruck installed!');
-});
+window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); prompt=e; updateInstall(); });
+window.addEventListener('appinstalled',function(){ installed=true; prompt=null; updateInstall(); toast('🎉 ReturnTruck installed!'); });
 function forceInstall(){
-    if(prompt){
-        prompt.prompt();
-        prompt.userChoice.then(function(c){
-            if(c.outcome==='accepted') toast('🎉 Installing...');
-            prompt=null;
-            updateInstall();
-        });
-    }else{
-        if(navigator.userAgent.match(/Android/i)) toast('📱 Tap Chrome menu → "Install app"');
-        else if(navigator.userAgent.match(/iPhone|iPad|iPod/i)) toast('📱 Tap Share → "Add to Home Screen"');
-        else toast('📱 Open this page in Chrome on your phone');
-    }
+    if(prompt){ prompt.prompt(); prompt.userChoice.then(function(c){ if(c.outcome==='accepted') toast('🎉 Installing...'); prompt=null; updateInstall(); }); }
+    else { if(navigator.userAgent.match(/Android/i)) toast('📱 Tap Chrome menu → "Install app"'); else if(navigator.userAgent.match(/iPhone|iPad|iPod/i)) toast('📱 Tap Share → "Add to Home Screen"'); else toast('📱 Open this page in Chrome on your phone'); }
 }
 setTimeout(updateInstall,3000);
 
@@ -644,51 +818,20 @@ function autoLocate(){
     if(!inp)return;
     var saved=localStorage.getItem('rt_home_location');
     if(saved){
-        try{
-            var l=JSON.parse(saved);
-            var loc=getLoc(l.pinId);
-            if(loc){
-                inp.value=l.displayName;
-                homePinId=l.pinId;
-                applyFilters();
-                return;
-            }
-        }catch(e){}
+        try{ var l=JSON.parse(saved); var loc=getLoc(l.pinId); if(loc){ inp.value=l.displayName; homePinId=l.pinId; applyFilters(); return; } }catch(e){}
     }
-    
     if(navigator.geolocation){
         navigator.geolocation.getCurrentPosition(
             function(p){
                 var lat=p.coords.latitude,lng=p.coords.longitude;
                 var near=null,minD=Infinity;
-                for(var i=0;i<LOCATIONS.length;i++){
-                    var l=LOCATIONS[i],d=dist(lat,lng,l.lat,l.lng);
-                    if(d<minD){minD=d;near=l;}
-                }
-                if(near&&minD<100){
-                    var dn=getLocDisplayName(near);
-                    inp.value=dn;
-                    homePinId=near.pin_id;
-                    localStorage.setItem('rt_home_location', JSON.stringify({pinId:near.pin_id, displayName:dn}));
-                    applyFilters();
-                }
+                for(var i=0;i<LOCATIONS.length;i++){ var l=LOCATIONS[i],d=dist(lat,lng,l.lat,l.lng); if(d<minD){minD=d;near=l;} }
+                if(near&&minD<100){ var dn=getLocDisplayName(near); inp.value=dn; homePinId=near.pin_id; localStorage.setItem('rt_home_location', JSON.stringify({pinId:near.pin_id, displayName:dn})); applyFilters(); }
             },
             function(){
-                fetch('https://ipapi.co/json/')
-                .then(function(r){return r.json()})
-                .then(function(d){
+                fetch('https://ipapi.co/json/').then(function(r){return r.json()}).then(function(d){
                     var city=d.city||'';
-                    for(var i=0;i<LOCATIONS.length;i++){
-                        var l=LOCATIONS[i];
-                        if(l.name.toLowerCase()===city.toLowerCase() || l.district.toLowerCase()===city.toLowerCase()){
-                            var dn=getLocDisplayName(l);
-                            inp.value=dn;
-                            homePinId=l.pin_id;
-                            localStorage.setItem('rt_home_location', JSON.stringify({pinId:l.pin_id, displayName:dn}));
-                            applyFilters();
-                            break;
-                        }
-                    }
+                    for(var i=0;i<LOCATIONS.length;i++){ var l=LOCATIONS[i]; if(l.name.toLowerCase()===city.toLowerCase()||l.district.toLowerCase()===city.toLowerCase()){ var dn=getLocDisplayName(l); inp.value=dn; homePinId=l.pin_id; localStorage.setItem('rt_home_location', JSON.stringify({pinId:l.pin_id, displayName:dn})); applyFilters(); break; } }
                 }).catch(function(){});
             }
         );
@@ -699,16 +842,12 @@ function autoLocate(){
 // OTP HELPERS
 // ============================================================
 function otpInput(el){
-    if(el.value.length===1){
-        var next=el.nextElementSibling;
-        if(next)next.focus();
-    }
+    if(el.value.length===1){ var next=el.nextElementSibling; if(next)next.focus(); }
     document.getElementById('otp-error').style.display='none';
 }
 
 function startOTPTimer(){
-    otpSeconds=300;
-    otpVerified=false;
+    otpSeconds=300; otpVerified=false;
     if(otpTimer)clearInterval(otpTimer);
     var timerDisplay=document.getElementById('otp-timer');
     var resendBtn=document.getElementById('resend-otp-btn');
@@ -718,29 +857,20 @@ function startOTPTimer(){
         otpSeconds--;
         var m=Math.floor(otpSeconds/60),s=otpSeconds%60;
         timerDisplay.textContent=m+':'+(s<10?'0':'')+s;
-        if(otpSeconds<=0){
-            clearInterval(otpTimer);
-            document.getElementById('verify-btn').disabled=true;
-            document.getElementById('verify-btn').textContent='⏳ Expired';
-            resendBtn.disabled=false;
-        }
+        if(otpSeconds<=0){ clearInterval(otpTimer); document.getElementById('verify-btn').disabled=true; document.getElementById('verify-btn').textContent='⏳ Expired'; resendBtn.disabled=false; }
     },1000);
 }
 
-function generateOTP(){
-    var otp='';
-    for(var i=0;i<6;i++){otp+=Math.floor(Math.random()*10);}
-    return otp;
-}
+function generateOTP(){ var otp=''; for(var i=0;i<6;i++){otp+=Math.floor(Math.random()*10);} return otp; }
 
 function sendWhatsAppOTP(){
-    if(!mobile || mobile.length!==10) return;
+    if(!mobile||mobile.length!==10) return;
     var otp=generateOTP();
     generatedOTP=otp;
-    var purposeText = (otpPurpose==='reset') ? 'PIN Reset' : 'Registration';
-    var message = '🔐 ReturnTruck - '+purposeText+'\n\nYour OTP is: '+otp+'\n\nThis OTP is valid for 5 minutes.\n\n📱 Mobile: '+mobile+'\n\n- ReturnTruck Team';
-    var encodedMessage = encodeURIComponent(message);
-    var whatsappURL = 'https://wa.me/91'+mobile+'?text='+encodedMessage;
+    var purposeText=(otpPurpose==='reset')?'PIN Reset':'Registration';
+    var message='🔐 ReturnTruck - '+purposeText+'\n\nYour OTP is: '+otp+'\n\nThis OTP is valid for 5 minutes.\n\n📱 Mobile: '+mobile+'\n\n- ReturnTruck Team';
+    var encodedMessage=encodeURIComponent(message);
+    var whatsappURL='https://wa.me/91'+mobile+'?text='+encodedMessage;
     window.open(whatsappURL, '_blank');
     startOTPTimer();
     document.getElementById('verify-btn').disabled=false;
@@ -751,11 +881,7 @@ function verifyOTP(){
     var inputs=document.querySelectorAll('.otp-input');
     var otp='';
     for(var i=0;i<inputs.length;i++){otp+=inputs[i].value}
-    if(otp.length!==6){
-        document.getElementById('otp-error').style.display='block';
-        document.getElementById('otp-error').textContent='❌ Enter complete 6-digit OTP';
-        return;
-    }
+    if(otp.length!==6){ document.getElementById('otp-error').style.display='block'; document.getElementById('otp-error').textContent='❌ Enter complete 6-digit OTP'; return; }
     if(otp===generatedOTP){
         otpVerified=true;
         document.getElementById('otp-error').style.display='none';
@@ -767,13 +893,8 @@ function verifyOTP(){
             $('step3').classList.add('hidden');
             $('step4').classList.remove('hidden');
             $('reg-display-mobile').textContent=mobile;
-            if(otpPurpose==='reset'){
-                $('step4-purpose').textContent='Set your new 4-digit PIN';
-                $('register-btn').textContent='🔄 Reset PIN';
-            }else{
-                $('step4-purpose').textContent='Set your 4-digit PIN for login';
-                $('register-btn').textContent='✅ Create Account';
-            }
+            if(otpPurpose==='reset'){ $('step4-purpose').textContent='Set your new 4-digit PIN'; $('register-btn').textContent='🔄 Reset PIN'; }
+            else { $('step4-purpose').textContent='Set your 4-digit PIN for login'; $('register-btn').textContent='✅ Create Account'; }
         }, 500);
     }else{
         document.getElementById('otp-error').style.display='block';
@@ -784,14 +905,10 @@ function verifyOTP(){
     }
 }
 
-function resendOTP(){
-    if(otpSeconds>0) return;
-    sendWhatsAppOTP();
-}
+function resendOTP(){ if(otpSeconds>0) return; sendWhatsAppOTP(); }
 
 function showResetOTP(){
-    isResetFlow=true;
-    otpPurpose='reset';
+    isResetFlow=true; otpPurpose='reset';
     $('step2').classList.add('hidden');
     $('step3').classList.remove('hidden');
     $('wa-display-mobile').textContent=mobile;
@@ -812,95 +929,36 @@ items=[];
 
 for(var l=0;l<(loads||[]).length;l++){
     var ld=loads[l];
-    items.push({
-        type:'LOAD',
-        title:ld.material||'Cargo',
-        company:ld.company||'',
-        from_pin_id:ld.pickup_pin_id||'',
-        to_pin_id:ld.drop_pin_id||'',
-        weight:ld.weight||0,
-        vehicle:ld.vehicle_type||'',
-        rate:ld.rate||0,
-        views:ld.views||0,
-        interests:(ld.interests||[]).length,
-        shares:ld.shares||0,
-        id:ld.id
-    });
+    items.push({type:'LOAD',title:ld.material||'Cargo',company:ld.company||'',from_pin_id:ld.pickup_pin_id||'',to_pin_id:ld.drop_pin_id||'',weight:ld.weight||0,vehicle:ld.vehicle_type||'',rate:ld.rate||0,views:ld.views||0,interests:(ld.interests||[]).length,shares:ld.shares||0,id:ld.id});
 }
 
 for(var t=0;t<(trucks||[]).length;t++){
     var tk=trucks[t];
-    items.push({
-        type:'TRUCK',
-        title:tk.truck_no||'Truck',
-        company:tk.company_name||'',
-        from_pin_id:tk.location_pin_id||'',
-        to_pin_id:tk.destination_pin_id||'',
-        vehicle:tk.vehicle_type||'',
-        rate:tk.rate_km||0,
-        views:tk.views||0,
-        interests:(tk.interested||[]).length,
-        shares:tk.share||0,
-        id:tk.id
-    });
+    items.push({type:'TRUCK',title:tk.truck_no||'Truck',company:tk.company_name||'',from_pin_id:tk.location_pin_id||'',to_pin_id:tk.destination_pin_id||'',vehicle:tk.vehicle_type||'',rate:tk.rate_km||0,views:tk.views||0,interests:(tk.interested||[]).length,shares:tk.share||0,id:tk.id});
 }
 
 var filtered=items.slice();
 var radius=parseInt($('radius-select').value)||50;
 
-if(homePinId){
-    var hl=getLoc(homePinId);
-    if(hl){
-        filtered=filtered.filter(function(i){
-            var fl=getLoc(i.from_pin_id);
-            return fl ? dist(hl.lat,hl.lng,fl.lat,fl.lng)<=radius : false;
-        });
-    }
-}
+if(homePinId){ var hl=getLoc(homePinId); if(hl){ filtered=filtered.filter(function(i){ var fl=getLoc(i.from_pin_id); return fl?dist(hl.lat,hl.lng,fl.lat,fl.lng)<=radius:false; }); } }
 
 if(tab==='LOAD') filtered=filtered.filter(function(i){return i.type==='LOAD'});
 else if(tab==='TRUCK') filtered=filtered.filter(function(i){return i.type==='TRUCK'});
 
-if(toPinId){
-    var tl=getLoc(toPinId);
-    if(tl){
-        filtered=filtered.filter(function(i){
-            var tl2=getLoc(i.to_pin_id);
-            return tl2 ? dist(tl.lat,tl.lng,tl2.lat,tl2.lng)<=radius : false;
-        });
-    }
-}
+if(toPinId){ var tl=getLoc(toPinId); if(tl){ filtered=filtered.filter(function(i){ var tl2=getLoc(i.to_pin_id); return tl2?dist(tl.lat,tl.lng,tl2.lat,tl2.lng)<=radius:false; }); } }
 
 var v=$('filter-vehicle')?.value;
 if(v&&v!=='ALL') filtered=filtered.filter(function(i){return i.vehicle&&i.vehicle.toLowerCase().includes(v)});
 
 $('results-count').textContent='Showing '+filtered.length+' Records within '+radius+' KM';
 
-if(!filtered.length){
-    $('feed-container').innerHTML='<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>';
-    return;
-}
+if(!filtered.length){ $('feed-container').innerHTML='<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>'; return; }
 
 $('feed-container').innerHTML=filtered.map(function(i){
     var bc=i.type==='LOAD'?'load':'truck';
-    var loc='';
-    var sub='';
-    var rate='';
-    var stats='';
-    
-    if(i.type==='LOAD'){
-        loc='📍 '+getLocName(i.from_pin_id)+' → '+getLocName(i.to_pin_id);
-        sub='💼 '+i.company;
-        rate='💰 ₹'+(i.rate||0).toLocaleString();
-        stats='⚖️ '+(i.weight||0)+' Kg • 🚛 '+i.vehicle;
-    }else{
-        var td=i.to_pin_id?getLocName(i.to_pin_id):'Any';
-        loc='📍 '+getLocName(i.from_pin_id)+' → '+td;
-        sub='💼 '+i.company;
-        rate='💰 ₹'+(i.rate||0)+'/km';
-        stats='🚛 '+i.vehicle;
-    }
-    
+    var loc='', sub='', rate='', stats='';
+    if(i.type==='LOAD'){ loc='📍 '+getLocName(i.from_pin_id)+' → '+getLocName(i.to_pin_id); sub='💼 '+i.company; rate='💰 ₹'+(i.rate||0).toLocaleString(); stats='⚖️ '+(i.weight||0)+' Kg • 🚛 '+i.vehicle; }
+    else { var td=i.to_pin_id?getLocName(i.to_pin_id):'Any'; loc='📍 '+getLocName(i.from_pin_id)+' → '+td; sub='💼 '+i.company; rate='💰 ₹'+(i.rate||0)+'/km'; stats='🚛 '+i.vehicle; }
     return '<div class="feed-card" onclick="openDetail(\''+i.type+'\',\''+i.id+'\')">'+
         '<div class="header-row"><div class="title">'+i.title+'</div><span class="type-badge '+bc+'">'+i.type+'</span></div>'+
         '<div class="company">'+sub+'</div><div class="meta">'+loc+'</div><div class="meta">'+rate+'</div><div class="meta">'+stats+'</div>'+
@@ -915,39 +973,225 @@ function toggleFilters(){filterOpen=!filterOpen;$('filter-container').classList.
 // ============================================================
 // NAVIGATION
 // ============================================================
-function goHome(){['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(function(i){$(i).classList.toggle('hidden-page',i!=='home-page')});document.querySelectorAll('.nav-item').forEach(function(e){e.classList.remove('active')});document.querySelectorAll('.nav-fixed .nav-item')[0].classList.add('active');setTimeout(fixHeight,50);renderFeed()}
-function switchPage(id,idx){['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(function(i){$(i).classList.toggle('hidden-page',i!==id)});document.querySelectorAll('.nav-item').forEach(function(e){e.classList.remove('active')});document.querySelectorAll('.nav-fixed .nav-item')[idx].classList.add('active');setTimeout(fixHeight,50)}
-function goPostLoad(){if(guest||!user){showLogin();return}switchPage('postload-page',1)}
-function goPostTruck(){if(guest||!user){showLogin();return}switchPage('posttruck-page',2)}
-function goToProfile(){if(guest||!user){showLogin();return}switchPage('profile-page',3);loadProfile()}
-function cancelPost(){goHome()}function closeDetail(){detail=null;goHome()}
+function goHome(){
+    ['home-page','profile-page','postload-page','posttruck-page','detail-page','edit-profile-page'].forEach(function(i){$(i).classList.toggle('hidden-page',i!=='home-page')});
+    document.querySelectorAll('.nav-item').forEach(function(e){e.classList.remove('active')});
+    document.querySelectorAll('.nav-fixed .nav-item')[0].classList.add('active');
+    setTimeout(fixHeight,50); renderFeed();
+}
+
+function switchPage(id,idx){
+    ['home-page','profile-page','postload-page','posttruck-page','detail-page','edit-profile-page'].forEach(function(i){$(i).classList.toggle('hidden-page',i!==id)});
+    document.querySelectorAll('.nav-item').forEach(function(e){e.classList.remove('active')});
+    document.querySelectorAll('.nav-fixed .nav-item')[idx].classList.add('active');
+    setTimeout(fixHeight,50);
+}
+
+function goPostLoad(){ if(guest||!user){showLogin();return} switchPage('postload-page',2); }
+function goPostTruck(){ if(guest||!user){showLogin();return} switchPage('posttruck-page',3); }
+function goToProfile(){ if(guest||!user){showLogin();return} switchPage('profile-page',4); loadProfile(); }
+function cancelPost(){goHome()}
+function closeDetail(){detail=null;goHome()}
 
 // ============================================================
-// PROFILE
+// PROFILE FUNCTIONS
 // ============================================================
-function loadProfile(){if(!user)return;$('profile-mobile').textContent=user.mobile||'--'}
-function saveLoadGiverProfile(){var c=$('lg-company').value.trim();if(!c)return toast('⚠️ Enter company name');sb.from('active_users').update({company_name:c}).eq('mobile',user.mobile).then(function(){user.company_name=c;toast('✅ Saved!');loadProfile()})}
-function saveFleetProfile(){var c=$('fo-company').value.trim();if(!c)return toast('⚠️ Enter company name');sb.from('active_users').update({fleet_company:c}).eq('mobile',user.mobile).then(function(){user.fleet_company=c;toast('✅ Saved!');loadProfile()})}
-function editLoadGiver(){$('loadgiver-active-area').style.display='none';$('loadgiver-input-area').style.display='block'}
-function editFleet(){$('fleet-active-area').style.display='none';$('fleet-input-area').style.display='block'}
-function openDetail(type,id){var table=type==='LOAD'?'active_loads':'active_trucks';sb.from(table).select('*').eq('id',id).single().then(function(r){var d=r.data;if(d){detail=d;switchPage('detail-page',0);$('detail-title').textContent=type==='LOAD'?d.material||'Details':d.truck_no||'Details';$('detail-company').textContent=type==='LOAD'?d.company||'N/A':d.company_name||'N/A'}})}
-function makeCall(){if(detail){var num=detail.mobile||detail.driver_mobile;if(num)window.location.href='tel:'+num}}
-function expressInterest(){toast('✅ Interest expressed!')}
-function contactUser(){toast('📧 Contact details shared!')}
-function handleShareClick(){if(navigator.share){navigator.share({title:'ReturnTruck',text:'Check out this listing on ReturnTruck!',url:window.location.href})}else{toast('📋 Link copied!')}}
-function autoFetchVehicle(){toast('🔍 Vehicle details fetched!')}
+function loadProfile(){
+    if(!user)return;
+    $('profile-mobile').textContent=user.mobile||'--';
+    if(user.last_active){ var d=new Date(user.last_active); $('profile-last-active').textContent=d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}); }
+    if(user.company_name){ $('lg-company-display').textContent=user.company_name; $('fo-company-display').textContent=user.company_name; }
+    if(user.company_web){ $('lg-web-display').textContent=user.company_web; }
+    // Load user's loads and trucks
+    loadMyLoads();
+    loadMyTrucks();
+    loadStats();
+}
+
+async function loadMyLoads(){
+    var {data:loads}=await sb.from('active_loads').select('*').eq('mobile',user.mobile).eq('status',1);
+    var container=$('my-loads-container');
+    var count=$('my-loads-count');
+    if(!loads||!loads.length){ container.innerHTML='<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No loads posted</div>'; count.textContent='0'; return; }
+    count.textContent=loads.length;
+    container.innerHTML=loads.map(function(l){
+        var statusClass=l.expiry_date&&new Date(l.expiry_date)<new Date()?'expired':'active';
+        var statusText=l.expiry_date&&new Date(l.expiry_date)<new Date()?'Expired':'Active';
+        var expiryDate=l.expiry_date?new Date(l.expiry_date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'N/A';
+        return '<div class="list-item">'+
+            '<div class="title">'+l.material+' • '+getLocName(l.pickup_pin_id)+' → '+getLocName(l.drop_pin_id)+' • ₹'+(l.rate||0).toLocaleString()+'</div>'+
+            '<div class="sub">📅 '+expiryDate+' • <span class="status-badge '+statusClass+'">'+statusText+'</span></div>'+
+            '<div class="actions"><button class="edit" onclick="editLoad(\''+l.id+'\')">✏️ Edit</button><button class="delete" onclick="deleteLoad(\''+l.id+'\')">🗑️ Delete</button><button class="interests" onclick="viewInterests(\''+l.id+'\')">🤝 '+((l.interests||[]).length||0)+' Interests</button></div>'+
+        '</div>';
+    }).join('');
+}
+
+async function loadMyTrucks(){
+    var {data:trucks}=await sb.from('active_trucks').select('*').eq('mobile',user.mobile).eq('status',1);
+    var container=$('my-trucks-container');
+    var count=$('my-trucks-count');
+    if(!trucks||!trucks.length){ container.innerHTML='<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No trucks listed</div>'; count.textContent='0'; return; }
+    count.textContent=trucks.length;
+    container.innerHTML=trucks.map(function(t){
+        var expiryDate=t.available_from?new Date(t.available_from).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'N/A';
+        return '<div class="list-item">'+
+            '<div class="title">'+t.truck_no+' • '+t.vehicle_type+' • '+getLocName(t.location_pin_id)+'</div>'+
+            '<div class="sub">📅 '+expiryDate+' • 🏷️ ₹'+(t.rate_km||0)+'/km</div>'+
+            '<div class="actions"><button class="edit" onclick="editTruck(\''+t.id+'\')">✏️ Edit</button><button class="delete" onclick="deleteTruck(\''+t.id+'\')">🗑️ Delete</button><button class="interests" onclick="viewInterests(\''+t.id+'\')">🤝 '+((t.interested||[]).length||0)+' Interests</button></div>'+
+        '</div>';
+    }).join('');
+}
+
+async function loadStats(){
+    var {count:loads}=await sb.from('active_loads').select('*',{count:'exact',head:true}).eq('mobile',user.mobile).eq('status',1);
+    var {count:trucks}=await sb.from('active_trucks').select('*',{count:'exact',head:true}).eq('mobile',user.mobile).eq('status',1);
+    $('stat-loads-count').textContent=loads||0;
+    $('stat-trucks-count').textContent=trucks||0;
+}
+
+function switchProfileTab(tab){
+    profileTab=tab;
+    document.querySelectorAll('.profile-tabs').forEach(function(tabs){
+        tabs.querySelectorAll('button').forEach(function(b){b.className='inactive'});
+    });
+    document.querySelectorAll('.profile-tab-content').forEach(function(c){c.classList.remove('active')});
+    if(tab==='loadgiver'){ document.querySelector('#tab-loadgiver').classList.add('active'); document.querySelector('.profile-tabs button:first-child').className='active'; }
+    else if(tab==='operator'){ document.querySelector('#tab-operator').classList.add('active'); document.querySelectorAll('.profile-tabs button')[1].className='active'; }
+    else if(tab==='agent'){ document.querySelector('#tab-agent').classList.add('active'); document.querySelectorAll('.profile-tabs button')[2].className='active'; }
+}
+
+function openEditProfile(){
+    if(!user){toast('⚠️ Please login first');return}
+    // Load current data into edit form
+    $('edit-name').value=user.name||'';
+    $('edit-company').value=user.company_name||'';
+    $('edit-website').value=user.company_web||'';
+    $('edit-pan').value=user.pan||'';
+    $('edit-gst').value=user.gst||'';
+    if(user.location){ var loc=getLoc(user.location); if(loc){ $('search-edit-location').value=getLocDisplayName(loc); $('edit-location-hidden').value=user.location; } }
+    // User types
+    if(user.user_type&&user.user_type.length){ user.user_type.forEach(function(t){ if(t==='agent') $('edit-type-agent').checked=true; if(t==='loadgiver') $('edit-type-loadgiver').checked=true; if(t==='operator') $('edit-type-operator').checked=true; }); }
+    // Vehicles
+    vehicles=user.vehicle_no||[];
+    renderVehicles();
+    // Routes
+    routes=user.preferred_routes||[];
+    renderRoutes();
+    // Agent routes
+    agentRoutes=user.agent_routes||[];
+    renderAgentRoutes();
+    // About fields
+    $('edit-lg-about').value=user.load_giver_details||'';
+    $('edit-fo-about').value=user.fleet_operator_details||'';
+    $('edit-agent-about').value=user.agent_details||'';
+    updateCharCount('edit-lg-about','edit-lg-count');
+    updateCharCount('edit-fo-about','edit-fo-count');
+    updateCharCount('edit-agent-about','edit-agent-count');
+    switchPage('edit-profile-page',4);
+}
+
+function closeEditProfile(){ goHome(); }
+
+function renderVehicles(){
+    var container=$('edit-vehicles-list');
+    if(!vehicles.length){ container.innerHTML='<div style="color:#94a3b8;font-size:12px;padding:4px 0">No vehicles added</div>'; return; }
+    container.innerHTML=vehicles.map(function(v){ return '<span style="background:#e2e8f0;padding:4px 10px;border-radius:6px;font-size:12px;display:inline-block;margin:2px">'+v+' <span style="cursor:pointer;color:#dc2626" onclick="removeVehicle(\''+v+'\')">✕</span></span>'; }).join('');
+}
+
+function renderRoutes(){
+    var container=$('edit-routes-list');
+    if(!routes.length){ container.innerHTML='<span style="color:#94a3b8;font-size:12px;padding:4px 0">No routes added</span>'; return; }
+    container.innerHTML=routes.map(function(r){ var loc=getLoc(r); return '<span style="background:#e2e8f0;padding:4px 10px;border-radius:6px;font-size:12px;display:inline-block;margin:2px">'+(loc?getLocDisplayName(loc):r)+' <span style="cursor:pointer;color:#dc2626" onclick="removeRoute(\''+r+'\')">✕</span></span>'; }).join('');
+}
+
+function renderAgentRoutes(){
+    var container=$('edit-agent-routes-list');
+    if(!agentRoutes.length){ container.innerHTML='<span style="color:#94a3b8;font-size:12px;padding:4px 0">No routes added</span>'; return; }
+    container.innerHTML=agentRoutes.map(function(r){ var loc=getLoc(r); return '<span style="background:#e2e8f0;padding:4px 10px;border-radius:6px;font-size:12px;display:inline-block;margin:2px">'+(loc?getLocDisplayName(loc):r)+' <span style="cursor:pointer;color:#dc2626" onclick="removeAgentRoute(\''+r+'\')">✕</span></span>'; }).join('');
+}
+
+function addVehicle(){
+    var inp=$('edit-vehicle-input');
+    var val=inp.value.trim().toUpperCase();
+    if(!val){toast('⚠️ Enter vehicle number');return}
+    if(vehicles.includes(val)){toast('⚠️ Vehicle already added');return}
+    vehicles.push(val); inp.value=''; renderVehicles();
+}
+
+function removeVehicle(v){ vehicles=vehicles.filter(function(x){return x!==v}); renderVehicles(); }
+
+function addRoute(){
+    var route=$('edit-route-hidden').value;
+    if(!route){toast('⚠️ Select a location');return}
+    if(routes.includes(route)){toast('⚠️ Route already added');return}
+    routes.push(route); $('search-edit-route').value=''; $('edit-route-hidden').value=''; renderRoutes();
+}
+
+function removeRoute(r){ routes=routes.filter(function(x){return x!==r}); renderRoutes(); }
+
+function addAgentRoute(){
+    var route=$('edit-agent-route-hidden').value;
+    if(!route){toast('⚠️ Select a location');return}
+    if(agentRoutes.includes(route)){toast('⚠️ Route already added');return}
+    agentRoutes.push(route); $('search-edit-agent-route').value=''; $('edit-agent-route-hidden').value=''; renderAgentRoutes();
+}
+
+function removeAgentRoute(r){ agentRoutes=agentRoutes.filter(function(x){return x!==r}); renderAgentRoutes(); }
+
+function updateCharCount(id,countId){
+    var el=$(id); if(!el)return;
+    var count=$(countId); if(!count)return;
+    count.textContent=el.value.length;
+}
+
+function switchEditTab(tab){
+    editTab=tab;
+    document.querySelectorAll('#edit-profile-page .profile-tabs button').forEach(function(b){b.className='inactive'});
+    document.querySelectorAll('#edit-profile-page .profile-tab-content').forEach(function(c){c.classList.remove('active')});
+    if(tab==='loadgiver'){ document.querySelector('#edit-tab-loadgiver').classList.add('active'); document.querySelector('#edit-profile-page .profile-tabs button:first-child').className='active'; }
+    else if(tab==='operator'){ document.querySelector('#edit-tab-operator').classList.add('active'); document.querySelectorAll('#edit-profile-page .profile-tabs button')[1].className='active'; }
+    else if(tab==='agent'){ document.querySelector('#edit-tab-agent').classList.add('active'); document.querySelectorAll('#edit-profile-page .profile-tabs button')[2].className='active'; }
+}
+
+function saveProfile(){
+    var userTypes=[];
+    if($('edit-type-agent').checked) userTypes.push('agent');
+    if($('edit-type-loadgiver').checked) userTypes.push('loadgiver');
+    if($('edit-type-operator').checked) userTypes.push('operator');
+    
+    var location=$('edit-location-hidden').value||null;
+    var updateData={
+        name:$('edit-name').value||null,
+        company_name:$('edit-company').value||null,
+        company_web:$('edit-website').value||null,
+        pan:$('edit-pan').value||null,
+        gst:$('edit-gst').value||null,
+        location:location,
+        user_type:userTypes.length?userTypes:null,
+        vehicle_no:vehicles.length?vehicles:null,
+        preferred_routes:routes.length?routes:null,
+        agent_routes:agentRoutes.length?agentRoutes:null,
+        load_giver_details:$('edit-lg-about').value||null,
+        fleet_operator_details:$('edit-fo-about').value||null,
+        agent_details:$('edit-agent-about').value||null,
+        updated_at:new Date().toISOString()
+    };
+    
+    toast('⏳ Saving profile...');
+    sb.from('active_users').update(updateData).eq('mobile',user.mobile).then(function(result){
+        if(result.error){ toast('❌ Error: '+result.error.message); }
+        else { toast('✅ Profile saved successfully!'); Object.assign(user,updateData); closeEditProfile(); loadProfile(); }
+    }).catch(function(e){ toast('❌ Error saving profile'); });
+}
 
 // ============================================================
-// PUBLISH LOAD
+// PUBLISH LOAD & TRUCK
 // ============================================================
 function publishLoad(){
-    if(!user){toast('⚠️ Please login first');return;}
+    if(!user){toast('⚠️ Please login first');return}
     var pickupPinId=$('pl-pickup-hidden').value;
     var dropPinId=$('pl-drop-hidden').value;
-    if(!$('pl-material').value || !pickupPinId || !dropPinId){
-        toast('⚠️ Please fill all required fields');
-        return;
-    }
+    if(!$('pl-material').value||!pickupPinId||!dropPinId){ toast('⚠️ Please fill all required fields'); return; }
     toast('⏳ Publishing load...');
     var loadData={
         material:$('pl-material').value,
@@ -956,7 +1200,7 @@ function publishLoad(){
         pickup_pin_id:pickupPinId,
         drop_pin_id:dropPinId,
         rate:parseFloat($('pl-rate').value)||0,
-        date:$('pl-date').value||new Date().toISOString().split('T')[0],
+        expiry_date:$('pl-date').value||null,
         company:user.company_name||'',
         mobile:user.mobile,
         status:1,
@@ -971,25 +1215,19 @@ function publishLoad(){
     }).catch(function(e){toast('❌ Error publishing load')});
 }
 
-// ============================================================
-// PUBLISH TRUCK
-// ============================================================
 function publishTruck(){
-    if(!user){toast('⚠️ Please login first');return;}
+    if(!user){toast('⚠️ Please login first');return}
     var locationPinId=$('pt-location-hidden').value;
-    if(!$('pt-number').value || !locationPinId){
-        toast('⚠️ Please fill Vehicle Number and Location');
-        return;
-    }
+    if(!$('pt-number').value||!locationPinId){ toast('⚠️ Please fill Vehicle Number and Location'); return; }
     toast('⏳ Listing truck...');
     var truckData={
         truck_no:$('pt-number').value,
         location_pin_id:locationPinId,
-        available_from:$('pt-available').value||new Date().toISOString().split('T')[0],
+        available_from:$('pt-available').value||null,
         rate_km:parseFloat($('pt-rate-km').value)||0,
         driver_name:$('pt-driver').value||'',
         driver_mobile:$('pt-driver-mobile').value||'',
-        company_name:user.fleet_company||user.company_name||'',
+        company_name:user.company_name||'',
         mobile:user.mobile,
         vehicle_type:'container',
         status:1,
@@ -1005,6 +1243,16 @@ function publishTruck(){
 }
 
 // ============================================================
+// ACTION FUNCTIONS
+// ============================================================
+function editLoad(id){toast('✏️ Edit load: '+id)}
+function deleteLoad(id){if(confirm('Delete this load?')){ sb.from('active_loads').update({status:0}).eq('id',id).then(function(){ toast('🗑️ Load deleted'); loadMyLoads(); }); }}
+function editTruck(id){toast('✏️ Edit truck: '+id)}
+function deleteTruck(id){if(confirm('Delete this truck?')){ sb.from('active_trucks').update({status:0}).eq('id',id).then(function(){ toast('🗑️ Truck deleted'); loadMyTrucks(); }); }}
+function viewInterests(id){toast('🤝 View interests for ID: '+id)}
+function autoFetchVehicle(){toast('🔍 Vehicle details fetched!')}
+
+// ============================================================
 // AUTH
 // ============================================================
 function continueAsGuest(){guest=true;user=null;localStorage.setItem('rt_user',JSON.stringify({guest:true}));showHome();}
@@ -1015,7 +1263,7 @@ function resetForm(){
     ['step2','step3','step4'].forEach(function(i){$(i).classList.add('hidden')});
     $('step1').classList.remove('hidden');
     $('login-screen').style.display='flex';
-    ['home-page','profile-page','postload-page','posttruck-page','detail-page'].forEach(function(i){$(i).classList.add('hidden-page')});
+    ['home-page','profile-page','postload-page','posttruck-page','detail-page','edit-profile-page'].forEach(function(i){$(i).classList.add('hidden-page')});
     var inputs=document.querySelectorAll('.otp-input');
     for(var i=0;i<inputs.length;i++){inputs[i].value=''}
     document.getElementById('pin-error').style.display='none';
@@ -1027,10 +1275,22 @@ function resetForm(){
     $('step4-purpose').textContent='Set your 4-digit PIN for login';
     $('register-btn').textContent='✅ Create Account';
 }
-function showHome(){$('login-screen').style.display='none';$('home-page').classList.remove('hidden-page');updateGuestUI();setTimeout(function(){fixHeight();renderFeed();autoLocate()},50)}
-function updateGuestUI(){var b=$('guest-banner');if(b){b.style.display=guest?'flex':'none';if(guest)b.classList.remove('hidden');else b.classList.add('hidden')}setTimeout(fixHeight,50)}
-function toggleDropdown(){document.querySelectorAll('.profile-dropdown').forEach(function(d){d.classList.toggle('show')})}
-function closeDropdown(){document.querySelectorAll('.profile-dropdown').forEach(function(d){d.classList.remove('show')})}
+
+function showHome(){
+    $('login-screen').style.display='none';
+    $('home-page').classList.remove('hidden-page');
+    updateGuestUI();
+    setTimeout(function(){fixHeight();renderFeed();autoLocate()},50);
+}
+
+function updateGuestUI(){
+    var b=$('guest-banner');
+    if(b){ b.style.display=guest?'flex':'none'; if(guest)b.classList.remove('hidden'); else b.classList.add('hidden'); }
+    setTimeout(fixHeight,50);
+}
+
+function toggleDropdown(){ document.querySelectorAll('.profile-dropdown').forEach(function(d){d.classList.toggle('show')}); }
+function closeDropdown(){ document.querySelectorAll('.profile-dropdown').forEach(function(d){d.classList.remove('show')}); }
 
 // Mobile input - check user and show appropriate step
 $('mobile').addEventListener('input',function(e){var m=this.value.trim();if(m.length===10){mobile=m;checkUserAndShowStep(m)}});
@@ -1079,222 +1339,141 @@ $('reg-pin-confirm').addEventListener('keydown',function(e){if(e.key==='Enter')r
 // SUBMIT PIN
 // ============================================================
 window.submitPin = async function() {
-    var pin = $('pin').value.trim();
-    if (!pin || pin.length !== 4) return;
-    
-    var btn = $('submitBtn');
-    btn.textContent = '⏳ Checking...';
-    btn.disabled = true;
-    document.getElementById('pin-error').style.display = 'none';
-    
-    try {
-        var resp = await fetch(EDGE_URL + '/login-user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': 'Bearer ' + SB_KEY
-            },
-            body: JSON.stringify({
-                mobile: mobile,
-                action: 'login',
-                pin: pin
-            })
+    var pin=$('pin').value.trim();
+    if(!pin||pin.length!==4) return;
+    var btn=$('submitBtn');
+    btn.textContent='⏳ Checking...';
+    btn.disabled=true;
+    document.getElementById('pin-error').style.display='none';
+    try{
+        var resp=await fetch(EDGE_URL+'/login-user',{
+            method:'POST',
+            headers:{'Content-Type':'application/json','Accept':'application/json','Authorization':'Bearer '+SB_KEY},
+            body:JSON.stringify({mobile:mobile,action:'login',pin:pin})
         });
-        var result = await resp.json();
-        
-        if (result.success === true && result.user) {
-            user = result.user;
-            user.mobile = mobile;
-            localStorage.setItem('rt_user', JSON.stringify({
-                mobile: user.mobile,
-                user: user
-            }));
-            guest = false;
-            btn.textContent = '🔐 Login';
-            btn.disabled = false;
-            showHome();
-            return;
+        var result=await resp.json();
+        if(result.success===true&&result.user){
+            user=result.user; user.mobile=mobile;
+            localStorage.setItem('rt_user', JSON.stringify({mobile:user.mobile,user:user}));
+            guest=false; btn.textContent='🔐 Login'; btn.disabled=false; showHome(); return;
         }
-        
-        if (result.isNewUser === true) {
+        if(result.isNewUser===true){
             otpPurpose='registration';
             $('step2').classList.add('hidden');
             $('step3').classList.remove('hidden');
-            $('wa-display-mobile').textContent = mobile;
-            $('otp-purpose').textContent = 'Enter OTP sent via WhatsApp for Registration';
-            document.getElementById('otp-error').style.display = 'none';
-            document.getElementById('otp-success').style.display = 'none';
+            $('wa-display-mobile').textContent=mobile;
+            $('otp-purpose').textContent='Enter OTP sent via WhatsApp for Registration';
+            document.getElementById('otp-error').style.display='none';
+            document.getElementById('otp-success').style.display='none';
             sendWhatsAppOTP();
-            btn.textContent = '🔐 Login';
-            btn.disabled = false;
-            return;
+            btn.textContent='🔐 Login'; btn.disabled=false; return;
         }
-        
-        if (result.source === 'archived') {
-            $('pin').value = '';
-            $('pin').focus();
-            btn.textContent = '🔐 Login';
-            btn.disabled = false;
-            return;
-        }
-        
+        if(result.source==='archived'){ $('pin').value=''; $('pin').focus(); btn.textContent='🔐 Login'; btn.disabled=false; return; }
         // Wrong PIN - STAY ON PIN SCREEN
-        document.getElementById('pin-error').style.display = 'block';
-        document.getElementById('pin-error').textContent = '❌ ' + (result.error || 'Incorrect PIN. Please try again.');
-        $('pin').value = '';
-        $('pin').focus();
-        $('pin').placeholder = 'Enter correct 4-digit PIN';
-        $('pin').style.borderColor = '#ef4444';
-        setTimeout(function() {
-            $('pin').style.borderColor = '#e2e8f0';
-        }, 1500);
-        btn.textContent = '🔐 Login';
-        btn.disabled = false;
-        
-    } catch (e) {
-        console.error('Login error:', e);
-        $('pin').value = '';
-        $('pin').focus();
-        btn.textContent = '🔐 Login';
-        btn.disabled = false;
-    }
+        document.getElementById('pin-error').style.display='block';
+        document.getElementById('pin-error').textContent='❌ '+(result.error||'Incorrect PIN. Please try again.');
+        $('pin').value=''; $('pin').focus(); $('pin').placeholder='Enter correct 4-digit PIN';
+        $('pin').style.borderColor='#ef4444';
+        setTimeout(function(){ $('pin').style.borderColor='#e2e8f0'; },1500);
+        btn.textContent='🔐 Login'; btn.disabled=false;
+    }catch(e){ console.error('Login error:',e); $('pin').value=''; $('pin').focus(); btn.textContent='🔐 Login'; btn.disabled=false; }
 };
 
 // ============================================================
 // REGISTER / RESET PIN
 // ============================================================
-async function registerUser() {
-    if (!otpVerified) return;
-    
-    var pin = $('reg-pin').value.trim(),
-        conf = $('reg-pin-confirm').value.trim();
-    if (!pin || pin.length !== 4) return;
-    if (pin !== conf) {
-        $('reg-pin-confirm').value = '';
-        $('reg-pin-confirm').focus();
-        return;
-    }
-    
-    var btn = $('register-btn');
-    btn.textContent = '⏳ Processing...';
-    btn.disabled = true;
-    
-    try {
-        if (otpPurpose === 'reset') {
-            var resp = await fetch(EDGE_URL + '/login-user', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'Authorization': 'Bearer ' + SB_KEY
-                },
-                body: JSON.stringify({
-                    mobile: mobile,
-                    action: 'reset_pin',
-                    new_pin: pin
-                })
+async function registerUser(){
+    if(!otpVerified) return;
+    var pin=$('reg-pin').value.trim(), conf=$('reg-pin-confirm').value.trim();
+    if(!pin||pin.length!==4) return;
+    if(pin!==conf){ $('reg-pin-confirm').value=''; $('reg-pin-confirm').focus(); return; }
+    var btn=$('register-btn');
+    btn.textContent='⏳ Processing...';
+    btn.disabled=true;
+    try{
+        if(otpPurpose==='reset'){
+            var resp=await fetch(EDGE_URL+'/login-user',{
+                method:'POST',
+                headers:{'Content-Type':'application/json','Accept':'application/json','Authorization':'Bearer '+SB_KEY},
+                body:JSON.stringify({mobile:mobile,action:'reset_pin',new_pin:pin})
             });
-            var result = await resp.json();
-            if (result.success === true && result.user) {
-                user = result.user;
-                user.mobile = mobile;
-                localStorage.setItem('rt_user', JSON.stringify({
-                    mobile: user.mobile,
-                    user: user
-                }));
-                guest = false;
-                showHome();
-            }
-            btn.textContent = '🔄 Reset PIN';
-            btn.disabled = false;
-            return;
+            var result=await resp.json();
+            if(result.success===true&&result.user){ user=result.user; user.mobile=mobile; localStorage.setItem('rt_user', JSON.stringify({mobile:user.mobile,user:user})); guest=false; showHome(); }
+            btn.textContent='🔄 Reset PIN'; btn.disabled=false; return;
         }
-        
-        var resp = await fetch(EDGE_URL + '/register-user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': 'Bearer ' + SB_KEY
-            },
-            body: JSON.stringify({
-                mobile: mobile,
-                pin: pin,
-                name: '',
-                company_name: '',
-                location: null
-            })
+        var resp=await fetch(EDGE_URL+'/register-user',{
+            method:'POST',
+            headers:{'Content-Type':'application/json','Accept':'application/json','Authorization':'Bearer '+SB_KEY},
+            body:JSON.stringify({mobile:mobile,pin:pin,name:'',company_name:'',location:null})
         });
-        var result = await resp.json();
-        
-        if (result.success === true && result.user) {
-            user = result.user;
-            user.mobile = mobile;
-            localStorage.setItem('rt_user', JSON.stringify({
-                mobile: user.mobile,
-                user: user
-            }));
-            guest = false;
-            showHome();
-            return;
-        } else if (result.code === 'USER_EXISTS_ACTIVE' || result.code === 'USER_ARCHIVED') {
-            resetForm();
-            $('mobile').value = mobile;
-            $('step1').classList.add('hidden');
-            $('step2').classList.remove('hidden');
-            $('display-mobile').textContent = mobile;
-        }
-    } catch (e) {
-        console.error('Error:', e);
-    } finally {
-        btn.textContent = otpPurpose === 'reset' ? '🔄 Reset PIN' : '✅ Create Account';
-        btn.disabled = false;
-    }
+        var result=await resp.json();
+        if(result.success===true&&result.user){ user=result.user; user.mobile=mobile; localStorage.setItem('rt_user', JSON.stringify({mobile:user.mobile,user:user})); guest=false; showHome(); return; }
+        else if(result.code==='USER_EXISTS_ACTIVE'||result.code==='USER_ARCHIVED'){ resetForm(); $('mobile').value=mobile; $('step1').classList.add('hidden'); $('step2').classList.remove('hidden'); $('display-mobile').textContent=mobile; }
+    }catch(e){ console.error('Error:',e); }
+    finally{ btn.textContent=otpPurpose==='reset'?'🔄 Reset PIN':'✅ Create Account'; btn.disabled=false; }
 }
 
-function openChangePin() {
-    if (!user) return;
-    var currentPin = prompt('Enter your current PIN:');
-    if (currentPin === null || !currentPin || currentPin.length !== 4) return;
-    var newPin = prompt('Enter new 4-digit PIN:');
-    if (newPin === null || !newPin || newPin.length !== 4) return;
-    var confirmPin = prompt('Confirm new PIN:');
-    if (confirmPin === null || newPin !== confirmPin) return;
-    
-    fetch(EDGE_URL + '/change-pin', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': 'Bearer ' + SB_KEY
-        },
-        body: JSON.stringify({
-            mobile: user.mobile,
-            current_pin: currentPin,
-            new_pin: newPin
-        })
-    })
-    .then(function(r){return r.json()})
-    .then(function(result){})
-    .catch(function(e){console.error('Change PIN error:', e)});
+function openChangePin(){
+    if(!user) return;
+    var currentPin=prompt('Enter your current PIN:'); if(currentPin===null||!currentPin||currentPin.length!==4) return;
+    var newPin=prompt('Enter new 4-digit PIN:'); if(newPin===null||!newPin||newPin.length!==4) return;
+    var confirmPin=prompt('Confirm new PIN:'); if(confirmPin===null||newPin!==confirmPin) return;
+    fetch(EDGE_URL+'/change-pin',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Accept':'application/json','Authorization':'Bearer '+SB_KEY},
+        body:JSON.stringify({mobile:user.mobile,current_pin:currentPin,new_pin:newPin})
+    }).then(function(r){return r.json()}).then(function(result){ if(result.success===true) toast('✅ PIN changed successfully!'); }).catch(function(e){console.error('Change PIN error:',e)});
 }
 
-function logout(){if(confirm('Logout?')){localStorage.removeItem('rt_user');window.location.reload()}}
+function logout(){ if(confirm('Logout?')){ localStorage.removeItem('rt_user'); window.location.reload(); } }
+
+// ============================================================
+// DETAIL PAGE
+// ============================================================
+function openDetail(type,id){
+    var table=type==='LOAD'?'active_loads':'active_trucks';
+    sb.from(table).select('*').eq('id',id).single().then(function(r){
+        var d=r.data; if(d){ detail=d; switchPage('detail-page',0); $('detail-title').textContent=type==='LOAD'?d.material||'Details':d.truck_no||'Details'; $('detail-company').textContent=type==='LOAD'?d.company||'N/A':d.company_name||'N/A'; }
+    });
+}
+
+function makeCall(){ if(detail){ var num=detail.mobile||detail.driver_mobile; if(num) window.location.href='tel:'+num; } }
+function expressInterest(){ toast('✅ Interest expressed!'); }
+function contactUser(){ toast('📧 Contact details shared!'); }
+function handleShareClick(){ if(navigator.share){ navigator.share({title:'ReturnTruck',text:'Check out this listing on ReturnTruck!',url:window.location.href}); } else { toast('📋 Link copied!'); } }
 
 // ============================================================
 // HEIGHT
 // ============================================================
-function fixHeight(){var card=document.querySelector('.card');if(!card)return;var body=document.querySelector('.scroll-body:not(.hidden-page)'),header=document.querySelector('.header-fixed:not(.hidden-page)'),nav=document.querySelector('.nav-fixed:not(.hidden-page)'),top=$('home-top');if(!body||!header||!nav)return;var hh=header.offsetHeight||50,nh=nav.offsetHeight||65,th=top?top.offsetHeight||0:0,av=card.clientHeight-hh-th-nh-20;if(av<80)av=80;body.style.height=av+'px';body.style.maxHeight=av+'px';body.style.overflowY='auto'}
+function fixHeight(){
+    var card=document.querySelector('.card'); if(!card)return;
+    var body=document.querySelector('.scroll-body:not(.hidden-page)');
+    var header=document.querySelector('.header-fixed:not(.hidden-page)');
+    var nav=document.querySelector('.nav-fixed:not(.hidden-page)');
+    var top=$('home-top');
+    if(!body||!header||!nav)return;
+    var hh=header.offsetHeight||50, nh=nav.offsetHeight||65, th=top?top.offsetHeight||0:0;
+    var av=card.clientHeight-hh-th-nh-20;
+    if(av<80) av=80;
+    body.style.height=av+'px';
+    body.style.maxHeight=av+'px';
+    body.style.overflowY='auto';
+}
 window.addEventListener('resize',function(){clearTimeout(window._rtResize);window._rtResize=setTimeout(fixHeight,200)});
 
 // ============================================================
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded',function(){
-var saved=localStorage.getItem('rt_user');
-if(saved){var sd=JSON.parse(saved);if(sd.guest){guest=true;user=null}else if(sd.user){user=sd.user;guest=false}showHome()}else{$('login-screen').style.display='flex';$('home-page').classList.add('hidden-page')}
-setTimeout(function(){fixHeight();autoLocate()},500)
+    var saved=localStorage.getItem('rt_user');
+    if(saved){ var sd=JSON.parse(saved); if(sd.guest){guest=true;user=null}else if(sd.user){user=sd.user;guest=false} showHome(); }
+    else { $('login-screen').style.display='flex'; $('home-page').classList.add('hidden-page'); }
+    setTimeout(function(){fixHeight();autoLocate()},500);
+    
+    // Char count listeners
+    ['edit-lg-about','edit-fo-about','edit-agent-about'].forEach(function(id){
+        var el=$(id); if(el){ el.addEventListener('input',function(){ updateCharCount(id,id.replace('about','count')); }); }
+    });
 });
 </script>
 </body>
