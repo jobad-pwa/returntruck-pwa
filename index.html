@@ -292,13 +292,13 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                     <label>🚛 Vehicle Type</label>
                     <select id="filter-vehicle" onchange="applyFilters()">
                         <option value="ALL">All</option>
-                        <option value="Highbed-40x8x8">Highbed-40x8x8</option>
-                        <option value="Lowbed-40x10x10">Lowbed-40x10x10</option>
-                        <option value="Container-22x8x8">Container-22x8x8</option>
-                        <option value="ODC (Over-Dimen Cargo)">ODC (Over-Dimen Cargo)</option>
-                        <option value="Flatbed-30x8x8">Flatbed-30x8x8</option>
-                        <option value="Tipper-20x8x8">Tipper-20x8x8</option>
-                        <option value="Semi-Lowbed-35x9x9">Semi-Lowbed-35x9x9</option>
+                        <option value="Highbed">Highbed</option>
+                        <option value="Lowbed">Lowbed</option>
+                        <option value="Container">Container</option>
+                        <option value="ODC">ODC</option>
+                        <option value="Flatbed">Flatbed</option>
+                        <option value="Tipper">Tipper</option>
+                        <option value="Semi-Lowbed">Semi-Lowbed</option>
                     </select>
                 </div>
             </div>
@@ -635,13 +635,13 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <label class="form-label">🚛 Vehicle Type *</label>
             <select class="form-control" id="td-vehicle-type">
                 <option value="">Select vehicle type...</option>
-                <option value="Highbed-40x8x8">Highbed-40x8x8</option>
-                <option value="Lowbed-40x10x10">Lowbed-40x10x10</option>
-                <option value="Container-22x8x8">Container-22x8x8</option>
-                <option value="ODC (Over-Dimen Cargo)">ODC (Over-Dimen Cargo)</option>
-                <option value="Flatbed-30x8x8">Flatbed-30x8x8</option>
-                <option value="Tipper-20x8x8">Tipper-20x8x8</option>
-                <option value="Semi-Lowbed-35x9x9">Semi-Lowbed-35x9x9</option>
+                <option value="Highbed">Highbed</option>
+                <option value="Lowbed">Lowbed</option>
+                <option value="Container">Container</option>
+                <option value="ODC">ODC</option>
+                <option value="Flatbed">Flatbed</option>
+                <option value="Tipper">Tipper</option>
+                <option value="Semi-Lowbed">Semi-Lowbed</option>
             </select>
         </div>
 
@@ -758,16 +758,16 @@ var LOCATIONS = [
 ];
 
 // ============================================================
-// VEHICLE TYPES - Static data (matching dropdown options)
+// VEHICLE TYPES - Simplified (no dimensions, just type names)
 // ============================================================
 var VEHICLE_TYPES = [
-  'Highbed-40x8x8',
-  'Lowbed-40x10x10',
-  'Container-22x8x8',
-  'ODC (Over-Dimen Cargo)',
-  'Flatbed-30x8x8',
-  'Tipper-20x8x8',
-  'Semi-Lowbed-35x9x9'
+  'Highbed',
+  'Lowbed',
+  'Container',
+  'ODC',
+  'Flatbed',
+  'Tipper',
+  'Semi-Lowbed'
 ];
 
 // ============================================================
@@ -952,7 +952,7 @@ function searchVehicles(query){
         vehicles.forEach(function(v){
             var dims=v.dimensions?v.dimensions.join('×'):'N/A';
             html+='<div class="item" onclick="selectVehicle(\''+v.id+'\',\''+v.vehicle_number+'\',\''+v.vehicle_type+'\','+JSON.stringify(v.dimensions)+','+v.max_weight+')">'+
-                v.vehicle_number+' <span class="sub">'+v.vehicle_type+' • '+dims+'ft • '+(v.max_weight||0)+'Kg</span>'+
+                v.vehicle_number+' <span class="sub">'+v.vehicle_type+' • '+dims+'ft</span>'+
             '</div>';
         });
         html+='<div class="item add-new" onclick="openTruckDetails()">➕ Add New Vehicle</div>';
@@ -1019,7 +1019,7 @@ function loadProfileVehicles(){
             var dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
             return '<div class="list-item" style="padding:10px">'+
                 '<div class="title">'+v.vehicle_number+'</div>'+
-                '<div class="sub">'+v.vehicle_type+' • '+dims+'ft • '+(v.max_weight||0)+'Kg</div>'+
+                '<div class="sub">'+v.vehicle_type+' • '+dims+'ft</div>'+
                 '<div class="actions">'+
                     '<button class="edit" onclick="editVehicle(\''+v.id+'\')">✏️ Edit</button>'+
                     '<button class="delete" onclick="deleteVehicle(\''+v.id+'\',\''+v.vehicle_number+'\')">🗑️ Delete</button>'+
@@ -1036,7 +1036,6 @@ function editVehicle(id){
         if(r.data){
             var v=r.data;
             $('td-vehicle-number').value=v.vehicle_number||'';
-            // Set dropdown value
             var select = $('td-vehicle-type');
             if(v.vehicle_type){
                 select.value = v.vehicle_type;
