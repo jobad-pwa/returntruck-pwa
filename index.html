@@ -162,11 +162,12 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .vehicle-suggest-dropdown .item .sub{font-size:10px;color:#94a3b8}
 .vehicle-suggest-dropdown .item .add-new{color:#2563eb;font-weight:600}
 .vehicle-type-select{position:relative}
-.vehicle-type-select .dropdown{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:8px;margin-top:4px;max-height:150px;overflow-y:auto;z-index:50;display:none}
+.vehicle-type-select .dropdown{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:8px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:50;display:none}
 .vehicle-type-select .dropdown.show{display:block}
 .vehicle-type-select .dropdown .item{padding:8px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid #f1f5f9}
 .vehicle-type-select .dropdown .item:hover{background:#f1f5f9}
 .vehicle-type-select .dropdown .item .sub{font-size:10px;color:#94a3b8}
+.vehicle-number-input{font-family:monospace;letter-spacing:0.5px}
 </style>
 </head>
 <body>
@@ -588,7 +589,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div class="profile-section">
                 <label class="form-label">🚛 My Vehicles</label>
                 <div style="position:relative">
-                    <input class="form-control" id="edit-vehicle-input" placeholder="Type vehicle number..." oninput="searchVehicles(this.value)">
+                    <input class="form-control vehicle-number-input" id="edit-vehicle-input" placeholder="Type vehicle number..." oninput="validateAndSearchVehicle(this.value)" autocomplete="off">
                     <div class="vehicle-suggest-dropdown" id="vehicle-suggest-dropdown"></div>
                 </div>
                 <div style="margin-top:6px">
@@ -663,7 +664,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <!-- Vehicle Number -->
         <div class="profile-section">
             <label class="form-label">🚛 Vehicle Number *</label>
-            <input class="form-control" id="td-vehicle-number" placeholder="MH12AB1234" style="text-transform:uppercase" oninput="validateVehicleNumber(this)">
+            <input class="form-control vehicle-number-input" id="td-vehicle-number" placeholder="MH12AB1234" oninput="validateVehicleNumberInput(this)" autocomplete="off">
             <div style="font-size:10px;color:#94a3b8;margin-top:4px">Only letters and numbers, no spaces or special characters</div>
         </div>
 
@@ -671,7 +672,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div class="profile-section">
             <label class="form-label">🚛 Vehicle Type *</label>
             <div class="vehicle-type-select">
-                <input class="form-control" id="td-vehicle-type" placeholder="Type to search..." oninput="filterVehicleTypes(this.value)" autocomplete="off">
+                <input class="form-control" id="td-vehicle-type" placeholder="Type or select vehicle type..." onclick="showVehicleDropdown()" oninput="filterVehicleTypes(this.value)" autocomplete="off">
                 <div class="dropdown" id="td-vehicle-dropdown">
                     <div class="item" onclick="selectVehicleType('Highbed-40x8x8 (22 Ton)')">Highbed-40x8x8 (22 Ton)</div>
                     <div class="item" onclick="selectVehicleType('Lowbed-40x10x10 (28 Ton)')">Lowbed-40x10x10 (28 Ton)</div>
@@ -679,6 +680,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                     <div class="item" onclick="selectVehicleType('ODC (Over-Dimen Cargo)')">ODC (Over-Dimen Cargo)</div>
                     <div class="item" onclick="selectVehicleType('Flatbed-30x8x8 (18 Ton)')">Flatbed-30x8x8 (18 Ton)</div>
                     <div class="item" onclick="selectVehicleType('Tipper-20x8x8 (25 Ton)')">Tipper-20x8x8 (25 Ton)</div>
+                    <div class="item" onclick="selectVehicleType('Semi-Lowbed-35x9x9 (25 Ton)')">Semi-Lowbed-35x9x9 (25 Ton)</div>
                     <div class="item" style="color:#2563eb;font-weight:600" onclick="addNewVehicleType()">+ Add New</div>
                 </div>
             </div>
@@ -802,7 +804,7 @@ var LOCATIONS = [
 ];
 
 // ============================================================
-// VEHICLE TYPES
+// VEHICLE TYPES - Static data stored in index.html
 // ============================================================
 var VEHICLE_TYPES = [
   'Highbed-40x8x8 (22 Ton)',
@@ -810,7 +812,8 @@ var VEHICLE_TYPES = [
   'Container-22x8x8 (16 Ton)',
   'ODC (Over-Dimen Cargo)',
   'Flatbed-30x8x8 (18 Ton)',
-  'Tipper-20x8x8 (25 Ton)'
+  'Tipper-20x8x8 (25 Ton)',
+  'Semi-Lowbed-35x9x9 (25 Ton)'
 ];
 
 // ============================================================
@@ -849,32 +852,57 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 // ============================================================
-// VEHICLE NUMBER VALIDATION - Only letters and numbers
+// ✅ VEHICLE NUMBER VALIDATION - Only letters and numbers, NO special chars
 // ============================================================
-function validateVehicleNumber(input){
-    // Remove any non-alphanumeric characters
-    input.value = input.value.replace(/[^A-Za-z0-9]/g, '');
+function validateVehicleNumberInput(input){
+    // Remove any non-alphanumeric characters (spaces, special chars, etc.)
+    var cleaned = input.value.replace(/[^A-Za-z0-9]/g, '');
+    if(input.value !== cleaned){
+        input.value = cleaned;
+        toast('⚠️ Only letters and numbers allowed');
+    }
+    // Remove spaces
+    input.value = input.value.replace(/\s/g, '');
 }
 
 function isValidVehicleNumber(number){
     return /^[A-Za-z0-9]{8,11}$/.test(number);
 }
 
+function validateAndSearchVehicle(value){
+    validateVehicleNumberInput($('edit-vehicle-input'));
+    searchVehicles(value);
+}
+
 // ============================================================
-// VEHICLE TYPE DROPDOWN
+// ✅ VEHICLE TYPE DROPDOWN
 // ============================================================
+function showVehicleDropdown(){
+    var dropdown=$('td-vehicle-dropdown');
+    dropdown.classList.add('show');
+    filterVehicleTypes($('td-vehicle-type').value);
+}
+
 function filterVehicleTypes(query){
     var dropdown=$('td-vehicle-dropdown');
     var items=dropdown.querySelectorAll('.item:not(:last-child)');
     var q=query.toLowerCase().trim();
+    var hasMatch=false;
     items.forEach(function(item){
-        if(!q || item.textContent.toLowerCase().includes(q)){
+        var text=item.textContent.toLowerCase();
+        if(!q || text.includes(q)){
             item.style.display='block';
+            hasMatch=true;
         }else{
             item.style.display='none';
         }
     });
-    dropdown.classList.add('show');
+    // Show dropdown only if there's a match or query is empty
+    if(!q || hasMatch){
+        dropdown.classList.add('show');
+    }else{
+        dropdown.classList.remove('show');
+    }
 }
 
 function selectVehicleType(type){
@@ -936,7 +964,7 @@ function dist(lat1,lng1,lat2,lng2){
 }
 
 // ============================================================
-// SEARCH LOCATION
+// SEARCH LOCATION - Works for all contexts including td-route
 // ============================================================
 function searchLocation(ctx){
     var inp=$('search-'+ctx);
@@ -1023,7 +1051,7 @@ function searchVehicles(query){
         if(result.error){ console.error(result.error); return; }
         var vehicles=result.data||[];
         if(!vehicles.length){ 
-            dropdown.innerHTML='<div class="item add-new" onclick="openTruckDetails()">➕ Add New Vehicle "'+q+'"</div>';
+            dropdown.innerHTML='<div class="item add-new" onclick="openTruckDetailsWithNumber(\''+q+'\')">➕ Add New Vehicle "'+q+'"</div>';
             dropdown.classList.add('show');
             return; 
         }
@@ -1066,10 +1094,14 @@ function addSelectedVehicle(){
             toast('✅ Vehicle added: '+val);
         }else{
             toast('ℹ️ Vehicle not found. Please add details.');
-            $('td-vehicle-number').value=val;
-            openTruckDetails();
+            openTruckDetailsWithNumber(val);
         }
     }).catch(function(){ toast('❌ Error checking vehicle'); });
+}
+
+function openTruckDetailsWithNumber(number){
+    if(number){ $('td-vehicle-number').value=number; }
+    openTruckDetails();
 }
 
 // ============================================================
