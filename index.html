@@ -162,12 +162,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .vehicle-suggest-dropdown .item:hover{background:#f1f5f9}
 .vehicle-suggest-dropdown .item .sub{font-size:10px;color:#94a3b8}
 .vehicle-suggest-dropdown .item .add-new{color:#2563eb;font-weight:600}
-.vehicle-type-select{position:relative}
-.vehicle-type-select .dropdown{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:8px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:50;display:none}
-.vehicle-type-select .dropdown.show{display:block}
-.vehicle-type-select .dropdown .item{padding:8px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid #f1f5f9}
-.vehicle-type-select .dropdown .item:hover{background:#f1f5f9}
-.vehicle-type-select .dropdown .item .sub{font-size:10px;color:#94a3b8}
 .vehicle-number-input{font-family:monospace;letter-spacing:0.5px;text-transform:uppercase}
 .dim-input input{text-align:center}
 </style>
@@ -298,10 +292,13 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                     <label>🚛 Vehicle Type</label>
                     <select id="filter-vehicle" onchange="applyFilters()">
                         <option value="ALL">All</option>
-                        <option value="highbed">Highbed 40x8x8</option>
-                        <option value="lowbed">Lowbed 40x10x10</option>
-                        <option value="container">Container 22x8x8</option>
-                        <option value="odc">ODC</option>
+                        <option value="Highbed-40x8x8">Highbed-40x8x8</option>
+                        <option value="Lowbed-40x10x10">Lowbed-40x10x10</option>
+                        <option value="Container-22x8x8">Container-22x8x8</option>
+                        <option value="ODC (Over-Dimen Cargo)">ODC (Over-Dimen Cargo)</option>
+                        <option value="Flatbed-30x8x8">Flatbed-30x8x8</option>
+                        <option value="Tipper-20x8x8">Tipper-20x8x8</option>
+                        <option value="Semi-Lowbed-35x9x9">Semi-Lowbed-35x9x9</option>
                     </select>
                 </div>
             </div>
@@ -633,13 +630,19 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div style="font-size:10px;color:#94a3b8;margin-top:4px">Only letters and numbers, 9-11 characters (e.g., MH12AB1234)</div>
         </div>
 
-        <!-- Vehicle Type Dropdown -->
+        <!-- Vehicle Type - Simple Dropdown (same as home filter) -->
         <div class="profile-section">
             <label class="form-label">🚛 Vehicle Type *</label>
-            <div class="vehicle-type-select">
-                <input class="form-control" id="td-vehicle-type" placeholder="Type or select vehicle type..." onclick="showVehicleDropdown()" oninput="filterVehicleTypes(this.value)" autocomplete="off">
-                <div class="dropdown" id="td-vehicle-dropdown"></div>
-            </div>
+            <select class="form-control" id="td-vehicle-type">
+                <option value="">Select vehicle type...</option>
+                <option value="Highbed-40x8x8">Highbed-40x8x8</option>
+                <option value="Lowbed-40x10x10">Lowbed-40x10x10</option>
+                <option value="Container-22x8x8">Container-22x8x8</option>
+                <option value="ODC (Over-Dimen Cargo)">ODC (Over-Dimen Cargo)</option>
+                <option value="Flatbed-30x8x8">Flatbed-30x8x8</option>
+                <option value="Tipper-20x8x8">Tipper-20x8x8</option>
+                <option value="Semi-Lowbed-35x9x9">Semi-Lowbed-35x9x9</option>
+            </select>
         </div>
 
         <!-- Dimensions -->
@@ -755,7 +758,7 @@ var LOCATIONS = [
 ];
 
 // ============================================================
-// VEHICLE TYPES - Static data
+// VEHICLE TYPES - Static data (matching dropdown options)
 // ============================================================
 var VEHICLE_TYPES = [
   'Highbed-40x8x8',
@@ -779,7 +782,7 @@ var homePinId=null,toPinId=null,prompt=null,installed=false,filterOpen=true;
 var otpTimer=null,otpSeconds=300,otpVerified=false,generatedOTP='';
 var isResetFlow=false,otpPurpose='registration';
 var profileTab='loadgiver',editTab='loadgiver';
-var vehicles=[],routes=[],agentRoutes=[],truckRoutes=[];
+var vehicles=[],truckRoutes=[];
 var selectedVehicle=null;
 
 function $(id){return document.getElementById(id)}
@@ -800,46 +803,24 @@ document.addEventListener('DOMContentLoaded', function(){
             if(e.key.length===1||e.key==='Backspace'||e.key==='Delete') this.classList.remove('selected');
         });
     });
-    populateVehicleTypes();
 });
 
 // ============================================================
 // VEHICLE NUMBER VALIDATION - Indian format (9-11 characters)
 // ============================================================
 function validateVehicleNumberInput(input){
-    // Remove any non-alphanumeric characters
     var cleaned = input.value.replace(/[^A-Za-z0-9]/g, '');
     if(input.value !== cleaned){
         input.value = cleaned;
     }
-    // Remove spaces
     input.value = input.value.replace(/\s/g, '');
-    // Convert to uppercase for consistency
     input.value = input.value.toUpperCase();
-    // Limit to 11 characters max (Indian vehicle numbers are 9-11 chars)
     if(input.value.length > 11){
         input.value = input.value.substring(0, 11);
-    }
-    // Show validation feedback
-    var len = input.value.length;
-    var hint = input.parentElement.querySelector('.vehicle-hint') || input.nextElementSibling;
-    if(hint && hint.classList && hint.classList.contains('vehicle-hint')){
-        if(len > 0 && len < 9){
-            hint.style.color = '#f59e0b';
-            hint.textContent = '⚠️ Need ' + (9 - len) + ' more characters (9-11 total)';
-        } else if(len >= 9 && len <= 11){
-            hint.style.color = '#16a34a';
-            hint.textContent = '✅ Valid length (' + len + '/9-11)';
-        } else {
-            hint.style.color = '#94a3b8';
-            hint.textContent = 'Only letters and numbers, 9-11 characters (e.g., MH12AB1234)';
-        }
     }
 }
 
 function isValidVehicleNumber(number){
-    // Indian vehicle numbers: 9 to 11 characters (letters and numbers only)
-    // Format: State(2) + District(1-2) + Series(1-2) + Number(1-4) = 9-11 chars
     return /^[A-Za-z0-9]{9,11}$/.test(number);
 }
 
@@ -847,58 +828,6 @@ function validateAndSearchVehicle(value){
     validateVehicleNumberInput($('edit-vehicle-input'));
     searchVehicles(value);
 }
-
-// ============================================================
-// VEHICLE TYPE DROPDOWN
-// ============================================================
-function populateVehicleTypes(){
-    var dropdown=$('td-vehicle-dropdown');
-    var html='';
-    VEHICLE_TYPES.forEach(function(type){
-        html+='<div class="item" onclick="selectVehicleType(\''+type+'\')">'+type+'</div>';
-    });
-    dropdown.innerHTML=html;
-}
-
-function showVehicleDropdown(){
-    var dropdown=$('td-vehicle-dropdown');
-    dropdown.classList.add('show');
-    filterVehicleTypes($('td-vehicle-type').value);
-}
-
-function filterVehicleTypes(query){
-    var dropdown=$('td-vehicle-dropdown');
-    var items=dropdown.querySelectorAll('.item');
-    var q=query.toLowerCase().trim();
-    var hasMatch=false;
-    items.forEach(function(item){
-        var text=item.textContent.toLowerCase();
-        if(!q || text.includes(q)){
-            item.style.display='block';
-            hasMatch=true;
-        }else{
-            item.style.display='none';
-        }
-    });
-    if(!q || hasMatch){
-        dropdown.classList.add('show');
-    }else{
-        dropdown.classList.remove('show');
-    }
-}
-
-function selectVehicleType(type){
-    $('td-vehicle-type').value=type;
-    $('td-vehicle-dropdown').classList.remove('show');
-}
-
-document.addEventListener('click', function(e){
-    var container=e.target.closest('.vehicle-type-select');
-    if(!container){
-        var dropdown=$('td-vehicle-dropdown');
-        if(dropdown) dropdown.classList.remove('show');
-    }
-});
 
 // ============================================================
 // LOCATION HELPERS
@@ -1107,7 +1036,11 @@ function editVehicle(id){
         if(r.data){
             var v=r.data;
             $('td-vehicle-number').value=v.vehicle_number||'';
-            $('td-vehicle-type').value=v.vehicle_type||'';
+            // Set dropdown value
+            var select = $('td-vehicle-type');
+            if(v.vehicle_type){
+                select.value = v.vehicle_type;
+            }
             if(v.dimensions && v.dimensions.length>=3){
                 $('td-length').value=v.dimensions[0]||'0';
                 $('td-width').value=v.dimensions[1]||'0';
@@ -1156,16 +1089,6 @@ function openTruckDetails(vehicleNumber){
     $('td-description').value='';
     truckRoutes=[];
     renderTruckRoutes();
-    populateVehicleTypes();
-    // Add vehicle hint for validation feedback
-    var hint = document.createElement('div');
-    hint.className = 'vehicle-hint';
-    hint.style.cssText = 'font-size:10px;color:#94a3b8;margin-top:4px';
-    hint.textContent = 'Only letters and numbers, 9-11 characters (e.g., MH12AB1234)';
-    var parent = $('td-vehicle-number').parentElement;
-    var existing = parent.querySelector('.vehicle-hint');
-    if(existing) existing.remove();
-    parent.appendChild(hint);
     switchPage('truck-details-page',4);
 }
 
@@ -1204,6 +1127,8 @@ function saveTruckDetails(){
     if(!user){ return; }
     var number=$('td-vehicle-number').value.trim().toUpperCase();
     var editId=$('td-edit-id').value;
+    var vehicleType = $('td-vehicle-type').value;
+    
     if(!number){ 
         alert('Please enter a vehicle number');
         return; 
@@ -1212,10 +1137,14 @@ function saveTruckDetails(){
         alert('Vehicle number must be 9-11 characters (letters and numbers only)');
         return; 
     }
+    if(!vehicleType){ 
+        alert('Please select a vehicle type');
+        return; 
+    }
     
     var data={
         vehicle_number: number,
-        vehicle_type: $('td-vehicle-type').value.trim()||null,
+        vehicle_type: vehicleType,
         dimensions: [parseFloat($('td-length').value)||0, parseFloat($('td-width').value)||0, parseFloat($('td-height').value)||0],
         operating_routes: truckRoutes.length?truckRoutes:null,
         description: $('td-description').value.trim()||null,
@@ -1399,7 +1328,7 @@ else if(tab==='TRUCK') filtered=filtered.filter(function(i){return i.type==='TRU
 if(toPinId){ var tl=getLoc(toPinId); if(tl){ filtered=filtered.filter(function(i){ var tl2=getLoc(i.to_pin_id); return tl2?dist(tl.lat,tl.lng,tl2.lat,tl2.lng)<=radius:false; }); } }
 
 var v=$('filter-vehicle')?.value;
-if(v&&v!=='ALL') filtered=filtered.filter(function(i){return i.vehicle&&i.vehicle.toLowerCase().includes(v)});
+if(v&&v!=='ALL') filtered=filtered.filter(function(i){return i.vehicle&&i.vehicle.toLowerCase().includes(v.toLowerCase())});
 
 $('results-count').textContent='Showing '+filtered.length+' Records within '+radius+' KM';
 
@@ -1922,19 +1851,6 @@ document.addEventListener('DOMContentLoaded',function(){
             el.addEventListener('input',function(){ updateCharCount(id,countId); }); 
         }
     });
-    
-    // Add vehicle number input hint to truck details page
-    var vehicleInput = $('td-vehicle-number');
-    if(vehicleInput){
-        var hint = document.createElement('div');
-        hint.className = 'vehicle-hint';
-        hint.style.cssText = 'font-size:10px;color:#94a3b8;margin-top:4px';
-        hint.textContent = 'Only letters and numbers, 9-11 characters (e.g., MH12AB1234)';
-        var parent = vehicleInput.parentElement;
-        var existing = parent.querySelector('.vehicle-hint');
-        if(existing) existing.remove();
-        parent.appendChild(hint);
-    }
 });
 </script>
 </body>
