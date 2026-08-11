@@ -452,7 +452,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div style="font-size:11px;color:#64748b;margin-top:2px" id="profile-location">📍 Location: Not set</div>
         </div>
 
-        <!-- User Type -->
+        <!-- User Type - Display as badges -->
         <div class="profile-section">
             <label class="form-label" style="margin-bottom:6px">🎯 User Type</label>
             <div id="profile-user-types" style="display:flex;gap:8px;flex-wrap:wrap">
@@ -486,6 +486,24 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div class="profile-section" id="profile-about-section">
             <label class="form-label">📝 About / Details</label>
             <div id="profile-details-text" style="font-size:14px;color:#475569;padding:4px 0">No details added</div>
+        </div>
+
+        <!-- My Loads -->
+        <div style="margin-bottom:8px">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px">📦 My Loads <span class="count-badge" id="my-loads-count">0</span></div>
+            <div id="my-loads-container"></div>
+        </div>
+
+        <!-- My Trucks -->
+        <div style="margin-bottom:8px">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px">🚛 My Trucks <span class="count-badge" id="my-trucks-count">0</span></div>
+            <div id="my-trucks-container"></div>
+        </div>
+
+        <!-- My Recommendations (Agent) -->
+        <div style="margin-bottom:8px">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px">📦 My Recommendations <span class="count-badge" id="agent-recommendations-count">0</span></div>
+            <div id="agent-recommendations-container"></div>
         </div>
 
         <!-- Statistics -->
@@ -560,15 +578,15 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
         </div>
 
-        <!-- User Type -->
+        <!-- User Type - Checkboxes -->
         <div class="profile-section">
             <label class="form-label">🎯 User Type</label>
-            <select class="form-control" id="edit-user-type">
-                <option value="0">Select user type...</option>
-                <option value="1">📦 Load Giver</option>
-                <option value="2">🚛 Operator</option>
-                <option value="3">🤝 Agent</option>
-            </select>
+            <div class="user-type-checkbox">
+                <label><input type="checkbox" id="edit-type-loadgiver" value="1"> 📦 Load Giver</label>
+                <label><input type="checkbox" id="edit-type-operator" value="2"> 🚛 Operator</label>
+                <label><input type="checkbox" id="edit-type-agent" value="3"> 🤝 Agent</label>
+            </div>
+            <div style="font-size:10px;color:#94a3b8;margin-top:4px">Select all that apply</div>
         </div>
 
         <!-- My Vehicles -->
@@ -1451,11 +1469,25 @@ function loadProfile(){
         $('profile-location').textContent = '📍 Location: Not set';
     }
     
-    // User Type
-    var userType = user.user_type || 0;
-    var typeLabels = ['Not set', 'Load Giver', 'Operator', 'Agent'];
+    // User Type - Display as badges
+    var types = user.user_type || [];
+    if(!Array.isArray(types) && typeof types === 'number'){
+        types = [types];
+    }
+    var typeLabels = ['Load Giver', 'Operator', 'Agent'];
+    var typeIcons = ['📦', '🚛', '🤝'];
     var container = $('profile-user-types');
-    container.innerHTML = '<span class="section-badge '+(userType>0?'active':'optional')+'">'+typeLabels[userType]+'</span>';
+    if(types.length){
+        container.innerHTML = types.map(function(t){
+            var idx = t-1;
+            if(idx >= 0 && idx < typeLabels.length){
+                return '<span class="section-badge active">'+typeIcons[idx]+' '+typeLabels[idx]+'</span>';
+            }
+            return '';
+        }).join('');
+    } else {
+        container.innerHTML = '<span class="section-badge optional">Not set</span>';
+    }
     
     // About/Details
     if(user.details){
@@ -1608,10 +1640,15 @@ function populateEditForm(){
         } 
     }
     
-    // User Type - single dropdown
-    var userType = user.user_type || 0;
-    $('edit-user-type').value = userType;
-    console.log('User type set to:', userType);
+    // User Type - Checkboxes
+    var types = user.user_type || [];
+    if(!Array.isArray(types) && typeof types === 'number'){
+        types = [types];
+    }
+    $('edit-type-loadgiver').checked = types.indexOf(1) !== -1;
+    $('edit-type-operator').checked = types.indexOf(2) !== -1;
+    $('edit-type-agent').checked = types.indexOf(3) !== -1;
+    console.log('User types set:', types);
     
     // Vehicles - parse from comma-separated string
     vehicles = [];
@@ -1666,7 +1703,11 @@ function saveProfile(){
     
     console.log('Saving profile...');
     
-    var userType = parseInt($('edit-user-type').value) || 0;
+    var userTypes = [];
+    if($('edit-type-loadgiver').checked) userTypes.push(1);
+    if($('edit-type-operator').checked) userTypes.push(2);
+    if($('edit-type-agent').checked) userTypes.push(3);
+    
     var location=$('edit-location-hidden').value ? parseInt($('edit-location-hidden').value) : null;
     
     var vehicleNoStr = vehicles.length ? vehicles.join(',') : '';
@@ -1679,7 +1720,7 @@ function saveProfile(){
         pan: $('edit-pan').value.trim() || null,
         gst: $('edit-gst').value.trim() || null,
         location: location,
-        user_type: userType,
+        user_type: userTypes.length ? userTypes : null,
         vehicle_no: vehicleNoStr || null,
         preferred_routes: routesStr || null,
         details: $('edit-details').value.trim() || null,
