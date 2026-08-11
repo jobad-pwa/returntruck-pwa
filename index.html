@@ -1614,7 +1614,6 @@ function saveProfile(){
     }
     
     console.log('Saving profile for user:', user);
-    console.log('User mobile:', user.mobile);
     
     var userTypes=[];
     if($('edit-type-loadgiver').checked) userTypes.push(1);
@@ -1635,19 +1634,15 @@ function saveProfile(){
         load_giver_details: $('edit-lg-about').value.trim() || null,
         fleet_operator_details: $('edit-fo-about').value.trim() || null,
         agent_details: $('edit-agent-about').value.trim() || null,
-        updated_at: new Date().toISOString()
+        last_active: new Date().toISOString()  // <-- FIXED: use last_active
     };
     
     console.log('Update data:', updateData);
     
-    // Try both: mobile as number and as string
     var mobileNum = user.mobile;
-    // If mobile is stored as string, try parsing it
     if(typeof mobileNum === 'string' && mobileNum.length === 10){
         mobileNum = parseInt(mobileNum);
     }
-    
-    console.log('Using mobile number:', mobileNum);
     
     sb.from('active_users')
       .update(updateData)
@@ -1659,7 +1654,6 @@ function saveProfile(){
               return; 
           }
           console.log('Profile saved successfully:', result);
-          // Update local user object
           Object.assign(user, updateData);
           alert('✅ Profile saved successfully!');
           closeEditProfile(); 
