@@ -505,6 +505,16 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                     <button class="section-btn" onclick="openTruckDetails()" style="width:100%">➕ Add New Vehicle</button>
                 </div>
             </div>
+            <!-- Preferred Routes - Operator -->
+            <div class="profile-section">
+                <div class="section-header">
+                    <span class="section-title">🗺️ Preferred Routes</span>
+                    <span class="section-badge optional">Optional</span>
+                </div>
+                <div id="operator-routes-container" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
+                    <span style="color:#94a3b8;font-size:12px">No routes added</span>
+                </div>
+            </div>
         </div>
 
         <!-- Agent Tab -->
@@ -512,6 +522,16 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div style="margin-bottom:8px">
                 <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px">📦 My Recommendations <span class="count-badge" id="agent-recommendations-count">0</span></div>
                 <div id="agent-recommendations-container"></div>
+            </div>
+            <!-- Preferred Routes - Agent -->
+            <div class="profile-section">
+                <div class="section-header">
+                    <span class="section-title">🗺️ Preferred Routes</span>
+                    <span class="section-badge optional">Optional</span>
+                </div>
+                <div id="agent-routes-container" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
+                    <span style="color:#94a3b8;font-size:12px">No routes added</span>
+                </div>
             </div>
         </div>
 
@@ -610,11 +630,13 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div class="profile-section">
                 <label class="form-label">🗺️ Preferred Routes</label>
                 <div class="route-input-row">
-                    <input class="form-control" id="search-edit-route" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('edit-route')" autocomplete="off">
+                    <div style="flex:2;position:relative">
+                        <input class="form-control" id="search-edit-route" placeholder="Search location/pin..." onclick="selectInputText(this)" oninput="searchLocation('edit-route')" autocomplete="off">
+                        <div class="search-wrapper"><div class="suggestions" id="suggestions-edit-route"></div></div>
+                        <input type="hidden" id="edit-route-hidden">
+                    </div>
                     <button class="section-btn" onclick="addRoute()">Add</button>
                 </div>
-                <div class="search-wrapper"><div class="suggestions" id="suggestions-edit-route"></div></div>
-                <input type="hidden" id="edit-route-hidden">
                 <div id="edit-routes-list" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"></div>
             </div>
             <div class="profile-section">
@@ -629,11 +651,13 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div class="profile-section">
                 <label class="form-label">🗺️ Preferred Routes</label>
                 <div class="route-input-row">
-                    <input class="form-control" id="search-edit-agent-route" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('edit-agent-route')" autocomplete="off">
+                    <div style="flex:2;position:relative">
+                        <input class="form-control" id="search-edit-agent-route" placeholder="Search location/pin..." onclick="selectInputText(this)" oninput="searchLocation('edit-agent-route')" autocomplete="off">
+                        <div class="search-wrapper"><div class="suggestions" id="suggestions-edit-agent-route"></div></div>
+                        <input type="hidden" id="edit-agent-route-hidden">
+                    </div>
                     <button class="section-btn" onclick="addAgentRoute()">Add</button>
                 </div>
-                <div class="search-wrapper"><div class="suggestions" id="suggestions-edit-agent-route"></div></div>
-                <input type="hidden" id="edit-agent-route-hidden">
                 <div id="edit-agent-routes-list" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"></div>
             </div>
             <div class="profile-section">
@@ -804,7 +828,7 @@ var LOCATIONS = [
 ];
 
 // ============================================================
-// VEHICLE TYPES - Complete categorized list
+// VEHICLE TYPES
 // ============================================================
 var VEHICLE_TYPES = [
   '3-Wheeler / Tempo',
@@ -918,7 +942,7 @@ function dist(lat1,lng1,lat2,lng2){
 }
 
 // ============================================================
-// SEARCH LOCATION
+// SEARCH LOCATION - FIXED for all contexts
 // ============================================================
 function searchLocation(ctx){
     var inp=$('search-'+ctx);
@@ -1419,23 +1443,27 @@ function cancelPost(){goHome()}
 function closeDetail(){detail=null;goHome()}
 
 // ============================================================
-// ROUTE FUNCTIONS
+// ROUTE FUNCTIONS - FIXED with search working
 // ============================================================
 function addRoute(){
     var route=$('edit-route-hidden').value;
-    if(!route){ return; }
+    if(!route){ toast('Please search and select a location first'); return; }
     var routeInt=parseInt(route);
-    if(isNaN(routeInt)){ return; }
-    if(routes.indexOf(routeInt)!==-1){ return; }
+    if(isNaN(routeInt)){ toast('Invalid location'); return; }
+    if(routes.indexOf(routeInt)!==-1){ toast('Route already added'); return; }
     routes.push(routeInt); 
     $('search-edit-route').value=''; 
     $('edit-route-hidden').value=''; 
     renderRoutes();
     var sug=$('suggestions-edit-route');
     if(sug){ sug.classList.remove('show'); sug.innerHTML=''; }
+    toast('Route added successfully');
 }
 
-function removeRoute(r){ routes=routes.filter(function(x){return x!==r}); renderRoutes(); }
+function removeRoute(r){ 
+    routes=routes.filter(function(x){return x!==r}); 
+    renderRoutes(); 
+}
 
 function renderRoutes(){
     var container=$('edit-routes-list');
@@ -1449,19 +1477,23 @@ function renderRoutes(){
 
 function addAgentRoute(){
     var route=$('edit-agent-route-hidden').value;
-    if(!route){ return; }
+    if(!route){ toast('Please search and select a location first'); return; }
     var routeInt=parseInt(route);
-    if(isNaN(routeInt)){ return; }
-    if(agentRoutes.indexOf(routeInt)!==-1){ return; }
+    if(isNaN(routeInt)){ toast('Invalid location'); return; }
+    if(agentRoutes.indexOf(routeInt)!==-1){ toast('Route already added'); return; }
     agentRoutes.push(routeInt); 
     $('search-edit-agent-route').value=''; 
     $('edit-agent-route-hidden').value=''; 
     renderAgentRoutes();
     var sug=$('suggestions-edit-agent-route');
     if(sug){ sug.classList.remove('show'); sug.innerHTML=''; }
+    toast('Route added successfully');
 }
 
-function removeAgentRoute(r){ agentRoutes=agentRoutes.filter(function(x){return x!==r}); renderAgentRoutes(); }
+function removeAgentRoute(r){ 
+    agentRoutes=agentRoutes.filter(function(x){return x!==r}); 
+    renderAgentRoutes(); 
+}
 
 function renderAgentRoutes(){
     var container=$('edit-agent-routes-list');
@@ -1527,7 +1559,7 @@ function loadProfile(){
         container.innerHTML = '<span class="section-badge optional">No user type selected</span>';
     }
     
-    // About/Details - show only if any details exist
+    // About/Details
     var hasDetails = user.load_giver_details || user.fleet_operator_details || user.agent_details;
     if(hasDetails){
         $('profile-about').style.display = 'block';
@@ -1543,6 +1575,39 @@ function loadProfile(){
     loadMyTrucks();
     loadAgentRecommendations();
     loadStats();
+    
+    // Load operator routes
+    loadOperatorRoutes();
+    // Load agent routes
+    loadAgentRoutesView();
+}
+
+function loadOperatorRoutes(){
+    var container = $('operator-routes-container');
+    if(!container) return;
+    if(user.preferred_routes && user.preferred_routes.length){
+        container.innerHTML = user.preferred_routes.map(function(r){
+            var loc = getLoc(r);
+            var display = loc ? getLocDisplayName(loc) : r;
+            return '<span class="route-tag">'+display+'</span>';
+        }).join('');
+    } else {
+        container.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>';
+    }
+}
+
+function loadAgentRoutesView(){
+    var container = $('agent-routes-container');
+    if(!container) return;
+    if(user.agent_routes && user.agent_routes.length){
+        container.innerHTML = user.agent_routes.map(function(r){
+            var loc = getLoc(r);
+            var display = loc ? getLocDisplayName(loc) : r;
+            return '<span class="route-tag">'+display+'</span>';
+        }).join('');
+    } else {
+        container.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>';
+    }
 }
 
 async function loadMyLoads(){
@@ -1600,7 +1665,6 @@ async function loadMyTrucks(){
 async function loadAgentRecommendations(){
     if(!user) return;
     try{
-        // Get loads where agent is recommended (agents array contains user.mobile)
         var {data:loads, error}=await sb.from('active_loads').select('*').contains('agents', [parseInt(user.mobile)]).eq('status',1);
         if(error){ console.error('Error loading recommendations:', error); return; }
         var container=$('agent-recommendations-container');
