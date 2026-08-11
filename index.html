@@ -1438,21 +1438,105 @@ function closeDetail(){detail=null;goHome()}
 // PROFILE FUNCTIONS
 // ============================================================
 function loadProfile(){
-    if(!user)return;
-    console.log('Loading profile for user:', user);
-    $('profile-mobile').textContent=user.mobile||'--';
-    if(user.last_active){ var d=new Date(user.last_active); $('profile-last-active').textContent=d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}); }
-    
-    if(user.company_name){ 
-        $('lg-company-display').textContent=user.company_name; 
-        $('fo-company-display').textContent=user.company_name;
-        $('agent-company-display').textContent=user.company_name;
+    if(!user) {
+        console.log('No user found');
+        return;
     }
-    if(user.company_web){ $('lg-web-display').textContent=user.company_web; }
-    if(user.load_giver_details){ $('lg-company-display').innerHTML += '<div style="font-size:11px;color:#64748b;margin-top:4px">'+user.load_giver_details.substring(0,100)+'...</div>'; }
-    if(user.fleet_operator_details){ $('fo-company-display').innerHTML = '<div style="font-size:11px;color:#64748b;margin-top:4px">'+user.fleet_operator_details.substring(0,100)+'...</div>'; }
-    if(user.agent_details){ $('agent-company-display').innerHTML = '<div style="font-size:11px;color:#64748b;margin-top:4px">'+user.agent_details.substring(0,100)+'...</div>'; }
     
+    console.log('Loading profile for user:', user);
+    
+    // Display mobile number
+    $('profile-mobile').textContent = user.mobile || '--';
+    
+    // Display last active date
+    if(user.last_active){ 
+        var d = new Date(user.last_active); 
+        $('profile-last-active').textContent = d.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}); 
+    }
+    
+    // ===== CRITICAL FIX: Display company name =====
+    // Check if company_name exists and display it
+    var companyName = user.company_name || 'Not set';
+    
+    // Update Load Giver display
+    var lgDisplay = $('lg-company-display');
+    if(lgDisplay) {
+        lgDisplay.innerHTML = companyName;
+        // If there are load giver details, append them
+        if(user.load_giver_details){ 
+            var detailText = user.load_giver_details;
+            if(detailText.length > 100) detailText = detailText.substring(0,100)+'...';
+            lgDisplay.innerHTML += '<div style="font-size:11px;color:#64748b;margin-top:4px">'+detailText+'</div>';
+        }
+    }
+    
+    // Update Fleet Operator display
+    var foDisplay = $('fo-company-display');
+    if(foDisplay) {
+        foDisplay.innerHTML = companyName;
+        if(user.fleet_operator_details){ 
+            var detailText = user.fleet_operator_details;
+            if(detailText.length > 100) detailText = detailText.substring(0,100)+'...';
+            foDisplay.innerHTML += '<div style="font-size:11px;color:#64748b;margin-top:4px">'+detailText+'</div>';
+        }
+    }
+    
+    // Update Agent display
+    var agentDisplay = $('agent-company-display');
+    if(agentDisplay) {
+        agentDisplay.innerHTML = companyName;
+        if(user.agent_details){ 
+            var detailText = user.agent_details;
+            if(detailText.length > 100) detailText = detailText.substring(0,100)+'...';
+            agentDisplay.innerHTML += '<div style="font-size:11px;color:#64748b;margin-top:4px">'+detailText+'</div>';
+        }
+    }
+    
+    // Display website
+    $('lg-web-display').textContent = user.company_web || '--';
+    
+    // Update user type badges
+    if(user.user_type && user.user_type.length){
+        var types = user.user_type;
+        
+        // Load Giver badge
+        var lgBadge = document.querySelector('#lg-badge');
+        if(lgBadge) {
+            if(types.includes(1)) {
+                lgBadge.textContent = '✅ Active';
+                lgBadge.className = 'section-badge active';
+            } else {
+                lgBadge.textContent = '⚠️ Inactive';
+                lgBadge.className = 'section-badge required';
+            }
+        }
+        
+        // Operator badge
+        var foBadge = document.querySelector('#fo-badge');
+        if(foBadge) {
+            if(types.includes(2)) {
+                foBadge.textContent = '✅ Active';
+                foBadge.className = 'section-badge active';
+            } else {
+                foBadge.textContent = '⚠️ Required';
+                foBadge.className = 'section-badge required';
+            }
+        }
+        
+        // Agent badge
+        var agentBadge = document.querySelector('#tab-agent .section-badge');
+        if(agentBadge) {
+            if(types.includes(3)) {
+                agentBadge.textContent = '✅ Active';
+                agentBadge.className = 'section-badge active';
+            } else {
+                agentBadge.textContent = 'Optional';
+                agentBadge.className = 'section-badge optional';
+            }
+        }
+    }
+    
+    // Load vehicles, loads, trucks
     loadProfileVehicles();
     loadMyLoads();
     loadMyTrucks();
@@ -1547,13 +1631,44 @@ function openEditProfile(){
         alert('Please login first');
         return;
     }
+    
     console.log('Opening edit profile for user:', user);
-    $('edit-name').value=user.name||'';
-    $('edit-company').value=user.company_name||'';
-    $('edit-website').value=user.company_web||'';
-    $('edit-pan').value=user.pan||'';
-    $('edit-gst').value=user.gst||'';
-    if(user.location){ var loc=getLoc(user.location); if(loc){ $('search-edit-location').value=getLocDisplayName(loc); $('edit-location-hidden').value=user.location; } }
+    
+    // Fetch latest data from database
+    var mobileNum = parseInt(user.mobile);
+    sb.from('active_users')
+      .select('*')
+      .eq('mobile', mobileNum)
+      .single()
+      .then(function(result){
+          if(result.data){
+              // Update user object with latest data
+              Object.assign(user, result.data);
+              console.log('Refreshed user data:', user);
+          }
+          // Populate the form
+          populateEditForm();
+      })
+      .catch(function(err){
+          console.error('Error refreshing user data:', err);
+          populateEditForm();
+      });
+}
+
+function populateEditForm(){
+    $('edit-name').value = user.name || '';
+    $('edit-company').value = user.company_name || '';
+    $('edit-website').value = user.company_web || '';
+    $('edit-pan').value = user.pan || '';
+    $('edit-gst').value = user.gst || '';
+    
+    if(user.location){ 
+        var loc = getLoc(user.location); 
+        if(loc){ 
+            $('search-edit-location').value = getLocDisplayName(loc); 
+            $('edit-location-hidden').value = user.location; 
+        } 
+    }
     
     if(user.user_type && user.user_type.length){
         var types = user.user_type;
@@ -1562,16 +1677,16 @@ function openEditProfile(){
         $('edit-type-agent').checked = types.indexOf(3) !== -1;
     }
     
-    vehicles=user.vehicle_no||[];
+    vehicles = user.vehicle_no || [];
     renderVehicles();
     
-    $('edit-lg-about').value=user.load_giver_details||'';
-    $('edit-fo-about').value=user.fleet_operator_details||'';
-    $('edit-agent-about').value=user.agent_details||'';
+    $('edit-lg-about').value = user.load_giver_details || '';
+    $('edit-fo-about').value = user.fleet_operator_details || '';
+    $('edit-agent-about').value = user.agent_details || '';
     updateCharCount('edit-lg-about','edit-lg-count');
     updateCharCount('edit-fo-about','edit-fo-count');
     updateCharCount('edit-agent-about','edit-agent-count');
-    switchPage('edit-profile-page',4);
+    switchPage('edit-profile-page', 4);
 }
 
 function closeEditProfile(){ goHome(); }
@@ -1634,15 +1749,12 @@ function saveProfile(){
         load_giver_details: $('edit-lg-about').value.trim() || null,
         fleet_operator_details: $('edit-fo-about').value.trim() || null,
         agent_details: $('edit-agent-about').value.trim() || null,
-        last_active: new Date().toISOString()  // <-- FIXED: use last_active
+        last_active: new Date().toISOString()
     };
     
     console.log('Update data:', updateData);
     
-    var mobileNum = user.mobile;
-    if(typeof mobileNum === 'string' && mobileNum.length === 10){
-        mobileNum = parseInt(mobileNum);
-    }
+    var mobileNum = parseInt(user.mobile);
     
     sb.from('active_users')
       .update(updateData)
@@ -1654,10 +1766,42 @@ function saveProfile(){
               return; 
           }
           console.log('Profile saved successfully:', result);
-          Object.assign(user, updateData);
-          alert('✅ Profile saved successfully!');
-          closeEditProfile(); 
-          loadProfile(); 
+          
+          // ===== CRITICAL FIX: Fetch fresh user data =====
+          sb.from('active_users')
+            .select('*')
+            .eq('mobile', mobileNum)
+            .single()
+            .then(function(freshResult){
+                if(freshResult.data){
+                    // Update user object with fresh data
+                    Object.assign(user, freshResult.data);
+                    console.log('Updated user object:', user);
+                    
+                    // Update localStorage
+                    var saved = localStorage.getItem('rt_user');
+                    if(saved){
+                        var sd = JSON.parse(saved);
+                        sd.user = user;
+                        localStorage.setItem('rt_user', JSON.stringify(sd));
+                    }
+                    
+                    alert('✅ Profile saved successfully!');
+                    closeEditProfile(); 
+                    // Load profile after a small delay
+                    setTimeout(function(){
+                        loadProfile();
+                    }, 300);
+                } else {
+                    alert('✅ Profile saved but refresh failed. Please reload.');
+                    closeEditProfile();
+                }
+            })
+            .catch(function(err){
+                console.error('Error fetching fresh user data:', err);
+                alert('✅ Profile saved! Please refresh the page.');
+                closeEditProfile();
+            });
       })
       .catch(function(err){ 
           console.error('Error saving profile:', err);
