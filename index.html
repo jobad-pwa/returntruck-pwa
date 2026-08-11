@@ -1046,7 +1046,11 @@ function loadProfileVehicles(){
     
     sb.from('active_vehicles').select('*').eq('modified_by', user.mobile)
     .then(function(result){
-        if(result.error){ container.innerHTML='<div style="color:#ef4444;font-size:12px;text-align:center;padding:8px">Error loading vehicles</div>'; return; }
+        if(result.error){ 
+            console.error('Error loading vehicles:', result.error);
+            container.innerHTML='<div style="color:#ef4444;font-size:12px;text-align:center;padding:8px">Error loading vehicles</div>'; 
+            return; 
+        }
         var vehicles=result.data||[];
         if(!vehicles.length){ 
             container.innerHTML='<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>';
@@ -1067,11 +1071,18 @@ function loadProfileVehicles(){
             '</div>';
         }).join('');
         $('stat-vehicles-count').textContent=vehicles.length;
-    }).catch(function(){ container.innerHTML='<div style="color:#ef4444;font-size:12px;text-align:center;padding:8px">Error loading vehicles</div>'; });
+    }).catch(function(err){ 
+        console.error('Error loading vehicles:', err);
+        container.innerHTML='<div style="color:#ef4444;font-size:12px;text-align:center;padding:8px">Error loading vehicles</div>'; 
+    });
 }
 
 function editVehicle(id){
     sb.from('active_vehicles').select('*').eq('id',id).single().then(function(r){
+        if(r.error){
+            alert('Error loading vehicle: ' + r.error.message);
+            return;
+        }
         if(r.data){
             var v=r.data;
             $('td-vehicle-number').value=v.vehicle_number||'';
@@ -1097,7 +1108,10 @@ function editVehicle(id){
 function deleteVehicle(id, number){
     if(!confirm('Delete vehicle '+number+'?')) return;
     sb.from('active_vehicles').delete().eq('id',id).then(function(result){
-        if(result.error){ return; }
+        if(result.error){ 
+            alert('Error deleting vehicle: ' + result.error.message);
+            return; 
+        }
         var current=user.vehicle_no||[];
         current=current.filter(function(v){ return v!==number; });
         sb.from('active_users').update({vehicle_no:current}).eq('mobile',user.mobile).then(function(){
@@ -1162,7 +1176,10 @@ function addTruckRoute(){
 function removeTruckRoute(r){ truckRoutes=truckRoutes.filter(function(x){return x!==r}); renderTruckRoutes(); }
 
 function saveTruckDetails(){
-    if(!user){ return; }
+    if(!user){ 
+        alert('Please login first');
+        return; 
+    }
     var number=$('td-vehicle-number').value.trim().toUpperCase();
     var editId=$('td-edit-id').value;
     var vehicleType = $('td-vehicle-type').value;
@@ -1191,12 +1208,17 @@ function saveTruckDetails(){
         latest_update_at: new Date().toISOString()
     };
     
+    console.log('Saving vehicle data:', data);
+    console.log('User mobile:', user.mobile);
+    
     var query=editId ? sb.from('active_vehicles').update(data).eq('id',editId) : sb.from('active_vehicles').insert(data);
     query.then(function(result){
         if(result.error){ 
+            console.error('Error saving vehicle:', result.error);
             alert('Error saving vehicle: ' + (result.error.message || 'Unknown error'));
             return; 
         }
+        console.log('Vehicle saved successfully:', result.data);
         var current=user.vehicle_no||[];
         if(!current.includes(number)){
             current.push(number);
@@ -1208,6 +1230,7 @@ function saveTruckDetails(){
         closeTruckDetails();
         loadProfile();
     }).catch(function(err){ 
+        console.error('Error saving vehicle:', err);
         alert('Error: ' + err.message);
     });
 }
@@ -1416,6 +1439,7 @@ function closeDetail(){detail=null;goHome()}
 // ============================================================
 function loadProfile(){
     if(!user)return;
+    console.log('Loading profile for user:', user);
     $('profile-mobile').textContent=user.mobile||'--';
     if(user.last_active){ var d=new Date(user.last_active); $('profile-last-active').textContent=d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}); }
     
@@ -1436,54 +1460,75 @@ function loadProfile(){
 }
 
 async function loadMyLoads(){
-    var {data:loads}=await sb.from('active_loads').select('*').eq('mobile',user.mobile).eq('status',1);
-    var container=$('my-loads-container');
-    var count=$('my-loads-count');
-    if(!loads||!loads.length){ container.innerHTML='<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No loads posted</div>'; count.textContent='0'; return; }
-    count.textContent=loads.length;
-    container.innerHTML=loads.map(function(l){
-        var statusClass=l.expiry_date&&new Date(l.expiry_date)<new Date()?'expired':'active';
-        var statusText=l.expiry_date&&new Date(l.expiry_date)<new Date()?'Expired':'Active';
-        var expiryDate=l.expiry_date?new Date(l.expiry_date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'N/A';
-        return '<div class="list-item">'+
-            '<div class="title">'+l.material+' • '+getLocName(l.pickup_pin_id)+' → '+getLocName(l.drop_pin_id)+' • ₹'+(l.rate||0).toLocaleString()+'</div>'+
-            '<div class="sub">📅 '+expiryDate+' • <span class="status-badge '+statusClass+'">'+statusText+'</span></div>'+
-            '<div class="actions">'+
-                '<button class="edit" onclick="editLoadItem(\''+l.id+'\')">✏️ Edit</button>'+
-                '<button class="delete" onclick="deleteLoadItem(\''+l.id+'\')">🗑️ Delete</button>'+
-                '<button class="interests" onclick="viewInterests(\''+l.id+'\')">🤝 '+((l.interests||[]).length||0)+'</button>'+
-            '</div>'+
-        '</div>';
-    }).join('');
+    try{
+        var {data:loads, error}=await sb.from('active_loads').select('*').eq('mobile',user.mobile).eq('status',1);
+        if(error){
+            console.error('Error loading my loads:', error);
+            return;
+        }
+        var container=$('my-loads-container');
+        var count=$('my-loads-count');
+        if(!loads||!loads.length){ container.innerHTML='<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No loads posted</div>'; count.textContent='0'; return; }
+        count.textContent=loads.length;
+        container.innerHTML=loads.map(function(l){
+            var expiryDate=l.pickup_date?new Date(l.pickup_date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'N/A';
+            return '<div class="list-item">'+
+                '<div class="title">'+l.material+' • '+getLocName(l.pickup_pin)+' → '+getLocName(l.drop_pin)+' • ⚖️ '+l.weight+'Kg</div>'+
+                '<div class="sub">📅 '+expiryDate+' • 🚛 '+l.vehicle_type+'</div>'+
+                '<div class="actions">'+
+                    '<button class="edit" onclick="editLoadItem(\''+l.id+'\')">✏️ Edit</button>'+
+                    '<button class="delete" onclick="deleteLoadItem(\''+l.id+'\')">🗑️ Delete</button>'+
+                    '<button class="interests" onclick="viewInterests(\''+l.id+'\')">🤝 '+((l.interests||[]).length||0)+'</button>'+
+                '</div>'+
+            '</div>';
+        }).join('');
+    }catch(err){
+        console.error('Error loading my loads:', err);
+    }
 }
 
 async function loadMyTrucks(){
-    var {data:trucks}=await sb.from('active_trucks').select('*').eq('mobile',user.mobile).eq('status',1);
-    var container=$('my-trucks-container');
-    var count=$('my-trucks-count');
-    if(!trucks||!trucks.length){ container.innerHTML='<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No trucks listed</div>'; count.textContent='0'; return; }
-    count.textContent=trucks.length;
-    container.innerHTML=trucks.map(function(t){
-        var expiryDate=t.available_from?new Date(t.available_from).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'N/A';
-        return '<div class="list-item">'+
-            '<div class="title">'+t.truck_no+' • '+t.vehicle_type+' • '+getLocName(t.location_pin_id)+'</div>'+
-            '<div class="sub">📅 '+expiryDate+' • 🏷️ ₹'+(t.rate_km||0)+'/km</div>'+
-            '<div class="actions">'+
-                '<button class="edit" onclick="editTruckItem(\''+t.id+'\')">✏️ Edit</button>'+
-                '<button class="delete" onclick="deleteTruckItem(\''+t.id+'\',\''+t.truck_no+'\')">🗑️ Delete</button>'+
-                '<button class="interests" onclick="viewInterests(\''+t.id+'\')">🤝 '+((t.interested||[]).length||0)+'</button>'+
-            '</div>'+
-        '</div>';
-    }).join('');
+    try{
+        var {data:trucks, error}=await sb.from('active_trucks').select('*').eq('mobile',user.mobile).eq('status',1);
+        if(error){
+            console.error('Error loading my trucks:', error);
+            return;
+        }
+        var container=$('my-trucks-container');
+        var count=$('my-trucks-count');
+        if(!trucks||!trucks.length){ container.innerHTML='<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No trucks listed</div>'; count.textContent='0'; return; }
+        count.textContent=trucks.length;
+        container.innerHTML=trucks.map(function(t){
+            var expiryDate=t.available_from?new Date(t.available_from).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'N/A';
+            return '<div class="list-item">'+
+                '<div class="title">'+t.truck_no+' • '+t.vehicle_type+' • '+getLocName(t.location_pin)+'</div>'+
+                '<div class="sub">📅 '+expiryDate+' • 🏷️ ₹'+(t.rate_km||0)+'/km</div>'+
+                '<div class="actions">'+
+                    '<button class="edit" onclick="editTruckItem(\''+t.id+'\')">✏️ Edit</button>'+
+                    '<button class="delete" onclick="deleteTruckItem(\''+t.id+'\',\''+t.truck_no+'\')">🗑️ Delete</button>'+
+                    '<button class="interests" onclick="viewInterests(\''+t.id+'\')">🤝 '+((t.interested||[]).length||0)+'</button>'+
+                '</div>'+
+            '</div>';
+        }).join('');
+    }catch(err){
+        console.error('Error loading my trucks:', err);
+    }
 }
 
 async function loadStats(){
-    var {count:loads}=await sb.from('active_loads').select('*',{count:'exact',head:true}).eq('mobile',user.mobile).eq('status',1);
-    var {count:trucks}=await sb.from('active_trucks').select('*',{count:'exact',head:true}).eq('mobile',user.mobile).eq('status',1);
-    var {count:vehicles}=await sb.from('active_vehicles').select('*',{count:'exact',head:true}).eq('modified_by',user.mobile);
-    $('stat-loads-count').textContent=loads||0;
-    $('stat-trucks-count').textContent=trucks||0;
-    $('stat-vehicles-count').textContent=vehicles||0;
+    try{
+        var {count:loads, error:loadsErr}=await sb.from('active_loads').select('*',{count:'exact',head:true}).eq('mobile',user.mobile).eq('status',1);
+        var {count:trucks, error:trucksErr}=await sb.from('active_trucks').select('*',{count:'exact',head:true}).eq('mobile',user.mobile).eq('status',1);
+        var {count:vehicles, error:vehiclesErr}=await sb.from('active_vehicles').select('*',{count:'exact',head:true}).eq('modified_by',user.mobile);
+        if(loadsErr) console.error('Error loading load stats:', loadsErr);
+        if(trucksErr) console.error('Error loading truck stats:', trucksErr);
+        if(vehiclesErr) console.error('Error loading vehicle stats:', vehiclesErr);
+        $('stat-loads-count').textContent=loads||0;
+        $('stat-trucks-count').textContent=trucks||0;
+        $('stat-vehicles-count').textContent=vehicles||0;
+    }catch(err){
+        console.error('Error loading stats:', err);
+    }
 }
 
 function switchProfileTab(tab){
@@ -1498,7 +1543,11 @@ function switchProfileTab(tab){
 }
 
 function openEditProfile(){
-    if(!user){return}
+    if(!user){
+        alert('Please login first');
+        return;
+    }
+    console.log('Opening edit profile for user:', user);
     $('edit-name').value=user.name||'';
     $('edit-company').value=user.company_name||'';
     $('edit-website').value=user.company_web||'';
@@ -1559,6 +1608,14 @@ function switchEditTab(tab){
 }
 
 function saveProfile(){
+    if(!user || !user.mobile){
+        alert('User not logged in. Please login again.');
+        return;
+    }
+    
+    console.log('Saving profile for user:', user);
+    console.log('User mobile:', user.mobile);
+    
     var userTypes=[];
     if($('edit-type-loadgiver').checked) userTypes.push(1);
     if($('edit-type-operator').checked) userTypes.push(2);
@@ -1567,28 +1624,51 @@ function saveProfile(){
     var location=$('edit-location-hidden').value ? parseInt($('edit-location-hidden').value) : null;
     
     var updateData={
-        name:$('edit-name').value||null,
-        company_name:$('edit-company').value||null,
-        company_web:$('edit-website').value||null,
-        pan:$('edit-pan').value||null,
-        gst:$('edit-gst').value||null,
-        location:location,
-        user_type:userTypes.length ? userTypes : null,
-        vehicle_no:vehicles.length ? vehicles : null,
-        load_giver_details:$('edit-lg-about').value||null,
-        fleet_operator_details:$('edit-fo-about').value||null,
-        agent_details:$('edit-agent-about').value||null,
-        updated_at:new Date().toISOString()
+        name: $('edit-name').value.trim() || null,
+        company_name: $('edit-company').value.trim() || null,
+        company_web: $('edit-website').value.trim() || null,
+        pan: $('edit-pan').value.trim() || null,
+        gst: $('edit-gst').value.trim() || null,
+        location: location,
+        user_type: userTypes.length ? userTypes : null,
+        vehicle_no: vehicles.length ? vehicles : null,
+        load_giver_details: $('edit-lg-about').value.trim() || null,
+        fleet_operator_details: $('edit-fo-about').value.trim() || null,
+        agent_details: $('edit-agent-about').value.trim() || null,
+        updated_at: new Date().toISOString()
     };
     
-    sb.from('active_users').update(updateData).eq('mobile',user.mobile).then(function(result){
-        if(result.error){ return; }
-        else { 
-            Object.assign(user,updateData); 
-            closeEditProfile(); 
-            loadProfile(); 
-        }
-    }).catch(function(){});
+    console.log('Update data:', updateData);
+    
+    // Try both: mobile as number and as string
+    var mobileNum = user.mobile;
+    // If mobile is stored as string, try parsing it
+    if(typeof mobileNum === 'string' && mobileNum.length === 10){
+        mobileNum = parseInt(mobileNum);
+    }
+    
+    console.log('Using mobile number:', mobileNum);
+    
+    sb.from('active_users')
+      .update(updateData)
+      .eq('mobile', mobileNum)
+      .then(function(result){
+          if(result.error){ 
+              console.error('Error saving profile:', result.error);
+              alert('Error saving profile: ' + result.error.message);
+              return; 
+          }
+          console.log('Profile saved successfully:', result);
+          // Update local user object
+          Object.assign(user, updateData);
+          alert('✅ Profile saved successfully!');
+          closeEditProfile(); 
+          loadProfile(); 
+      })
+      .catch(function(err){ 
+          console.error('Error saving profile:', err);
+          alert('Error: ' + err.message);
+      });
 }
 
 // ============================================================
@@ -1603,10 +1683,10 @@ function publishLoad(){
         material:$('pl-material').value,
         weight:parseInt($('pl-weight').value)||0,
         dimensions:$('pl-dim').value||'',
-        pickup_pin_id:parseInt(pickupPinId),
-        drop_pin_id:parseInt(dropPinId),
+        pickup_pin:parseInt(pickupPinId),
+        drop_pin:parseInt(dropPinId),
         rate:parseFloat($('pl-rate').value)||0,
-        expiry_date:$('pl-date').value||null,
+        pickup_date:$('pl-date').value||null,
         company:user.company_name||'',
         mobile:user.mobile,
         status:1,
@@ -1617,8 +1697,17 @@ function publishLoad(){
         updated_at:new Date().toISOString()
     };
     sb.from('active_loads').insert(loadData).then(function(result){
-        if(result.error){return}else{goHome()}
-    }).catch(function(){});
+        if(result.error){ 
+            console.error('Error publishing load:', result.error);
+            alert('Error: ' + result.error.message);
+            return;
+        }
+        console.log('Load published:', result);
+        goHome()
+    }).catch(function(err){ 
+        console.error('Error publishing load:', err);
+        alert('Error: ' + err.message);
+    });
 }
 
 function publishTruck(){
@@ -1632,7 +1721,7 @@ function publishTruck(){
     }
     var truckData={
         truck_no:number,
-        location_pin_id:parseInt(locationPinId),
+        location_pin:parseInt(locationPinId),
         available_from:$('pt-available').value||null,
         rate_km:parseFloat($('pt-rate-km').value)||0,
         driver_name:$('pt-driver').value||'',
@@ -1648,8 +1737,17 @@ function publishTruck(){
         updated_at:new Date().toISOString()
     };
     sb.from('active_trucks').insert(truckData).then(function(result){
-        if(result.error){return}else{goHome()}
-    }).catch(function(){});
+        if(result.error){
+            console.error('Error publishing truck:', result.error);
+            alert('Error: ' + result.error.message);
+            return;
+        }
+        console.log('Truck published:', result);
+        goHome()
+    }).catch(function(err){ 
+        console.error('Error publishing truck:', err);
+        alert('Error: ' + err.message);
+    });
 }
 
 function autoFetchVehicle(){
@@ -1657,11 +1755,14 @@ function autoFetchVehicle(){
     if(!number){ return; }
     sb.from('active_vehicles').select('*').eq('vehicle_number', number).eq('modified_by', user.mobile).maybeSingle()
     .then(function(result){
-        if(result.error){ return; }
+        if(result.error){ 
+            console.error('Error fetching vehicle:', result.error);
+            return; 
+        }
         if(!result.data){ return; }
         var v=result.data;
         $('pt-number').value=v.vehicle_number;
-    }).catch(function(){});
+    }).catch(function(err){ console.error('Error fetching vehicle:', err); });
 }
 
 // ============================================================
@@ -1745,6 +1846,7 @@ async function checkUserAndShowStep(mobileNum){
             sendWhatsAppOTP();
         }
     }catch(e){
+        console.error('Error checking user:', e);
         $('step1').classList.add('hidden');
         $('step2').classList.remove('hidden');
         $('display-mobile').textContent=mobileNum;
@@ -1822,7 +1924,7 @@ async function registerUser(){
         var result=await resp.json();
         if(result.success===true&&result.user){ user=result.user; user.mobile=mobile; localStorage.setItem('rt_user', JSON.stringify({mobile:user.mobile,user:user})); guest=false; showHome(); return; }
         else if(result.code==='USER_EXISTS_ACTIVE'||result.code==='USER_ARCHIVED'){ resetForm(); $('mobile').value=mobile; $('step1').classList.add('hidden'); $('step2').classList.remove('hidden'); $('display-mobile').textContent=mobile; }
-    }catch(e){ console.error('Error:',e); }
+    }catch(e){ console.error('Registration error:',e); }
     finally{ btn.textContent=otpPurpose==='reset'?'🔄 Reset PIN':'✅ Create Account'; btn.disabled=false; }
 }
 
@@ -1835,7 +1937,7 @@ function openChangePin(){
         method:'POST',
         headers:{'Content-Type':'application/json','Accept':'application/json','Authorization':'Bearer '+SB_KEY},
         body:JSON.stringify({mobile:user.mobile,current_pin:currentPin,new_pin:newPin})
-    }).then(function(r){return r.json()}).then(function(result){ if(result.success===true){}}).catch(function(e){console.error('Change PIN error:',e)});
+    }).then(function(r){return r.json()}).then(function(result){ if(result.success===true){ alert('PIN changed successfully!'); }else{ alert('Error: '+result.error); }}).catch(function(e){console.error('Change PIN error:',e)});
 }
 
 function logout(){ if(confirm('Logout?')){ localStorage.removeItem('rt_user'); window.location.reload(); } }
