@@ -366,13 +366,27 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
         </div>
 
-        <!-- Material Type -->
+        <!-- Material Type - Simple Dropdown -->
         <div class="profile-section">
             <label class="form-label">📦 Material Type *</label>
-            <div class="vehicle-type-select">
-                <input class="form-control" id="pl-material" placeholder="Search or select material..." onclick="showMaterialDropdown()" oninput="filterMaterials(this.value)" autocomplete="off">
-                <div class="dropdown" id="pl-material-dropdown"></div>
-            </div>
+            <select class="form-control" id="pl-material">
+                <option value="">Select material type...</option>
+                <option value="Steel Pipes">Steel Pipes</option>
+                <option value="Cement Bags">Cement Bags</option>
+                <option value="Construction Material">Construction Material</option>
+                <option value="Agricultural Products">Agricultural Products</option>
+                <option value="FMCG Goods">FMCG Goods</option>
+                <option value="Industrial Machinery">Industrial Machinery</option>
+                <option value="Electronics & Appliances">Electronics & Appliances</option>
+                <option value="Automobile Parts">Automobile Parts</option>
+                <option value="Food & Beverages">Food & Beverages</option>
+                <option value="Chemicals (Non-Hazardous)">Chemicals (Non-Hazardous)</option>
+                <option value="Textiles & Garments">Textiles & Garments</option>
+                <option value="Paper & Packaging">Paper & Packaging</option>
+                <option value="Wood & Timber">Wood & Timber</option>
+                <option value="Plastic & Rubber">Plastic & Rubber</option>
+                <option value="Other">Other</option>
+            </select>
         </div>
 
         <!-- Weight & Dimensions -->
@@ -425,13 +439,15 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
         </div>
 
-        <!-- Pickup & Drop PIN -->
+        <!-- Pickup & Drop PIN with Search -->
         <div class="grid-2" style="gap:10px;margin-bottom:10px">
             <div class="profile-section" style="padding:12px;margin-bottom:0">
                 <label class="form-label">📍 Pickup PIN *</label>
                 <div style="position:relative">
                     <input type="text" id="search-pl-pickup" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('pl-pickup')" autocomplete="off" class="form-control">
-                    <div class="search-wrapper"><div class="suggestions" id="suggestions-pl-pickup"></div></div>
+                    <div class="search-wrapper" style="position:relative">
+                        <div class="suggestions" id="suggestions-pl-pickup"></div>
+                    </div>
                     <input type="hidden" id="pl-pickup-hidden">
                 </div>
             </div>
@@ -439,7 +455,9 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <label class="form-label">📍 Drop PIN *</label>
                 <div style="position:relative">
                     <input type="text" id="search-pl-drop" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('pl-drop')" autocomplete="off" class="form-control">
-                    <div class="search-wrapper"><div class="suggestions" id="suggestions-pl-drop"></div></div>
+                    <div class="search-wrapper" style="position:relative">
+                        <div class="suggestions" id="suggestions-pl-drop"></div>
+                    </div>
                     <input type="hidden" id="pl-drop-hidden">
                 </div>
             </div>
@@ -451,7 +469,9 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div class="route-input-row">
                 <div style="flex:2;position:relative">
                     <input class="form-control" id="search-pl-agent" placeholder="Search agent by name or mobile..." onclick="selectInputText(this)" oninput="searchAgents(this.value)" autocomplete="off">
-                    <div class="search-wrapper"><div class="suggestions" id="suggestions-pl-agent"></div></div>
+                    <div class="search-wrapper" style="position:relative">
+                        <div class="suggestions" id="suggestions-pl-agent"></div>
+                    </div>
                 </div>
                 <button class="section-btn" onclick="addRecommendedAgent()">Add</button>
             </div>
@@ -518,7 +538,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
-<!-- ==================== PROFILE PAGE (ENHANCED) ==================== -->
+<!-- ==================== PROFILE PAGE (CLEAN VERSION) ==================== -->
 <div id="profile-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <div class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></div>
@@ -964,70 +984,6 @@ function $(id){return document.getElementById(id)}
 function toast(msg){alert(msg)}
 
 // ============================================================
-// MATERIAL DROPDOWN
-// ============================================================
-function populateMaterialDropdown(){
-    var dropdown=$('pl-material-dropdown');
-    var html='';
-    MATERIAL_TYPES.forEach(function(type){
-        html+='<div class="item" onclick="selectMaterial(\''+type+'\')">'+type+'</div>';
-    });
-    html+='<div class="item" style="color:#2563eb;font-weight:600;border-top:1px solid #e2e8f0" onclick="suggestNewMaterial()">➕ Suggest New Material</div>';
-    dropdown.innerHTML=html;
-}
-
-function showMaterialDropdown(){
-    var dropdown=$('pl-material-dropdown');
-    dropdown.classList.add('show');
-    filterMaterials($('pl-material').value);
-}
-
-function filterMaterials(query){
-    var dropdown=$('pl-material-dropdown');
-    var items=dropdown.querySelectorAll('.item');
-    var q=query.toLowerCase().trim();
-    var hasMatch=false;
-    items.forEach(function(item){
-        var text=item.textContent.toLowerCase();
-        if(!q || text.includes(q)){
-            item.style.display='block';
-            hasMatch=true;
-        }else{
-            item.style.display='none';
-        }
-    });
-    if(!q || hasMatch){
-        dropdown.classList.add('show');
-    }else{
-        dropdown.classList.remove('show');
-    }
-}
-
-function selectMaterial(type){
-    $('pl-material').value=type;
-    $('pl-material-dropdown').classList.remove('show');
-}
-
-function suggestNewMaterial(){
-    var newMaterial=prompt('Enter new material type:');
-    if(newMaterial && newMaterial.trim()){
-        MATERIAL_TYPES.push(newMaterial.trim());
-        populateMaterialDropdown();
-        $('pl-material').value=newMaterial.trim();
-        $('pl-material-dropdown').classList.remove('show');
-        toast('New material "'+newMaterial.trim()+'" added!');
-    }
-}
-
-document.addEventListener('click', function(e){
-    var container=e.target.closest('.vehicle-type-select');
-    if(!container){
-        var dropdown=$('pl-material-dropdown');
-        if(dropdown) dropdown.classList.remove('show');
-    }
-});
-
-// ============================================================
 // AGENT SEARCH FOR RECOMMENDATIONS
 // ============================================================
 var agentSearchResults=[];
@@ -1039,7 +995,7 @@ function searchAgents(query){
     if(!q || q.length<2){ sug.classList.remove('show'); sug.innerHTML=''; return; }
     
     // Search active_users for agents (user_type contains 3)
-    sb.from('active_users').select('*').or('name.ilike.%'+q+'%,mobile.ilike.%'+q+'%').eq('user_type','{3}')
+    sb.from('active_users').select('*').or('name.ilike.%'+q+'%,mobile.ilike.%'+q+'%').contains('user_type', [3])
     .limit(10)
     .then(function(result){
         if(result.error){ console.error(result.error); return; }
@@ -1062,7 +1018,6 @@ function searchAgents(query){
 }
 
 function selectAgent(mobile, name){
-    // Check if already added
     if(recommendedAgents.find(function(a){return a.mobile==mobile})){ 
         toast('Agent already added');
         $('suggestions-pl-agent').classList.remove('show');
@@ -1089,10 +1044,8 @@ function addRecommendedAgent(){
     var inp=$('search-pl-agent');
     var val=inp.value.trim();
     if(!val){ return; }
-    // Check if val is a mobile number (10 digits)
     if(/^\d{10}$/.test(val)){
-        // Search for user with this mobile
-        sb.from('active_users').select('*').eq('mobile', parseInt(val)).eq('user_type','{3}')
+        sb.from('active_users').select('*').eq('mobile', parseInt(val)).contains('user_type', [3])
         .maybeSingle()
         .then(function(result){
             if(result.data){
@@ -1109,7 +1062,7 @@ function addRecommendedAgent(){
             }
         }).catch(function(){ toast('Error searching agent') });
     }else{
-        toast('Enter a valid 10-digit mobile number');
+        toast('Enter a valid 10-digit mobile number or search by name');
     }
 }
 
@@ -1133,7 +1086,6 @@ document.addEventListener('DOMContentLoaded', function(){
             if(e.key.length===1||e.key==='Backspace'||e.key==='Delete') this.classList.remove('selected');
         });
     });
-    populateMaterialDropdown();
     // Set default pickup date to today
     var today=new Date().toISOString().split('T')[0];
     var pickupDate=$('pl-pickup-date');
@@ -1194,7 +1146,7 @@ function dist(lat1,lng1,lat2,lng2){
 }
 
 // ============================================================
-// SEARCH LOCATION
+// SEARCH LOCATION - Works for all contexts
 // ============================================================
 function searchLocation(ctx){
     var inp=$('search-'+ctx);
@@ -1643,12 +1595,12 @@ items=[];
 
 for(var l=0;l<(loads||[]).length;l++){
     var ld=loads[l];
-    items.push({type:'LOAD',title:ld.material||'Cargo',company:ld.company||'',from_pin_id:ld.pickup_pin_id||'',to_pin_id:ld.drop_pin_id||'',weight:ld.weight||0,vehicle:ld.vehicle_type||'',rate:ld.rate||0,views:ld.views||0,interests:(ld.interests||[]).length,shares:ld.shares||0,id:ld.id});
+    items.push({type:'LOAD',title:ld.material||'Cargo',company:ld.company||'',from_pin_id:ld.pickup_pin||'',to_pin_id:ld.drop_pin||'',weight:ld.weight||0,vehicle:ld.vehicle_type||'',rate:ld.rate||0,views:ld.views||0,interests:(ld.interests||[]).length,shares:ld.shares||0,id:ld.id});
 }
 
 for(var t=0;t<(trucks||[]).length;t++){
     var tk=trucks[t];
-    items.push({type:'TRUCK',title:tk.truck_no||'Truck',company:tk.company_name||'',from_pin_id:tk.location_pin_id||'',to_pin_id:tk.destination_pin_id||'',vehicle:tk.vehicle_type||'',rate:tk.rate_km||0,views:tk.views||0,interests:(tk.interested||[]).length,shares:tk.share||0,id:tk.id});
+    items.push({type:'TRUCK',title:tk.truck_no||'Truck',company:tk.company_name||'',from_pin_id:tk.location_pin||'',to_pin_id:tk.destination_pin||'',vehicle:tk.vehicle_type||'',rate:tk.rate_km||0,views:tk.views||0,interests:(tk.interested||[]).length,shares:tk.share||0,id:tk.id});
 }
 
 var filtered=items.slice();
@@ -1707,20 +1659,17 @@ function goPostLoad(){
     if(user){
         $('pl-company-display').textContent=user.company_name||'Not set';
         $('pl-web-display').textContent=user.company_web||'--';
-        // Show warning if no company name
         if(!user.company_name){
             $('pl-warning').style.display='block';
             $('pl-warning-text').textContent='Load Giver Profile Required - Please add company details';
         }else{
             $('pl-warning').style.display='none';
         }
-        // Check if user is load giver
         if(!user.user_type || !user.user_type.includes(1)){
             $('pl-warning').style.display='block';
             $('pl-warning-text').textContent='You are not registered as a Load Giver. Update your profile.';
         }
     }
-    // Reset form
     recommendedAgents=[];
     renderRecommendedAgents();
     $('pl-edit-id').value='';
@@ -1764,7 +1713,7 @@ function saveDraftLoad(){
         drop_pin: parseInt(dropPin),
         pickup_date: pickupDate,
         instructions: $('pl-instructions').value.trim()||'',
-        status: 0, // Draft
+        status: 0,
         agents: agentMobiles.length?agentMobiles:null,
         created_at: new Date().toISOString(),
         expires_at: new Date(Date.now() + 7*24*60*60*1000).toISOString()
@@ -1808,7 +1757,7 @@ function publishLoad(){
         drop_pin: parseInt(dropPin),
         pickup_date: pickupDate,
         instructions: $('pl-instructions').value.trim()||'',
-        status: 1, // Published
+        status: 1,
         views: 0,
         calls: 0,
         interests: [],
@@ -1877,7 +1826,6 @@ async function loadMyRecommendations(){
     var container=$('my-recommendations-container');
     var count=$('my-recommendations-count');
     
-    // Get all recommended agents from user's loads
     var agentMap={};
     loads.forEach(function(l){
         if(l.agents && l.agents.length){
@@ -1893,7 +1841,6 @@ async function loadMyRecommendations(){
     if(!agentMobiles.length){ container.innerHTML='<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No agents recommended</div>'; count.textContent='0'; return; }
     count.textContent=agentMobiles.length;
     
-    // Fetch agent details
     var {data:agents}=await sb.from('active_users').select('*').in('mobile',agentMobiles.map(Number));
     var agentDetails={};
     if(agents){
@@ -1967,7 +1914,6 @@ function switchProfileTab(tab){
     if(tab==='loadgiver'){ document.querySelector('#tab-loadgiver').classList.add('active'); document.querySelector('.profile-tabs button:first-child').className='active'; }
     else if(tab==='operator'){ document.querySelector('#tab-operator').classList.add('active'); document.querySelectorAll('.profile-tabs button')[1].className='active'; }
     else if(tab==='agent'){ document.querySelector('#tab-agent').classList.add('active'); document.querySelectorAll('.profile-tabs button')[2].className='active'; 
-        // Load agent recommendations when switching to agent tab
         loadAgentRecommendations();
     }
 }
@@ -2024,7 +1970,6 @@ function updateCharCount(id,countId){
     count.textContent=el.value.length;
 }
 
-// Instructions character count
 document.addEventListener('DOMContentLoaded', function(){
     var instr=$('pl-instructions');
     if(instr){
