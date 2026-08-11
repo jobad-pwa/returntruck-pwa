@@ -164,11 +164,9 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .vehicle-suggest-dropdown .item .add-new{color:#2563eb;font-weight:600}
 .vehicle-number-input{font-family:monospace;letter-spacing:0.5px;text-transform:uppercase}
 .dim-input input{text-align:center}
-.agent-tag{background:#e0f2fe;padding:4px 10px;border-radius:6px;font-size:12px;display:inline-block;margin:2px;border:1px solid #bae6fd}
-.agent-tag .remove{color:#dc2626;cursor:pointer;margin-left:6px;font-weight:700}
-.agent-tag .remove:hover{color:#b91c1c}
-.warning-banner{background:#fef3c7;border-left:4px solid #f59e0b;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#92400e}
-.warning-banner .btn-link{color:#2563eb;font-weight:600;cursor:pointer;text-decoration:underline}
+.vehicle-item{display:flex;align-items:center;justify-content:space-between;background:#f8fafc;padding:6px 12px;border-radius:6px;margin-bottom:4px;border:1px solid #e2e8f0}
+.vehicle-item .remove{color:#dc2626;cursor:pointer;font-weight:700;padding:0 4px}
+.vehicle-item .remove:hover{color:#b91c1c}
 </style>
 </head>
 <body>
@@ -464,73 +462,32 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
         </div>
 
-        <!-- About/Details - COMMON ABOVE TABS -->
+        <!-- My Vehicles -->
+        <div class="profile-section">
+            <div class="section-header">
+                <span class="section-title">🚛 My Vehicles</span>
+                <span class="section-badge active" id="vehicle-count-badge">0 Vehicles</span>
+            </div>
+            <div id="profile-vehicles-container">
+                <div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">Loading vehicles...</div>
+            </div>
+        </div>
+
+        <!-- Preferred Routes -->
+        <div class="profile-section">
+            <div class="section-header">
+                <span class="section-title">🗺️ Preferred Routes</span>
+                <span class="section-badge optional">Optional</span>
+            </div>
+            <div id="profile-routes-container" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
+                <span style="color:#94a3b8;font-size:12px">No routes added</span>
+            </div>
+        </div>
+
+        <!-- About/Details -->
         <div class="profile-section" id="profile-about-section">
             <label class="form-label">📝 About / Details</label>
             <div id="profile-details-text" style="font-size:14px;color:#475569;padding:4px 0">No details added</div>
-        </div>
-
-        <!-- Tabs -->
-        <div class="profile-tabs">
-            <button class="active" onclick="switchProfileTab('loadgiver')">Load Giver</button>
-            <button class="inactive" onclick="switchProfileTab('operator')">Operator</button>
-            <button class="inactive" onclick="switchProfileTab('agent')">Agent</button>
-        </div>
-
-        <!-- Load Giver Tab -->
-        <div class="profile-tab-content active" id="tab-loadgiver">
-            <div style="margin-bottom:8px">
-                <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px">📦 My Loads <span class="count-badge" id="my-loads-count">0</span></div>
-                <div id="my-loads-container"></div>
-            </div>
-        </div>
-
-        <!-- Operator Tab -->
-        <div class="profile-tab-content" id="tab-operator">
-            <div style="margin-bottom:8px">
-                <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px">🚛 My Trucks <span class="count-badge" id="my-trucks-count">0</span></div>
-                <div id="my-trucks-container"></div>
-            </div>
-            <div class="profile-section">
-                <div class="section-header">
-                    <span class="section-title">🚛 My Vehicles</span>
-                    <span class="section-badge active" id="vehicle-count-badge">0 Vehicles</span>
-                </div>
-                <div id="profile-vehicles-container">
-                    <div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">Loading vehicles...</div>
-                </div>
-                <div style="margin-top:8px">
-                    <button class="section-btn" onclick="openTruckDetails()" style="width:100%">➕ Add New Vehicle</button>
-                </div>
-            </div>
-            <!-- Preferred Routes - Operator -->
-            <div class="profile-section">
-                <div class="section-header">
-                    <span class="section-title">🗺️ Preferred Routes</span>
-                    <span class="section-badge optional">Optional</span>
-                </div>
-                <div id="operator-routes-container" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
-                    <span style="color:#94a3b8;font-size:12px">No routes added</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Agent Tab -->
-        <div class="profile-tab-content" id="tab-agent">
-            <div style="margin-bottom:8px">
-                <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px">📦 My Recommendations <span class="count-badge" id="agent-recommendations-count">0</span></div>
-                <div id="agent-recommendations-container"></div>
-            </div>
-            <!-- Preferred Routes - Agent -->
-            <div class="profile-section">
-                <div class="section-header">
-                    <span class="section-title">🗺️ Preferred Routes</span>
-                    <span class="section-badge optional">Optional</span>
-                </div>
-                <div id="agent-routes-container" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
-                    <span style="color:#94a3b8;font-size:12px">No routes added</span>
-                </div>
-            </div>
         </div>
 
         <!-- Statistics -->
@@ -558,25 +515,45 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
-<!-- ==================== EDIT PROFILE PAGE ==================== -->
+<!-- ==================== EDIT PROFILE PAGE (SINGLE LAYOUT) ==================== -->
 <div id="edit-profile-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <span class="logo"><span class="logo-icon">✏️</span><span class="logo-text">Edit Profile</span></span>
         <button class="back-btn" onclick="closeEditProfile()">✕</button>
     </div>
     <div class="scroll-body" id="edit-profile-scroll">
-        <!-- Personal Info -->
+        <!-- Full Name -->
         <div class="profile-section">
             <label class="form-label">👤 Full Name</label>
-            <input class="form-control" id="edit-name" placeholder="Rajesh Kumar" style="margin-bottom:10px">
+            <input class="form-control" id="edit-name" placeholder="Rajesh Kumar">
+        </div>
+
+        <!-- Company Name -->
+        <div class="profile-section">
             <label class="form-label">🏢 Company Name</label>
-            <input class="form-control" id="edit-company" placeholder="ABC Steel Traders" style="margin-bottom:10px">
+            <input class="form-control" id="edit-company" placeholder="ABC Steel Traders">
+        </div>
+
+        <!-- Company Website -->
+        <div class="profile-section">
             <label class="form-label">🌐 Company Website</label>
-            <input class="form-control" id="edit-website" placeholder="https://www.abcsteel.com" style="margin-bottom:10px">
+            <input class="form-control" id="edit-website" placeholder="https://www.abcsteel.com">
+        </div>
+
+        <!-- PAN Number -->
+        <div class="profile-section">
             <label class="form-label">📛 PAN Number</label>
-            <input class="form-control" id="edit-pan" placeholder="AABCP1234D" style="margin-bottom:10px">
+            <input class="form-control" id="edit-pan" placeholder="AABCP1234D">
+        </div>
+
+        <!-- GST Number -->
+        <div class="profile-section">
             <label class="form-label">📛 GST Number</label>
-            <input class="form-control" id="edit-gst" placeholder="22AABC1234D1ZP" style="margin-bottom:10px">
+            <input class="form-control" id="edit-gst" placeholder="22AABC1234D1ZP">
+        </div>
+
+        <!-- Location PIN -->
+        <div class="profile-section">
             <label class="form-label">📍 Location PIN</label>
             <div style="position:relative;width:100%">
                 <input type="text" id="search-edit-location" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('edit-location')" autocomplete="off" class="form-control">
@@ -585,78 +562,48 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
         </div>
 
-        <!-- User Type -->
+        <!-- User Type - Single dropdown -->
         <div class="profile-section">
             <label class="form-label">🎯 User Type</label>
-            <div class="user-type-checkbox">
-                <label><input type="checkbox" id="edit-type-loadgiver" value="1"> 📦 Load Giver</label>
-                <label><input type="checkbox" id="edit-type-operator" value="2"> 🚛 Operator</label>
-                <label><input type="checkbox" id="edit-type-agent" value="3"> 🤝 Agent</label>
-            </div>
-            <div style="font-size:10px;color:#94a3b8;margin-top:4px">Select all that apply</div>
+            <select class="form-control" id="edit-user-type">
+                <option value="0">Select user type...</option>
+                <option value="1">📦 Load Giver</option>
+                <option value="2">🚛 Operator</option>
+                <option value="3">🤝 Agent</option>
+            </select>
+            <div style="font-size:10px;color:#94a3b8;margin-top:4px">Select one user type</div>
         </div>
 
-        <!-- About/Details - COMMON ABOVE TABS -->
+        <!-- My Vehicles -->
+        <div class="profile-section">
+            <label class="form-label">🚛 My Vehicles</label>
+            <div class="route-input-row">
+                <input class="form-control vehicle-number-input" id="edit-vehicle-input" placeholder="Type vehicle number..." oninput="validateAndSearchVehicle(this.value)" autocomplete="off" style="flex:2">
+                <button class="section-btn" onclick="addSelectedVehicle()">➕ Add</button>
+            </div>
+            <div class="vehicle-suggest-dropdown" id="vehicle-suggest-dropdown"></div>
+            <div id="edit-vehicles-list" style="margin-top:8px"></div>
+        </div>
+
+        <!-- Preferred Routes -->
+        <div class="profile-section">
+            <label class="form-label">🗺️ Preferred Routes</label>
+            <div class="route-input-row">
+                <div style="flex:2;position:relative">
+                    <input class="form-control" id="search-edit-route" placeholder="Search location/pin..." onclick="selectInputText(this)" oninput="searchLocation('edit-route')" autocomplete="off">
+                    <div class="search-wrapper"><div class="suggestions" id="suggestions-edit-route"></div></div>
+                    <input type="hidden" id="edit-route-hidden">
+                </div>
+                <button class="section-btn" onclick="addRoute()">Add</button>
+            </div>
+            <div id="edit-routes-list" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"></div>
+        </div>
+
+        <!-- About / Details -->
         <div class="profile-section">
             <label class="form-label">📝 About / Details</label>
             <textarea class="form-control" id="edit-details" rows="3" placeholder="About your business, services, etc." style="resize:vertical"></textarea>
             <div style="font-size:10px;color:#94a3b8;text-align:right"><span id="edit-details-count">0</span>/300</div>
-        </div>
-
-        <!-- Tabs -->
-        <div class="profile-tabs">
-            <button class="active" onclick="switchEditTab('loadgiver')">Load Giver</button>
-            <button class="inactive" onclick="switchEditTab('operator')">Operator</button>
-            <button class="inactive" onclick="switchEditTab('agent')">Agent</button>
-        </div>
-
-        <!-- Load Giver Tab -->
-        <div class="profile-tab-content active" id="edit-tab-loadgiver">
-            <!-- Empty - nothing specific to load giver in edit -->
-            <div style="color:#94a3b8;font-size:12px;text-align:center;padding:16px">No additional settings for Load Giver</div>
-        </div>
-
-        <!-- Operator Tab -->
-        <div class="profile-tab-content" id="edit-tab-operator">
-            <div class="profile-section">
-                <label class="form-label">🚛 My Vehicles</label>
-                <div style="position:relative">
-                    <input class="form-control vehicle-number-input" id="edit-vehicle-input" placeholder="Type vehicle number..." oninput="validateAndSearchVehicle(this.value)" autocomplete="off">
-                    <div class="vehicle-suggest-dropdown" id="vehicle-suggest-dropdown"></div>
-                </div>
-                <div style="margin-top:6px">
-                    <button class="section-btn" style="width:100%" onclick="addSelectedVehicle()">➕ Add Vehicle</button>
-                </div>
-                <div id="edit-vehicles-list" style="margin-top:8px"></div>
-            </div>
-            <div class="profile-section">
-                <label class="form-label">🗺️ Preferred Routes</label>
-                <div class="route-input-row">
-                    <div style="flex:2;position:relative">
-                        <input class="form-control" id="search-edit-route" placeholder="Search location/pin..." onclick="selectInputText(this)" oninput="searchLocation('edit-route')" autocomplete="off">
-                        <div class="search-wrapper"><div class="suggestions" id="suggestions-edit-route"></div></div>
-                        <input type="hidden" id="edit-route-hidden">
-                    </div>
-                    <button class="section-btn" onclick="addRoute()">Add</button>
-                </div>
-                <div id="edit-routes-list" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"></div>
-            </div>
-        </div>
-
-        <!-- Agent Tab -->
-        <div class="profile-tab-content" id="edit-tab-agent">
-            <div class="profile-section">
-                <label class="form-label">🗺️ Preferred Routes</label>
-                <div class="route-input-row">
-                    <div style="flex:2;position:relative">
-                        <input class="form-control" id="search-edit-agent-route" placeholder="Search location/pin..." onclick="selectInputText(this)" oninput="searchLocation('edit-agent-route')" autocomplete="off">
-                        <div class="search-wrapper"><div class="suggestions" id="suggestions-edit-agent-route"></div></div>
-                        <input type="hidden" id="edit-agent-route-hidden">
-                    </div>
-                    <button class="section-btn" onclick="addAgentRoute()">Add</button>
-                </div>
-                <div id="edit-agent-routes-list" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"></div>
-            </div>
         </div>
 
         <button class="btn-primary" onclick="saveProfile()" style="margin-top:8px">💾 Save Profile</button>
@@ -856,8 +803,7 @@ var user=null,guest=false,tab='ALL',items=[],detail=null,mobile='';
 var homePinId=null,toPinId=null,prompt=null,installed=false,filterOpen=true;
 var otpTimer=null,otpSeconds=300,otpVerified=false,generatedOTP='';
 var isResetFlow=false,otpPurpose='registration';
-var profileTab='loadgiver',editTab='loadgiver';
-var vehicles=[],truckRoutes=[],routes=[],agentRoutes=[];
+var vehicles=[],truckRoutes=[],routes=[];
 var selectedVehicle=null;
 
 function $(id){return document.getElementById(id)}
@@ -985,7 +931,6 @@ function selectLoc(ctx, pinId){
     else if(ctx==='pt-location') hid='pt-location-hidden';
     else if(ctx==='edit-location') hid='edit-location-hidden';
     else if(ctx==='edit-route') hid='edit-route-hidden';
-    else if(ctx==='edit-agent-route') hid='edit-agent-route-hidden';
     else if(ctx==='td-route') hid='td-route-hidden';
     if(hid && $(hid)) $(hid).value=pinId;
     
@@ -1088,14 +1033,14 @@ function loadProfileVehicles(){
             container.innerHTML='<div style="color:#ef4444;font-size:12px;text-align:center;padding:8px">Error loading vehicles</div>'; 
             return; 
         }
-        var vehicles=result.data||[];
-        if(!vehicles.length){ 
+        var vehicleData=result.data||[];
+        if(!vehicleData.length){ 
             container.innerHTML='<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>';
             badge.textContent='0 Vehicles';
             return; 
         }
-        badge.textContent=vehicles.length+' Vehicles';
-        container.innerHTML=vehicles.map(function(v){
+        badge.textContent=vehicleData.length+' Vehicles';
+        container.innerHTML=vehicleData.map(function(v){
             return '<div class="list-item" style="padding:8px">'+
                 '<div class="title">'+v.vehicle_number+'</div>'+
                 '<div class="sub">'+v.vehicle_type+' • '+(v.dimensions?v.dimensions.join('×'):'N/A')+'ft</div>'+
@@ -1105,7 +1050,7 @@ function loadProfileVehicles(){
                 '</div>'+
             '</div>';
         }).join('');
-        $('stat-vehicles-count').textContent=vehicles.length;
+        $('stat-vehicles-count').textContent=vehicleData.length;
     }).catch(function(err){ 
         container.innerHTML='<div style="color:#ef4444;font-size:12px;text-align:center;padding:8px">Error loading vehicles</div>'; 
     });
@@ -1467,36 +1412,6 @@ function renderRoutes(){
     }).join('');
 }
 
-function addAgentRoute(){
-    var route=$('edit-agent-route-hidden').value;
-    if(!route){ toast('Please search and select a location first'); return; }
-    var routeInt=parseInt(route);
-    if(isNaN(routeInt)){ toast('Invalid location'); return; }
-    if(agentRoutes.indexOf(routeInt)!==-1){ toast('Route already added'); return; }
-    agentRoutes.push(routeInt); 
-    $('search-edit-agent-route').value=''; 
-    $('edit-agent-route-hidden').value=''; 
-    renderAgentRoutes();
-    var sug=$('suggestions-edit-agent-route');
-    if(sug){ sug.classList.remove('show'); sug.innerHTML=''; }
-    toast('Route added successfully');
-}
-
-function removeAgentRoute(r){ 
-    agentRoutes=agentRoutes.filter(function(x){return x!==r}); 
-    renderAgentRoutes(); 
-}
-
-function renderAgentRoutes(){
-    var container=$('edit-agent-routes-list');
-    if(!agentRoutes.length){ container.innerHTML='<span style="color:#94a3b8;font-size:12px;padding:4px 0">No routes added</span>'; return; }
-    container.innerHTML=agentRoutes.map(function(r){ 
-        var loc=getLoc(r); 
-        var display = loc ? getLocDisplayName(loc) : r;
-        return '<span class="route-tag">'+display+' <span class="remove" onclick="removeAgentRoute(\''+r+'\')">✕</span></span>'; 
-    }).join('');
-}
-
 // ============================================================
 // PROFILE FUNCTIONS
 // ============================================================
@@ -1537,21 +1452,13 @@ function loadProfile(){
         $('profile-location').textContent = '📍 Location: Not set';
     }
     
-    // User Types
-    var types = user.user_type || [];
-    var typeLabels = ['Load Giver', 'Operator', 'Agent'];
-    var typeIcons = ['📦', '🚛', '🤝'];
+    // User Type
+    var userType = user.user_type || 0;
+    var typeLabels = ['Not set', 'Load Giver', 'Operator', 'Agent'];
     var container = $('profile-user-types');
-    container.innerHTML = types.map(function(t, i){
-        var cls = 'section-badge active';
-        var label = typeIcons[i] + ' ' + typeLabels[i];
-        return '<span class="'+cls+'">'+label+'</span>';
-    }).join('');
-    if(!types.length){
-        container.innerHTML = '<span class="section-badge optional">No user type selected</span>';
-    }
+    container.innerHTML = '<span class="section-badge '+(userType>0?'active':'optional')+'">'+typeLabels[userType]+'</span>';
     
-    // About/Details - COMMON ABOVE TABS
+    // About/Details
     if(user.details){
         $('profile-about-section').style.display = 'block';
         $('profile-details-text').textContent = user.details;
@@ -1562,36 +1469,18 @@ function loadProfile(){
     
     // Load data
     loadProfileVehicles();
+    loadProfileRoutes();
     loadMyLoads();
     loadMyTrucks();
     loadAgentRecommendations();
     loadStats();
-    
-    // Load operator routes
-    loadOperatorRoutes();
-    // Load agent routes
-    loadAgentRoutesView();
 }
 
-function loadOperatorRoutes(){
-    var container = $('operator-routes-container');
+function loadProfileRoutes(){
+    var container = $('profile-routes-container');
     if(!container) return;
     if(user.preferred_routes && user.preferred_routes.length){
         container.innerHTML = user.preferred_routes.map(function(r){
-            var loc = getLoc(r);
-            var display = loc ? getLocDisplayName(loc) : r;
-            return '<span class="route-tag">'+display+'</span>';
-        }).join('');
-    } else {
-        container.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>';
-    }
-}
-
-function loadAgentRoutesView(){
-    var container = $('agent-routes-container');
-    if(!container) return;
-    if(user.agent_routes && user.agent_routes.length){
-        container.innerHTML = user.agent_routes.map(function(r){
             var loc = getLoc(r);
             var display = loc ? getLocDisplayName(loc) : r;
             return '<span class="route-tag">'+display+'</span>';
@@ -1683,19 +1572,6 @@ async function loadStats(){
     }catch(err){ console.error('Error loading stats:', err); }
 }
 
-function switchProfileTab(tab){
-    profileTab=tab;
-    document.querySelectorAll('.profile-tabs').forEach(function(tabs){
-        tabs.querySelectorAll('button').forEach(function(b){b.className='inactive'});
-    });
-    document.querySelectorAll('.profile-tab-content').forEach(function(c){c.classList.remove('active')});
-    if(tab==='loadgiver'){ document.querySelector('#tab-loadgiver').classList.add('active'); document.querySelector('.profile-tabs button:first-child').className='active'; }
-    else if(tab==='operator'){ document.querySelector('#tab-operator').classList.add('active'); document.querySelectorAll('.profile-tabs button')[1].className='active'; }
-    else if(tab==='agent'){ document.querySelector('#tab-agent').classList.add('active'); document.querySelectorAll('.profile-tabs button')[2].className='active'; 
-        loadAgentRecommendations();
-    }
-}
-
 function openEditProfile(){
     if(!user){ alert('Please login first'); return; }
     
@@ -1724,23 +1600,15 @@ function populateEditForm(){
         } 
     }
     
-    if(user.user_type && user.user_type.length){
-        var types = user.user_type;
-        $('edit-type-loadgiver').checked = types.indexOf(1) !== -1;
-        $('edit-type-operator').checked = types.indexOf(2) !== -1;
-        $('edit-type-agent').checked = types.indexOf(3) !== -1;
-    }
+    // User Type - single dropdown
+    $('edit-user-type').value = user.user_type || 0;
     
-    vehicles = user.vehicle_no || [];
+    vehicles = user.vehicle_no ? user.vehicle_no.split(',').filter(function(v){return v.trim()!==''}) : [];
     renderVehicles();
     
-    routes = user.preferred_routes || [];
+    routes = user.preferred_routes ? user.preferred_routes.split(',').filter(function(r){return r.trim()!==''}).map(Number) : [];
     renderRoutes();
     
-    agentRoutes = user.agent_routes || [];
-    renderAgentRoutes();
-    
-    // Single details field
     $('edit-details').value = user.details || '';
     updateCharCount('edit-details','edit-details-count');
     
@@ -1753,17 +1621,18 @@ function renderVehicles(){
     var container=$('edit-vehicles-list');
     if(!vehicles.length){ container.innerHTML='<div style="color:#94a3b8;font-size:12px;padding:4px 0">No vehicles added</div>'; return; }
     container.innerHTML=vehicles.map(function(v){ 
-        return '<span class="route-tag">'+v+' <span class="remove" onclick="removeVehicle(\''+v+'\')">✕</span></span>'; 
+        return '<div class="vehicle-item"><span>'+v+'</span><span class="remove" onclick="removeVehicle(\''+v+'\')">✕</span></div>'; 
     }).join('');
 }
 
 function removeVehicle(v){ 
     vehicles=vehicles.filter(function(x){return x!==v}); 
     renderVehicles(); 
-    var current=user.vehicle_no||[];
-    current=current.filter(function(x){return x!==v});
-    sb.from('active_users').update({vehicle_no:current}).eq('mobile',user.mobile).then(function(){
-        user.vehicle_no=current;
+    var current=user.vehicle_no || '';
+    var currentArr = current.split(',').filter(function(x){return x.trim()!==''});
+    currentArr = currentArr.filter(function(x){return x!==v});
+    sb.from('active_users').update({vehicle_no:currentArr.join(',')}).eq('mobile',user.mobile).then(function(){
+        user.vehicle_no = currentArr.join(',');
     });
 }
 
@@ -1773,24 +1642,14 @@ function updateCharCount(id,countId){
     count.textContent=el.value.length;
 }
 
-function switchEditTab(tab){
-    editTab=tab;
-    document.querySelectorAll('#edit-profile-page .profile-tabs button').forEach(function(b){b.className='inactive'});
-    document.querySelectorAll('#edit-profile-page .profile-tab-content').forEach(function(c){c.classList.remove('active')});
-    if(tab==='loadgiver'){ document.querySelector('#edit-tab-loadgiver').classList.add('active'); document.querySelector('#edit-profile-page .profile-tabs button:first-child').className='active'; }
-    else if(tab==='operator'){ document.querySelector('#edit-tab-operator').classList.add('active'); document.querySelectorAll('#edit-profile-page .profile-tabs button')[1].className='active'; }
-    else if(tab==='agent'){ document.querySelector('#edit-tab-agent').classList.add('active'); document.querySelectorAll('#edit-profile-page .profile-tabs button')[2].className='active'; }
-}
-
 function saveProfile(){
     if(!user || !user.mobile){ alert('User not logged in.'); return; }
     
-    var userTypes=[];
-    if($('edit-type-loadgiver').checked) userTypes.push(1);
-    if($('edit-type-operator').checked) userTypes.push(2);
-    if($('edit-type-agent').checked) userTypes.push(3);
-    
+    var userType = parseInt($('edit-user-type').value) || 0;
     var location=$('edit-location-hidden').value ? parseInt($('edit-location-hidden').value) : null;
+    
+    var vehicleNoStr = vehicles.length ? vehicles.join(',') : '';
+    var routesStr = routes.length ? routes.join(',') : '';
     
     var updateData={
         name: $('edit-name').value.trim() || null,
@@ -1799,10 +1658,9 @@ function saveProfile(){
         pan: $('edit-pan').value.trim() || null,
         gst: $('edit-gst').value.trim() || null,
         location: location,
-        user_type: userTypes.length ? userTypes : null,
-        vehicle_no: vehicles.length ? vehicles : null,
-        preferred_routes: routes.length ? routes : null,
-        agent_routes: agentRoutes.length ? agentRoutes : null,
+        user_type: userType,
+        vehicle_no: vehicleNoStr || null,
+        preferred_routes: routesStr || null,
         details: $('edit-details').value.trim() || null,
         last_active: new Date().toISOString()
     };
