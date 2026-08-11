@@ -464,12 +464,10 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
         </div>
 
-        <!-- About/Details -->
-        <div id="profile-about" style="display:none">
-            <div class="profile-section">
-                <label class="form-label">📝 About / Details</label>
-                <div id="profile-details-text" style="font-size:14px;color:#475569;padding:4px 0">No details added</div>
-            </div>
+        <!-- About/Details - COMMON ABOVE TABS -->
+        <div class="profile-section" id="profile-about-section">
+            <label class="form-label">📝 About / Details</label>
+            <div id="profile-details-text" style="font-size:14px;color:#475569;padding:4px 0">No details added</div>
         </div>
 
         <!-- Tabs -->
@@ -598,6 +596,13 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div style="font-size:10px;color:#94a3b8;margin-top:4px">Select all that apply</div>
         </div>
 
+        <!-- About/Details - COMMON ABOVE TABS -->
+        <div class="profile-section">
+            <label class="form-label">📝 About / Details</label>
+            <textarea class="form-control" id="edit-details" rows="3" placeholder="About your business, services, etc." style="resize:vertical"></textarea>
+            <div style="font-size:10px;color:#94a3b8;text-align:right"><span id="edit-details-count">0</span>/300</div>
+        </div>
+
         <!-- Tabs -->
         <div class="profile-tabs">
             <button class="active" onclick="switchEditTab('loadgiver')">Load Giver</button>
@@ -607,11 +612,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 
         <!-- Load Giver Tab -->
         <div class="profile-tab-content active" id="edit-tab-loadgiver">
-            <div class="profile-section">
-                <label class="form-label">📝 About / Details</label>
-                <textarea class="form-control" id="edit-lg-about" rows="3" placeholder="Steel trading company. Regular shipments of TMT bars, angles." style="resize:vertical"></textarea>
-                <div style="font-size:10px;color:#94a3b8;text-align:right"><span id="edit-lg-count">0</span>/300</div>
-            </div>
+            <!-- Empty - nothing specific to load giver in edit -->
+            <div style="color:#94a3b8;font-size:12px;text-align:center;padding:16px">No additional settings for Load Giver</div>
         </div>
 
         <!-- Operator Tab -->
@@ -639,11 +641,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 </div>
                 <div id="edit-routes-list" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"></div>
             </div>
-            <div class="profile-section">
-                <label class="form-label">📝 About / Details</label>
-                <textarea class="form-control" id="edit-fo-about" rows="3" placeholder="Fleet operator with 5 trucks, regular routes." style="resize:vertical"></textarea>
-                <div style="font-size:10px;color:#94a3b8;text-align:right"><span id="edit-fo-count">0</span>/300</div>
-            </div>
         </div>
 
         <!-- Agent Tab -->
@@ -659,11 +656,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                     <button class="section-btn" onclick="addAgentRoute()">Add</button>
                 </div>
                 <div id="edit-agent-routes-list" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"></div>
-            </div>
-            <div class="profile-section">
-                <label class="form-label">📝 About / Details</label>
-                <textarea class="form-control" id="edit-agent-about" rows="3" placeholder="Commission, rate, credit facility etc." style="resize:vertical"></textarea>
-                <div style="font-size:10px;color:#94a3b8;text-align:right"><span id="edit-agent-count">0</span>/300</div>
             </div>
         </div>
 
@@ -942,7 +934,7 @@ function dist(lat1,lng1,lat2,lng2){
 }
 
 // ============================================================
-// SEARCH LOCATION - FIXED for all contexts
+// SEARCH LOCATION
 // ============================================================
 function searchLocation(ctx){
     var inp=$('search-'+ctx);
@@ -1443,7 +1435,7 @@ function cancelPost(){goHome()}
 function closeDetail(){detail=null;goHome()}
 
 // ============================================================
-// ROUTE FUNCTIONS - FIXED with search working
+// ROUTE FUNCTIONS
 // ============================================================
 function addRoute(){
     var route=$('edit-route-hidden').value;
@@ -1559,14 +1551,13 @@ function loadProfile(){
         container.innerHTML = '<span class="section-badge optional">No user type selected</span>';
     }
     
-    // About/Details
-    var hasDetails = user.load_giver_details || user.fleet_operator_details || user.agent_details;
-    if(hasDetails){
-        $('profile-about').style.display = 'block';
-        var detailText = user.load_giver_details || user.fleet_operator_details || user.agent_details || 'No details added';
-        $('profile-details-text').textContent = detailText;
+    // About/Details - COMMON ABOVE TABS
+    if(user.details){
+        $('profile-about-section').style.display = 'block';
+        $('profile-details-text').textContent = user.details;
     } else {
-        $('profile-about').style.display = 'none';
+        $('profile-about-section').style.display = 'block';
+        $('profile-details-text').textContent = 'No details added';
     }
     
     // Load data
@@ -1749,12 +1740,10 @@ function populateEditForm(){
     agentRoutes = user.agent_routes || [];
     renderAgentRoutes();
     
-    $('edit-lg-about').value = user.load_giver_details || '';
-    $('edit-fo-about').value = user.fleet_operator_details || '';
-    $('edit-agent-about').value = user.agent_details || '';
-    updateCharCount('edit-lg-about','edit-lg-count');
-    updateCharCount('edit-fo-about','edit-fo-count');
-    updateCharCount('edit-agent-about','edit-agent-count');
+    // Single details field
+    $('edit-details').value = user.details || '';
+    updateCharCount('edit-details','edit-details-count');
+    
     switchPage('edit-profile-page',4);
 }
 
@@ -1814,9 +1803,7 @@ function saveProfile(){
         vehicle_no: vehicles.length ? vehicles : null,
         preferred_routes: routes.length ? routes : null,
         agent_routes: agentRoutes.length ? agentRoutes : null,
-        load_giver_details: $('edit-lg-about').value.trim() || null,
-        fleet_operator_details: $('edit-fo-about').value.trim() || null,
-        agent_details: $('edit-agent-about').value.trim() || null,
+        details: $('edit-details').value.trim() || null,
         last_active: new Date().toISOString()
     };
     
@@ -2127,9 +2114,9 @@ document.addEventListener('DOMContentLoaded',function(){
     else { $('login-screen').style.display='flex'; $('home-page').classList.add('hidden-page'); }
     setTimeout(function(){fixHeight();autoLocate()},500);
     
-    ['edit-lg-about','edit-fo-about','edit-agent-about','td-description','pl-instructions'].forEach(function(id){
+    ['edit-details','td-description','pl-instructions'].forEach(function(id){
         var el=$(id); if(el){ 
-            var countId = id === 'td-description' ? 'td-desc-count' : id === 'pl-instructions' ? 'pl-instructions-count' : id.replace('about','count');
+            var countId = id === 'td-description' ? 'td-desc-count' : id === 'pl-instructions' ? 'pl-instructions-count' : 'edit-details-count';
             el.addEventListener('input',function(){ updateCharCount(id,countId); }); 
         }
     });
