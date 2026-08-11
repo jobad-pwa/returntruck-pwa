@@ -456,9 +456,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div class="profile-section">
             <label class="form-label" style="margin-bottom:6px">🎯 User Type</label>
             <div id="profile-user-types" style="display:flex;gap:8px;flex-wrap:wrap">
-                <span class="section-badge optional">Load Giver</span>
-                <span class="section-badge optional">Operator</span>
-                <span class="section-badge optional">Agent</span>
+                <span class="section-badge optional">Not set</span>
             </div>
         </div>
 
@@ -469,7 +467,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <span class="section-badge active" id="vehicle-count-badge">0 Vehicles</span>
             </div>
             <div id="profile-vehicles-container">
-                <div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">Loading vehicles...</div>
+                <div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>
             </div>
         </div>
 
@@ -515,7 +513,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
-<!-- ==================== EDIT PROFILE PAGE (SINGLE LAYOUT) ==================== -->
+<!-- ==================== EDIT PROFILE PAGE ==================== -->
 <div id="edit-profile-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <span class="logo"><span class="logo-icon">✏️</span><span class="logo-text">Edit Profile</span></span>
@@ -562,7 +560,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
         </div>
 
-        <!-- User Type - Single dropdown -->
+        <!-- User Type -->
         <div class="profile-section">
             <label class="form-label">🎯 User Type</label>
             <select class="form-control" id="edit-user-type">
@@ -571,7 +569,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <option value="2">🚛 Operator</option>
                 <option value="3">🤝 Agent</option>
             </select>
-            <div style="font-size:10px;color:#94a3b8;margin-top:4px">Select one user type</div>
         </div>
 
         <!-- My Vehicles -->
@@ -803,7 +800,7 @@ var user=null,guest=false,tab='ALL',items=[],detail=null,mobile='';
 var homePinId=null,toPinId=null,prompt=null,installed=false,filterOpen=true;
 var otpTimer=null,otpSeconds=300,otpVerified=false,generatedOTP='';
 var isResetFlow=false,otpPurpose='registration';
-var vehicles=[],truckRoutes=[],routes=[];
+var vehicles=[],routes=[],truckRoutes=[];
 var selectedVehicle=null;
 
 function $(id){return document.getElementById(id)}
@@ -1082,10 +1079,11 @@ function deleteVehicle(id, number){
     if(!confirm('Delete vehicle '+number+'?')) return;
     sb.from('active_vehicles').delete().eq('id',id).then(function(result){
         if(result.error){ alert('Error deleting vehicle: '+result.error.message); return; }
-        var current=user.vehicle_no||[];
-        current=current.filter(function(v){ return v!==number; });
-        sb.from('active_users').update({vehicle_no:current}).eq('mobile',user.mobile).then(function(){
-            user.vehicle_no=current;
+        var current=user.vehicle_no||'';
+        var currentArr = current.split(',').filter(function(v){return v.trim()!==''});
+        currentArr = currentArr.filter(function(v){return v!==number});
+        sb.from('active_users').update({vehicle_no:currentArr.join(',')}).eq('mobile',user.mobile).then(function(){
+            user.vehicle_no = currentArr.join(',');
         });
         vehicles=vehicles.filter(function(v){ return v!==number; });
         renderVehicles();
@@ -1167,11 +1165,12 @@ function saveTruckDetails(){
     var query=editId ? sb.from('active_vehicles').update(data).eq('id',editId) : sb.from('active_vehicles').insert(data);
     query.then(function(result){
         if(result.error){ alert('Error saving vehicle: '+result.error.message); return; }
-        var current=user.vehicle_no||[];
-        if(!current.includes(number)){
-            current.push(number);
-            sb.from('active_users').update({vehicle_no:current}).eq('mobile',user.mobile).then(function(){
-                user.vehicle_no=current;
+        var current=user.vehicle_no||'';
+        var currentArr = current.split(',').filter(function(v){return v.trim()!==''});
+        if(!currentArr.includes(number)){
+            currentArr.push(number);
+            sb.from('active_users').update({vehicle_no:currentArr.join(',')}).eq('mobile',user.mobile).then(function(){
+                user.vehicle_no = currentArr.join(',');
             });
         }
         if(!vehicles.includes(number)){ vehicles.push(number); renderVehicles(); }
@@ -1479,15 +1478,18 @@ function loadProfile(){
 function loadProfileRoutes(){
     var container = $('profile-routes-container');
     if(!container) return;
-    if(user.preferred_routes && user.preferred_routes.length){
-        container.innerHTML = user.preferred_routes.map(function(r){
-            var loc = getLoc(r);
-            var display = loc ? getLocDisplayName(loc) : r;
-            return '<span class="route-tag">'+display+'</span>';
-        }).join('');
-    } else {
-        container.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>';
+    if(user.preferred_routes){
+        var routeArr = user.preferred_routes.split(',').filter(function(r){return r.trim()!==''});
+        if(routeArr.length){
+            container.innerHTML = routeArr.map(function(r){
+                var loc = getLoc(parseInt(r));
+                var display = loc ? getLocDisplayName(loc) : r;
+                return '<span class="route-tag">'+display+'</span>';
+            }).join('');
+            return;
+        }
     }
+    container.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>';
 }
 
 async function loadMyLoads(){
@@ -1580,12 +1582,18 @@ function openEditProfile(){
     var mobileNum = parseInt(user.mobile);
     sb.from('active_users').select('*').eq('mobile', mobileNum).single()
     .then(function(result){
-        if(result.data){ Object.assign(user, result.data); }
+        if(result.error){ console.error('Error fetching user:', result.error); alert('Error loading profile: '+result.error.message); return; }
+        if(result.data){ 
+            Object.assign(user, result.data); 
+            console.log('User data loaded:', user);
+        }
         populateEditForm();
     }).catch(function(err){ console.error('Error refreshing user data:', err); populateEditForm(); });
 }
 
 function populateEditForm(){
+    console.log('Populating edit form with user:', user);
+    
     $('edit-name').value = user.name || '';
     $('edit-company').value = user.company_name || '';
     $('edit-website').value = user.company_web || '';
@@ -1601,14 +1609,31 @@ function populateEditForm(){
     }
     
     // User Type - single dropdown
-    $('edit-user-type').value = user.user_type || 0;
+    var userType = user.user_type || 0;
+    $('edit-user-type').value = userType;
+    console.log('User type set to:', userType);
     
-    vehicles = user.vehicle_no ? user.vehicle_no.split(',').filter(function(v){return v.trim()!==''}) : [];
+    // Vehicles - parse from comma-separated string
+    vehicles = [];
+    if(user.vehicle_no && typeof user.vehicle_no === 'string'){
+        vehicles = user.vehicle_no.split(',').filter(function(v){return v.trim()!==''});
+    } else if(Array.isArray(user.vehicle_no)){
+        vehicles = user.vehicle_no;
+    }
+    console.log('Vehicles:', vehicles);
     renderVehicles();
     
-    routes = user.preferred_routes ? user.preferred_routes.split(',').filter(function(r){return r.trim()!==''}).map(Number) : [];
+    // Routes - parse from comma-separated string
+    routes = [];
+    if(user.preferred_routes && typeof user.preferred_routes === 'string'){
+        routes = user.preferred_routes.split(',').filter(function(r){return r.trim()!==''}).map(Number);
+    } else if(Array.isArray(user.preferred_routes)){
+        routes = user.preferred_routes;
+    }
+    console.log('Routes:', routes);
     renderRoutes();
     
+    // Details
     $('edit-details').value = user.details || '';
     updateCharCount('edit-details','edit-details-count');
     
@@ -1628,12 +1653,6 @@ function renderVehicles(){
 function removeVehicle(v){ 
     vehicles=vehicles.filter(function(x){return x!==v}); 
     renderVehicles(); 
-    var current=user.vehicle_no || '';
-    var currentArr = current.split(',').filter(function(x){return x.trim()!==''});
-    currentArr = currentArr.filter(function(x){return x!==v});
-    sb.from('active_users').update({vehicle_no:currentArr.join(',')}).eq('mobile',user.mobile).then(function(){
-        user.vehicle_no = currentArr.join(',');
-    });
 }
 
 function updateCharCount(id,countId){
@@ -1644,6 +1663,8 @@ function updateCharCount(id,countId){
 
 function saveProfile(){
     if(!user || !user.mobile){ alert('User not logged in.'); return; }
+    
+    console.log('Saving profile...');
     
     var userType = parseInt($('edit-user-type').value) || 0;
     var location=$('edit-location-hidden').value ? parseInt($('edit-location-hidden').value) : null;
@@ -1665,12 +1686,17 @@ function saveProfile(){
         last_active: new Date().toISOString()
     };
     
-    console.log('Saving profile:', updateData);
+    console.log('Update data:', updateData);
     
     var mobileNum = parseInt(user.mobile);
     sb.from('active_users').update(updateData).eq('mobile', mobileNum)
     .then(function(result){
-        if(result.error){ alert('Error saving profile: '+result.error.message); return; }
+        if(result.error){ 
+            console.error('Error saving profile:', result.error);
+            alert('Error saving profile: '+result.error.message); 
+            return; 
+        }
+        console.log('Profile saved successfully');
         sb.from('active_users').select('*').eq('mobile', mobileNum).single()
         .then(function(freshResult){
             if(freshResult.data){
@@ -1685,7 +1711,10 @@ function saveProfile(){
                 closeEditProfile();
             }
         }).catch(function(err){ console.error('Error fetching fresh data:', err); alert('✅ Profile saved!'); closeEditProfile(); });
-    }).catch(function(err){ alert('Error: '+err.message); });
+    }).catch(function(err){ 
+        console.error('Error saving profile:', err);
+        alert('Error: '+err.message); 
+    });
 }
 
 // ============================================================
