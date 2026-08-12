@@ -1072,7 +1072,7 @@ function addSelectedVehicle(){
 
 // Helper function to update user's vehicle list in database (store as comma-separated string)
 function updateUserVehicleList(){
-    // Store as array (matches database column type)
+    // Store as array
     var vehicleNoArray = vehicles.length ? vehicles : null;
     sb.from('active_users').update({vehicle_no: vehicleNoArray}).eq('mobile', user.mobile)
     .then(function(result){
@@ -1580,7 +1580,7 @@ function loadProfile(){
     
     // Load data
     loadProfileVehicles();
-    loadProfileRoutes();
+    loadProfileRoutes();  // <-- ADD THIS: Load preferred routes from user
     loadMyLoads();
     loadMyTrucks();
     loadAgentRecommendations();
@@ -1590,18 +1590,24 @@ function loadProfile(){
 function loadProfileRoutes(){
     var container = $('profile-routes-container');
     if(!container) return;
-    if(user.preferred_routes){
-        var routeArr = user.preferred_routes.split(',').filter(function(r){return r.trim()!==''});
-        if(routeArr.length){
-            container.innerHTML = routeArr.map(function(r){
-                var loc = getLoc(parseInt(r));
-                var display = loc ? getLocDisplayName(loc) : r;
-                return '<span class="route-tag">'+display+'</span>';
-            }).join('');
-            return;
-        }
+    
+    // Get routes from user.preferred_routes (which is an array)
+    var routeArr = user.preferred_routes || [];
+    
+    // If it's a string, parse it
+    if(typeof routeArr === 'string'){
+        routeArr = routeArr.split(',').filter(function(r){return r.trim()!==''}).map(Number);
     }
-    container.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>';
+    
+    if(routeArr.length){
+        container.innerHTML = routeArr.map(function(r){
+            var loc = getLoc(r);
+            var display = loc ? getLocDisplayName(loc) : r;
+            return '<span class="route-tag">'+display+'</span>';
+        }).join('');
+    } else {
+        container.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>';
+    }
 }
 
 async function loadMyLoads(){
@@ -1736,7 +1742,7 @@ function populateEditForm(){
     } else if(user.vehicle_no && typeof user.vehicle_no === 'string'){
         vehicles = user.vehicle_no.split(',').filter(function(v){return v.trim()!==''});
     }
-    console.log('Vehicles:', vehicles);
+    console.log('Vehicles from user:', vehicles);
     renderVehicles();
     
     // Routes - handle both array and string formats
@@ -1746,7 +1752,7 @@ function populateEditForm(){
     } else if(user.preferred_routes && typeof user.preferred_routes === 'string'){
         routes = user.preferred_routes.split(',').filter(function(r){return r.trim()!==''}).map(Number);
     }
-    console.log('Routes:', routes);
+    console.log('Routes from user:', routes);
     renderRoutes();
     
     // Details
@@ -1795,11 +1801,8 @@ function saveProfile(){
     
     var location=$('edit-location-hidden').value ? parseInt($('edit-location-hidden').value) : null;
     
-    // vehicle_no should be stored as array if column type is TEXT[]
-    // For Supabase, if column is TEXT[], pass as array
+    // Store as arrays (matches database column types)
     var vehicleNoArray = vehicles.length ? vehicles : null;
-    
-    // routes as array of numbers
     var routesArray = routes.length ? routes : null;
     
     var updateData={
@@ -1810,8 +1813,8 @@ function saveProfile(){
         gst: $('edit-gst').value.trim() || null,
         location: location,
         user_type: userTypes.length ? userTypes : null,
-        vehicle_no: vehicleNoArray,  // Pass as array for TEXT[] column
-        preferred_routes: routesArray,  // Pass as array
+        vehicle_no: vehicleNoArray,
+        preferred_routes: routesArray,
         details: $('edit-details').value.trim() || null,
         last_active: new Date().toISOString()
     };
