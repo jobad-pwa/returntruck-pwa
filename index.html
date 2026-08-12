@@ -1074,10 +1074,24 @@ function addSelectedVehicle(){
 function updateUserVehicleList(){
     // Store as array
     var vehicleNoArray = vehicles.length ? vehicles : null;
-    sb.from('active_users').update({vehicle_no: vehicleNoArray}).eq('mobile', user.mobile)
+    console.log('Updating user vehicles to:', vehicleNoArray);
+    
+    sb.from('active_users').update({vehicle_no: vehicleNoArray}).eq('mobile', parseInt(user.mobile))
     .then(function(result){
         if(result.error){
             console.error('Error updating user vehicles:', result.error);
+            alert('Error updating vehicles: ' + result.error.message);
+        } else {
+            console.log('User vehicles updated successfully');
+            // Update local user object
+            user.vehicle_no = vehicleNoArray;
+            // Update localStorage
+            var saved = localStorage.getItem('rt_user');
+            if(saved){ 
+                var sd = JSON.parse(saved); 
+                sd.user = user; 
+                localStorage.setItem('rt_user', JSON.stringify(sd)); 
+            }
         }
     }).catch(function(err){
         console.error('Error updating user vehicles:', err);
@@ -1697,20 +1711,40 @@ function openEditProfile(){
     
     console.log('Opening edit profile for user:', user);
     
+    // Fetch fresh data from database before editing
     var mobileNum = parseInt(user.mobile);
     sb.from('active_users').select('*').eq('mobile', mobileNum).single()
     .then(function(result){
-        if(result.error){ console.error('Error fetching user:', result.error); alert('Error loading profile: '+result.error.message); return; }
+        if(result.error){ 
+            console.error('Error fetching user:', result.error); 
+            // Still populate with existing data
+            populateEditForm();
+            return; 
+        }
         if(result.data){ 
-            Object.assign(user, result.data); 
-            console.log('User data loaded:', user);
+            // Update user object with fresh data
+            Object.assign(user, result.data);
+            console.log('Fresh user data loaded:', user);
+            
+            // Update localStorage
+            var saved = localStorage.getItem('rt_user');
+            if(saved){ 
+                var sd = JSON.parse(saved); 
+                sd.user = user; 
+                localStorage.setItem('rt_user', JSON.stringify(sd)); 
+            }
         }
         populateEditForm();
-    }).catch(function(err){ console.error('Error refreshing user data:', err); populateEditForm(); });
+    }).catch(function(err){ 
+        console.error('Error refreshing user data:', err); 
+        populateEditForm(); 
+    });
 }
 
 function populateEditForm(){
     console.log('Populating edit form with user:', user);
+    console.log('User vehicle_no raw:', user.vehicle_no);
+    console.log('User preferred_routes raw:', user.preferred_routes);
     
     $('edit-name').value = user.name || '';
     $('edit-company').value = user.company_name || '';
@@ -1735,24 +1769,53 @@ function populateEditForm(){
     $('edit-type-operator').checked = types.indexOf(2) !== -1;
     $('edit-type-agent').checked = types.indexOf(3) !== -1;
     
-    // Vehicles - handle both array and string formats
+    // ===== FIX: Parse vehicle_no properly =====
     vehicles = [];
+    
+    // If vehicle_no is an array (PostgreSQL array format)
     if(Array.isArray(user.vehicle_no)){
-        vehicles = user.vehicle_no;
-    } else if(user.vehicle_no && typeof user.vehicle_no === 'string'){
-        vehicles = user.vehicle_no.split(',').filter(function(v){return v.trim()!==''});
+        vehicles = user.vehicle_no.filter(function(v){ return v !== null && v !== ''; });
+    } 
+    // If vehicle_no is a string (comma-separated)
+    else if(user.vehicle_no && typeof user.vehicle_no === 'string'){
+        vehicles = user.vehicle_no.split(',').filter(function(v){ return v.trim() !== ''; });
     }
-    console.log('Vehicles from user:', vehicles);
+    // If vehicle_no is a string that looks like a PostgreSQL array "{MH12AB1234,MH12CD5678}"
+    else if(user.vehicle_no && typeof user.vehicle_no === 'string' && user.vehicle_no.startsWith('{')){
+        try {
+            // Remove { } and split by comma
+            var cleaned = user.vehicle_no.replace(/[{}]/g, '');
+            vehicles = cleaned.split(',').filter(function(v){ return v.trim() !== ''; });
+        } catch(e){
+            vehicles = [];
+        }
+    }
+    
+    console.log('Parsed vehicles:', vehicles);
     renderVehicles();
     
-    // Routes - handle both array and string formats
+    // ===== FIX: Parse preferred_routes properly =====
     routes = [];
+    
+    // If preferred_routes is an array (PostgreSQL array format)
     if(Array.isArray(user.preferred_routes)){
-        routes = user.preferred_routes;
-    } else if(user.preferred_routes && typeof user.preferred_routes === 'string'){
-        routes = user.preferred_routes.split(',').filter(function(r){return r.trim()!==''}).map(Number);
+        routes = user.preferred_routes.filter(function(r){ return r !== null && r !== ''; });
+    } 
+    // If preferred_routes is a string (comma-separated)
+    else if(user.preferred_routes && typeof user.preferred_routes === 'string'){
+        routes = user.preferred_routes.split(',').filter(function(r){ return r.trim() !== ''; }).map(Number);
     }
-    console.log('Routes from user:', routes);
+    // If preferred_routes is a string that looks like a PostgreSQL array "{533001,524001}"
+    else if(user.preferred_routes && typeof user.preferred_routes === 'string' && user.preferred_routes.startsWith('{')){
+        try {
+            var cleaned = user.preferred_routes.replace(/[{}]/g, '');
+            routes = cleaned.split(',').filter(function(r){ return r.trim() !== ''; }).map(Number);
+        } catch(e){
+            routes = [];
+        }
+    }
+    
+    console.log('Parsed routes:', routes);
     renderRoutes();
     
     // Details
@@ -1760,30 +1823,6 @@ function populateEditForm(){
     updateCharCount('edit-details','edit-details-count');
     
     switchPage('edit-profile-page',4);
-}
-
-function closeEditProfile(){ goHome(); }
-
-function renderVehicles(){
-    var container=$('edit-vehicles-list');
-    if(!vehicles.length){ 
-        container.innerHTML='<div style="color:#94a3b8;font-size:12px;padding:4px 0">No vehicles added</div>'; 
-        return; 
-    }
-    container.innerHTML=vehicles.map(function(v){ 
-        return '<div class="vehicle-item"><span>'+v+'</span><span class="remove" onclick="removeVehicle(\''+v+'\')">✕</span></div>'; 
-    }).join('');
-}
-
-function removeVehicle(v){ 
-    vehicles=vehicles.filter(function(x){return x!==v}); 
-    renderVehicles(); 
-}
-
-function updateCharCount(id,countId){
-    var el=$(id); if(!el)return;
-    var count=$(countId); if(!count)return;
-    count.textContent=el.value.length;
 }
 
 // ============================================================
