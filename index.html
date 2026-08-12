@@ -1159,6 +1159,9 @@ function addTruckRoute(){
 
 function removeTruckRoute(r){ truckRoutes=truckRoutes.filter(function(x){return x!==r}); renderTruckRoutes(); }
 
+// ============================================================
+// SAVE TRUCK DETAILS - FIXED WITH DUPLICATE CHECK
+// ============================================================
 function saveTruckDetails(){
     if(!user){ alert('Please login first'); return; }
     var number=$('td-vehicle-number').value.trim().toUpperCase();
@@ -1169,31 +1172,53 @@ function saveTruckDetails(){
     if(!isValidVehicleNumber(number)){ alert('Vehicle number must be 9-11 characters'); return; }
     if(!vehicleType){ alert('Please select a vehicle type'); return; }
     
-    var data={
-        vehicle_number: number,
-        vehicle_type: vehicleType,
-        dimensions: [parseFloat($('td-length').value)||0, parseFloat($('td-width').value)||0, parseFloat($('td-height').value)||0],
-        operating_routes: truckRoutes.length?truckRoutes:null,
-        description: $('td-description').value.trim()||null,
-        odc_allowed: document.querySelector('input[name="td-odc"]:checked').value==='true',
-        modified_by: user.mobile,
-        latest_update_at: new Date().toISOString()
-    };
-    
-    var query=editId ? sb.from('active_vehicles').update(data).eq('id',editId) : sb.from('active_vehicles').insert(data);
-    query.then(function(result){
-        if(result.error){ alert('Error saving vehicle: '+result.error.message); return; }
-        var current=user.vehicle_no||'';
-        var currentArr = current.split(',').filter(function(v){return v.trim()!==''});
-        if(!currentArr.includes(number)){
-            currentArr.push(number);
-            sb.from('active_users').update({vehicle_no:currentArr.join(',')}).eq('mobile',user.mobile).then(function(){
-                user.vehicle_no = currentArr.join(',');
-            });
+    // Check if vehicle number already exists
+    sb.from('active_vehicles').select('id').eq('vehicle_number', number)
+    .then(function(checkResult){
+        if(checkResult.error){
+            alert('Error checking vehicle: '+checkResult.error.message);
+            return;
         }
-        if(!vehicles.includes(number)){ vehicles.push(number); renderVehicles(); }
-        closeTruckDetails();
-        loadProfile();
+        // If editing the same vehicle, allow it
+        if(editId && checkResult.data && checkResult.data.length === 1 && checkResult.data[0].id == editId){
+            // It's the same vehicle being edited - proceed
+        } else if(checkResult.data && checkResult.data.length > 0){
+            alert('❌ Vehicle number "'+number+'" already exists!\nPlease use a different vehicle number.');
+            return;
+        }
+        
+        // Proceed with save
+        var data={
+            vehicle_number: number,
+            vehicle_type: vehicleType,
+            dimensions: [parseFloat($('td-length').value)||0, parseFloat($('td-width').value)||0, parseFloat($('td-height').value)||0],
+            max_weight: 0,
+            operating_routes: truckRoutes.length?truckRoutes:null,
+            description: $('td-description').value.trim()||null,
+            odc_allowed: document.querySelector('input[name="td-odc"]:checked').value==='true',
+            modified_by: user.mobile,
+            latest_update_at: new Date().toISOString()
+        };
+        
+        var query = editId ? sb.from('active_vehicles').update(data).eq('id', editId) : sb.from('active_vehicles').insert(data);
+        query.then(function(result){
+            if(result.error){ 
+                alert('Error saving vehicle: '+result.error.message); 
+                return; 
+            }
+            var current=user.vehicle_no||'';
+            var currentArr = current.split(',').filter(function(v){return v.trim()!==''});
+            if(!currentArr.includes(number)){
+                currentArr.push(number);
+                sb.from('active_users').update({vehicle_no:currentArr.join(',')}).eq('mobile',user.mobile).then(function(){
+                    user.vehicle_no = currentArr.join(',');
+                });
+            }
+            if(!vehicles.includes(number)){ vehicles.push(number); renderVehicles(); }
+            alert('✅ Vehicle saved successfully!');
+            closeTruckDetails();
+            loadProfile();
+        }).catch(function(err){ alert('Error: '+err.message); });
     }).catch(function(err){ alert('Error: '+err.message); });
 }
 
