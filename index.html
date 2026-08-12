@@ -1072,8 +1072,9 @@ function addSelectedVehicle(){
 
 // Helper function to update user's vehicle list in database (store as comma-separated string)
 function updateUserVehicleList(){
-    var vehicleNoStr = vehicles.length ? vehicles.join(',') : '';
-    sb.from('active_users').update({vehicle_no: vehicleNoStr}).eq('mobile', user.mobile)
+    // Store as array (matches database column type)
+    var vehicleNoArray = vehicles.length ? vehicles : null;
+    sb.from('active_users').update({vehicle_no: vehicleNoArray}).eq('mobile', user.mobile)
     .then(function(result){
         if(result.error){
             console.error('Error updating user vehicles:', result.error);
@@ -1727,24 +1728,23 @@ function populateEditForm(){
     $('edit-type-loadgiver').checked = types.indexOf(1) !== -1;
     $('edit-type-operator').checked = types.indexOf(2) !== -1;
     $('edit-type-agent').checked = types.indexOf(3) !== -1;
-    console.log('User types set:', types);
     
-    // Vehicles - parse from comma-separated string (store as string in DB)
+    // Vehicles - handle both array and string formats
     vehicles = [];
-    if(user.vehicle_no && typeof user.vehicle_no === 'string'){
-        vehicles = user.vehicle_no.split(',').filter(function(v){return v.trim()!==''});
-    } else if(Array.isArray(user.vehicle_no)){
+    if(Array.isArray(user.vehicle_no)){
         vehicles = user.vehicle_no;
+    } else if(user.vehicle_no && typeof user.vehicle_no === 'string'){
+        vehicles = user.vehicle_no.split(',').filter(function(v){return v.trim()!==''});
     }
     console.log('Vehicles:', vehicles);
     renderVehicles();
     
-    // Routes - parse from comma-separated string
+    // Routes - handle both array and string formats
     routes = [];
-    if(user.preferred_routes && typeof user.preferred_routes === 'string'){
-        routes = user.preferred_routes.split(',').filter(function(r){return r.trim()!==''}).map(Number);
-    } else if(Array.isArray(user.preferred_routes)){
+    if(Array.isArray(user.preferred_routes)){
         routes = user.preferred_routes;
+    } else if(user.preferred_routes && typeof user.preferred_routes === 'string'){
+        routes = user.preferred_routes.split(',').filter(function(r){return r.trim()!==''}).map(Number);
     }
     console.log('Routes:', routes);
     renderRoutes();
@@ -1795,9 +1795,12 @@ function saveProfile(){
     
     var location=$('edit-location-hidden').value ? parseInt($('edit-location-hidden').value) : null;
     
-    // vehicle_no should be a comma-separated string, NOT an array
-    var vehicleNoStr = vehicles.length ? vehicles.join(',') : '';
-    var routesStr = routes.length ? routes.join(',') : '';
+    // vehicle_no should be stored as array if column type is TEXT[]
+    // For Supabase, if column is TEXT[], pass as array
+    var vehicleNoArray = vehicles.length ? vehicles : null;
+    
+    // routes as array of numbers
+    var routesArray = routes.length ? routes : null;
     
     var updateData={
         name: $('edit-name').value.trim() || null,
@@ -1807,8 +1810,8 @@ function saveProfile(){
         gst: $('edit-gst').value.trim() || null,
         location: location,
         user_type: userTypes.length ? userTypes : null,
-        vehicle_no: vehicleNoStr || null,  // Comma-separated string
-        preferred_routes: routesStr || null,  // Comma-separated string
+        vehicle_no: vehicleNoArray,  // Pass as array for TEXT[] column
+        preferred_routes: routesArray,  // Pass as array
         details: $('edit-details').value.trim() || null,
         last_active: new Date().toISOString()
     };
