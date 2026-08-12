@@ -1009,7 +1009,7 @@ function selectVehicle(id, number, type, dims, weight){
 }
 
 // ============================================================
-// ADD SELECTED VEHICLE - FIXED: Directly adds without redirecting
+// ADD SELECTED VEHICLE - Directly adds without redirecting
 // ============================================================
 function addSelectedVehicle(){
     var input=$('edit-vehicle-input');
@@ -1070,7 +1070,7 @@ function addSelectedVehicle(){
     });
 }
 
-// Helper function to update user's vehicle list in database
+// Helper function to update user's vehicle list in database (store as comma-separated string)
 function updateUserVehicleList(){
     var vehicleNoStr = vehicles.length ? vehicles.join(',') : '';
     sb.from('active_users').update({vehicle_no: vehicleNoStr}).eq('mobile', user.mobile)
@@ -1214,7 +1214,7 @@ function addTruckRoute(){
 function removeTruckRoute(r){ truckRoutes=truckRoutes.filter(function(x){return x!==r}); renderTruckRoutes(); }
 
 // ============================================================
-// SAVE TRUCK DETAILS - FIXED WITH DUPLICATE CHECK
+// SAVE TRUCK DETAILS - WITH DUPLICATE CHECK
 // ============================================================
 function saveTruckDetails(){
     if(!user){ alert('Please login first'); return; }
@@ -1729,7 +1729,7 @@ function populateEditForm(){
     $('edit-type-agent').checked = types.indexOf(3) !== -1;
     console.log('User types set:', types);
     
-    // Vehicles - parse from comma-separated string
+    // Vehicles - parse from comma-separated string (store as string in DB)
     vehicles = [];
     if(user.vehicle_no && typeof user.vehicle_no === 'string'){
         vehicles = user.vehicle_no.split(',').filter(function(v){return v.trim()!==''});
@@ -1780,6 +1780,9 @@ function updateCharCount(id,countId){
     count.textContent=el.value.length;
 }
 
+// ============================================================
+// SAVE PROFILE - FIXED: vehicle_no as comma-separated string
+// ============================================================
 function saveProfile(){
     if(!user || !user.mobile){ alert('User not logged in.'); return; }
     
@@ -1792,6 +1795,7 @@ function saveProfile(){
     
     var location=$('edit-location-hidden').value ? parseInt($('edit-location-hidden').value) : null;
     
+    // vehicle_no should be a comma-separated string, NOT an array
     var vehicleNoStr = vehicles.length ? vehicles.join(',') : '';
     var routesStr = routes.length ? routes.join(',') : '';
     
@@ -1803,8 +1807,8 @@ function saveProfile(){
         gst: $('edit-gst').value.trim() || null,
         location: location,
         user_type: userTypes.length ? userTypes : null,
-        vehicle_no: vehicleNoStr || null,
-        preferred_routes: routesStr || null,
+        vehicle_no: vehicleNoStr || null,  // Comma-separated string
+        preferred_routes: routesStr || null,  // Comma-separated string
         details: $('edit-details').value.trim() || null,
         last_active: new Date().toISOString()
     };
