@@ -1008,25 +1008,79 @@ function selectVehicle(id, number, type, dims, weight){
     }
 }
 
+// ============================================================
+// ADD SELECTED VEHICLE - FIXED: Directly adds without redirecting
+// ============================================================
 function addSelectedVehicle(){
     var input=$('edit-vehicle-input');
     var val=input.value.trim().toUpperCase();
-    if(!val){ return; }
+    if(!val){ 
+        toast('Please enter a vehicle number');
+        return; 
+    }
     if(!isValidVehicleNumber(val)){ 
         alert('Vehicle number must be 9-11 characters (letters and numbers only)');
         return; 
     }
-    if(vehicles.includes(val)){ return; }
-    sb.from('active_vehicles').select('*').eq('vehicle_number', val).eq('modified_by', user.mobile).maybeSingle()
+    if(vehicles.includes(val)){ 
+        alert('Vehicle "'+val+'" already added to your list');
+        return; 
+    }
+    
+    // Check if vehicle exists in active_vehicles
+    sb.from('active_vehicles').select('*').eq('vehicle_number', val).maybeSingle()
     .then(function(result){
         if(result.data){
+            // Vehicle exists - add it directly
             vehicles.push(val);
             renderVehicles();
             input.value='';
+            updateUserVehicleList();
+            toast('✅ Vehicle "'+val+'" added successfully!');
         }else{
-            openTruckDetailsWithNumber(val);
+            // Vehicle doesn't exist - create it automatically
+            var newVehicle = {
+                vehicle_number: val,
+                vehicle_type: 'Unknown',
+                dimensions: [0, 0, 0],
+                max_weight: 0,
+                description: 'Added from profile',
+                odc_allowed: false,
+                modified_by: user.mobile,
+                latest_update_at: new Date().toISOString()
+            };
+            
+            sb.from('active_vehicles').insert(newVehicle)
+            .then(function(insertResult){
+                if(insertResult.error){
+                    alert('Error creating vehicle: '+insertResult.error.message);
+                    return;
+                }
+                vehicles.push(val);
+                renderVehicles();
+                input.value='';
+                updateUserVehicleList();
+                toast('✅ New vehicle "'+val+'" created and added!');
+            }).catch(function(err){
+                alert('Error: '+err.message);
+            });
         }
-    }).catch(function(){});
+    }).catch(function(err){
+        alert('Error checking vehicle: '+err.message);
+    });
+}
+
+// Helper function to update user's vehicle list in database
+function updateUserVehicleList(){
+    var vehicleNoStr = vehicles.length ? vehicles.join(',') : '';
+    sb.from('active_users').update({vehicle_no: vehicleNoStr}).eq('mobile', user.mobile)
+    .then(function(result){
+        if(result.error){
+            console.error('Error updating user vehicles:', result.error);
+        }
+    }).catch(function(err){
+        console.error('Error updating user vehicles:', err);
+    });
 }
 
 function openTruckDetailsWithNumber(number){
@@ -1706,7 +1760,10 @@ function closeEditProfile(){ goHome(); }
 
 function renderVehicles(){
     var container=$('edit-vehicles-list');
-    if(!vehicles.length){ container.innerHTML='<div style="color:#94a3b8;font-size:12px;padding:4px 0">No vehicles added</div>'; return; }
+    if(!vehicles.length){ 
+        container.innerHTML='<div style="color:#94a3b8;font-size:12px;padding:4px 0">No vehicles added</div>'; 
+        return; 
+    }
     container.innerHTML=vehicles.map(function(v){ 
         return '<div class="vehicle-item"><span>'+v+'</span><span class="remove" onclick="removeVehicle(\''+v+'\')">✕</span></div>'; 
     }).join('');
