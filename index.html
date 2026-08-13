@@ -402,11 +402,11 @@ const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 const sb = window.supabase.createClient(SB_URL, SB_KEY);
 
 // ============================================================
-// SHARED STATE - BOTH PAGES USE THIS
+// STATE - SHARED BETWEEN PROFILE VIEW AND EDIT PROFILE
 // ============================================================
 let user = null, guest = false;
-let vehicles = [];          // SHARED - array of vehicle numbers
-let vehicleDataMap = {};    // SHARED - map of vehicle_number -> full vehicle data
+let vehicles = [];      // SHARED - array of vehicle numbers
+let vehicleDataMap = {}; // SHARED - map of vehicle_number -> full vehicle data
 let routes = [];
 
 // ============================================================
@@ -916,7 +916,7 @@ function renderProfileVehicles() {
     return;
   }
   
-  badge.textContent = vehicles.length + ' Vehicles';
+  badge.textContent = vehicles.length + ' Vehicle(s)';
   container.innerHTML = vehicles.map(v => {
     const data = vehicleDataMap[v] || { vehicle_type: 'Unknown', dimensions: 'N/A' };
     const dims = data.dimensions || 'N/A';
@@ -1032,7 +1032,7 @@ function loadProfile() {
   // Details
   document.getElementById('profile-details-text').textContent = user.details || 'No details added';
   
-  // ===== VEHICLES - USE SHARED STATE =====
+  // Render vehicles from shared state
   renderProfileVehicles();
   renderProfileRoutes();
 }
@@ -1063,7 +1063,6 @@ function loadEditProfileData() {
   // Load vehicles into shared state
   loadVehiclesIntoState(function() {
     renderVehicles();
-    // Also update profile view if it's visible
     renderProfileVehicles();
   });
   
@@ -1132,9 +1131,8 @@ function goHome() {
 function goToProfile() {
   if (!user && !guest) { showLogin(); return; }
   
-  // ✅ FIRST: Load vehicles into shared state
-  // ✅ SECOND: Then show profile page
   refreshUserData(function() {
+    // Load vehicles into shared state before showing profile
     loadVehiclesIntoState(function() {
       document.getElementById('home-page').classList.add('hidden-page');
       document.getElementById('profile-page').classList.remove('hidden-page');
