@@ -3,8 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ReturnTruck - Edit Profile</title>
+<title>ReturnTruck - Find Loads & Trucks</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-transparent">
+<link rel="apple-touch-icon" href="launchericon-192x192.png">
 <style>
 *{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
 body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
@@ -13,17 +18,78 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .header-fixed{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #f1f5f9;background:#fff;z-index:10;width:100%;min-height:50px}
 .logo{font-size:22px;font-weight:900;color:#2563eb;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none}
 .logo-icon{font-size:28px;line-height:1}.logo-text{font-size:22px;font-weight:900;color:#2563eb;letter-spacing:-0.5px}
-.back-btn{background:transparent;border:none;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;padding:4px 8px}.back-btn:hover{color:#2563eb}
-.scroll-body{overflow-y:auto;padding:8px 0;-webkit-overflow-scrolling:touch;display:block;width:100%;flex:1}
-.scroll-body::-webkit-scrollbar{width:4px}.scroll-body::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
+.header-right{display:flex;align-items:center;gap:8px;position:relative}
+.avatar-btn{width:36px;height:36px;border-radius:50%;border:2px solid #e2e8f0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;background:#94a3b8;transition:all .2s}
+.avatar-btn.guest{background:#64748b}
+.profile-dropdown{position:absolute;top:45px;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:160px;z-index:100;display:none}
+.profile-dropdown.show{display:block}
+.dropdown-item{padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:#1e293b;cursor:pointer;border:none;background:transparent;width:100%}
+.dropdown-item:hover{background:#f8fafc}
+.dropdown-divider{height:1px;background:#e2e8f0;margin:4px 12px}
 .nav-fixed{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e2e8f0;background:#fff;position:relative;z-index:10;min-height:65px;width:100%;padding-bottom:5px;margin-top:auto}
 .nav-item{display:flex;flex-direction:column;align-items:center;color:#94a3b8;font-size:9px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px;position:relative;z-index:2}
 .nav-item.active{color:#2563eb}.nav-item .icon{font-size:22px;margin-bottom:2px}.nav-item .label{font-size:9px;text-transform:uppercase;letter-spacing:.05em}
+.scroll-body{overflow-y:auto;padding:8px 0;-webkit-overflow-scrolling:touch;display:block;width:100%;flex:1}
+.scroll-body::-webkit-scrollbar{width:4px}.scroll-body::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
+#login-screen{display:flex;flex-direction:column;height:100%;width:100%;overflow-y:auto;padding:4px 0}
+.login-icon-container{display:flex;justify-content:center;margin-bottom:0}
+.login-icon-container img{width:240px;height:240px;border-radius:40px;box-shadow:0 4px 20px rgba(37,99,235,0.25);background:#fff;padding:8px;max-width:100%}
+.login-subtitle{font-size:13px;color:#64748b;text-align:center;margin-bottom:12px;margin-top:4px}
+.login-stats-container{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:12px;margin-bottom:12px;border:1px solid #bfdbfe}
+.login-stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
+.login-stat-item{text-align:center}
+.login-stat-item .number{font-size:18px;font-weight:800;color:#1d4ed8;display:block;line-height:1.2}
+.login-stat-item .label{font-size:8px;font-weight:600;color:#475569;display:block;text-transform:uppercase}
+.login-step-container{flex:1;display:flex;flex-direction:column;justify-content:center}
+.input-field{width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;background:#fff;margin-bottom:12px}
+.input-field:focus{border-color:#2563eb;outline:none}
+.btn-primary{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px}
+.btn-primary:hover{background:#1d4ed8}
+.btn-back{width:100%;padding:14px;background:#6b7280;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer}
+.login-divider{display:flex;align-items:center;gap:12px;margin:16px 0}
+.location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.location-row .location-input{flex:2}.location-row .radius-select{flex:1}
+.location-input input,.radius-select select{width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;background:#fff}
+.type-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;background:#e2e8f0;padding:3px;border-radius:10px;margin-bottom:6px}
+.type-tabs button{padding:6px 4px;font-size:11px;font-weight:700;border:none;border-radius:8px;cursor:pointer}
+.type-tabs .active{background:#fff;color:#1e293b}.type-tabs .inactive{background:transparent;color:#64748b}
+.filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:10px;font-weight:600;color:#64748b;border-top:1px solid #e2e8f0;margin-top:4px;user-select:none}
+.filter-container{overflow:hidden;transition:max-height 0.3s ease;max-height:0}
+.filter-container.open{max-height:400px;overflow:visible}
+.filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;padding-top:6px}
+.filter-row label{font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
+.filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:11px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;outline:none}
+.search-wrapper{position:relative;width:100%}
+.search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.search-wrapper .suggestions.show{display:block}
+.search-wrapper .suggestions .item{padding:10px 16px;font-size:13px;color:#1e293b;cursor:pointer;border-bottom:1px solid #f1f5f9}
+.search-wrapper .suggestions .item:last-child{border-bottom:none}
+.search-wrapper .suggestions .item:hover{background:#f8fafc}
+.search-wrapper .suggestions .item .highlight{background:#dbeafe;font-weight:600}
+.results-count{display:flex;justify-content:space-between;padding-bottom:4px;margin-bottom:6px;font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
+.feed-container{display:flex;flex-direction:column;gap:10px}
+.feed-card{border:1px solid #e2e8f0;border-radius:12px;padding:12px;cursor:pointer;background:#fff;transition:all .2s}
+.feed-card:hover{border-color:#3b82f6;background:#f8faff}
+.feed-card .header-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+.feed-card .title{font-weight:700;font-size:15px;color:#0f172a;flex:1}
+.feed-card .type-badge{flex-shrink:0;font-size:8px;padding:2px 8px;border-radius:4px;font-weight:700;text-transform:uppercase}
+.feed-card .type-badge.load{background:#dbeafe;color:#1e40af}
+.feed-card .type-badge.truck{background:#dcfce7;color:#166534}
+.feed-card .company{font-size:12px;color:#2563eb;font-weight:600;margin-bottom:2px}
+.feed-card .meta{font-size:11px;color:#475569;margin-top:3px;display:flex;align-items:center;gap:4px}
+.feed-card .stats-row{margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9;display:flex;gap:12px;font-size:10px;color:#94a3b8}
+.feed-card .stats-row span{display:flex;align-items:center;gap:3px}
+.feed-card .stats-row .val{font-weight:600;color:#475569}
+.guest-banner{flex-shrink:0;background:#2563eb;color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.guest-banner.hidden{display:none}
+.guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer}
+.profile-header-card{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:12px;padding:16px;color:#fff;margin-bottom:12px}
 .profile-section{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px}
 .profile-section .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .profile-section .section-title{font-size:14px;font-weight:700;color:#1e293b}
 .profile-section .section-badge{font-size:9px;padding:2px 10px;border-radius:12px;font-weight:700}
 .section-badge.active{background:#dcfce7;color:#166534}
+.section-badge.required{background:#fef3c7;color:#d97706}
 .section-badge.optional{background:#e2e8f0;color:#64748b}
 .section-btn{padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px}
 .section-btn:hover{background:#1d4ed8}
@@ -36,18 +102,37 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .form-control{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;background:#fff;outline:none}
 .form-control:focus{border-color:#2563eb}
 .form-label{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
-.btn-primary{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px}
-.btn-primary:hover{background:#1d4ed8}
-.btn-primary.success{background:#16a34a}.btn-primary.success:hover{background:#15803d}
-.vehicle-item{display:flex;align-items:center;justify-content:space-between;background:#f8fafc;padding:8px 12px;border-radius:6px;margin-bottom:4px;border:1px solid #e2e8f0}
-.vehicle-item .vnumber{font-weight:600;font-size:13px;color:#0f172a;flex:1}
-.vehicle-item .vdetails{font-size:11px;color:#64748b;flex:1}
-.vehicle-item .actions{display:flex;gap:4px}
-.vehicle-item .actions button{padding:3px 8px;font-size:9px;border:none;border-radius:4px;font-weight:600;cursor:pointer}
-.vehicle-item .actions .edit-btn{background:#dbeafe;color:#1e40af}
-.vehicle-item .actions .edit-btn:hover{background:#bfdbfe}
-.vehicle-item .actions .delete-btn{background:#fef2f2;color:#991b1b}
-.vehicle-item .actions .delete-btn:hover{background:#fee2e2}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.detail-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:12px}
+.detail-actions button{width:100%;padding:10px;border-radius:10px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:10px}
+.btn-call{background:#16a34a}.btn-contact{background:#2563eb}.btn-bid{background:#8b5cf6}.btn-share{background:#25D366}
+.back-btn{background:transparent;border:none;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;padding:4px 8px}.back-btn:hover{color:#2563eb}
+.otp-input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff}
+.otp-input:focus{border-color:#2563eb;outline:none}
+.error-text{color:#dc2626;font-size:12px;text-align:center;margin-top:4px;display:none}
+.success-text{color:#16a34a;font-size:12px;text-align:center;margin-top:4px;display:none}
+.resend-btn{background:transparent;border:none;color:#2563eb;font-weight:600;cursor:pointer;font-size:12px;text-decoration:underline}
+.resend-btn:disabled{color:#94a3b8;cursor:not-allowed}
+.stat-cards{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.stat-card{background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0}
+.stat-card .icon{font-size:20px;display:block;margin-bottom:2px}
+.stat-card .number{font-size:20px;font-weight:800;color:#1e293b}
+.stat-card .label{font-size:8px;color:#94a3b8;text-transform:uppercase;font-weight:600}
+.list-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin-bottom:8px}
+.list-item .title{font-weight:600;font-size:13px;color:#1e293b}
+.list-item .sub{font-size:11px;color:#64748b;margin-top:2px}
+.list-item .actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.list-item .actions button{padding:4px 10px;font-size:10px;border:none;border-radius:4px;font-weight:600;cursor:pointer}
+.list-item .actions .edit{background:#dbeafe;color:#1e40af}
+.list-item .actions .edit:hover{background:#bfdbfe}
+.list-item .actions .delete{background:#fef2f2;color:#991b1b}
+.list-item .actions .delete:hover{background:#fee2e2}
+.list-item .actions .interests{background:#fef3c7;color:#92400e}
+.list-item .actions .interests:hover{background:#fde68a}
+.status-badge{font-size:9px;padding:2px 8px;border-radius:10px;font-weight:600;display:inline-block}
+.status-badge.active{background:#dcfce7;color:#166534}
+.status-badge.draft{background:#fef3c7;color:#92400e}
+.status-badge.expired{background:#fef2f2;color:#991b1b}
 .route-tag{background:#e2e8f0;padding:4px 10px;border-radius:6px;font-size:12px;display:inline-block;margin:2px}
 .route-tag .remove{color:#dc2626;cursor:pointer;margin-left:6px;font-weight:700}
 .route-tag .remove:hover{color:#b91c1c}
@@ -63,95 +148,367 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .vehicle-suggest-dropdown .item .sub{font-size:10px;color:#94a3b8}
 .vehicle-suggest-dropdown .item .add-new{color:#2563eb;font-weight:600}
 .vehicle-number-input{font-family:monospace;letter-spacing:0.5px;text-transform:uppercase}
-.search-wrapper{position:relative;width:100%}
-.search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
-.search-wrapper .suggestions.show{display:block}
-.search-wrapper .suggestions .item{padding:10px 16px;font-size:13px;color:#1e293b;cursor:pointer;border-bottom:1px solid #f1f5f9}
-.search-wrapper .suggestions .item:last-child{border-bottom:none}
-.search-wrapper .suggestions .item:hover{background:#f8fafc}
-.search-wrapper .suggestions .item .highlight{background:#dbeafe;font-weight:600}
-.avatar-btn{width:36px;height:36px;border-radius:50%;border:2px solid #e2e8f0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;background:#94a3b8;transition:all .2s}
-.header-right{display:flex;align-items:center;gap:8px;position:relative}
-.profile-dropdown{position:absolute;top:45px;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:160px;z-index:100;display:none}
-.profile-dropdown.show{display:block}
-.dropdown-item{padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:#1e293b;cursor:pointer;border:none;background:transparent;width:100%}
-.dropdown-item:hover{background:#f8fafc}
-.dropdown-divider{height:1px;background:#e2e8f0;margin:4px 12px}
-.vehicle-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000}
-.vehicle-modal.show{display:flex}
-.vehicle-modal-content{background:#fff;border-radius:16px;padding:24px;max-width:400px;width:90%;max-height:80vh;overflow-y:auto}
-.vehicle-modal-content .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.vehicle-modal-content .modal-header h3{margin:0;font-size:18px;color:#0f172a}
-.vehicle-modal-content .modal-close{background:transparent;border:none;font-size:24px;cursor:pointer;color:#94a3b8}
-.vehicle-modal-content .modal-close:hover{color:#dc2626}
-.vehicle-modal-content .form-group{margin-bottom:12px}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.vehicle-item{display:flex;align-items:center;justify-content:space-between;background:#f8fafc;padding:8px 12px;border-radius:6px;margin-bottom:4px;border:1px solid #e2e8f0}
+.vehicle-item .vnumber{font-weight:600;font-size:13px;color:#0f172a;flex:1}
+.vehicle-item .vdetails{font-size:11px;color:#64748b;flex:1}
+.vehicle-item .actions{display:flex;gap:4px}
+.vehicle-item .actions button{padding:3px 8px;font-size:9px;border:none;border-radius:4px;font-weight:600;cursor:pointer}
+.vehicle-item .actions .edit-btn{background:#dbeafe;color:#1e40af}
+.vehicle-item .actions .edit-btn:hover{background:#bfdbfe}
+.vehicle-item .actions .delete-btn{background:#fef2f2;color:#991b1b}
+.vehicle-item .actions .delete-btn:hover{background:#fee2e2}
+.count-badge{background:#2563eb;color:#fff;font-size:10px;border-radius:10px;padding:1px 8px;margin-left:4px}
+.vehicle-display-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;margin-bottom:6px}
+.vehicle-display-item .vnumber{font-weight:700;font-size:14px;color:#0f172a}
+.vehicle-display-item .vdetails{font-size:12px;color:#64748b;margin-top:2px}
+.nav-install-wrapper{display:none}
 </style>
 </head>
 <body>
 <div class="card" id="app-card">
 
-<!-- HOME PAGE (stub) -->
-<div id="home-page" style="display:flex;flex-direction:column;height:100%">
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+    <div class="login-icon-container"><img src="launchericon-192x192.png" alt="ReturnTruck" width="240" height="240"></div>
+    <div class="login-subtitle">Find Loads • Post Trucks • Connect Agents</div>
+    <div class="login-stats-container">
+        <div class="login-stats-grid" style="margin-bottom:6px">
+            <div class="login-stat-item"><span style="font-size:16px">📦</span><span class="number" id="stat-loadgivers">0</span><span class="label">Load Givers</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">🚛</span><span class="number" id="stat-fleetops">0</span><span class="label">Fleet Ops</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">🤝</span><span class="number" id="stat-agents">0</span><span class="label">Agents</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">👤</span><span class="number" id="stat-users">0</span><span class="label">Users</span></div>
+        </div>
+        <div class="login-stats-grid">
+            <div class="login-stat-item"><span style="font-size:16px">🚚</span><span class="number" id="stat-trucks">0</span><span class="label">Trucks</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">📊</span><span class="number" id="stat-loads">0</span><span class="label">Loads</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">📱</span><span class="number" id="stat-installs">0</span><span class="label">Installs</span></div>
+            <div class="login-stat-item"><span style="font-size:16px">📱</span><span class="number" id="stat-visits">0</span><span class="label">Visits</span></div>
+        </div>
+    </div>
+    <div class="login-step-container">
+        <div id="step1">
+            <input type="tel" id="mobile" class="input-field" placeholder="Enter Mobile Number" maxlength="10" autofocus>
+            <div id="mobile-status" style="font-size:12px;color:#94a3b8;text-align:center;margin-top:4px"></div>
+            <div class="login-divider"><div style="flex:1;height:1px;background:#e2e8f0"></div><span style="font-size:10px;color:#94a3b8">or continue as</span><div style="flex:1;height:1px;background:#e2e8f0"></div></div>
+            <button style="width:100%;padding:12px;border:1.5px solid #8b5cf6;border-radius:12px;font-size:14px;font-weight:600;color:#8b5cf6;background:transparent;cursor:pointer" onclick="continueAsGuest()">👤 Guest</button>
+        </div>
+        <div id="step2" class="hidden">
+            <div style="text-align:center;margin-bottom:16px"><div id="display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div><div style="font-size:14px;font-weight:500;color:#475569">Enter your 4-digit PIN</div></div>
+            <input type="password" id="pin" class="input-field" style="letter-spacing:4px;" placeholder="Enter 4-digit PIN" maxlength="4">
+            <div id="pin-error" class="error-text">❌ Incorrect PIN. Please try again.</div>
+            <div style="font-size:12px;text-align:center;margin-bottom:12px;color:#64748b">Forgot PIN? <span style="color:#2563eb;cursor:pointer;font-weight:600" onclick="showResetOTP()">Reset PIN</span></div>
+            <button onclick="submitPin()" id="submitBtn" class="btn-primary" style="background:#16a34a">🔐 Login</button>
+            <button onclick="resetForm()" class="btn-back">← Change Number</button>
+        </div>
+        <div id="step3" class="hidden">
+            <div style="text-align:center;margin-bottom:12px">
+                <div id="wa-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
+                <div id="otp-purpose" style="font-size:13px;color:#475569">Enter OTP sent via WhatsApp</div>
+            </div>
+            <div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px">
+                <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
+                <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
+                <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
+                <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
+                <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
+                <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
+            </div>
+            <div id="otp-error" class="error-text">❌ Invalid OTP. Please try again.</div>
+            <div id="otp-success" class="success-text">✅ OTP verified successfully!</div>
+            <div style="text-align:center;font-size:13px;color:#64748b;margin-bottom:8px">⏳ <span id="otp-timer">5:00</span></div>
+            <div style="text-align:center;font-size:12px;margin-bottom:12px">
+                <button class="resend-btn" id="resend-otp-btn" onclick="resendOTP()">📱 Resend OTP</button>
+                <br><br>
+                <button class="resend-btn" onclick="sendWhatsAppOTP()" style="color:#25D366;font-weight:700">💬 Send OTP via WhatsApp</button>
+            </div>
+            <button onclick="verifyOTP()" id="verify-btn" class="btn-primary" style="background:#16a34a">✅ Verify</button>
+            <button onclick="resetForm()" class="btn-back">← Change Number</button>
+        </div>
+        <div id="step4" class="hidden">
+            <div style="text-align:center;margin-bottom:16px"><div id="reg-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
+            <div id="step4-purpose" style="font-size:13px;color:#475569">Set your 4-digit PIN for login</div></div>
+            <input type="password" id="reg-pin" class="input-field" placeholder="New PIN (4 digits)" maxlength="4">
+            <input type="password" id="reg-pin-confirm" class="input-field" placeholder="Confirm PIN" maxlength="4">
+            <button onclick="registerUser()" id="register-btn" class="btn-primary" style="background:#16a34a">✅ Create Account</button>
+            <button onclick="resetForm()" class="btn-back">← Change Number</button>
+        </div>
+    </div>
+    <div style="flex-shrink:0;background:#fef3c7;border-left:4px solid #f59e0b;border-radius:8px;padding:12px 16px;margin-top:12px;font-size:10px;color:#92400e;line-height:1.5">
+        <div style="font-weight:700;font-size:11px;display:flex;align-items:center;gap:4px">⚠️ Disclaimer</div>
+        ReturnTruck is a FREE connecting platform. No charges from any party. Not responsible for financial or other losses.
+    </div>
+</div>
+
+<!-- HOME PAGE -->
+<div id="home-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <div class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></div>
         <div class="header-right">
-            <button class="avatar-btn" id="avatar-btn" onclick="toggleDropdown()"><span id="avatar-initials">GU</span></button>
+            <button class="avatar-btn guest" id="avatar-btn" onclick="toggleDropdown()"><span id="avatar-initials">GU</span></button>
             <div class="profile-dropdown" id="profile-dropdown">
-                <button class="dropdown-item" onclick="closeDropdown();goToEditProfile()">✏️ Edit Profile</button>
+                <button class="dropdown-item" onclick="closeDropdown();goToProfile()">👤 View Profile</button>
+                <button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button>
+                <div class="dropdown-divider"></div>
                 <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button>
             </div>
         </div>
     </div>
-    <div style="padding:20px;text-align:center;color:#64748b">
-        <h3>🏠 Home Page</h3>
-        <p>Click Edit Profile to manage your vehicles and routes</p>
-        <button onclick="goToEditProfile()" class="btn-primary" style="width:auto;padding:10px 30px">✏️ Edit Profile</button>
+    <div id="home-top" style="flex-shrink:0; padding-top:0;">
+        <div id="guest-banner" class="guest-banner hidden"><span>👋 Welcome, Guest!</span><button class="btn-login" onclick="showLogin()">🔐 Login</button></div>
+        <div class="location-row">
+            <div class="location-input">
+                <input type="text" id="search-home" placeholder="📍 Search Location" onclick="selectInputText(this)" oninput="searchLocation('home')" autocomplete="off">
+                <div class="search-wrapper"><div class="suggestions" id="suggestions-home"></div></div>
+            </div>
+            <div class="radius-select">
+                <select id="radius-select" onchange="applyFilters()">
+                    <option value="5">5 KM</option><option value="10">10 KM</option><option value="25">25 KM</option><option value="50" selected>50 KM</option><option value="100">100 KM</option><option value="200">200 KM</option>
+                </select>
+            </div>
+        </div>
+        <div class="type-tabs">
+            <button id="tab-all" class="active" onclick="setTab('ALL')">All</button>
+            <button id="tab-loads" class="inactive" onclick="setTab('LOAD')">Loads</button>
+            <button id="tab-trucks" class="inactive" onclick="setTab('TRUCK')">Trucks</button>
+            <button id="tab-agents" class="inactive" onclick="setTab('AGENT')">Agents</button>
+        </div>
+        <div class="filter-toggle" onclick="toggleFilters()">
+            <span id="filter-toggle-label">🔍 Hide Filters</span>
+            <span class="arrow open" id="filter-arrow">▲</span>
+        </div>
+        <div class="filter-container open" id="filter-container">
+            <div class="filter-row">
+                <div>
+                    <label>📍 To Location</label>
+                    <div style="position:relative;width:100%">
+                        <input type="text" id="search-to" placeholder="📍 Search Location" onclick="selectInputText(this)" oninput="searchLocation('to')" autocomplete="off">
+                        <div class="search-wrapper"><div class="suggestions" id="suggestions-to"></div></div>
+                        <input type="hidden" id="filter-to-hidden">
+                    </div>
+                </div>
+                <div>
+                    <label>🚛 Vehicle Type</label>
+                    <select id="filter-vehicle" onchange="applyFilters()">
+                        <option value="ALL">All</option>
+                        <option value="3-Wheeler / Tempo">3-Wheeler / Tempo</option>
+                        <option value="Mini Truck">Mini Truck</option>
+                        <option value="LCV Open Body Truck">LCV Open Body Truck</option>
+                        <option value="LCV - Container">LCV - Container</option>
+                        <option value="LCV - Flat bed">LCV - Flat bed</option>
+                        <option value="Open Body Truck">Open Body Truck</option>
+                        <option value="Box Body Truck">Box Body Truck</option>
+                        <option value="Flat bed Truck">Flat bed Truck</option>
+                        <option value="Trailer - Open Body">Trailer - Open Body</option>
+                        <option value="Trailer - Box Body">Trailer - Box Body</option>
+                        <option value="Trailer - High Bed">Trailer - High Bed</option>
+                        <option value="Trailer - Semi Low Bed">Trailer - Semi Low Bed</option>
+                        <option value="Trailer - Low Bed">Trailer - Low Bed</option>
+                        <option value="Trailer - Automobile Carrier">Trailer - Automobile Carrier</option>
+                        <option value="Tipper / Dumper">Tipper / Dumper</option>
+                        <option value="Tanker">Tanker</option>
+                        <option value="Cement Bulker">Cement Bulker</option>
+                        <option value="Refrigerated / Reefer">Refrigerated / Reefer</option>
+                        <option value="Explosive / Hazardous Vehicle">Explosive / Hazardous Vehicle</option>
+                        <option value="Over-Dimensional Cargo (ODC)">Over-Dimensional Cargo (ODC)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="results-count"><span id="results-count">Showing 0 Records</span></div>
+        <div style="width:100%;height:1px;background:#f1f5f9;margin-top:2px;margin-bottom:4px;flex-shrink:0"></div>
     </div>
-    <div class="nav-fixed">
+    <div class="scroll-body" id="home-scroll-body"><div id="feed-container" class="feed-container"></div></div>
+    <div class="nav-fixed" id="bottom-nav">
         <button class="nav-item active" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
-        <button class="nav-item" onclick="goToEditProfile()"><span class="icon">✏️</span><span class="label">Edit</span></button>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
     </div>
 </div>
 
-<!-- ==================== EDIT PROFILE PAGE ==================== -->
+<!-- POST LOAD PAGE -->
+<div id="postload-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
+    <div class="header-fixed">
+        <span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span>
+        <button class="back-btn" onclick="cancelPost()">Cancel</button>
+    </div>
+    <div class="scroll-body" id="postload-scroll">
+        <div class="form-group"><label class="form-label">Material Type *</label>
+            <select class="form-control" id="pl-material"><option value="">Select</option><option value="Steel Pipes">Steel Pipes</option><option value="Cement">Cement</option><option value="Other">Other</option></select></div>
+        <div class="grid-2"><div><label>Weight (Kg)</label><input class="form-control" type="number" id="pl-weight"></div><div><label>Dimensions (ft)</label><input class="form-control" type="text" id="pl-dim" placeholder="40x8x8"></div></div>
+        <div class="grid-2">
+            <div><label>📍 Pickup</label>
+                <div style="position:relative;width:100%">
+                    <input type="text" id="search-pl-pickup" placeholder="📍 Search Location" onclick="selectInputText(this)" oninput="searchLocation('pl-pickup')" autocomplete="off">
+                    <div class="search-wrapper"><div class="suggestions" id="suggestions-pl-pickup"></div></div>
+                    <input type="hidden" id="pl-pickup-hidden">
+                </div>
+            </div>
+            <div><label>📍 Drop</label>
+                <div style="position:relative;width:100%">
+                    <input type="text" id="search-pl-drop" placeholder="📍 Search Location" onclick="selectInputText(this)" oninput="searchLocation('pl-drop')" autocomplete="off">
+                    <div class="search-wrapper"><div class="suggestions" id="suggestions-pl-drop"></div></div>
+                    <input type="hidden" id="pl-drop-hidden">
+                </div>
+            </div>
+        </div>
+        <div class="grid-2"><div><label>Rate (₹)</label><input class="form-control" type="text" id="pl-rate"></div><div><label>Date</label><input class="form-control" type="date" id="pl-date"></div></div>
+        <button class="btn-primary" onclick="publishLoad()">📤 Publish Load</button>
+    </div>
+    <div class="nav-fixed" id="bottom-nav2">
+        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
+        <button class="nav-item active" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+    </div>
+</div>
+
+<!-- POST TRUCK PAGE -->
+<div id="posttruck-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
+    <div class="header-fixed">
+        <span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span>
+        <button class="back-btn" onclick="cancelPost()">Cancel</button>
+    </div>
+    <div class="scroll-body" id="posttruck-scroll">
+        <div class="form-group"><label>Vehicle Number</label><div style="display:flex;gap:8px"><input class="form-control vehicle-number-input" id="pt-number" style="flex:2" placeholder="MH12AB1234"><button class="btn-primary" style="width:auto;padding:10px 16px" onclick="autoFetchVehicle()">🔍 Auto-Fetch</button></div></div>
+        <div class="form-group"><label>📍 Location</label>
+            <div style="position:relative;width:100%">
+                <input type="text" id="search-pt-location" placeholder="📍 Search Location" onclick="selectInputText(this)" oninput="searchLocation('pt-location')" autocomplete="off">
+                <div class="search-wrapper"><div class="suggestions" id="suggestions-pt-location"></div></div>
+                <input type="hidden" id="pt-location-hidden">
+            </div>
+        </div>
+        <div class="grid-2"><div><label>Available From</label><input class="form-control" type="date" id="pt-available"></div><div><label>Rate / KM</label><input class="form-control" type="text" id="pt-rate-km"></div></div>
+        <div class="grid-2"><div><label>Driver Name</label><input class="form-control" id="pt-driver"></div><div><label>Driver Mobile</label><input class="form-control" id="pt-driver-mobile" maxlength="10"></div></div>
+        <button class="btn-primary" onclick="publishTruck()">📤 List Truck</button>
+    </div>
+    <div class="nav-fixed" id="bottom-nav3">
+        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item active" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+    </div>
+</div>
+
+<!-- PROFILE PAGE -->
+<div id="profile-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
+    <div class="header-fixed">
+        <span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span>
+        <div class="header-right">
+            <button class="avatar-btn" id="avatar-btn-profile" onclick="toggleDropdown()"><span id="avatar-initials-profile">GU</span></button>
+            <div class="profile-dropdown" id="profile-dropdown-profile">
+                <button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button>
+                <button class="dropdown-item" onclick="closeDropdown();openEditProfile()">✏️ Edit Profile</button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button>
+            </div>
+        </div>
+    </div>
+    <div class="scroll-body" id="profile-scroll">
+        <div class="profile-header-card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                    <div id="profile-name" style="font-size:20px;font-weight:700">--</div>
+                    <div style="font-size:10px;opacity:.7">⭐ Last active: <span id="profile-last-active">Never</span></div>
+                </div>
+                <div style="text-align:right">
+                    <div style="font-size:20px">👤</div>
+                    <div style="font-size:10px;background:rgba(255,255,255,.2);padding:2px 12px;border-radius:12px;display:inline-block">⭐ Member</div>
+                </div>
+            </div>
+        </div>
+        <div class="profile-section">
+            <div class="section-header">
+                <span class="section-title">🏢 Company Details</span>
+                <button class="section-btn secondary" style="padding:4px 12px;font-size:10px" onclick="openEditProfile()">✏️ Edit</button>
+            </div>
+            <div style="font-weight:600;font-size:15px;color:#1e293b" id="profile-company">Not set</div>
+            <div style="font-size:12px;color:#2563eb" id="profile-website">--</div>
+            <div style="font-size:11px;color:#64748b;margin-top:4px" id="profile-pan">📛 PAN: --</div>
+            <div style="font-size:11px;color:#64748b;margin-top:2px" id="profile-gst">📛 GST: --</div>
+            <div style="font-size:11px;color:#64748b;margin-top:2px" id="profile-location">📍 Location: Not set</div>
+        </div>
+        <div class="profile-section">
+            <label class="form-label" style="margin-bottom:6px">🎯 User Type</label>
+            <div id="profile-user-types" style="display:flex;gap:8px;flex-wrap:wrap">
+                <span class="section-badge optional">Not set</span>
+            </div>
+        </div>
+        <div class="profile-section">
+            <div class="section-header">
+                <span class="section-title">🚛 My Vehicles</span>
+                <span class="section-badge active" id="vehicle-count-badge">0 Vehicles</span>
+            </div>
+            <div id="profile-vehicles-container">
+                <div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>
+            </div>
+        </div>
+        <div class="profile-section">
+            <div class="section-header">
+                <span class="section-title">🗺️ Preferred Routes</span>
+                <span class="section-badge optional">Optional</span>
+            </div>
+            <div id="profile-routes-container" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
+                <span style="color:#94a3b8;font-size:12px">No routes added</span>
+            </div>
+        </div>
+        <div class="profile-section" id="profile-about-section">
+            <label class="form-label">📝 About / Details</label>
+            <div id="profile-details-text" style="font-size:14px;color:#475569;padding:4px 0">No details added</div>
+        </div>
+        <div style="margin-bottom:8px">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px">📦 My Loads <span class="count-badge" id="my-loads-count">0</span></div>
+            <div id="my-loads-container"></div>
+        </div>
+        <div style="margin-bottom:8px">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px">🚛 My Trucks <span class="count-badge" id="my-trucks-count">0</span></div>
+            <div id="my-trucks-container"></div>
+        </div>
+        <div style="margin:12px 0 8px">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px">📊 MY STATISTICS</div>
+            <div class="stat-cards">
+                <div class="stat-card"><span class="icon">📦</span><span class="number" id="stat-loads-count">0</span><span class="label">Loads</span></div>
+                <div class="stat-card"><span class="icon">🚛</span><span class="number" id="stat-trucks-count">0</span><span class="label">Trucks</span></div>
+                <div class="stat-card"><span class="icon">🚚</span><span class="number" id="stat-vehicles-count">0</span><span class="label">Vehicles</span></div>
+                <div class="stat-card"><span class="icon">⭐</span><span class="number" id="stat-rating">4.8</span><span class="label">Rating</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="nav-fixed" id="bottom-nav4">
+        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item active" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+    </div>
+</div>
+
+<!-- EDIT PROFILE PAGE -->
 <div id="edit-profile-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <span class="logo"><span class="logo-icon">✏️</span><span class="logo-text">Edit Profile</span></span>
-        <button class="back-btn" onclick="goHome()">✕</button>
+        <button class="back-btn" onclick="closeEditProfile()">✕</button>
     </div>
     <div class="scroll-body" id="edit-profile-scroll">
-        <!-- Full Name -->
         <div class="profile-section">
             <label class="form-label">👤 Full Name</label>
             <input class="form-control" id="edit-name" placeholder="Rajesh Kumar">
         </div>
-
-        <!-- Company Name -->
         <div class="profile-section">
             <label class="form-label">🏢 Company Name</label>
             <input class="form-control" id="edit-company" placeholder="ABC Steel Traders">
         </div>
-
-        <!-- Company Website -->
         <div class="profile-section">
             <label class="form-label">🌐 Company Website</label>
             <input class="form-control" id="edit-website" placeholder="https://www.abcsteel.com">
         </div>
-
-        <!-- PAN Number -->
         <div class="profile-section">
             <label class="form-label">📛 PAN Number</label>
             <input class="form-control" id="edit-pan" placeholder="AABCP1234D">
         </div>
-
-        <!-- GST Number -->
         <div class="profile-section">
             <label class="form-label">📛 GST Number</label>
             <input class="form-control" id="edit-gst" placeholder="22AABC1234D1ZP">
         </div>
-
-        <!-- Location PIN -->
         <div class="profile-section">
             <label class="form-label">📍 Location PIN</label>
             <div style="position:relative;width:100%">
@@ -160,8 +517,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <input type="hidden" id="edit-location-hidden">
             </div>
         </div>
-
-        <!-- User Type - Checkboxes -->
         <div class="profile-section">
             <label class="form-label">🎯 User Type</label>
             <div class="user-type-checkbox">
@@ -171,21 +526,15 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
             <div style="font-size:10px;color:#94a3b8;margin-top:4px">Select all that apply</div>
         </div>
-
-        <!-- My Vehicles -->
         <div class="profile-section">
             <label class="form-label">🚛 My Vehicles</label>
             <div class="route-input-row">
-                <div style="flex:2;position:relative">
-                    <input class="form-control vehicle-number-input" id="edit-vehicle-input" placeholder="Type vehicle number..." oninput="searchVehicles(this.value)" autocomplete="off">
-                    <div class="vehicle-suggest-dropdown" id="vehicle-suggest-dropdown"></div>
-                </div>
+                <input class="form-control vehicle-number-input" id="edit-vehicle-input" placeholder="Type vehicle number..." oninput="validateAndSearchVehicle(this.value)" autocomplete="off" style="flex:2">
                 <button class="section-btn success" onclick="addSelectedVehicle()">➕ Add</button>
             </div>
+            <div class="vehicle-suggest-dropdown" id="vehicle-suggest-dropdown"></div>
             <div id="edit-vehicles-list" style="margin-top:8px"></div>
         </div>
-
-        <!-- Preferred Routes -->
         <div class="profile-section">
             <label class="form-label">🗺️ Preferred Routes</label>
             <div class="route-input-row">
@@ -198,133 +547,82 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
             <div id="edit-routes-list" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"></div>
         </div>
-
-        <!-- About / Details -->
         <div class="profile-section">
             <label class="form-label">📝 About / Details</label>
             <textarea class="form-control" id="edit-details" rows="3" placeholder="About your business, services, etc." style="resize:vertical"></textarea>
             <div style="font-size:10px;color:#94a3b8;text-align:right"><span id="edit-details-count">0</span>/300</div>
         </div>
-
-        <button class="btn-primary success" onclick="saveProfile()" style="margin-top:8px">💾 Save Profile</button>
+        <button class="btn-primary" onclick="saveProfile()" style="margin-top:8px">💾 Save Profile</button>
     </div>
-    <div class="nav-fixed">
+    <div class="nav-fixed" id="bottom-nav-edit">
         <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
-        <button class="nav-item active" onclick="goToEditProfile()"><span class="icon">✏️</span><span class="label">Edit</span></button>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
     </div>
 </div>
 
-<!-- ==================== VEHICLE EDIT MODAL ==================== -->
-<div class="vehicle-modal" id="vehicle-modal">
-    <div class="vehicle-modal-content">
-        <div class="modal-header">
-            <h3 id="modal-vehicle-title">✏️ Edit Vehicle</h3>
-            <button class="modal-close" onclick="closeVehicleModal()">✕</button>
-        </div>
-        <div id="modal-vehicle-number" style="font-weight:700;font-size:16px;color:#0f172a;margin-bottom:12px"></div>
-        <div class="form-group">
-            <label class="form-label">🚛 Vehicle Type</label>
-            <select class="form-control" id="modal-vehicle-type">
-                <option value="">Select vehicle type...</option>
-                <option value="3-Wheeler / Tempo">3-Wheeler / Tempo</option>
-                <option value="Mini Truck">Mini Truck</option>
-                <option value="LCV Open Body Truck">LCV Open Body Truck</option>
-                <option value="LCV - Container">LCV - Container</option>
-                <option value="LCV - Flat bed">LCV - Flat bed</option>
-                <option value="Open Body Truck">Open Body Truck</option>
-                <option value="Box Body Truck">Box Body Truck</option>
-                <option value="Flat bed Truck">Flat bed Truck</option>
-                <option value="Trailer - Open Body">Trailer - Open Body</option>
-                <option value="Trailer - Box Body">Trailer - Box Body</option>
-                <option value="Trailer - High Bed">Trailer - High Bed</option>
-                <option value="Trailer - Semi Low Bed">Trailer - Semi Low Bed</option>
-                <option value="Trailer - Low Bed">Trailer - Low Bed</option>
-                <option value="Trailer - Automobile Carrier">Trailer - Automobile Carrier</option>
-                <option value="Tipper / Dumper">Tipper / Dumper</option>
-                <option value="Tanker">Tanker</option>
-                <option value="Cement Bulker">Cement Bulker</option>
-                <option value="Refrigerated / Reefer">Refrigerated / Reefer</option>
-                <option value="Explosive / Hazardous Vehicle">Explosive / Hazardous Vehicle</option>
-                <option value="Over-Dimensional Cargo (ODC)">Over-Dimensional Cargo (ODC)</option>
-            </select>
-        </div>
-        <div class="grid-2">
-            <div class="form-group">
-                <label class="form-label">Length (ft)</label>
-                <input class="form-control" id="modal-length" type="number" step="0.1" value="40">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Width (ft)</label>
-                <input class="form-control" id="modal-width" type="number" step="0.1" value="8.2">
-            </div>
-        </div>
-        <div class="grid-2">
-            <div class="form-group">
-                <label class="form-label">Height (ft)</label>
-                <input class="form-control" id="modal-height" type="number" step="0.1" value="8">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Max Weight (Kg)</label>
-                <input class="form-control" id="modal-max-weight" type="number" placeholder="0">
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="form-label">📝 Description</label>
-            <input class="form-control" id="modal-description" placeholder="Vehicle description...">
-        </div>
-        <div class="form-group">
-            <label class="form-label">🚛 ODC Allowed</label>
-            <div style="display:flex;gap:16px;margin-top:4px">
-                <label><input type="radio" name="modal-odc" value="true" checked> Yes</label>
-                <label><input type="radio" name="modal-odc" value="false"> No</label>
-            </div>
-        </div>
-        <button class="btn-primary success" onclick="saveVehicleModal()">💾 Save Vehicle Details</button>
-        <button class="btn-primary" style="background:#dc2626;margin-top:6px" onclick="deleteVehicleFromModal()">🗑️ Delete Vehicle</button>
-        <input type="hidden" id="modal-vehicle-id">
+<!-- DETAIL PAGE -->
+<div id="detail-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
+    <div class="header-fixed">
+        <span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span>
+        <button class="back-btn" onclick="closeDetail()">Cancel</button>
     </div>
-</div>
-
-<!-- LOGIN SCREEN -->
-<div id="login-screen" style="display:flex;flex-direction:column;height:100%;width:100%;padding:20px">
-    <div style="text-align:center;margin-bottom:20px">
-        <div style="font-size:48px">🚛</div>
-        <h2>ReturnTruck</h2>
-        <p style="color:#64748b">Login to manage your profile</p>
+    <div class="scroll-body" id="detail-scroll">
+        <div style="margin-bottom:12px"><div style="font-size:17px;font-weight:700" id="detail-title">Title</div><div id="detail-company" style="font-size:13px;color:#2563eb">Company</div></div>
+        <div class="detail-actions"><button class="btn-call" onclick="makeCall()">📞 Call</button><button class="btn-contact" onclick="contactUser()">✉️ Contact</button><button class="btn-bid" onclick="expressInterest()">🤝 Interest</button><button class="btn-share" onclick="handleShareClick()">↗️ Share</button></div>
     </div>
-    <input type="tel" id="mobile" class="input-field" placeholder="Enter Mobile Number" maxlength="10">
-    <input type="password" id="pin" class="input-field" placeholder="Enter 4-digit PIN" maxlength="4" style="letter-spacing:4px">
-    <button onclick="loginUser()" class="btn-primary">🔐 Login</button>
-    <button onclick="continueAsGuest()" style="width:100%;padding:12px;border:1.5px solid #8b5cf6;border-radius:12px;font-size:14px;font-weight:600;color:#8b5cf6;background:transparent;cursor:pointer">👤 Guest</button>
-    <div id="login-error" style="color:#dc2626;font-size:12px;text-align:center;margin-top:10px;display:none"></div>
+    <div class="nav-fixed" id="bottom-nav5">
+        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+    </div>
 </div>
 
 <script>
 // ============================================================
 // CONFIG
 // ============================================================
-const SB_URL = 'https://ghjoffovatgvhzxlupef.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
+const SB_URL='https://ghjoffovatgvhzxlupef.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
+const EDGE_URL='https://ghjoffovatgvhzxlupef.supabase.co/functions/v1';
 const sb = window.supabase.createClient(SB_URL, SB_KEY);
 
 // ============================================================
 // STATE
 // ============================================================
-let user = null, guest = false;
+let user = null, guest = false, tab = 'ALL', items = [], detail = null, mobile = '';
+let homePinId = null, toPinId = null, filterOpen = true;
 let vehicles = [], routes = [];
+let otpTimer = null, otpSeconds = 300, otpVerified = false, generatedOTP = '';
+let isResetFlow = false, otpPurpose = 'registration';
 let vehicleDataMap = {};
-let editingVehicleNumber = null;
 
 // ============================================================
 // LOCATIONS
 // ============================================================
 const LOCATIONS = [
+  {pin_id:53300104, pincode:"533001", name:"Kakinada", district:"Kakinada", state:"AP", lat:16.9550556, lng:82.2354722},
+  {pin_id:53340114, pincode:"533401", name:"Tuni", district:"Kakinada", state:"AP", lat:17.3581389, lng:82.5455278},
+  {pin_id:53340604, pincode:"533406", name:"Annavaram", district:"Kakinada", state:"AP", lat:17.2830278, lng:82.4064444},
+  {pin_id:53342905, pincode:"533429", name:"Yeleswaram", district:"Kakinada", state:"AP", lat:17.2893333, lng:82.1058889},
+  {pin_id:52400103, pincode:"524001", name:"Nellore", district:"SPSR NELLORE", state:"AP", lat:14.451895, lng:79.980856},
+  {pin_id:52400405, pincode:"524004", name:"Buja Buja Nellore", district:"SPSR NELLORE", state:"AP", lat:14.393973, lng:79.938857},
+  {pin_id:52420106, pincode:"524201", name:"Kavali", district:"SPSR NELLORE", state:"AP", lat:14.91658, lng:79.993121},
+  {pin_id:52434404, pincode:"524344", name:"Muthukur", district:"SPSR NELLORE", state:"AP", lat:14.5749722, lng:80.1420833},
   {pin_id:50000101, pincode:"500001", name:"Hyderabad G.P.O.", district:"HYDERABAD", state:"TG", lat:17.387993, lng:78.47652},
+  {pin_id:50000802, pincode:"500008", name:"Lungeruse", district:"HYDERABAD", state:"TG", lat:17.37586111, lng:78.42025},
+  {pin_id:50000803, pincode:"500008", name:"Toli Chowki", district:"HYDERABAD", state:"TG", lat:17.65252778, lng:78.68886111},
   {pin_id:50004501, pincode:"500045", name:"Yousufguda", district:"HYDERABAD", state:"TG", lat:17.441504, lng:78.424536},
   {pin_id:50004902, pincode:"500049", name:"Miyapur", district:"MEDCHAL MALKAJGIRI", state:"TG", lat:17.49253338, lng:78.35148793},
-  {pin_id:53300104, pincode:"533001", name:"Kakinada", district:"Kakinada", state:"AP", lat:16.9550556, lng:82.2354722},
-  {pin_id:52400103, pincode:"524001", name:"Nellore", district:"SPSR NELLORE", state:"AP", lat:14.451895, lng:79.980856},
-  {pin_id:52420106, pincode:"524201", name:"Kavali", district:"SPSR NELLORE", state:"AP", lat:14.91658, lng:79.993121}
+  {pin_id:50006201, pincode:"500062", name:"Ecil", district:"MEDCHAL MALKAJGIRI", state:"TG", lat:17.465795, lng:78.570653},
+  {pin_id:50007503, pincode:"500075", name:"Gandipet", district:"RANGA REDDY", state:"TG", lat:17.38471, lng:78.320332},
+  {pin_id:50007504, pincode:"500075", name:"Kokapet", district:"RANGA REDDY", state:"TG", lat:17.38471, lng:78.320332},
+  {pin_id:50009201, pincode:"500092", name:"Boduppal", district:"MEDCHAL MALKAJGIRI", state:"TG", lat:17.42022, lng:78.58452},
+  {pin_id:50009702, pincode:"500097", name:"Meerpet", district:"RANGA REDDY", state:"TG", lat:17.320999, lng:78.530474},
+  {pin_id:50009801, pincode:"500098", name:"Medipalli", district:"MEDCHAL MALKAJGIRI", state:"TG", lat:17.40909, lng:78.60141},
+  {pin_id:50011201, pincode:"500112", name:"Badangpet", district:"HYDERABAD", state:"TG", lat:17.30505, lng:78.525178}
 ];
 
 function getLoc(pinId) {
@@ -336,6 +634,15 @@ function getLoc(pinId) {
 function getLocDisplayName(loc) {
   if (!loc) return 'Unknown';
   return loc.name + ', ' + loc.district + ', ' + loc.state + ' (' + loc.pincode + ')';
+}
+function getLocName(pinId) {
+  const l = getLoc(pinId);
+  return l ? getLocDisplayName(l) : pinId || 'Unknown';
+}
+function dist(lat1,lng1,lat2,lng2) {
+  const R=6371,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180;
+  const a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
 
 // ============================================================
@@ -394,11 +701,17 @@ function selectLoc(ctx, pinId) {
   const inp = $('search-' + ctx);
   if (inp) { inp.value = dn; setTimeout(() => { inp.select(); inp.classList.add('selected'); }, 100); }
   let hid = null;
-  if (ctx === 'edit-location') hid = 'edit-location-hidden';
+  if (ctx === 'home') { homePinId = pinId; localStorage.setItem('rt_home_location', JSON.stringify({pinId, displayName: dn})); applyFilters(); return; }
+  if (ctx === 'to') hid = 'filter-to-hidden';
+  else if (ctx === 'pl-pickup') hid = 'pl-pickup-hidden';
+  else if (ctx === 'pl-drop') hid = 'pl-drop-hidden';
+  else if (ctx === 'pt-location') hid = 'pt-location-hidden';
+  else if (ctx === 'edit-location') hid = 'edit-location-hidden';
   else if (ctx === 'edit-route') hid = 'edit-route-hidden';
   if (hid && $(hid)) $(hid).value = pinId;
   const sug = $('suggestions-' + ctx);
   if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
+  if (ctx === 'to') applyFilters();
 }
 
 // ============================================================
@@ -407,18 +720,27 @@ function selectLoc(ctx, pinId) {
 function isValidVehicleNumber(number) {
   return /^[A-Za-z0-9]{9,11}$/.test(number);
 }
+function validateVehicleNumberInput(input) {
+  let cleaned = input.value.replace(/[^A-Za-z0-9]/g, '');
+  if (input.value !== cleaned) input.value = cleaned;
+  input.value = input.value.toUpperCase();
+  if (input.value.length > 11) input.value = input.value.substring(0, 11);
+}
+function validateAndSearchVehicle(value) {
+  validateVehicleNumberInput($('edit-vehicle-input'));
+  searchVehicles(value);
+}
 
 function searchVehicles(query) {
   const dropdown = $('vehicle-suggest-dropdown');
   const q = query.trim().toUpperCase();
   if (!q || q.length < 2) { dropdown.classList.remove('show'); return; }
-  
   sb.from('active_vehicles').select('*').ilike('vehicle_number', '%' + q + '%').limit(10)
     .then(result => {
       if (result.error) { console.error(result.error); return; }
       const vlist = result.data || [];
       if (!vlist.length) {
-        dropdown.innerHTML = '<div class="item add-new" onclick="openNewVehicleRegistration(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
+        dropdown.innerHTML = '<div class="item add-new" onclick="addNewVehicleFromSuggestion(\'' + q + '\')">➕ Add New Vehicle "' + q + '"</div>';
         dropdown.classList.add('show');
         return;
       }
@@ -429,7 +751,7 @@ function searchVehicles(query) {
           v.vehicle_number + ' <span class="sub">' + v.vehicle_type + ' • ' + dims + 'ft</span>' +
           '</div>';
       });
-      html += '<div class="item add-new" onclick="openNewVehicleRegistration(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
+      html += '<div class="item add-new" onclick="addNewVehicleFromSuggestion(\'' + q + '\')">➕ Add New Vehicle "' + q + '"</div>';
       dropdown.innerHTML = html;
       dropdown.classList.add('show');
     }).catch(() => { dropdown.classList.remove('show'); });
@@ -442,147 +764,32 @@ function selectVehicleFromSuggestion(id, number, type, dims) {
     renderVehicles();
     $('edit-vehicle-input').value = '';
     $('vehicle-suggest-dropdown').classList.remove('show');
-    toast('✅ Vehicle "' + number + '" added to your list');
-    // Auto-save after adding
-    autoSaveVehicles();
+    toast('✅ Vehicle "' + number + '" added');
   } else {
-    toast('Vehicle already in your list');
+    toast('Vehicle already in list');
   }
 }
 
-function openNewVehicleRegistration(number) {
-  $('vehicle-suggest-dropdown').classList.remove('show');
-  $('modal-vehicle-title').textContent = '📝 Register New Vehicle';
-  $('modal-vehicle-number').textContent = 'Vehicle Number: ' + number;
-  $('modal-vehicle-id').value = '';
-  $('modal-vehicle-type').value = '';
-  $('modal-length').value = '40';
-  $('modal-width').value = '8.2';
-  $('modal-height').value = '8';
-  $('modal-max-weight').value = '';
-  $('modal-description').value = '';
-  document.querySelector('input[name="modal-odc"][value="true"]').checked = true;
-  editingVehicleNumber = number;
-  $('vehicle-modal').classList.add('show');
-}
-
-function openVehicleEdit(number) {
-  const data = vehicleDataMap[number];
-  if (!data) {
-    sb.from('active_vehicles').select('*').eq('vehicle_number', number).single()
-      .then(res => {
-        if (res.data) {
-          populateVehicleModal(res.data, 'edit');
-        }
-      });
-    return;
-  }
-  sb.from('active_vehicles').select('*').eq('id', data.id).single()
-    .then(res => {
-      if (res.data) {
-        populateVehicleModal(res.data, 'edit');
-      }
-    });
-}
-
-function populateVehicleModal(data, mode) {
-  $('modal-vehicle-title').textContent = mode === 'edit' ? '✏️ Edit Vehicle' : '📝 Register New Vehicle';
-  $('modal-vehicle-number').textContent = 'Vehicle Number: ' + data.vehicle_number;
-  $('modal-vehicle-id').value = data.id || '';
-  $('modal-vehicle-type').value = data.vehicle_type || '';
-  if (data.dimensions && data.dimensions.length >= 3) {
-    $('modal-length').value = data.dimensions[0] || '40';
-    $('modal-width').value = data.dimensions[1] || '8.2';
-    $('modal-height').value = data.dimensions[2] || '8';
-  }
-  $('modal-max-weight').value = data.max_weight || '';
-  $('modal-description').value = data.description || '';
-  document.querySelector('input[name="modal-odc"][value="' + (data.odc_allowed ? 'true' : 'false') + '"]').checked = true;
-  editingVehicleNumber = data.vehicle_number;
-  $('vehicle-modal').classList.add('show');
-}
-
-function saveVehicleModal() {
-  const number = editingVehicleNumber;
-  if (!number) { toast('No vehicle number'); return; }
-  const vehicleType = $('modal-vehicle-type').value;
-  if (!vehicleType) { toast('Please select a vehicle type'); return; }
-  
-  const data = {
+function addNewVehicleFromSuggestion(number) {
+  if (!number) return;
+  if (!isValidVehicleNumber(number)) { alert('Invalid vehicle number'); return; }
+  if (vehicles.includes(number)) { toast('Already added'); return; }
+  sb.from('active_vehicles').insert({
     vehicle_number: number,
-    vehicle_type: vehicleType,
-    dimensions: [
-      parseFloat($('modal-length').value) || 0,
-      parseFloat($('modal-width').value) || 0,
-      parseFloat($('modal-height').value) || 0
-    ],
-    max_weight: parseFloat($('modal-max-weight').value) || 0,
-    description: $('modal-description').value.trim() || null,
-    odc_allowed: document.querySelector('input[name="modal-odc"]:checked').value === 'true',
-    modified_by: user ? user.mobile : 'guest',
+    vehicle_type: 'Unknown',
+    dimensions: [0, 0, 0],
+    max_weight: 0,
+    modified_by: user.mobile,
     latest_update_at: new Date().toISOString()
-  };
-  
-  const vehicleId = $('modal-vehicle-id').value;
-  
-  if (vehicleId) {
-    // UPDATE existing vehicle
-    sb.from('active_vehicles').update(data).eq('id', vehicleId)
-      .then(result => {
-        if (result.error) { alert('Error: ' + result.error.message); return; }
-        if (!vehicles.includes(number)) {
-          vehicles.push(number);
-        }
-        vehicleDataMap[number] = { id: vehicleId, ...data };
-        renderVehicles();
-        closeVehicleModal();
-        autoSaveVehicles();
-        toast('✅ Vehicle "' + number + '" updated successfully!');
-      });
-  } else {
-    // INSERT new vehicle
-    sb.from('active_vehicles').select('id').eq('vehicle_number', number).single()
-      .then(checkRes => {
-        if (checkRes.data) {
-          alert('Vehicle "' + number + '" already exists in the system!');
-          return;
-        }
-        sb.from('active_vehicles').insert(data).then(insertRes => {
-          if (insertRes.error) { alert('Error: ' + insertRes.error.message); return; }
-          if (!vehicles.includes(number)) {
-            vehicles.push(number);
-            vehicleDataMap[number] = { id: insertRes.data[0].id, ...data };
-            renderVehicles();
-          }
-          closeVehicleModal();
-          autoSaveVehicles();
-          toast('✅ Vehicle "' + number + '" registered successfully!');
-        });
-      });
-  }
-}
-
-function deleteVehicleFromModal() {
-  const number = editingVehicleNumber;
-  const vehicleId = $('modal-vehicle-id').value;
-  if (!vehicleId) { toast('Cannot delete - vehicle not saved'); return; }
-  if (!confirm('Delete vehicle "' + number + '" permanently?')) return;
-  
-  sb.from('active_vehicles').delete().eq('id', vehicleId)
-    .then(result => {
-      if (result.error) { alert('Error: ' + result.error.message); return; }
-      vehicles = vehicles.filter(v => v !== number);
-      delete vehicleDataMap[number];
-      renderVehicles();
-      closeVehicleModal();
-      autoSaveVehicles();
-      toast('✅ Vehicle "' + number + '" deleted');
-    });
-}
-
-function closeVehicleModal() {
-  $('vehicle-modal').classList.remove('show');
-  editingVehicleNumber = null;
+  }).then(res => {
+    if (res.error) { alert('Error creating vehicle: ' + res.error.message); return; }
+    vehicles.push(number);
+    vehicleDataMap[number] = { id: res.data[0].id, vehicle_number: number, vehicle_type: 'Unknown', dimensions: '0×0×0' };
+    renderVehicles();
+    $('edit-vehicle-input').value = '';
+    $('vehicle-suggest-dropdown').classList.remove('show');
+    toast('✅ New vehicle "' + number + '" added');
+  });
 }
 
 function addSelectedVehicle() {
@@ -590,23 +797,33 @@ function addSelectedVehicle() {
   const val = input.value.trim().toUpperCase();
   if (!val) { toast('Please enter a vehicle number'); return; }
   if (!isValidVehicleNumber(val)) { alert('Vehicle number must be 9-11 characters'); return; }
-  if (vehicles.includes(val)) { toast('Already in your list'); return; }
-  
-  sb.from('active_vehicles').select('*').eq('vehicle_number', val).single()
+  if (vehicles.includes(val)) { toast('Already added'); return; }
+  sb.from('active_vehicles').select('*').eq('vehicle_number', val).maybeSingle()
     .then(res => {
       if (res.data) {
         vehicles.push(val);
         const dims = res.data.dimensions ? res.data.dimensions.join('×') : 'N/A';
-        vehicleDataMap[val] = { id: res.data.id, ...res.data };
+        vehicleDataMap[val] = { id: res.data.id, vehicle_number: val, vehicle_type: res.data.vehicle_type || 'Unknown', dimensions: dims };
         renderVehicles();
         input.value = '';
-        autoSaveVehicles();
         toast('✅ Vehicle "' + val + '" added');
       } else {
-        openNewVehicleRegistration(val);
+        sb.from('active_vehicles').insert({
+          vehicle_number: val,
+          vehicle_type: 'Unknown',
+          dimensions: [0, 0, 0],
+          max_weight: 0,
+          modified_by: user.mobile,
+          latest_update_at: new Date().toISOString()
+        }).then(ins => {
+          if (ins.error) { alert('Error: ' + ins.error.message); return; }
+          vehicles.push(val);
+          vehicleDataMap[val] = { id: ins.data[0].id, vehicle_number: val, vehicle_type: 'Unknown', dimensions: '0×0×0' };
+          renderVehicles();
+          input.value = '';
+          toast('✅ New vehicle "' + val + '" created and added');
+        });
       }
-    }).catch(() => {
-      openNewVehicleRegistration(val);
     });
 }
 
@@ -615,7 +832,54 @@ function removeVehicle(v) {
   vehicles = vehicles.filter(x => x !== v);
   delete vehicleDataMap[v];
   renderVehicles();
-  autoSaveVehicles();
+}
+
+function editVehicleDetails(v) {
+  const data = vehicleDataMap[v];
+  if (!data) {
+    sb.from('active_vehicles').select('*').eq('vehicle_number', v).single()
+      .then(res => {
+        if (res.data) {
+          const currentType = res.data.vehicle_type || 'Unknown';
+          const currentDims = res.data.dimensions ? res.data.dimensions.join('×') : '0×0×0';
+          const newType = prompt('Enter vehicle type for ' + v + ':', currentType);
+          if (newType === null) return;
+          const newDims = prompt('Enter dimensions (L×W×H in feet):', currentDims);
+          if (newDims === null) return;
+          const dimParts = newDims.split('×').map(Number);
+          sb.from('active_vehicles').update({
+            vehicle_type: newType.trim() || 'Unknown',
+            dimensions: dimParts.length === 3 ? dimParts : [0, 0, 0],
+            latest_update_at: new Date().toISOString()
+          }).eq('id', res.data.id).then(upd => {
+            if (upd.error) { alert('Error: ' + upd.error.message); return; }
+            vehicleDataMap[v] = { id: res.data.id, vehicle_number: v, vehicle_type: newType.trim() || 'Unknown', dimensions: newDims };
+            renderVehicles();
+            toast('✅ Vehicle details updated');
+          });
+        } else {
+          toast('Vehicle not found');
+        }
+      });
+    return;
+  }
+  const currentType = data.vehicle_type || 'Unknown';
+  const currentDims = data.dimensions || '0×0×0';
+  const newType = prompt('Enter vehicle type for ' + v + ':', currentType);
+  if (newType === null) return;
+  const newDims = prompt('Enter dimensions (L×W×H in feet):', currentDims);
+  if (newDims === null) return;
+  const dimParts = newDims.split('×').map(Number);
+  sb.from('active_vehicles').update({
+    vehicle_type: newType.trim() || 'Unknown',
+    dimensions: dimParts.length === 3 ? dimParts : [0, 0, 0],
+    latest_update_at: new Date().toISOString()
+  }).eq('id', data.id).then(res => {
+    if (res.error) { alert('Error updating vehicle: ' + res.error.message); return; }
+    vehicleDataMap[v] = { ...data, vehicle_type: newType.trim() || 'Unknown', dimensions: newDims };
+    renderVehicles();
+    toast('✅ Vehicle details updated');
+  });
 }
 
 function renderVehicles() {
@@ -628,41 +892,11 @@ function renderVehicles() {
       '<span class="vnumber">' + v + '</span>' +
       '<span class="vdetails">' + (data.vehicle_type || 'Unknown') + ' • ' + dims + 'ft</span>' +
       '<div class="actions">' +
-        '<button class="edit-btn" onclick="openVehicleEdit(\'' + v + '\')">✏️ Edit</button>' +
+        '<button class="edit-btn" onclick="editVehicleDetails(\'' + v + '\')">✏️ Edit</button>' +
         '<button class="delete-btn" onclick="removeVehicle(\'' + v + '\')">🗑️</button>' +
       '</div>' +
       '</div>';
   }).join('');
-}
-
-// ============================================================
-// AUTO-SAVE VEHICLES TO DATABASE
-// ============================================================
-function autoSaveVehicles() {
-  if (!user || !user.mobile) return;
-  
-  const mobileNum = parseInt(user.mobile);
-  const vehicleArray = vehicles.length > 0 ? vehicles : null;
-  
-  sb.from('active_users')
-    .update({ vehicle_no: vehicleArray })
-    .eq('mobile', mobileNum)
-    .then(result => {
-      if (result.error) {
-        console.error('Error auto-saving vehicles:', result.error);
-        return;
-      }
-      console.log('Vehicles auto-saved:', vehicleArray);
-      
-      // Update local user object
-      user.vehicle_no = vehicleArray;
-      const saved = localStorage.getItem('rt_user');
-      if (saved) {
-        const sd = JSON.parse(saved);
-        sd.user = user;
-        localStorage.setItem('rt_user', JSON.stringify(sd));
-      }
-    });
 }
 
 // ============================================================
@@ -680,7 +914,6 @@ function addRoute() {
   renderRoutes();
   const sug = $('suggestions-edit-route');
   if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
-  autoSaveRoutes();
   toast('Route added');
 }
 
@@ -688,8 +921,6 @@ function removeRoute(r) {
   if (!confirm('Remove this route?')) return;
   routes = routes.filter(x => x !== r);
   renderRoutes();
-  autoSaveRoutes();
-  toast('Route removed');
 }
 
 function renderRoutes() {
@@ -702,75 +933,188 @@ function renderRoutes() {
   }).join('');
 }
 
-function autoSaveRoutes() {
-  if (!user || !user.mobile) return;
-  
-  const mobileNum = parseInt(user.mobile);
-  const routesArray = routes.length > 0 ? routes : null;
-  
-  sb.from('active_users')
-    .update({ preferred_routes: routesArray })
-    .eq('mobile', mobileNum)
-    .then(result => {
-      if (result.error) {
-        console.error('Error auto-saving routes:', result.error);
-        return;
-      }
-      console.log('Routes auto-saved:', routesArray);
-      user.preferred_routes = routesArray;
-      const saved = localStorage.getItem('rt_user');
-      if (saved) {
-        const sd = JSON.parse(saved);
-        sd.user = user;
-        localStorage.setItem('rt_user', JSON.stringify(sd));
-      }
-    });
-}
-
 // ============================================================
 // PROFILE FUNCTIONS
 // ============================================================
-function loadProfileData() {
+function loadProfile() {
   if (!user) return;
+  $('profile-name').textContent = user.name || user.mobile || 'User';
+  if (user.last_active) {
+    const d = new Date(user.last_active);
+    $('profile-last-active').textContent = d.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+  }
+  let initials = '';
+  if (user.name) {
+    const parts = user.name.split(' ');
+    initials = (parts[0]||'')[0] + (parts[1]||'')[0];
+  } else {
+    initials = (user.mobile||'GU').toString().slice(-2);
+  }
+  $('avatar-initials-profile').textContent = initials.toUpperCase();
+  $('avatar-initials').textContent = initials.toUpperCase();
+
+  $('profile-company').textContent = user.company_name || 'Not set';
+  $('profile-website').textContent = user.company_web || '--';
+  $('profile-pan').textContent = '📛 PAN: ' + (user.pan || '--');
+  $('profile-gst').textContent = '📛 GST: ' + (user.gst || '--');
+  if (user.location) {
+    const loc = getLoc(user.location);
+    $('profile-location').textContent = loc ? '📍 Location: ' + getLocDisplayName(loc) : '📍 Location: Unknown';
+  } else {
+    $('profile-location').textContent = '📍 Location: Not set';
+  }
+
+  let types = user.user_type || [];
+  if (!Array.isArray(types) && typeof types === 'number') types = [types];
+  const typeLabels = ['Load Giver', 'Operator', 'Agent'];
+  const typeIcons = ['📦', '🚛', '🤝'];
+  const container = $('profile-user-types');
+  if (types && types.length) {
+    container.innerHTML = types.map(t => {
+      const idx = t - 1;
+      if (idx >= 0 && idx < typeLabels.length) {
+        return '<span class="section-badge active">' + typeIcons[idx] + ' ' + typeLabels[idx] + '</span>';
+      }
+      return '';
+    }).join('');
+  } else {
+    container.innerHTML = '<span class="section-badge optional">Not set</span>';
+  }
+
+  $('profile-details-text').textContent = user.details || 'No details added';
   
+  // Load Vehicles (READ ONLY)
+  if (user.mobile) {
+    sb.from('active_vehicles').select('*').eq('modified_by', user.mobile)
+      .then(result => {
+        const vdata = result.data || [];
+        const container2 = $('profile-vehicles-container');
+        const badge = $('vehicle-count-badge');
+        if (!vdata.length) {
+          container2.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>';
+          badge.textContent = '0 Vehicles';
+          return;
+        }
+        badge.textContent = vdata.length + ' Vehicles';
+        container2.innerHTML = vdata.map(v => {
+          const dims = v.dimensions ? v.dimensions.join(' × ') + 'ft' : 'N/A';
+          return '<div class="vehicle-display-item">' +
+            '<div class="vnumber">' + v.vehicle_number + '</div>' +
+            '<div class="vdetails">' + (v.vehicle_type || 'Unknown') + ' • ' + dims + '</div>' +
+            '</div>';
+        }).join('');
+        $('stat-vehicles-count').textContent = vdata.length;
+      });
+  }
+
+  // Routes (READ ONLY)
+  let routeArr = user.preferred_routes || [];
+  if (typeof routeArr === 'string') {
+    routeArr = routeArr.split(',').filter(r => r.trim() !== '').map(Number);
+  }
+  const rc = $('profile-routes-container');
+  if (routeArr && routeArr.length) {
+    rc.innerHTML = routeArr.map(r => {
+      const loc = getLoc(r);
+      return '<span class="route-tag">' + (loc ? getLocDisplayName(loc) : r) + '</span>';
+    }).join('');
+  } else {
+    rc.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>';
+  }
+  
+  loadMyLoads();
+  loadMyTrucks();
+  loadStats();
+}
+
+function loadMyLoads() {
+  if (!user) return;
+  sb.from('active_loads').select('*').eq('mobile', user.mobile).eq('status', 1)
+    .then(res => {
+      const loads = res.data || [];
+      const container = $('my-loads-container');
+      const count = $('my-loads-count');
+      if (!loads.length) { container.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No loads posted</div>'; count.textContent = '0'; return; }
+      count.textContent = loads.length;
+      container.innerHTML = loads.map(l =>
+        '<div class="list-item">' +
+        '<div class="title">' + l.material + ' • ' + getLocName(l.pickup_pin) + ' → ' + getLocName(l.drop_pin) + '</div>' +
+        '<div class="sub">💰 ₹' + (l.rate || 0).toLocaleString() + ' • ⚖️ ' + (l.weight || 0) + ' Kg</div>' +
+        '<div class="actions"><button class="delete" onclick="deleteLoadItem(\'' + l.id + '\')">🗑️ Delete</button></div>' +
+        '</div>'
+      ).join('');
+    });
+}
+
+function loadMyTrucks() {
+  if (!user) return;
+  sb.from('active_trucks').select('*').eq('mobile', user.mobile).eq('status', 1)
+    .then(res => {
+      const trucks = res.data || [];
+      const container = $('my-trucks-container');
+      const count = $('my-trucks-count');
+      if (!trucks.length) { container.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No trucks listed</div>'; count.textContent = '0'; return; }
+      count.textContent = trucks.length;
+      container.innerHTML = trucks.map(t =>
+        '<div class="list-item">' +
+        '<div class="title">' + t.truck_no + ' • ' + t.vehicle_type + '</div>' +
+        '<div class="sub">📍 ' + getLocName(t.location_pin) + ' • ₹' + (t.rate_km || 0) + '/km</div>' +
+        '<div class="actions"><button class="delete" onclick="deleteTruckItem(\'' + t.id + '\')">🗑️ Delete</button></div>' +
+        '</div>'
+      ).join('');
+    });
+}
+
+function loadStats() {
+  if (!user) return;
+  sb.from('active_loads').select('*', {count:'exact', head:true}).eq('mobile', user.mobile).eq('status', 1)
+    .then(r => { $('stat-loads-count').textContent = r.count || 0; });
+  sb.from('active_trucks').select('*', {count:'exact', head:true}).eq('mobile', user.mobile).eq('status', 1)
+    .then(r => { $('stat-trucks-count').textContent = r.count || 0; });
+}
+
+function deleteLoadItem(id) {
+  if (!confirm('Delete this load?')) return;
+  sb.from('active_loads').update({status: 0}).eq('id', id).then(() => { loadMyLoads(); loadStats(); });
+}
+function deleteTruckItem(id) {
+  if (!confirm('Delete this truck?')) return;
+  sb.from('active_trucks').update({status: 0}).eq('id', id).then(() => { loadMyTrucks(); loadStats(); });
+}
+
+// ============================================================
+// EDIT PROFILE FUNCTIONS
+// ============================================================
+function openEditProfile() {
+  if (!user) { alert('Please login first'); return; }
+  sb.from('active_users').select('*').eq('mobile', parseInt(user.mobile)).single()
+    .then(result => {
+      if (result.data) Object.assign(user, result.data);
+      populateEditForm();
+    }).catch(() => populateEditForm());
+}
+
+function populateEditForm() {
   $('edit-name').value = user.name || '';
   $('edit-company').value = user.company_name || '';
   $('edit-website').value = user.company_web || '';
   $('edit-pan').value = user.pan || '';
   $('edit-gst').value = user.gst || '';
-  
   if (user.location) {
     const loc = getLoc(user.location);
-    if (loc) {
-      $('search-edit-location').value = getLocDisplayName(loc);
-      $('edit-location-hidden').value = user.location;
-    }
+    if (loc) { $('search-edit-location').value = getLocDisplayName(loc); $('edit-location-hidden').value = user.location; }
   }
-  
   let types = user.user_type || [];
   if (!Array.isArray(types) && typeof types === 'number') types = [types];
   $('edit-type-loadgiver').checked = types.indexOf(1) !== -1;
   $('edit-type-operator').checked = types.indexOf(2) !== -1;
   $('edit-type-agent').checked = types.indexOf(3) !== -1;
-  
-  // Load vehicles - handle both array and PostgreSQL array string
+
   vehicles = [];
   vehicleDataMap = {};
   let vno = user.vehicle_no || [];
-  
-  if (Array.isArray(vno)) {
-    vehicles = vno.filter(v => v !== null && v !== '');
-  } else if (typeof vno === 'string' && vno.startsWith('{')) {
-    // PostgreSQL array format: {MH12AB1234,MH12CD5678}
-    try {
-      const cleaned = vno.replace(/[{}]/g, '');
-      vehicles = cleaned.split(',').filter(v => v.trim() !== '');
-    } catch(e) {
-      vehicles = [];
-    }
-  } else if (typeof vno === 'string') {
-    vehicles = vno.split(',').filter(v => v.trim() !== '');
-  }
+  if (Array.isArray(vno)) vehicles = vno.filter(v => v);
+  else if (typeof vno === 'string') vehicles = vno.split(',').filter(v => v.trim() !== '');
   
   if (vehicles.length) {
     sb.from('active_vehicles').select('*').in('vehicle_number', vehicles)
@@ -790,37 +1134,25 @@ function loadProfileData() {
       });
   }
   renderVehicles();
-  
-  // Load routes
+
   routes = [];
   let pref = user.preferred_routes || [];
-  if (Array.isArray(pref)) {
-    routes = pref.filter(r => r !== null && r !== '');
-  } else if (typeof pref === 'string' && pref.startsWith('{')) {
-    try {
-      const cleaned = pref.replace(/[{}]/g, '');
-      routes = cleaned.split(',').filter(r => r.trim() !== '').map(Number);
-    } catch(e) {
-      routes = [];
-    }
-  } else if (typeof pref === 'string') {
-    routes = pref.split(',').filter(r => r.trim() !== '').map(Number);
-  }
+  if (Array.isArray(pref)) routes = pref.filter(r => r);
+  else if (typeof pref === 'string') routes = pref.split(',').filter(r => r.trim() !== '').map(Number);
   renderRoutes();
-  
+
   $('edit-details').value = user.details || '';
-  updateCharCount();
+  updateCharCount('edit-details', 'edit-details-count');
+  switchPage('edit-profile-page');
 }
 
 function saveProfile() {
   if (!user || !user.mobile) { alert('User not logged in.'); return; }
-  
   const types = [];
   if ($('edit-type-loadgiver').checked) types.push(1);
   if ($('edit-type-operator').checked) types.push(2);
   if ($('edit-type-agent').checked) types.push(3);
   const location = $('edit-location-hidden').value ? parseInt($('edit-location-hidden').value) : null;
-  
   const updateData = {
     name: $('edit-name').value.trim() || null,
     company_name: $('edit-company').value.trim() || null,
@@ -834,7 +1166,6 @@ function saveProfile() {
     details: $('edit-details').value.trim() || null,
     last_active: new Date().toISOString()
   };
-  
   const mobileNum = parseInt(user.mobile);
   sb.from('active_users').update(updateData).eq('mobile', mobileNum)
     .then(result => {
@@ -846,121 +1177,380 @@ function saveProfile() {
             const saved = localStorage.getItem('rt_user');
             if (saved) { const sd = JSON.parse(saved); sd.user = user; localStorage.setItem('rt_user', JSON.stringify(sd)); }
             alert('✅ Profile saved successfully!');
-          }
-        });
+            closeEditProfile();
+          } else { alert('✅ Profile saved!'); closeEditProfile(); }
+        }).catch(() => { alert('✅ Profile saved!'); closeEditProfile(); });
     }).catch(err => { alert('Error: ' + err.message); });
 }
 
-function updateCharCount() {
-  const input = $('edit-details');
-  const count = $('edit-details-count');
+function closeEditProfile() {
+  switchPage('profile-page');
+  loadProfile();
+}
+
+function updateCharCount(inputId, countId) {
+  const input = $(inputId);
+  const count = $(countId);
   if (input && count) count.textContent = input.value.length;
 }
+
+// ============================================================
+// RENDER FEED
+// ============================================================
+async function renderFeed() {
+  try {
+    const {data: loads} = await sb.from('active_loads').select('*').eq('status', 1);
+    const {data: trucks} = await sb.from('active_trucks').select('*').eq('status', 1);
+    items = [];
+    (loads || []).forEach(l => items.push({type:'LOAD', title: l.material || 'Cargo', company: l.company || '', from_pin: l.pickup_pin, to_pin: l.drop_pin, weight: l.weight || 0, vehicle: l.vehicle_type || '', rate: l.rate || 0, views: l.views || 0, interests: (l.interests || []).length, shares: l.shares || 0, id: l.id}));
+    (trucks || []).forEach(t => items.push({type:'TRUCK', title: t.truck_no || 'Truck', company: t.company_name || '', from_pin: t.location_pin, to_pin: t.destination_pin, vehicle: t.vehicle_type || '', rate: t.rate_km || 0, views: t.views || 0, interests: (t.interested || []).length, shares: t.share || 0, id: t.id}));
+
+    let filtered = items.slice();
+    const radius = parseInt($('radius-select').value) || 50;
+    if (homePinId) { const hl = getLoc(homePinId); if (hl) filtered = filtered.filter(i => { const fl = getLoc(i.from_pin); return fl ? dist(hl.lat, hl.lng, fl.lat, fl.lng) <= radius : false; }); }
+    if (tab === 'LOAD') filtered = filtered.filter(i => i.type === 'LOAD');
+    else if (tab === 'TRUCK') filtered = filtered.filter(i => i.type === 'TRUCK');
+    if (toPinId) { const tl = getLoc(toPinId); if (tl) filtered = filtered.filter(i => { const tl2 = getLoc(i.to_pin); return tl2 ? dist(tl.lat, tl.lng, tl2.lat, tl2.lng) <= radius : false; }); }
+    const v = $('filter-vehicle')?.value;
+    if (v && v !== 'ALL') filtered = filtered.filter(i => i.vehicle && i.vehicle.toLowerCase().includes(v.toLowerCase()));
+
+    $('results-count').textContent = 'Showing ' + filtered.length + ' Records within ' + radius + ' KM';
+    if (!filtered.length) { $('feed-container').innerHTML = '<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>'; return; }
+    $('feed-container').innerHTML = filtered.map(i => {
+      const bc = i.type === 'LOAD' ? 'load' : 'truck';
+      let loc = '', sub = '', rate = '', stats = '';
+      if (i.type === 'LOAD') { loc = '📍 ' + getLocName(i.from_pin) + ' → ' + getLocName(i.to_pin); sub = '💼 ' + i.company; rate = '💰 ₹' + (i.rate || 0).toLocaleString(); stats = '⚖️ ' + (i.weight || 0) + ' Kg • 🚛 ' + i.vehicle; }
+      else { const td = i.to_pin ? getLocName(i.to_pin) : 'Any'; loc = '📍 ' + getLocName(i.from_pin) + ' → ' + td; sub = '💼 ' + i.company; rate = '💰 ₹' + (i.rate || 0) + '/km'; stats = '🚛 ' + i.vehicle; }
+      return '<div class="feed-card" onclick="openDetail(\'' + i.type + '\',\'' + i.id + '\')">' +
+        '<div class="header-row"><div class="title">' + i.title + '</div><span class="type-badge ' + bc + '">' + i.type + '</span></div>' +
+        '<div class="company">' + sub + '</div><div class="meta">' + loc + '</div><div class="meta">' + rate + '</div><div class="meta">' + stats + '</div>' +
+        '<div class="stats-row"><span>👁️ <span class="val">' + i.views + '</span></span><span>🤝 <span class="val">' + i.interests + '</span></span><span>📨 <span class="val">' + i.shares + '</span></span></div></div>';
+    }).join('');
+  } catch(e) { $('feed-container').innerHTML = '<div style="padding:30px 0;color:#ef4444;text-align:center">Error loading feed</div>'; }
+}
+
+function applyFilters() { renderFeed(); }
+function setTab(t) { tab = t; document.querySelectorAll('.type-tabs button').forEach(b => b.className = 'inactive'); const map = {'ALL':'tab-all','LOAD':'tab-loads','TRUCK':'tab-trucks','AGENT':'tab-agents'}; const el = $(map[t]); if (el) el.className = 'active'; renderFeed(); }
+function toggleFilters() { filterOpen = !filterOpen; $('filter-container').classList.toggle('open', filterOpen); $('filter-toggle-label').textContent = filterOpen ? '🔍 Hide Filters' : '🔍 Show Filters'; }
 
 // ============================================================
 // NAVIGATION
 // ============================================================
 function goHome() {
-  document.getElementById('home-page').classList.remove('hidden-page');
-  document.getElementById('edit-profile-page').classList.add('hidden-page');
+  ['home-page','profile-page','postload-page','posttruck-page','detail-page','edit-profile-page'].forEach(i => { const el = $(i); if (el) el.classList.toggle('hidden-page', i !== 'home-page'); });
   document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-  document.querySelectorAll('.nav-fixed .nav-item')[0]?.classList.add('active');
+  document.querySelectorAll('.nav-fixed .nav-item')[0].classList.add('active');
+  setTimeout(() => { renderFeed(); }, 50);
 }
 
-function goToEditProfile() {
-  if (!user && !guest) { showLogin(); return; }
-  document.getElementById('home-page').classList.add('hidden-page');
-  document.getElementById('edit-profile-page').classList.remove('hidden-page');
-  document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-  document.querySelectorAll('.nav-fixed .nav-item')[1]?.classList.add('active');
-  if (user) loadProfileData();
+function switchPage(id) {
+  ['home-page','profile-page','edit-profile-page'].forEach(i => { const el = $(i); if (el) el.classList.toggle('hidden-page', i !== id); });
 }
 
-function showLogin() {
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('home-page').classList.add('hidden-page');
-  document.getElementById('edit-profile-page').classList.add('hidden-page');
-}
+function goPostLoad() { if (guest || !user) { showLogin(); return; } switchPage('postload-page'); }
+function goPostTruck() { if (guest || !user) { showLogin(); return; } switchPage('posttruck-page'); }
+function goToProfile() { if (guest || !user) { showLogin(); return; } switchPage('profile-page'); loadProfile(); }
+function cancelPost() { goHome(); }
+function closeDetail() { detail = null; goHome(); }
 
-function continueAsGuest() {
-  guest = true;
-  user = null;
-  localStorage.setItem('rt_user', JSON.stringify({guest: true}));
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('home-page').classList.remove('hidden-page');
+// ============================================================
+// DETAIL
+// ============================================================
+function openDetail(type, id) {
+  const table = type === 'LOAD' ? 'active_loads' : 'active_trucks';
+  sb.from(table).select('*').eq('id', id).single().then(r => {
+    if (r.data) { detail = r.data; switchPage('detail-page'); $('detail-title').textContent = type === 'LOAD' ? r.data.material || 'Details' : r.data.truck_no || 'Details'; $('detail-company').textContent = type === 'LOAD' ? r.data.company || 'N/A' : r.data.company_name || 'N/A'; }
+  });
+}
+function makeCall() { if (detail) { const num = detail.mobile || detail.driver_mobile; if (num) window.location.href = 'tel:' + num; } }
+function expressInterest() {}
+function contactUser() {}
+function handleShareClick() { if (navigator.share) navigator.share({title: 'ReturnTruck', text: 'Check out this listing on ReturnTruck!', url: window.location.href}); }
+
+// ============================================================
+// AUTH
+// ============================================================
+function continueAsGuest() { guest = true; user = null; localStorage.setItem('rt_user', JSON.stringify({guest: true})); showHome(); }
+function showLogin() { resetForm(); $('mobile').focus(); }
+function resetForm() {
+  otpVerified = false; isResetFlow = false; otpPurpose = 'registration';
+  if (otpTimer) clearInterval(otpTimer);
+  ['step2','step3','step4'].forEach(i => $(i).classList.add('hidden'));
+  $('step1').classList.remove('hidden');
+  $('login-screen').style.display = 'flex';
+  ['home-page','profile-page','postload-page','posttruck-page','detail-page','edit-profile-page'].forEach(i => { const el = $(i); if (el) el.classList.add('hidden-page'); });
+  document.querySelectorAll('.otp-input').forEach(i => i.value = '');
+  $('pin-error').style.display = 'none';
+  $('otp-error').style.display = 'none';
+  $('otp-success').style.display = 'none';
+  $('verify-btn').disabled = false;
+  $('verify-btn').textContent = '✅ Verify';
+}
+function showHome() {
+  $('login-screen').style.display = 'none';
+  $('home-page').classList.remove('hidden-page');
   updateGuestUI();
+  setTimeout(() => { renderFeed(); autoLocate(); }, 50);
 }
-
-function loginUser() {
-  const mobile = document.getElementById('mobile').value.trim();
-  const pin = document.getElementById('pin').value.trim();
-  
-  if (!mobile || mobile.length !== 10) {
-    document.getElementById('login-error').textContent = 'Please enter a valid 10-digit mobile number';
-    document.getElementById('login-error').style.display = 'block';
-    return;
-  }
-  if (!pin || pin.length !== 4) {
-    document.getElementById('login-error').textContent = 'Please enter a 4-digit PIN';
-    document.getElementById('login-error').style.display = 'block';
-    return;
-  }
-  
-  document.getElementById('login-error').style.display = 'none';
-  
-  sb.from('active_users').select('*').eq('mobile', parseInt(mobile)).single()
-    .then(result => {
-      if (result.error || !result.data) {
-        document.getElementById('login-error').textContent = 'User not found. Please register first.';
-        document.getElementById('login-error').style.display = 'block';
-        return;
-      }
-      if (pin.length === 4) {
-        user = result.data;
-        guest = false;
-        localStorage.setItem('rt_user', JSON.stringify({mobile: user.mobile, user: user}));
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('home-page').classList.remove('hidden-page');
-        updateGuestUI();
-        goToEditProfile();
-      } else {
-        document.getElementById('login-error').textContent = 'Invalid PIN. Please try again.';
-        document.getElementById('login-error').style.display = 'block';
-      }
-    }).catch(err => {
-      document.getElementById('login-error').textContent = 'Error: ' + err.message;
-      document.getElementById('login-error').style.display = 'block';
-    });
-}
-
 function updateGuestUI() {
-  if (guest) {
-    document.getElementById('avatar-initials').textContent = 'GU';
-  } else if (user) {
-    let initials = 'U';
-    if (user.name) {
-      const parts = user.name.split(' ');
-      initials = (parts[0]||'')[0] + (parts[1]||'')[0];
+  const b = $('guest-banner');
+  if (b) { b.style.display = guest ? 'flex' : 'none'; if (guest) b.classList.remove('hidden'); else b.classList.add('hidden'); }
+}
+function toggleDropdown() { document.querySelectorAll('.profile-dropdown').forEach(d => d.classList.toggle('show')); }
+function closeDropdown() { document.querySelectorAll('.profile-dropdown').forEach(d => d.classList.remove('show')); }
+function logout() { if (confirm('Logout?')) { localStorage.removeItem('rt_user'); window.location.reload(); } }
+function openChangePin() { toast('Change PIN stub'); }
+
+$('mobile').addEventListener('input', function(e) {
+  const m = this.value.trim();
+  if (m.length === 10) { mobile = m; checkUserAndShowStep(m); }
+});
+
+async function checkUserAndShowStep(mobileNum) {
+  try {
+    const resp = await fetch(EDGE_URL + '/login-user', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Accept':'application/json','Authorization':'Bearer '+SB_KEY},
+      body: JSON.stringify({mobile: mobileNum, action: 'check'})
+    });
+    const result = await resp.json();
+    if (result.exists === true) {
+      $('step1').classList.add('hidden');
+      $('step2').classList.remove('hidden');
+      $('display-mobile').textContent = mobileNum;
+      $('mobile-status').textContent = '✅ Existing user - Enter your PIN';
+      $('mobile-status').style.color = '#16a34a';
+      $('pin').value = '';
+      $('pin').focus();
+      $('pin-error').style.display = 'none';
+    } else {
+      otpPurpose = 'registration';
+      $('step1').classList.add('hidden');
+      $('step3').classList.remove('hidden');
+      $('wa-display-mobile').textContent = mobileNum;
+      $('otp-purpose').textContent = 'Enter OTP sent via WhatsApp for Registration';
+      $('mobile-status').textContent = '📝 New user - Verify OTP to create account';
+      $('mobile-status').style.color = '#f59e0b';
+      sendWhatsAppOTP();
     }
-    document.getElementById('avatar-initials').textContent = initials.toUpperCase() || 'U';
+  } catch(e) { console.error(e); }
+}
+
+$('pin').addEventListener('keydown', function(e) { if (e.key === 'Enter') submitPin(); });
+
+window.submitPin = async function() {
+  const pin = $('pin').value.trim();
+  if (!pin || pin.length !== 4) return;
+  const btn = $('submitBtn');
+  btn.textContent = '⏳ Checking...';
+  btn.disabled = true;
+  $('pin-error').style.display = 'none';
+  try {
+    const resp = await fetch(EDGE_URL + '/login-user', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Accept':'application/json','Authorization':'Bearer '+SB_KEY},
+      body: JSON.stringify({mobile: mobile, action: 'login', pin: pin})
+    });
+    const result = await resp.json();
+    if (result.success === true && result.user) {
+      user = result.user; user.mobile = mobile;
+      localStorage.setItem('rt_user', JSON.stringify({mobile: user.mobile, user: user}));
+      guest = false; btn.textContent = '🔐 Login'; btn.disabled = false; showHome(); return;
+    }
+    if (result.isNewUser === true) {
+      otpPurpose = 'registration';
+      $('step2').classList.add('hidden');
+      $('step3').classList.remove('hidden');
+      $('wa-display-mobile').textContent = mobile;
+      $('otp-purpose').textContent = 'Enter OTP sent via WhatsApp for Registration';
+      sendWhatsAppOTP();
+      btn.textContent = '🔐 Login'; btn.disabled = false; return;
+    }
+    $('pin-error').style.display = 'block';
+    $('pin-error').textContent = '❌ ' + (result.error || 'Incorrect PIN. Please try again.');
+    $('pin').value = ''; $('pin').focus();
+    btn.textContent = '🔐 Login'; btn.disabled = false;
+  } catch(e) { console.error(e); btn.textContent = '🔐 Login'; btn.disabled = false; }
+};
+
+// OTP FUNCTIONS
+function otpInput(el) {
+  if (el.value.length === 1) { const next = el.nextElementSibling; if (next) next.focus(); }
+  $('otp-error').style.display = 'none';
+}
+function startOTPTimer() {
+  otpSeconds = 300; otpVerified = false;
+  if (otpTimer) clearInterval(otpTimer);
+  const timerDisplay = $('otp-timer');
+  const resendBtn = $('resend-otp-btn');
+  resendBtn.disabled = true;
+  $('otp-success').style.display = 'none';
+  otpTimer = setInterval(() => {
+    otpSeconds--;
+    const m = Math.floor(otpSeconds/60), s = otpSeconds%60;
+    timerDisplay.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+    if (otpSeconds <= 0) { clearInterval(otpTimer); $('verify-btn').disabled = true; $('verify-btn').textContent = '⏳ Expired'; resendBtn.disabled = false; }
+  }, 1000);
+}
+function generateOTP() { let otp = ''; for (let i=0; i<6; i++) otp += Math.floor(Math.random()*10); return otp; }
+function sendWhatsAppOTP() {
+  if (!mobile || mobile.length !== 10) return;
+  const otp = generateOTP();
+  generatedOTP = otp;
+  const purposeText = (otpPurpose === 'reset') ? 'PIN Reset' : 'Registration';
+  const message = '🔐 ReturnTruck - ' + purposeText + '\n\nYour OTP is: ' + otp + '\n\nThis OTP is valid for 5 minutes.\n\n📱 Mobile: ' + mobile + '\n\n- ReturnTruck Team';
+  window.open('https://wa.me/91' + mobile + '?text=' + encodeURIComponent(message), '_blank');
+  startOTPTimer();
+  $('verify-btn').disabled = false;
+  $('verify-btn').textContent = '✅ Verify';
+}
+function verifyOTP() {
+  const inputs = document.querySelectorAll('.otp-input');
+  let otp = '';
+  inputs.forEach(i => otp += i.value);
+  if (otp.length !== 6) { $('otp-error').style.display = 'block'; $('otp-error').textContent = '❌ Enter complete 6-digit OTP'; return; }
+  if (otp === generatedOTP) {
+    otpVerified = true;
+    $('otp-error').style.display = 'none';
+    $('otp-success').style.display = 'block';
+    clearInterval(otpTimer);
+    setTimeout(() => {
+      $('step3').classList.add('hidden');
+      $('step4').classList.remove('hidden');
+      $('reg-display-mobile').textContent = mobile;
+      if (otpPurpose === 'reset') { $('step4-purpose').textContent = 'Set your new 4-digit PIN'; $('register-btn').textContent = '🔄 Reset PIN'; }
+      else { $('step4-purpose').textContent = 'Set your 4-digit PIN for login'; $('register-btn').textContent = '✅ Create Account'; }
+    }, 500);
+  } else {
+    $('otp-error').style.display = 'block';
+    $('otp-error').textContent = '❌ Invalid OTP. Please try again.';
+    document.querySelectorAll('.otp-input').forEach(i => i.value = '');
+    document.querySelectorAll('.otp-input')[0].focus();
+  }
+}
+function resendOTP() { if (otpSeconds > 0) return; sendWhatsAppOTP(); }
+function showResetOTP() {
+  isResetFlow = true; otpPurpose = 'reset';
+  $('step2').classList.add('hidden');
+  $('step3').classList.remove('hidden');
+  $('wa-display-mobile').textContent = mobile;
+  $('otp-purpose').textContent = 'Enter OTP sent via WhatsApp for PIN Reset';
+  sendWhatsAppOTP();
+}
+async function registerUser() {
+  if (!otpVerified) return;
+  const pin = $('reg-pin').value.trim(), conf = $('reg-pin-confirm').value.trim();
+  if (!pin || pin.length !== 4 || pin !== conf) return;
+  const btn = $('register-btn');
+  btn.textContent = '⏳ Processing...';
+  btn.disabled = true;
+  try {
+    if (otpPurpose === 'reset') {
+      const resp = await fetch(EDGE_URL + '/login-user', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','Accept':'application/json','Authorization':'Bearer '+SB_KEY},
+        body: JSON.stringify({mobile: mobile, action: 'reset_pin', new_pin: pin})
+      });
+      const result = await resp.json();
+      if (result.success && result.user) { user = result.user; user.mobile = mobile; localStorage.setItem('rt_user', JSON.stringify({mobile: user.mobile, user: user})); guest = false; showHome(); }
+      btn.textContent = '🔄 Reset PIN'; btn.disabled = false; return;
+    }
+    const resp = await fetch(EDGE_URL + '/register-user', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Accept':'application/json','Authorization':'Bearer '+SB_KEY},
+      body: JSON.stringify({mobile: mobile, pin: pin, name: '', company_name: '', location: null})
+    });
+    const result = await resp.json();
+    if (result.success && result.user) { user = result.user; user.mobile = mobile; localStorage.setItem('rt_user', JSON.stringify({mobile: user.mobile, user: user})); guest = false; showHome(); return; }
+  } catch(e) { console.error(e); }
+  btn.textContent = otpPurpose === 'reset' ? '🔄 Reset PIN' : '✅ Create Account';
+  btn.disabled = false;
+}
+
+// ============================================================
+// AUTO LOCATE
+// ============================================================
+function autoLocate() {
+  const inp = $('search-home');
+  if (!inp) return;
+  const saved = localStorage.getItem('rt_home_location');
+  if (saved) {
+    try { const l = JSON.parse(saved); const loc = getLoc(l.pinId); if (loc) { inp.value = l.displayName; homePinId = l.pinId; applyFilters(); return; } } catch(e) {}
+  }
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      p => {
+        const lat = p.coords.latitude, lng = p.coords.longitude;
+        let near = null, minD = Infinity;
+        LOCATIONS.forEach(l => { const d = dist(lat, lng, l.lat, l.lng); if (d < minD) { minD = d; near = l; } });
+        if (near && minD < 100) { const dn = getLocDisplayName(near); inp.value = dn; homePinId = near.pin_id; localStorage.setItem('rt_home_location', JSON.stringify({pinId: near.pin_id, displayName: dn})); applyFilters(); }
+      },
+      () => {
+        fetch('https://ipapi.co/json/').then(r => r.json()).then(d => {
+          const city = d.city || '';
+          LOCATIONS.forEach(l => { if (l.name.toLowerCase() === city.toLowerCase() || l.district.toLowerCase() === city.toLowerCase()) { const dn = getLocDisplayName(l); inp.value = dn; homePinId = l.pin_id; localStorage.setItem('rt_home_location', JSON.stringify({pinId: l.pin_id, displayName: dn})); applyFilters(); } });
+        }).catch(() => {});
+      }
+    );
   }
 }
 
-function toggleDropdown() {
-  document.querySelectorAll('.profile-dropdown').forEach(d => d.classList.toggle('show'));
+// ============================================================
+// POST LOAD & TRUCK
+// ============================================================
+function publishLoad() {
+  if (!user) return;
+  const pickupPinId = $('pl-pickup-hidden').value;
+  const dropPinId = $('pl-drop-hidden').value;
+  if (!$('pl-material').value || !pickupPinId || !dropPinId) { toast('Please fill all required fields'); return; }
+  const loadData = {
+    material: $('pl-material').value,
+    weight: parseInt($('pl-weight').value) || 0,
+    dimensions: $('pl-dim').value || '',
+    pickup_pin: parseInt(pickupPinId),
+    drop_pin: parseInt(dropPinId),
+    rate: parseFloat($('pl-rate').value) || 0,
+    pickup_date: $('pl-date').value || null,
+    company: user.company_name || '',
+    mobile: user.mobile,
+    status: 1,
+    views: 0,
+    interests: [],
+    shares: 0,
+    created_at: new Date().toISOString()
+  };
+  sb.from('active_loads').insert(loadData).then(res => { if (res.error) { alert('Error: ' + res.error.message); return; } goHome(); });
 }
 
-function closeDropdown() {
-  document.querySelectorAll('.profile-dropdown').forEach(d => d.classList.remove('show'));
+function publishTruck() {
+  if (!user) return;
+  const locationPinId = $('pt-location-hidden').value;
+  const number = $('pt-number').value.trim().toUpperCase();
+  if (!number || !locationPinId) { toast('Please fill all required fields'); return; }
+  if (!isValidVehicleNumber(number)) { alert('Vehicle number must be 9-11 characters'); return; }
+  const truckData = {
+    truck_no: number,
+    location_pin: parseInt(locationPinId),
+    available_date: $('pt-available').value || null,
+    rate_km: parseFloat($('pt-rate-km').value) || 0,
+    driver_name: $('pt-driver').value || '',
+    driver_mobile: $('pt-driver-mobile').value || '',
+    company_name: user.company_name || '',
+    mobile: user.mobile,
+    vehicle_type: 'container',
+    status: 1,
+    views: 0,
+    interested: [],
+    share: 0,
+    created_at: new Date().toISOString()
+  };
+  sb.from('active_trucks').insert(truckData).then(res => { if (res.error) { alert('Error: ' + res.error.message); return; } goHome(); });
 }
-
-function logout() {
-  if (confirm('Logout?')) {
-    localStorage.removeItem('rt_user');
-    user = null;
-    guest = false;
-    window.location.reload();
-  }
+function autoFetchVehicle() {
+  const number = $('pt-number').value.trim().toUpperCase();
+  if (!number) return;
+  sb.from('active_vehicles').select('*').eq('vehicle_number', number).eq('modified_by', user.mobile).maybeSingle()
+    .then(res => { if (res.data) $('pt-number').value = res.data.vehicle_number; });
 }
 
 // ============================================================
@@ -969,25 +1559,15 @@ function logout() {
 document.addEventListener('DOMContentLoaded', function() {
   const saved = localStorage.getItem('rt_user');
   if (saved) {
-    try {
-      const sd = JSON.parse(saved);
-      if (sd.guest) {
-        guest = true;
-        user = null;
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('home-page').classList.remove('hidden-page');
-        updateGuestUI();
-      } else if (sd.user) {
-        user = sd.user;
-        guest = false;
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('home-page').classList.remove('hidden-page');
-        updateGuestUI();
-      }
-    } catch(e) { console.error('Error parsing saved user:', e); }
+    const sd = JSON.parse(saved);
+    if (sd.guest) { guest = true; user = null; }
+    else if (sd.user) { user = sd.user; guest = false; }
+    showHome();
+  } else {
+    $('login-screen').style.display = 'flex';
+    $('home-page').classList.add('hidden-page');
   }
-  
-  document.getElementById('edit-details')?.addEventListener('input', updateCharCount);
+  setTimeout(() => { autoLocate(); }, 500);
 });
 </script>
 </body>
