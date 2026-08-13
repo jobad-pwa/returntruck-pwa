@@ -101,6 +101,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .section-btn.success:hover{background:#15803d}
 .form-control{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;background:#fff;outline:none}
 .form-control:focus{border-color:#2563eb}
+.form-control:disabled{background:#f1f5f9;color:#64748b;cursor:not-allowed}
 .form-label{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .detail-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:12px}
@@ -162,6 +163,15 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .vehicle-display-item .vnumber{font-weight:700;font-size:14px;color:#0f172a}
 .vehicle-display-item .vdetails{font-size:12px;color:#64748b;margin-top:2px}
 .nav-install-wrapper{display:none}
+.vehicle-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000}
+.vehicle-modal.show{display:flex}
+.vehicle-modal-content{background:#fff;border-radius:16px;padding:24px;max-width:420px;width:90%;max-height:85vh;overflow-y:auto}
+.vehicle-modal-content .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.vehicle-modal-content .modal-header h3{margin:0;font-size:18px;color:#0f172a}
+.vehicle-modal-content .modal-close{background:transparent;border:none;font-size:24px;cursor:pointer;color:#94a3b8}
+.vehicle-modal-content .modal-close:hover{color:#dc2626}
+.vehicle-modal-content .form-group{margin-bottom:12px}
+.vehicle-modal-content .form-group .readonly-number{background:#f1f5f9;padding:10px 12px;border-radius:8px;font-weight:700;font-size:16px;color:#0f172a;border:1px solid #e2e8f0}
 </style>
 </head>
 <body>
@@ -562,6 +572,82 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
+<!-- ==================== VEHICLE EDIT MODAL ==================== -->
+<div class="vehicle-modal" id="vehicle-modal">
+    <div class="vehicle-modal-content">
+        <div class="modal-header">
+            <h3 id="modal-vehicle-title">✏️ Edit Vehicle</h3>
+            <button class="modal-close" onclick="closeVehicleModal()">✕</button>
+        </div>
+        <div class="form-group">
+            <label class="form-label">🚛 Vehicle Number (Read Only)</label>
+            <div class="readonly-number" id="modal-vehicle-number-display"></div>
+            <input type="hidden" id="modal-vehicle-number">
+        </div>
+        <div class="form-group">
+            <label class="form-label">🚛 Vehicle Type *</label>
+            <select class="form-control" id="modal-vehicle-type">
+                <option value="">Select vehicle type...</option>
+                <option value="3-Wheeler / Tempo">3-Wheeler / Tempo</option>
+                <option value="Mini Truck">Mini Truck</option>
+                <option value="LCV Open Body Truck">LCV Open Body Truck</option>
+                <option value="LCV - Container">LCV - Container</option>
+                <option value="LCV - Flat bed">LCV - Flat bed</option>
+                <option value="Open Body Truck">Open Body Truck</option>
+                <option value="Box Body Truck">Box Body Truck</option>
+                <option value="Flat bed Truck">Flat bed Truck</option>
+                <option value="Trailer - Open Body">Trailer - Open Body</option>
+                <option value="Trailer - Box Body">Trailer - Box Body</option>
+                <option value="Trailer - High Bed">Trailer - High Bed</option>
+                <option value="Trailer - Semi Low Bed">Trailer - Semi Low Bed</option>
+                <option value="Trailer - Low Bed">Trailer - Low Bed</option>
+                <option value="Trailer - Automobile Carrier">Trailer - Automobile Carrier</option>
+                <option value="Tipper / Dumper">Tipper / Dumper</option>
+                <option value="Tanker">Tanker</option>
+                <option value="Cement Bulker">Cement Bulker</option>
+                <option value="Refrigerated / Reefer">Refrigerated / Reefer</option>
+                <option value="Explosive / Hazardous Vehicle">Explosive / Hazardous Vehicle</option>
+                <option value="Over-Dimensional Cargo (ODC)">Over-Dimensional Cargo (ODC)</option>
+            </select>
+        </div>
+        <div class="grid-2">
+            <div class="form-group">
+                <label class="form-label">Length (ft)</label>
+                <input class="form-control" id="modal-length" type="number" step="0.1">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Width (ft)</label>
+                <input class="form-control" id="modal-width" type="number" step="0.1">
+            </div>
+        </div>
+        <div class="grid-2">
+            <div class="form-group">
+                <label class="form-label">Height (ft)</label>
+                <input class="form-control" id="modal-height" type="number" step="0.1">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Max Weight (Kg)</label>
+                <input class="form-control" id="modal-max-weight" type="number" placeholder="0">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">📝 Description</label>
+            <input class="form-control" id="modal-description" placeholder="Vehicle description...">
+        </div>
+        <div class="form-group">
+            <label class="form-label">🚛 ODC Allowed</label>
+            <div style="display:flex;gap:16px;margin-top:4px">
+                <label><input type="radio" name="modal-odc" value="true" checked> Yes</label>
+                <label><input type="radio" name="modal-odc" value="false"> No</label>
+            </div>
+        </div>
+        <button class="btn-primary success" onclick="saveVehicleModal()">💾 Save Vehicle</button>
+        <button class="btn-primary" style="background:#dc2626;margin-top:6px" onclick="deleteVehicleFromModal()">🗑️ Delete Vehicle</button>
+        <input type="hidden" id="modal-vehicle-id">
+        <input type="hidden" id="modal-edit-mode">
+    </div>
+</div>
+
 <!-- DETAIL PAGE -->
 <div id="detail-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
@@ -598,6 +684,7 @@ let vehicles = [], routes = [];
 let otpTimer = null, otpSeconds = 300, otpVerified = false, generatedOTP = '';
 let isResetFlow = false, otpPurpose = 'registration';
 let vehicleDataMap = {};
+let editingVehicleNumber = null;
 
 // ============================================================
 // LOCATIONS
@@ -740,7 +827,7 @@ function searchVehicles(query) {
       if (result.error) { console.error(result.error); return; }
       const vlist = result.data || [];
       if (!vlist.length) {
-        dropdown.innerHTML = '<div class="item add-new" onclick="addNewVehicleFromSuggestion(\'' + q + '\')">➕ Add New Vehicle "' + q + '"</div>';
+        dropdown.innerHTML = '<div class="item add-new" onclick="openVehicleModalForNew(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
         dropdown.classList.add('show');
         return;
       }
@@ -751,7 +838,7 @@ function searchVehicles(query) {
           v.vehicle_number + ' <span class="sub">' + v.vehicle_type + ' • ' + dims + 'ft</span>' +
           '</div>';
       });
-      html += '<div class="item add-new" onclick="addNewVehicleFromSuggestion(\'' + q + '\')">➕ Add New Vehicle "' + q + '"</div>';
+      html += '<div class="item add-new" onclick="openVehicleModalForNew(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
       dropdown.innerHTML = html;
       dropdown.classList.add('show');
     }).catch(() => { dropdown.classList.remove('show'); });
@@ -764,32 +851,157 @@ function selectVehicleFromSuggestion(id, number, type, dims) {
     renderVehicles();
     $('edit-vehicle-input').value = '';
     $('vehicle-suggest-dropdown').classList.remove('show');
-    toast('✅ Vehicle "' + number + '" added');
+    // Auto-save vehicles to database
+    autoSaveVehicles().then(() => {
+      toast('✅ Vehicle "' + number + '" added to your list');
+    });
   } else {
-    toast('Vehicle already in list');
+    toast('Vehicle already in your list');
   }
 }
 
-function addNewVehicleFromSuggestion(number) {
-  if (!number) return;
-  if (!isValidVehicleNumber(number)) { alert('Invalid vehicle number'); return; }
-  if (vehicles.includes(number)) { toast('Already added'); return; }
-  sb.from('active_vehicles').insert({
+function openVehicleModalForNew(number) {
+  $('vehicle-suggest-dropdown').classList.remove('show');
+  $('modal-vehicle-title').textContent = '📝 Register New Vehicle';
+  $('modal-vehicle-number-display').textContent = number;
+  $('modal-vehicle-number').value = number;
+  $('modal-vehicle-id').value = '';
+  $('modal-edit-mode').value = 'new';
+  $('modal-vehicle-type').value = '';
+  $('modal-length').value = '40';
+  $('modal-width').value = '8.2';
+  $('modal-height').value = '8';
+  $('modal-max-weight').value = '';
+  $('modal-description').value = '';
+  document.querySelector('input[name="modal-odc"][value="true"]').checked = true;
+  editingVehicleNumber = number;
+  $('vehicle-modal').classList.add('show');
+}
+
+function openVehicleEdit(number) {
+  // Fetch full vehicle data
+  sb.from('active_vehicles').select('*').eq('vehicle_number', number).single()
+    .then(res => {
+      if (res.data) {
+        populateVehicleModal(res.data, 'edit');
+      } else {
+        toast('Vehicle not found');
+      }
+    }).catch(() => {
+      toast('Error loading vehicle');
+    });
+}
+
+function populateVehicleModal(data, mode) {
+  $('modal-vehicle-title').textContent = mode === 'edit' ? '✏️ Edit Vehicle' : '📝 Register New Vehicle';
+  $('modal-vehicle-number-display').textContent = data.vehicle_number;
+  $('modal-vehicle-number').value = data.vehicle_number;
+  $('modal-vehicle-id').value = data.id || '';
+  $('modal-edit-mode').value = mode;
+  $('modal-vehicle-type').value = data.vehicle_type || '';
+  if (data.dimensions && data.dimensions.length >= 3) {
+    $('modal-length').value = data.dimensions[0] || '40';
+    $('modal-width').value = data.dimensions[1] || '8.2';
+    $('modal-height').value = data.dimensions[2] || '8';
+  }
+  $('modal-max-weight').value = data.max_weight || '';
+  $('modal-description').value = data.description || '';
+  document.querySelector('input[name="modal-odc"][value="' + (data.odc_allowed ? 'true' : 'false') + '"]').checked = true;
+  editingVehicleNumber = data.vehicle_number;
+  $('vehicle-modal').classList.add('show');
+}
+
+function saveVehicleModal() {
+  const number = $('modal-vehicle-number').value;
+  if (!number) { toast('No vehicle number'); return; }
+  const vehicleType = $('modal-vehicle-type').value;
+  if (!vehicleType) { toast('Please select a vehicle type'); return; }
+  
+  const data = {
     vehicle_number: number,
-    vehicle_type: 'Unknown',
-    dimensions: [0, 0, 0],
-    max_weight: 0,
-    modified_by: user.mobile,
+    vehicle_type: vehicleType,
+    dimensions: [
+      parseFloat($('modal-length').value) || 0,
+      parseFloat($('modal-width').value) || 0,
+      parseFloat($('modal-height').value) || 0
+    ],
+    max_weight: parseFloat($('modal-max-weight').value) || 0,
+    description: $('modal-description').value.trim() || null,
+    odc_allowed: document.querySelector('input[name="modal-odc"]:checked').value === 'true',
+    modified_by: user ? parseInt(user.mobile) : null,
     latest_update_at: new Date().toISOString()
-  }).then(res => {
-    if (res.error) { alert('Error creating vehicle: ' + res.error.message); return; }
-    vehicles.push(number);
-    vehicleDataMap[number] = { id: res.data[0].id, vehicle_number: number, vehicle_type: 'Unknown', dimensions: '0×0×0' };
-    renderVehicles();
-    $('edit-vehicle-input').value = '';
-    $('vehicle-suggest-dropdown').classList.remove('show');
-    toast('✅ New vehicle "' + number + '" added');
-  });
+  };
+  
+  const vehicleId = $('modal-vehicle-id').value;
+  const mode = $('modal-edit-mode').value;
+  
+  if (mode === 'edit' && vehicleId) {
+    // UPDATE existing vehicle
+    sb.from('active_vehicles').update(data).eq('id', vehicleId)
+      .then(result => {
+        if (result.error) { alert('Error: ' + result.error.message); return; }
+        if (!vehicles.includes(number)) {
+          vehicles.push(number);
+        }
+        vehicleDataMap[number] = { id: vehicleId, ...data };
+        renderVehicles();
+        closeVehicleModal();
+        autoSaveVehicles().then(() => {
+          refreshUserData(function() {
+            toast('✅ Vehicle "' + number + '" updated successfully!');
+          });
+        });
+      });
+  } else {
+    // INSERT new vehicle
+    sb.from('active_vehicles').select('id').eq('vehicle_number', number).single()
+      .then(checkRes => {
+        if (checkRes.data) {
+          alert('Vehicle "' + number + '" already exists in the system!');
+          return;
+        }
+        sb.from('active_vehicles').insert(data).then(insertRes => {
+          if (insertRes.error) { alert('Error: ' + insertRes.error.message); return; }
+          if (!vehicles.includes(number)) {
+            vehicles.push(number);
+            vehicleDataMap[number] = { id: insertRes.data[0].id, ...data };
+            renderVehicles();
+          }
+          closeVehicleModal();
+          autoSaveVehicles().then(() => {
+            refreshUserData(function() {
+              toast('✅ Vehicle "' + number + '" registered successfully!');
+            });
+          });
+        });
+      });
+  }
+}
+
+function deleteVehicleFromModal() {
+  const number = $('modal-vehicle-number').value;
+  const vehicleId = $('modal-vehicle-id').value;
+  if (!vehicleId) { toast('Cannot delete - vehicle not saved'); return; }
+  if (!confirm('Delete vehicle "' + number + '" permanently?')) return;
+  
+  sb.from('active_vehicles').delete().eq('id', vehicleId)
+    .then(result => {
+      if (result.error) { alert('Error: ' + result.error.message); return; }
+      vehicles = vehicles.filter(v => v !== number);
+      delete vehicleDataMap[number];
+      renderVehicles();
+      closeVehicleModal();
+      autoSaveVehicles().then(() => {
+        refreshUserData(function() {
+          toast('✅ Vehicle "' + number + '" deleted');
+        });
+      });
+    });
+}
+
+function closeVehicleModal() {
+  $('vehicle-modal').classList.remove('show');
+  editingVehicleNumber = null;
 }
 
 function addSelectedVehicle() {
@@ -797,33 +1009,24 @@ function addSelectedVehicle() {
   const val = input.value.trim().toUpperCase();
   if (!val) { toast('Please enter a vehicle number'); return; }
   if (!isValidVehicleNumber(val)) { alert('Vehicle number must be 9-11 characters'); return; }
-  if (vehicles.includes(val)) { toast('Already added'); return; }
-  sb.from('active_vehicles').select('*').eq('vehicle_number', val).maybeSingle()
+  if (vehicles.includes(val)) { toast('Already in your list'); return; }
+  
+  sb.from('active_vehicles').select('*').eq('vehicle_number', val).single()
     .then(res => {
       if (res.data) {
         vehicles.push(val);
         const dims = res.data.dimensions ? res.data.dimensions.join('×') : 'N/A';
-        vehicleDataMap[val] = { id: res.data.id, vehicle_number: val, vehicle_type: res.data.vehicle_type || 'Unknown', dimensions: dims };
+        vehicleDataMap[val] = { id: res.data.id, ...res.data };
         renderVehicles();
         input.value = '';
-        toast('✅ Vehicle "' + val + '" added');
-      } else {
-        sb.from('active_vehicles').insert({
-          vehicle_number: val,
-          vehicle_type: 'Unknown',
-          dimensions: [0, 0, 0],
-          max_weight: 0,
-          modified_by: user.mobile,
-          latest_update_at: new Date().toISOString()
-        }).then(ins => {
-          if (ins.error) { alert('Error: ' + ins.error.message); return; }
-          vehicles.push(val);
-          vehicleDataMap[val] = { id: ins.data[0].id, vehicle_number: val, vehicle_type: 'Unknown', dimensions: '0×0×0' };
-          renderVehicles();
-          input.value = '';
-          toast('✅ New vehicle "' + val + '" created and added');
+        autoSaveVehicles().then(() => {
+          toast('✅ Vehicle "' + val + '" added');
         });
+      } else {
+        openVehicleModalForNew(val);
       }
+    }).catch(() => {
+      openVehicleModalForNew(val);
     });
 }
 
@@ -832,53 +1035,8 @@ function removeVehicle(v) {
   vehicles = vehicles.filter(x => x !== v);
   delete vehicleDataMap[v];
   renderVehicles();
-}
-
-function editVehicleDetails(v) {
-  const data = vehicleDataMap[v];
-  if (!data) {
-    sb.from('active_vehicles').select('*').eq('vehicle_number', v).single()
-      .then(res => {
-        if (res.data) {
-          const currentType = res.data.vehicle_type || 'Unknown';
-          const currentDims = res.data.dimensions ? res.data.dimensions.join('×') : '0×0×0';
-          const newType = prompt('Enter vehicle type for ' + v + ':', currentType);
-          if (newType === null) return;
-          const newDims = prompt('Enter dimensions (L×W×H in feet):', currentDims);
-          if (newDims === null) return;
-          const dimParts = newDims.split('×').map(Number);
-          sb.from('active_vehicles').update({
-            vehicle_type: newType.trim() || 'Unknown',
-            dimensions: dimParts.length === 3 ? dimParts : [0, 0, 0],
-            latest_update_at: new Date().toISOString()
-          }).eq('id', res.data.id).then(upd => {
-            if (upd.error) { alert('Error: ' + upd.error.message); return; }
-            vehicleDataMap[v] = { id: res.data.id, vehicle_number: v, vehicle_type: newType.trim() || 'Unknown', dimensions: newDims };
-            renderVehicles();
-            toast('✅ Vehicle details updated');
-          });
-        } else {
-          toast('Vehicle not found');
-        }
-      });
-    return;
-  }
-  const currentType = data.vehicle_type || 'Unknown';
-  const currentDims = data.dimensions || '0×0×0';
-  const newType = prompt('Enter vehicle type for ' + v + ':', currentType);
-  if (newType === null) return;
-  const newDims = prompt('Enter dimensions (L×W×H in feet):', currentDims);
-  if (newDims === null) return;
-  const dimParts = newDims.split('×').map(Number);
-  sb.from('active_vehicles').update({
-    vehicle_type: newType.trim() || 'Unknown',
-    dimensions: dimParts.length === 3 ? dimParts : [0, 0, 0],
-    latest_update_at: new Date().toISOString()
-  }).eq('id', data.id).then(res => {
-    if (res.error) { alert('Error updating vehicle: ' + res.error.message); return; }
-    vehicleDataMap[v] = { ...data, vehicle_type: newType.trim() || 'Unknown', dimensions: newDims };
-    renderVehicles();
-    toast('✅ Vehicle details updated');
+  autoSaveVehicles().then(() => {
+    toast('✅ Vehicle "' + v + '" removed from your list');
   });
 }
 
@@ -892,11 +1050,83 @@ function renderVehicles() {
       '<span class="vnumber">' + v + '</span>' +
       '<span class="vdetails">' + (data.vehicle_type || 'Unknown') + ' • ' + dims + 'ft</span>' +
       '<div class="actions">' +
-        '<button class="edit-btn" onclick="editVehicleDetails(\'' + v + '\')">✏️ Edit</button>' +
+        '<button class="edit-btn" onclick="openVehicleEdit(\'' + v + '\')">✏️ Edit</button>' +
         '<button class="delete-btn" onclick="removeVehicle(\'' + v + '\')">🗑️</button>' +
       '</div>' +
       '</div>';
   }).join('');
+}
+
+// ============================================================
+// AUTO-SAVE FUNCTIONS
+// ============================================================
+function autoSaveVehicles() {
+  if (!user || !user.mobile) return Promise.resolve();
+  const mobileNum = parseInt(user.mobile);
+  const vehicleArray = vehicles.length > 0 ? vehicles : null;
+  
+  return sb.from('active_users')
+    .update({ vehicle_no: vehicleArray })
+    .eq('mobile', mobileNum)
+    .then(result => {
+      if (result.error) {
+        console.error('Error auto-saving vehicles:', result.error);
+        return Promise.reject(result.error);
+      }
+      user.vehicle_no = vehicleArray;
+      const saved = localStorage.getItem('rt_user');
+      if (saved) {
+        const sd = JSON.parse(saved);
+        sd.user = user;
+        localStorage.setItem('rt_user', JSON.stringify(sd));
+      }
+      return Promise.resolve();
+    });
+}
+
+function autoSaveRoutes() {
+  if (!user || !user.mobile) return Promise.resolve();
+  const mobileNum = parseInt(user.mobile);
+  const routesArray = routes.length > 0 ? routes : null;
+  
+  return sb.from('active_users')
+    .update({ preferred_routes: routesArray })
+    .eq('mobile', mobileNum)
+    .then(result => {
+      if (result.error) {
+        console.error('Error auto-saving routes:', result.error);
+        return Promise.reject(result.error);
+      }
+      user.preferred_routes = routesArray;
+      const saved = localStorage.getItem('rt_user');
+      if (saved) {
+        const sd = JSON.parse(saved);
+        sd.user = user;
+        localStorage.setItem('rt_user', JSON.stringify(sd));
+      }
+      return Promise.resolve();
+    });
+}
+
+function refreshUserData(callback) {
+  if (!user || !user.mobile) { if (callback) callback(); return; }
+  
+  const mobileNum = parseInt(user.mobile);
+  sb.from('active_users').select('*').eq('mobile', mobileNum).single()
+    .then(result => {
+      if (result.data) {
+        Object.assign(user, result.data);
+        const saved = localStorage.getItem('rt_user');
+        if (saved) {
+          const sd = JSON.parse(saved);
+          sd.user = user;
+          localStorage.setItem('rt_user', JSON.stringify(sd));
+        }
+      }
+      if (callback) callback();
+    }).catch(() => {
+      if (callback) callback();
+    });
 }
 
 // ============================================================
@@ -914,13 +1144,18 @@ function addRoute() {
   renderRoutes();
   const sug = $('suggestions-edit-route');
   if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
-  toast('Route added');
+  autoSaveRoutes().then(() => {
+    toast('Route added');
+  });
 }
 
 function removeRoute(r) {
   if (!confirm('Remove this route?')) return;
   routes = routes.filter(x => x !== r);
   renderRoutes();
+  autoSaveRoutes().then(() => {
+    toast('Route removed');
+  });
 }
 
 function renderRoutes() {
@@ -934,7 +1169,7 @@ function renderRoutes() {
 }
 
 // ============================================================
-// PROFILE FUNCTIONS - FIXED: Use IN operator instead of modified_by
+// PROFILE FUNCTIONS
 // ============================================================
 function loadProfile() {
   if (!user) return;
@@ -983,31 +1218,24 @@ function loadProfile() {
 
   $('profile-details-text').textContent = user.details || 'No details added';
   
-  // ============================================================
-  // FIXED: Load Vehicles using IN operator from vehicle_no array
-  // ============================================================
+  // Load Vehicles using IN operator
   const container2 = $('profile-vehicles-container');
   const badge = $('vehicle-count-badge');
   
-  // Parse vehicle_no from user (handles both array and PostgreSQL array string)
   let vno = user.vehicle_no || [];
   let vehicleNumbers = [];
-  
   if (Array.isArray(vno)) {
     vehicleNumbers = vno.filter(v => v !== null && v !== '');
   } else if (typeof vno === 'string' && vno.startsWith('{')) {
     try {
       const cleaned = vno.replace(/[{}]/g, '');
       vehicleNumbers = cleaned.split(',').filter(v => v.trim() !== '');
-    } catch(e) {
-      vehicleNumbers = [];
-    }
+    } catch(e) { vehicleNumbers = []; }
   } else if (typeof vno === 'string') {
     vehicleNumbers = vno.split(',').filter(v => v.trim() !== '');
   }
   
   if (vehicleNumbers.length) {
-    // ✅ FIX: Use IN operator to fetch vehicles by number, not modified_by
     sb.from('active_vehicles').select('*').in('vehicle_number', vehicleNumbers)
       .then(result => {
         const vdata = result.data || [];
@@ -1032,7 +1260,7 @@ function loadProfile() {
     $('stat-vehicles-count').textContent = '0';
   }
 
-  // Routes (READ ONLY)
+  // Routes
   let routeArr = user.preferred_routes || [];
   if (typeof routeArr === 'string') {
     routeArr = routeArr.split(',').filter(r => r.trim() !== '').map(Number);
