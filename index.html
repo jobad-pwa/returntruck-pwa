@@ -539,10 +539,12 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div class="profile-section">
             <label class="form-label">🚛 My Vehicles</label>
             <div class="route-input-row">
-                <input class="form-control vehicle-number-input" id="edit-vehicle-input" placeholder="Type vehicle number..." oninput="validateAndSearchVehicle(this.value)" autocomplete="off" style="flex:2">
+                <div style="flex:2;position:relative">
+                    <input class="form-control vehicle-number-input" id="edit-vehicle-input" placeholder="Type vehicle number..." oninput="searchVehicles(this.value)" autocomplete="off">
+                    <div class="vehicle-suggest-dropdown" id="vehicle-suggest-dropdown"></div>
+                </div>
                 <button class="section-btn success" onclick="addSelectedVehicle()">➕ Add</button>
             </div>
-            <div class="vehicle-suggest-dropdown" id="vehicle-suggest-dropdown"></div>
             <div id="edit-vehicles-list" style="margin-top:8px"></div>
         </div>
         <div class="profile-section">
@@ -818,46 +820,84 @@ function validateAndSearchVehicle(value) {
   searchVehicles(value);
 }
 
+// ============================================================
+// VEHICLE SEARCH DROPDOWN - FIXED
+// ============================================================
 function searchVehicles(query) {
   const dropdown = $('vehicle-suggest-dropdown');
   const q = query.trim().toUpperCase();
-  if (!q || q.length < 2) { dropdown.classList.remove('show'); return; }
-  sb.from('active_vehicles').select('*').ilike('vehicle_number', '%' + q + '%').limit(10)
+  
+  // Clear dropdown if query is empty or too short
+  if (!q || q.length < 1) {
+    dropdown.classList.remove('show');
+    dropdown.innerHTML = '';
+    return;
+  }
+  
+  // Show loading state
+  dropdown.innerHTML = '<div class="item" style="color:#94a3b8;">Searching...</div>';
+  dropdown.classList.add('show');
+  
+  // Query active_vehicles table
+  sb.from('active_vehicles')
+    .select('*')
+    .ilike('vehicle_number', '%' + q + '%')
+    .limit(10)
     .then(result => {
-      if (result.error) { console.error(result.error); return; }
+      if (result.error) {
+        console.error('Error searching vehicles:', result.error);
+        dropdown.innerHTML = '<div class="item" style="color:#dc2626;">Error loading vehicles</div>';
+        return;
+      }
+      
       const vlist = result.data || [];
+      
+      // If no results
       if (!vlist.length) {
         dropdown.innerHTML = '<div class="item add-new" onclick="openVehicleModalForNew(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
         dropdown.classList.add('show');
         return;
       }
+      
+      // Build dropdown items
       let html = '';
       vlist.forEach(v => {
         const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
-        html += '<div class="item" onclick="selectVehicleFromSuggestion(\'' + v.id + '\',\'' + v.vehicle_number + '\',\'' + v.vehicle_type + '\',\'' + dims + '\')">' +
+        const isAlreadyAdded = vehicles.includes(v.vehicle_number);
+        html += '<div class="item" onclick="selectVehicleFromSuggestion(\'' + v.id + '\',\'' + v.vehicle_number + '\',\'' + v.vehicle_type + '\',\'' + dims + '\')" style="' + (isAlreadyAdded ? 'opacity:0.5;' : '') + '">' +
           v.vehicle_number + ' <span class="sub">' + v.vehicle_type + ' • ' + dims + 'ft</span>' +
+          (isAlreadyAdded ? ' <span style="color:#16a34a;font-size:10px;">✓ Added</span>' : '') +
           '</div>';
       });
       html += '<div class="item add-new" onclick="openVehicleModalForNew(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
       dropdown.innerHTML = html;
       dropdown.classList.add('show');
-    }).catch(() => { dropdown.classList.remove('show'); });
+    }).catch(err => {
+      console.error('Error:', err);
+      dropdown.innerHTML = '<div class="item" style="color:#dc2626;">Error loading vehicles</div>';
+    });
 }
 
 function selectVehicleFromSuggestion(id, number, type, dims) {
-  if (!vehicles.includes(number)) {
-    vehicles.push(number);
-    vehicleDataMap[number] = { id: id, vehicle_number: number, vehicle_type: type, dimensions: dims };
-    renderVehicles();
-    $('edit-vehicle-input').value = '';
+  // Check if already in list
+  if (vehicles.includes(number)) {
+    toast('Vehicle "' + number + '" already in your list');
     $('vehicle-suggest-dropdown').classList.remove('show');
-    // Auto-save vehicles to database
-    autoSaveVehicles().then(() => {
-      toast('✅ Vehicle "' + number + '" added to your list');
-    });
-  } else {
-    toast('Vehicle already in your list');
+    $('edit-vehicle-input').value = '';
+    return;
   }
+  
+  // Add to list
+  vehicles.push(number);
+  vehicleDataMap[number] = { id: id, vehicle_number: number, vehicle_type: type, dimensions: dims };
+  renderVehicles();
+  $('edit-vehicle-input').value = '';
+  $('vehicle-suggest-dropdown').classList.remove('show');
+  
+  // Auto-save to database
+  autoSaveVehicles().then(() => {
+    toast('✅ Vehicle "' + number + '" added to your list');
+  });
 }
 
 function openVehicleModalForNew(number) {
@@ -878,8 +918,10 @@ function openVehicleModalForNew(number) {
   $('vehicle-modal').classList.add('show');
 }
 
+// ============================================================
+// REST OF THE CODE (same as before)
+// ============================================================
 function openVehicleEdit(number) {
-  // Fetch full vehicle data
   sb.from('active_vehicles').select('*').eq('vehicle_number', number).single()
     .then(res => {
       if (res.data) {
@@ -936,7 +978,6 @@ function saveVehicleModal() {
   const mode = $('modal-edit-mode').value;
   
   if (mode === 'edit' && vehicleId) {
-    // UPDATE existing vehicle
     sb.from('active_vehicles').update(data).eq('id', vehicleId)
       .then(result => {
         if (result.error) { alert('Error: ' + result.error.message); return; }
@@ -953,7 +994,6 @@ function saveVehicleModal() {
         });
       });
   } else {
-    // INSERT new vehicle
     sb.from('active_vehicles').select('id').eq('vehicle_number', number).single()
       .then(checkRes => {
         if (checkRes.data) {
