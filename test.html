@@ -3,325 +3,915 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Install Button Test</title>
+<title>ReturnTruck - Edit Profile</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
 body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
 .card{max-width:420px;width:100%;background:#fff;border-radius:24px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);display:flex;flex-direction:column;height:95vh;max-height:800px;position:relative;overflow:hidden}
-
-/* Header */
+.hidden-page{display:none !important}.hidden{display:none !important}
 .header-fixed{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #f1f5f9;background:#fff;z-index:10;width:100%;min-height:50px}
-.logo{font-size:20px;font-weight:900;color:#2563eb;display:flex;align-items:center;gap:6px}
-.logo-icon{font-size:28px}.logo-text{font-size:20px;font-weight:900;color:#2563eb}
-.avatar{width:36px;height:36px;border-radius:50%;background:#64748b;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;cursor:pointer}
-
-/* Content */
-.scroll-body{flex:1;overflow-y:auto;padding:16px 0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.test-box{background:#f8fafc;border:2px dashed #94a3b8;border-radius:12px;padding:24px;text-align:center;width:100%}
-.test-box .icon{font-size:48px;display:block;margin-bottom:12px}
-.test-box h3{font-size:16px;color:#1e293b;margin:0 0 8px}
-.test-box p{font-size:13px;color:#64748b;margin:0}
-.status-box{margin-top:16px;padding:12px;border-radius:8px;width:100%;text-align:center;font-size:13px;font-weight:600}
-.status-box.success{background:#dcfce7;color:#166534}
-.status-box.error{background:#fef2f2;color:#991b1b}
-.status-box.info{background:#dbeafe;color:#1e40af}
-.status-box.pending{background:#fef3c7;color:#92400e}
-
-/* Bottom Navigation */
+.logo{font-size:22px;font-weight:900;color:#2563eb;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none}
+.logo-icon{font-size:28px;line-height:1}.logo-text{font-size:22px;font-weight:900;color:#2563eb;letter-spacing:-0.5px}
+.back-btn{background:transparent;border:none;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;padding:4px 8px}.back-btn:hover{color:#2563eb}
+.scroll-body{overflow-y:auto;padding:8px 0;-webkit-overflow-scrolling:touch;display:block;width:100%;flex:1}
+.scroll-body::-webkit-scrollbar{width:4px}.scroll-body::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
 .nav-fixed{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e2e8f0;background:#fff;position:relative;z-index:10;min-height:65px;width:100%;padding-bottom:5px;margin-top:auto}
 .nav-item{display:flex;flex-direction:column;align-items:center;color:#94a3b8;font-size:9px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px;position:relative;z-index:2}
-.nav-item.active{color:#2563eb}
-.nav-item .icon{font-size:22px;margin-bottom:2px}
-.nav-item .label{font-size:9px;text-transform:uppercase;letter-spacing:.05em}
-
-/* Install Button - Floating above nav */
-.nav-install-wrapper{position:absolute;left:50%;top:-22px;transform:translateX(-50%);z-index:5;display:none}
-.nav-install-wrapper.show{display:block}
-.nav-install-btn{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;border-radius:30px;padding:4px 14px;font-size:10px;font-weight:700;cursor:pointer;box-shadow:0 4px 15px rgba(37,99,235,0.4);display:flex;align-items:center;gap:4px;white-space:nowrap;animation:pulse-install 2s infinite;letter-spacing:0.3px}
-.nav-install-btn .install-icon{font-size:12px}
-.nav-install-btn .install-badge{background:#ef4444;color:#fff;font-size:6px;font-weight:700;padding:1px 5px;border-radius:10px;margin-left:2px}
-@keyframes pulse-install{0%{transform:scale(1);box-shadow:0 4px 15px rgba(37,99,235,0.4)}50%{transform:scale(1.05);box-shadow:0 4px 25px rgba(37,99,235,0.6)}100%{transform:scale(1);box-shadow:0 4px 15px rgba(37,99,235,0.4)}}
-
-/* Controls */
-.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;width:100%}
-.controls button{flex:1;padding:8px 12px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;min-width:60px}
-.btn-primary{background:#2563eb;color:#fff}
+.nav-item.active{color:#2563eb}.nav-item .icon{font-size:22px;margin-bottom:2px}.nav-item .label{font-size:9px;text-transform:uppercase;letter-spacing:.05em}
+.profile-section{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px}
+.profile-section .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.profile-section .section-title{font-size:14px;font-weight:700;color:#1e293b}
+.profile-section .section-badge{font-size:9px;padding:2px 10px;border-radius:12px;font-weight:700}
+.section-badge.active{background:#dcfce7;color:#166534}
+.section-badge.optional{background:#e2e8f0;color:#64748b}
+.section-btn{padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px}
+.section-btn:hover{background:#1d4ed8}
+.section-btn.secondary{background:#e2e8f0;color:#1e293b}
+.section-btn.secondary:hover{background:#cbd5e1}
+.section-btn.danger{background:#dc2626;color:#fff}
+.section-btn.danger:hover{background:#b91c1c}
+.section-btn.success{background:#16a34a;color:#fff}
+.section-btn.success:hover{background:#15803d}
+.form-control{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;background:#fff;outline:none}
+.form-control:focus{border-color:#2563eb}
+.form-label{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
+.btn-primary{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px}
 .btn-primary:hover{background:#1d4ed8}
-.btn-success{background:#16a34a;color:#fff}
-.btn-success:hover{background:#15803d}
-.btn-danger{background:#dc2626;color:#fff}
-.btn-danger:hover{background:#b91c1c}
-.btn-gray{background:#6b7280;color:#fff}
-.btn-gray:hover{background:#4b5563}
-
-.log-box{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:12px;font-family:monospace;font-size:11px;max-height:120px;overflow-y:auto;margin-top:12px;width:100%;white-space:pre-wrap;word-break:break-all}
-.log-box .pass{color:#4ade80}
-.log-box .fail{color:#f87171}
-.log-box .info{color:#60a5fa}
-.log-box .highlight{color:#f472b6}
+.btn-primary.success{background:#16a34a}.btn-primary.success:hover{background:#15803d}
+.vehicle-item{display:flex;align-items:center;justify-content:space-between;background:#f8fafc;padding:8px 12px;border-radius:6px;margin-bottom:4px;border:1px solid #e2e8f0}
+.vehicle-item .vnumber{font-weight:600;font-size:13px;color:#0f172a;flex:1}
+.vehicle-item .vdetails{font-size:11px;color:#64748b;flex:1}
+.vehicle-item .actions{display:flex;gap:4px}
+.vehicle-item .actions button{padding:3px 8px;font-size:9px;border:none;border-radius:4px;font-weight:600;cursor:pointer}
+.vehicle-item .actions .edit-btn{background:#dbeafe;color:#1e40af}
+.vehicle-item .actions .edit-btn:hover{background:#bfdbfe}
+.vehicle-item .actions .delete-btn{background:#fef2f2;color:#991b1b}
+.vehicle-item .actions .delete-btn:hover{background:#fee2e2}
+.route-tag{background:#e2e8f0;padding:4px 10px;border-radius:6px;font-size:12px;display:inline-block;margin:2px}
+.route-tag .remove{color:#dc2626;cursor:pointer;margin-left:6px;font-weight:700}
+.route-tag .remove:hover{color:#b91c1c}
+.user-type-checkbox{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
+.user-type-checkbox label{font-size:13px;display:flex;align-items:center;gap:4px;cursor:pointer}
+.route-input-row{display:flex;gap:6px;margin-bottom:8px}
+.route-input-row input{flex:2}
+.route-input-row button{flex-shrink:0}
+.vehicle-suggest-dropdown{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:8px;margin-top:4px;max-height:150px;overflow-y:auto;z-index:50;display:none}
+.vehicle-suggest-dropdown.show{display:block}
+.vehicle-suggest-dropdown .item{padding:8px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid #f1f5f9}
+.vehicle-suggest-dropdown .item:hover{background:#f1f5f9}
+.vehicle-suggest-dropdown .item .sub{font-size:10px;color:#94a3b8}
+.vehicle-suggest-dropdown .item .add-new{color:#2563eb;font-weight:600}
+.vehicle-number-input{font-family:monospace;letter-spacing:0.5px;text-transform:uppercase}
+.search-wrapper{position:relative;width:100%}
+.search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.search-wrapper .suggestions.show{display:block}
+.search-wrapper .suggestions .item{padding:10px 16px;font-size:13px;color:#1e293b;cursor:pointer;border-bottom:1px solid #f1f5f9}
+.search-wrapper .suggestions .item:last-child{border-bottom:none}
+.search-wrapper .suggestions .item:hover{background:#f8fafc}
+.search-wrapper .suggestions .item .highlight{background:#dbeafe;font-weight:600}
+.avatar-btn{width:36px;height:36px;border-radius:50%;border:2px solid #e2e8f0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;background:#94a3b8;transition:all .2s}
+.header-right{display:flex;align-items:center;gap:8px;position:relative}
+.profile-dropdown{position:absolute;top:45px;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:160px;z-index:100;display:none}
+.profile-dropdown.show{display:block}
+.dropdown-item{padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:#1e293b;cursor:pointer;border:none;background:transparent;width:100%}
+.dropdown-item:hover{background:#f8fafc}
+.dropdown-divider{height:1px;background:#e2e8f0;margin:4px 12px}
+.vehicle-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000}
+.vehicle-modal.show{display:flex}
+.vehicle-modal-content{background:#fff;border-radius:16px;padding:24px;max-width:400px;width:90%;max-height:80vh;overflow-y:auto}
+.vehicle-modal-content .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.vehicle-modal-content .modal-header h3{margin:0;font-size:18px;color:#0f172a}
+.vehicle-modal-content .modal-close{background:transparent;border:none;font-size:24px;cursor:pointer;color:#94a3b8}
+.vehicle-modal-content .modal-close:hover{color:#dc2626}
+.vehicle-modal-content .form-group{margin-bottom:12px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 </style>
 </head>
 <body>
-<div class="card">
+<div class="card" id="app-card">
 
-    <!-- HEADER -->
+<!-- HOME PAGE (stub) -->
+<div id="home-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
-        <div class="logo"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></div>
-        <div class="avatar">GU</div>
+        <div class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></div>
+        <div class="header-right">
+            <button class="avatar-btn" id="avatar-btn" onclick="toggleDropdown()"><span id="avatar-initials">GU</span></button>
+            <div class="profile-dropdown" id="profile-dropdown">
+                <button class="dropdown-item" onclick="closeDropdown();goToEditProfile()">✏️ Edit Profile</button>
+                <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button>
+            </div>
+        </div>
     </div>
+    <div style="padding:20px;text-align:center;color:#64748b">
+        <h3>🏠 Home Page</h3>
+        <p>Click Edit Profile to manage your vehicles and routes</p>
+        <button onclick="goToEditProfile()" class="btn-primary" style="width:auto;padding:10px 30px">✏️ Edit Profile</button>
+    </div>
+    <div class="nav-fixed">
+        <button class="nav-item active" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
+        <button class="nav-item" onclick="goToEditProfile()"><span class="icon">✏️</span><span class="label">Edit</span></button>
+    </div>
+</div>
 
-    <!-- CONTENT -->
-    <div class="scroll-body">
-        <div class="test-box">
-            <span class="icon">📲</span>
-            <h3>Install Button Test</h3>
-            <p>Check if install button appears at bottom navigation</p>
+<!-- ==================== EDIT PROFILE PAGE ==================== -->
+<div id="edit-profile-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
+    <div class="header-fixed">
+        <span class="logo"><span class="logo-icon">✏️</span><span class="logo-text">Edit Profile</span></span>
+        <button class="back-btn" onclick="goHome()">✕</button>
+    </div>
+    <div class="scroll-body" id="edit-profile-scroll">
+        <!-- Full Name -->
+        <div class="profile-section">
+            <label class="form-label">👤 Full Name</label>
+            <input class="form-control" id="edit-name" placeholder="Rajesh Kumar">
         </div>
 
-        <div id="status-box" class="status-box info">⏳ Checking install status...</div>
-
-        <div class="controls">
-            <button class="btn-primary" onclick="showInstall()">👆 Show Install</button>
-            <button class="btn-success" onclick="hideInstall()">👆 Hide Install</button>
-            <button class="btn-danger" onclick="toggleInstall()">🔄 Toggle</button>
-            <button class="btn-gray" onclick="clearLog()">🗑️ Clear</button>
+        <!-- Company Name -->
+        <div class="profile-section">
+            <label class="form-label">🏢 Company Name</label>
+            <input class="form-control" id="edit-company" placeholder="ABC Steel Traders">
         </div>
 
-        <div class="log-box" id="log">⏳ Waiting for tests...</div>
-    </div>
-
-    <!-- BOTTOM NAVIGATION -->
-    <div class="nav-fixed" id="bottom-nav">
-        <button class="nav-item active"><span class="icon">🏠</span><span class="label">Home</span></button>
-
-        <!-- INSTALL BUTTON -->
-        <div class="nav-install-wrapper" id="nav-install-wrapper">
-            <button class="nav-install-btn" id="nav-install-btn" onclick="forceInstall()">
-                <span class="install-icon">📲</span> Install <span class="install-badge">NEW</span>
-            </button>
+        <!-- Company Website -->
+        <div class="profile-section">
+            <label class="form-label">🌐 Company Website</label>
+            <input class="form-control" id="edit-website" placeholder="https://www.abcsteel.com">
         </div>
 
-        <button class="nav-item"><span class="icon">📦</span><span class="label">Load</span></button>
-        <button class="nav-item"><span class="icon">🚛</span><span class="label">Truck</span></button>
-        <button class="nav-item"><span class="icon">👤</span><span class="label">Profile</span></button>
-    </div>
+        <!-- PAN Number -->
+        <div class="profile-section">
+            <label class="form-label">📛 PAN Number</label>
+            <input class="form-control" id="edit-pan" placeholder="AABCP1234D">
+        </div>
 
+        <!-- GST Number -->
+        <div class="profile-section">
+            <label class="form-label">📛 GST Number</label>
+            <input class="form-control" id="edit-gst" placeholder="22AABC1234D1ZP">
+        </div>
+
+        <!-- Location PIN -->
+        <div class="profile-section">
+            <label class="form-label">📍 Location PIN</label>
+            <div style="position:relative;width:100%">
+                <input type="text" id="search-edit-location" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('edit-location')" autocomplete="off" class="form-control">
+                <div class="search-wrapper"><div class="suggestions" id="suggestions-edit-location"></div></div>
+                <input type="hidden" id="edit-location-hidden">
+            </div>
+        </div>
+
+        <!-- User Type - Checkboxes -->
+        <div class="profile-section">
+            <label class="form-label">🎯 User Type</label>
+            <div class="user-type-checkbox">
+                <label><input type="checkbox" id="edit-type-loadgiver" value="1"> 📦 Load Giver</label>
+                <label><input type="checkbox" id="edit-type-operator" value="2"> 🚛 Operator</label>
+                <label><input type="checkbox" id="edit-type-agent" value="3"> 🤝 Agent</label>
+            </div>
+            <div style="font-size:10px;color:#94a3b8;margin-top:4px">Select all that apply</div>
+        </div>
+
+        <!-- My Vehicles -->
+        <div class="profile-section">
+            <label class="form-label">🚛 My Vehicles</label>
+            <div class="route-input-row">
+                <div style="flex:2;position:relative">
+                    <input class="form-control vehicle-number-input" id="edit-vehicle-input" placeholder="Type vehicle number..." oninput="searchVehicles(this.value)" autocomplete="off">
+                    <div class="vehicle-suggest-dropdown" id="vehicle-suggest-dropdown"></div>
+                </div>
+                <button class="section-btn success" onclick="addSelectedVehicle()">➕ Add</button>
+            </div>
+            <div id="edit-vehicles-list" style="margin-top:8px"></div>
+        </div>
+
+        <!-- Preferred Routes -->
+        <div class="profile-section">
+            <label class="form-label">🗺️ Preferred Routes</label>
+            <div class="route-input-row">
+                <div style="flex:2;position:relative">
+                    <input class="form-control" id="search-edit-route" placeholder="Search location/pin..." onclick="selectInputText(this)" oninput="searchLocation('edit-route')" autocomplete="off">
+                    <div class="search-wrapper"><div class="suggestions" id="suggestions-edit-route"></div></div>
+                    <input type="hidden" id="edit-route-hidden">
+                </div>
+                <button class="section-btn" onclick="addRoute()">Add</button>
+            </div>
+            <div id="edit-routes-list" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"></div>
+        </div>
+
+        <!-- About / Details -->
+        <div class="profile-section">
+            <label class="form-label">📝 About / Details</label>
+            <textarea class="form-control" id="edit-details" rows="3" placeholder="About your business, services, etc." style="resize:vertical"></textarea>
+            <div style="font-size:10px;color:#94a3b8;text-align:right"><span id="edit-details-count">0</span>/300</div>
+        </div>
+
+        <button class="btn-primary success" onclick="saveProfile()" style="margin-top:8px">💾 Save Profile</button>
+    </div>
+    <div class="nav-fixed">
+        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
+        <button class="nav-item active" onclick="goToEditProfile()"><span class="icon">✏️</span><span class="label">Edit</span></button>
+    </div>
+</div>
+
+<!-- ==================== VEHICLE EDIT MODAL ==================== -->
+<div class="vehicle-modal" id="vehicle-modal">
+    <div class="vehicle-modal-content">
+        <div class="modal-header">
+            <h3 id="modal-vehicle-title">✏️ Edit Vehicle</h3>
+            <button class="modal-close" onclick="closeVehicleModal()">✕</button>
+        </div>
+        <div id="modal-vehicle-number" style="font-weight:700;font-size:16px;color:#0f172a;margin-bottom:12px"></div>
+        <div class="form-group">
+            <label class="form-label">🚛 Vehicle Type</label>
+            <select class="form-control" id="modal-vehicle-type">
+                <option value="">Select vehicle type...</option>
+                <option value="3-Wheeler / Tempo">3-Wheeler / Tempo</option>
+                <option value="Mini Truck">Mini Truck</option>
+                <option value="LCV Open Body Truck">LCV Open Body Truck</option>
+                <option value="LCV - Container">LCV - Container</option>
+                <option value="LCV - Flat bed">LCV - Flat bed</option>
+                <option value="Open Body Truck">Open Body Truck</option>
+                <option value="Box Body Truck">Box Body Truck</option>
+                <option value="Flat bed Truck">Flat bed Truck</option>
+                <option value="Trailer - Open Body">Trailer - Open Body</option>
+                <option value="Trailer - Box Body">Trailer - Box Body</option>
+                <option value="Trailer - High Bed">Trailer - High Bed</option>
+                <option value="Trailer - Semi Low Bed">Trailer - Semi Low Bed</option>
+                <option value="Trailer - Low Bed">Trailer - Low Bed</option>
+                <option value="Trailer - Automobile Carrier">Trailer - Automobile Carrier</option>
+                <option value="Tipper / Dumper">Tipper / Dumper</option>
+                <option value="Tanker">Tanker</option>
+                <option value="Cement Bulker">Cement Bulker</option>
+                <option value="Refrigerated / Reefer">Refrigerated / Reefer</option>
+                <option value="Explosive / Hazardous Vehicle">Explosive / Hazardous Vehicle</option>
+                <option value="Over-Dimensional Cargo (ODC)">Over-Dimensional Cargo (ODC)</option>
+            </select>
+        </div>
+        <div class="grid-2">
+            <div class="form-group">
+                <label class="form-label">Length (ft)</label>
+                <input class="form-control" id="modal-length" type="number" step="0.1" value="40">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Width (ft)</label>
+                <input class="form-control" id="modal-width" type="number" step="0.1" value="8.2">
+            </div>
+        </div>
+        <div class="grid-2">
+            <div class="form-group">
+                <label class="form-label">Height (ft)</label>
+                <input class="form-control" id="modal-height" type="number" step="0.1" value="8">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Max Weight (Kg)</label>
+                <input class="form-control" id="modal-max-weight" type="number" placeholder="0">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">📝 Description</label>
+            <input class="form-control" id="modal-description" placeholder="Vehicle description...">
+        </div>
+        <div class="form-group">
+            <label class="form-label">🚛 ODC Allowed</label>
+            <div style="display:flex;gap:16px;margin-top:4px">
+                <label><input type="radio" name="modal-odc" value="true" checked> Yes</label>
+                <label><input type="radio" name="modal-odc" value="false"> No</label>
+            </div>
+        </div>
+        <button class="btn-primary success" onclick="saveVehicleModal()">💾 Save Vehicle Details</button>
+        <button class="btn-primary" style="background:#dc2626;margin-top:6px" onclick="deleteVehicleFromModal()">🗑️ Delete Vehicle</button>
+        <input type="hidden" id="modal-vehicle-id">
+    </div>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen" style="display:flex;flex-direction:column;height:100%;width:100%;padding:20px">
+    <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:48px">🚛</div>
+        <h2>ReturnTruck</h2>
+        <p style="color:#64748b">Login to manage your profile</p>
+    </div>
+    <input type="tel" id="mobile" class="input-field" placeholder="Enter Mobile Number" maxlength="10">
+    <input type="password" id="pin" class="input-field" placeholder="Enter 4-digit PIN" maxlength="4" style="letter-spacing:4px">
+    <button onclick="loginUser()" class="btn-primary">🔐 Login</button>
+    <button onclick="continueAsGuest()" style="width:100%;padding:12px;border:1.5px solid #8b5cf6;border-radius:12px;font-size:14px;font-weight:600;color:#8b5cf6;background:transparent;cursor:pointer">👤 Guest</button>
+    <div id="login-error" style="color:#dc2626;font-size:12px;text-align:center;margin-top:10px;display:none"></div>
 </div>
 
 <script>
 // ============================================================
+// CONFIG
+// ============================================================
+const SB_URL = 'https://ghjoffovatgvhzxlupef.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
+const sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+// ============================================================
 // STATE
 // ============================================================
-var installed = false;
-var prompt = null;
-
-function $(id){return document.getElementById(id)}
-
-// ============================================================
-// LOGGING
-// ============================================================
-function log(msg, type){
-    var el = $('log');
-    var time = new Date().toLocaleTimeString();
-    var colors = { pass: 'pass', fail: 'fail', info: 'info', highlight: 'highlight' };
-    el.innerHTML += '[' + time + '] <span class="' + (colors[type] || 'info') + '">' + msg + '</span>\n';
-    el.scrollTop = el.scrollHeight;
-}
-
-function clearLog(){
-    $('log').innerHTML = '';
-    log('🗑️ Log cleared', 'info');
-}
-
-function setStatus(text, type){
-    var el = $('status-box');
-    el.textContent = text;
-    el.className = 'status-box ' + (type || 'info');
-}
+let user = null, guest = false;
+let vehicles = [], routes = [];
+let vehicleDataMap = {};
+let editingVehicleNumber = null;
 
 // ============================================================
-// INSTALL BUTTON FUNCTIONS
+// LOCATIONS
 // ============================================================
+const LOCATIONS = [
+  {pin_id:50000101, pincode:"500001", name:"Hyderabad G.P.O.", district:"HYDERABAD", state:"TG", lat:17.387993, lng:78.47652},
+  {pin_id:50004501, pincode:"500045", name:"Yousufguda", district:"HYDERABAD", state:"TG", lat:17.441504, lng:78.424536},
+  {pin_id:50004902, pincode:"500049", name:"Miyapur", district:"MEDCHAL MALKAJGIRI", state:"TG", lat:17.49253338, lng:78.35148793},
+  {pin_id:53300104, pincode:"533001", name:"Kakinada", district:"Kakinada", state:"AP", lat:16.9550556, lng:82.2354722},
+  {pin_id:52400103, pincode:"524001", name:"Nellore", district:"SPSR NELLORE", state:"AP", lat:14.451895, lng:79.980856},
+  {pin_id:52420106, pincode:"524201", name:"Kavali", district:"SPSR NELLORE", state:"AP", lat:14.91658, lng:79.993121}
+];
 
-// Check if app is already installed
-if(window.matchMedia('(display-mode: standalone)').matches){
-    installed = true;
+function getLoc(pinId) {
+  if (!pinId) return null;
+  const pinNum = parseInt(pinId);
+  if (isNaN(pinNum)) return null;
+  return LOCATIONS.find(l => l.pin_id === pinNum) || null;
+}
+function getLocDisplayName(loc) {
+  if (!loc) return 'Unknown';
+  return loc.name + ', ' + loc.district + ', ' + loc.state + ' (' + loc.pincode + ')';
 }
 
-function updateInstallButton(){
-    // Show install button only if:
-    // 1. User is on mobile
-    // 2. Not already installed
-    // 3. Not in standalone mode
-    var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    var show = isMobile && !window.matchMedia('(display-mode: standalone)').matches && !installed;
-    
-    var wrapper = $('nav-install-wrapper');
-    if(wrapper){
-        wrapper.classList.toggle('show', show);
-        if(show){
-            log('✅ Install button SHOWING (mobile, not installed)', 'pass');
-            setStatus('✅ Install button is visible', 'success');
-        }else{
-            log('❌ Install button HIDDEN (not mobile or already installed)', 'fail');
-            if(installed){
-                setStatus('📱 App already installed', 'success');
-            }else if(!isMobile){
-                setStatus('💻 Desktop browser - no install button', 'info');
-            }else{
-                setStatus('⏳ Install button hidden', 'pending');
-            }
+// ============================================================
+// UTILITY
+// ============================================================
+function $(id) { return document.getElementById(id); }
+function toast(msg) { alert(msg); }
+function selectInputText(input) { input.select(); input.classList.add('selected'); }
+
+// ============================================================
+// SEARCH LOCATION
+// ============================================================
+function searchLocation(ctx) {
+  const inp = $('search-' + ctx);
+  const sug = $('suggestions-' + ctx);
+  if (!inp || !sug) return;
+  const q = inp.value.trim();
+  if (!q) { sug.classList.remove('show'); sug.innerHTML = ''; return; }
+  const res = LOCATIONS.filter(l =>
+    l.name.toLowerCase().includes(q.toLowerCase()) ||
+    l.pincode.includes(q) ||
+    l.district.toLowerCase().includes(q.toLowerCase()) ||
+    l.state.toLowerCase().includes(q.toLowerCase()) ||
+    String(l.pin_id).includes(q)
+  ).slice(0, 10);
+  if (!res.length) { sug.classList.remove('show'); sug.innerHTML = ''; return; }
+  let html = '';
+  res.forEach(l => {
+    const dn = getLocDisplayName(l);
+    const idx = dn.toLowerCase().indexOf(q.toLowerCase());
+    let dh = dn;
+    if (idx !== -1) dh = dn.substring(0, idx) + '<span class="highlight">' + dn.substring(idx, idx + q.length) + '</span>' + dn.substring(idx + q.length);
+    html += '<div class="item" data-ctx="' + ctx + '" data-pinid="' + l.pin_id + '">' + dh + '</div>';
+  });
+  sug.innerHTML = html;
+  sug.classList.add('show');
+}
+
+document.addEventListener('click', function(e) {
+  const item = e.target.closest('.item');
+  if (item) {
+    const ctx = item.dataset.ctx;
+    const pinId = item.dataset.pinid;
+    if (ctx && pinId) selectLoc(ctx, pinId);
+  }
+  document.querySelectorAll('.suggestions').forEach(s => {
+    const parent = s.parentElement;
+    if (parent && !parent.contains(e.target)) { s.classList.remove('show'); s.innerHTML = ''; }
+  });
+});
+
+function selectLoc(ctx, pinId) {
+  const l = getLoc(pinId);
+  if (!l) return;
+  const dn = getLocDisplayName(l);
+  const inp = $('search-' + ctx);
+  if (inp) { inp.value = dn; setTimeout(() => { inp.select(); inp.classList.add('selected'); }, 100); }
+  let hid = null;
+  if (ctx === 'edit-location') hid = 'edit-location-hidden';
+  else if (ctx === 'edit-route') hid = 'edit-route-hidden';
+  if (hid && $(hid)) $(hid).value = pinId;
+  const sug = $('suggestions-' + ctx);
+  if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
+}
+
+// ============================================================
+// VEHICLE FUNCTIONS
+// ============================================================
+function isValidVehicleNumber(number) {
+  return /^[A-Za-z0-9]{9,11}$/.test(number);
+}
+
+function searchVehicles(query) {
+  const dropdown = $('vehicle-suggest-dropdown');
+  const q = query.trim().toUpperCase();
+  if (!q || q.length < 2) { dropdown.classList.remove('show'); return; }
+  
+  sb.from('active_vehicles').select('*').ilike('vehicle_number', '%' + q + '%').limit(10)
+    .then(result => {
+      if (result.error) { console.error(result.error); return; }
+      const vlist = result.data || [];
+      if (!vlist.length) {
+        dropdown.innerHTML = '<div class="item add-new" onclick="openNewVehicleRegistration(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
+        dropdown.classList.add('show');
+        return;
+      }
+      let html = '';
+      vlist.forEach(v => {
+        const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
+        html += '<div class="item" onclick="selectVehicleFromSuggestion(\'' + v.id + '\',\'' + v.vehicle_number + '\',\'' + v.vehicle_type + '\',\'' + dims + '\')">' +
+          v.vehicle_number + ' <span class="sub">' + v.vehicle_type + ' • ' + dims + 'ft</span>' +
+          '</div>';
+      });
+      html += '<div class="item add-new" onclick="openNewVehicleRegistration(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
+      dropdown.innerHTML = html;
+      dropdown.classList.add('show');
+    }).catch(() => { dropdown.classList.remove('show'); });
+}
+
+function selectVehicleFromSuggestion(id, number, type, dims) {
+  if (!vehicles.includes(number)) {
+    vehicles.push(number);
+    vehicleDataMap[number] = { id: id, vehicle_number: number, vehicle_type: type, dimensions: dims };
+    renderVehicles();
+    $('edit-vehicle-input').value = '';
+    $('vehicle-suggest-dropdown').classList.remove('show');
+    toast('✅ Vehicle "' + number + '" added to your list');
+  } else {
+    toast('Vehicle already in your list');
+  }
+}
+
+function openNewVehicleRegistration(number) {
+  // Close dropdown
+  $('vehicle-suggest-dropdown').classList.remove('show');
+  
+  // Open modal with vehicle number pre-filled
+  $('modal-vehicle-title').textContent = '📝 Register New Vehicle';
+  $('modal-vehicle-number').textContent = 'Vehicle Number: ' + number;
+  $('modal-vehicle-id').value = '';
+  $('modal-vehicle-type').value = '';
+  $('modal-length').value = '40';
+  $('modal-width').value = '8.2';
+  $('modal-height').value = '8';
+  $('modal-max-weight').value = '';
+  $('modal-description').value = '';
+  document.querySelector('input[name="modal-odc"][value="true"]').checked = true;
+  editingVehicleNumber = number;
+  $('vehicle-modal').classList.add('show');
+}
+
+function openVehicleEdit(number) {
+  const data = vehicleDataMap[number];
+  if (!data) {
+    sb.from('active_vehicles').select('*').eq('vehicle_number', number).single()
+      .then(res => {
+        if (res.data) {
+          populateVehicleModal(res.data, 'edit');
         }
-    }
+      });
+    return;
+  }
+  // Fetch full data
+  sb.from('active_vehicles').select('*').eq('id', data.id).single()
+    .then(res => {
+      if (res.data) {
+        populateVehicleModal(res.data, 'edit');
+      }
+    });
 }
 
-// Show install button manually (for testing)
-function showInstall(){
-    var wrapper = $('nav-install-wrapper');
-    if(wrapper){
-        wrapper.classList.add('show');
-        log('👆 Install button SHOWN (manual)', 'pass');
-        setStatus('✅ Install button manually shown', 'success');
-    }
+function populateVehicleModal(data, mode) {
+  $('modal-vehicle-title').textContent = mode === 'edit' ? '✏️ Edit Vehicle' : '📝 Register New Vehicle';
+  $('modal-vehicle-number').textContent = 'Vehicle Number: ' + data.vehicle_number;
+  $('modal-vehicle-id').value = data.id || '';
+  $('modal-vehicle-type').value = data.vehicle_type || '';
+  if (data.dimensions && data.dimensions.length >= 3) {
+    $('modal-length').value = data.dimensions[0] || '40';
+    $('modal-width').value = data.dimensions[1] || '8.2';
+    $('modal-height').value = data.dimensions[2] || '8';
+  }
+  $('modal-max-weight').value = data.max_weight || '';
+  $('modal-description').value = data.description || '';
+  document.querySelector('input[name="modal-odc"][value="' + (data.odc_allowed ? 'true' : 'false') + '"]').checked = true;
+  editingVehicleNumber = data.vehicle_number;
+  $('vehicle-modal').classList.add('show');
 }
 
-// Hide install button manually (for testing)
-function hideInstall(){
-    var wrapper = $('nav-install-wrapper');
-    if(wrapper){
-        wrapper.classList.remove('show');
-        log('👆 Install button HIDDEN (manual)', 'info');
-        setStatus('❌ Install button manually hidden', 'error');
-    }
-}
-
-// Toggle install button (for testing)
-function toggleInstall(){
-    var wrapper = $('nav-install-wrapper');
-    if(wrapper){
-        wrapper.classList.toggle('show');
-        var isShown = wrapper.classList.contains('show');
-        log('🔄 Toggle: ' + (isShown ? 'SHOWING' : 'HIDDEN'), isShown ? 'pass' : 'info');
-        setStatus(isShown ? '✅ Install button visible' : '❌ Install button hidden', isShown ? 'success' : 'error');
-    }
-}
-
-// Force install (simulate)
-function forceInstall(){
-    log('📲 Install button clicked!', 'highlight');
-    setStatus('📲 Install requested...', 'pending');
-    toast('📲 Install button clicked! (simulated)');
-    
-    // Simulate installation
-    if(prompt){
-        prompt.prompt();
-        prompt.userChoice.then(function(c){
-            if(c.outcome === 'accepted'){
-                installed = true;
-                updateInstallButton();
-                toast('🎉 App installed!');
-            }
+function saveVehicleModal() {
+  const number = editingVehicleNumber;
+  if (!number) { toast('No vehicle number'); return; }
+  const vehicleType = $('modal-vehicle-type').value;
+  if (!vehicleType) { toast('Please select a vehicle type'); return; }
+  
+  const data = {
+    vehicle_number: number,
+    vehicle_type: vehicleType,
+    dimensions: [
+      parseFloat($('modal-length').value) || 0,
+      parseFloat($('modal-width').value) || 0,
+      parseFloat($('modal-height').value) || 0
+    ],
+    max_weight: parseFloat($('modal-max-weight').value) || 0,
+    description: $('modal-description').value.trim() || null,
+    odc_allowed: document.querySelector('input[name="modal-odc"]:checked').value === 'true',
+    modified_by: user ? user.mobile : 'guest',
+    latest_update_at: new Date().toISOString()
+  };
+  
+  const vehicleId = $('modal-vehicle-id').value;
+  let query;
+  if (vehicleId) {
+    query = sb.from('active_vehicles').update(data).eq('id', vehicleId);
+  } else {
+    // Check if vehicle already exists
+    sb.from('active_vehicles').select('id').eq('vehicle_number', number).single()
+      .then(checkRes => {
+        if (checkRes.data) {
+          alert('Vehicle "' + number + '" already exists in the system!');
+          return;
+        }
+        sb.from('active_vehicles').insert(data).then(insertRes => {
+          if (insertRes.error) { alert('Error: ' + insertRes.error.message); return; }
+          if (!vehicles.includes(number)) {
+            vehicles.push(number);
+            vehicleDataMap[number] = { id: insertRes.data[0].id, ...data };
+            renderVehicles();
+          }
+          closeVehicleModal();
+          toast('✅ Vehicle "' + number + '" registered successfully!');
         });
-    }else{
-        // For demo: simulate install
-        setTimeout(function(){
-            installed = true;
-            updateInstallButton();
-            toast('🎉 App "installed" (simulated)');
-        }, 1500);
+      });
+    return;
+  }
+  
+  query.then(result => {
+    if (result.error) { alert('Error: ' + result.error.message); return; }
+    if (!vehicles.includes(number)) {
+      vehicles.push(number);
     }
+    vehicleDataMap[number] = { id: vehicleId || result.data[0]?.id, ...data };
+    renderVehicles();
+    closeVehicleModal();
+    toast('✅ Vehicle "' + number + '" updated successfully!');
+  });
+}
+
+function deleteVehicleFromModal() {
+  const number = editingVehicleNumber;
+  const vehicleId = $('modal-vehicle-id').value;
+  if (!vehicleId) { toast('Cannot delete - vehicle not saved'); return; }
+  if (!confirm('Delete vehicle "' + number + '" permanently?')) return;
+  
+  sb.from('active_vehicles').delete().eq('id', vehicleId)
+    .then(result => {
+      if (result.error) { alert('Error: ' + result.error.message); return; }
+      vehicles = vehicles.filter(v => v !== number);
+      delete vehicleDataMap[number];
+      renderVehicles();
+      closeVehicleModal();
+      toast('✅ Vehicle "' + number + '" deleted');
+    });
+}
+
+function closeVehicleModal() {
+  $('vehicle-modal').classList.remove('show');
+  editingVehicleNumber = null;
+}
+
+function addSelectedVehicle() {
+  const input = $('edit-vehicle-input');
+  const val = input.value.trim().toUpperCase();
+  if (!val) { toast('Please enter a vehicle number'); return; }
+  if (!isValidVehicleNumber(val)) { alert('Vehicle number must be 9-11 characters'); return; }
+  if (vehicles.includes(val)) { toast('Already in your list'); return; }
+  
+  // Check if vehicle exists
+  sb.from('active_vehicles').select('*').eq('vehicle_number', val).single()
+    .then(res => {
+      if (res.data) {
+        vehicles.push(val);
+        const dims = res.data.dimensions ? res.data.dimensions.join('×') : 'N/A';
+        vehicleDataMap[val] = { id: res.data.id, ...res.data };
+        renderVehicles();
+        input.value = '';
+        toast('✅ Vehicle "' + val + '" added');
+      } else {
+        // Open registration modal
+        openNewVehicleRegistration(val);
+      }
+    }).catch(() => {
+      openNewVehicleRegistration(val);
+    });
+}
+
+function removeVehicle(v) {
+  if (!confirm('Remove vehicle "' + v + '" from your list?')) return;
+  vehicles = vehicles.filter(x => x !== v);
+  delete vehicleDataMap[v];
+  renderVehicles();
+}
+
+function renderVehicles() {
+  const container = $('edit-vehicles-list');
+  if (!vehicles.length) { container.innerHTML = '<span style="color:#94a3b8;font-size:12px">No vehicles added</span>'; return; }
+  container.innerHTML = vehicles.map(v => {
+    const data = vehicleDataMap[v] || { vehicle_type: 'Unknown', dimensions: 'N/A' };
+    const dims = data.dimensions || 'N/A';
+    return '<div class="vehicle-item">' +
+      '<span class="vnumber">' + v + '</span>' +
+      '<span class="vdetails">' + (data.vehicle_type || 'Unknown') + ' • ' + dims + 'ft</span>' +
+      '<div class="actions">' +
+        '<button class="edit-btn" onclick="openVehicleEdit(\'' + v + '\')">✏️ Edit</button>' +
+        '<button class="delete-btn" onclick="removeVehicle(\'' + v + '\')">🗑️</button>' +
+      '</div>' +
+      '</div>';
+  }).join('');
 }
 
 // ============================================================
-// PWA EVENTS
+// ROUTE FUNCTIONS
 // ============================================================
+function addRoute() {
+  const route = $('edit-route-hidden').value;
+  if (!route) { toast('Please search and select a location first'); return; }
+  const routeInt = parseInt(route);
+  if (isNaN(routeInt)) { toast('Invalid location'); return; }
+  if (routes.indexOf(routeInt) !== -1) { toast('Route already added'); return; }
+  routes.push(routeInt);
+  $('search-edit-route').value = '';
+  $('edit-route-hidden').value = '';
+  renderRoutes();
+  const sug = $('suggestions-edit-route');
+  if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
+  toast('Route added');
+}
 
-// Listen for beforeinstallprompt
-window.addEventListener('beforeinstallprompt', function(e){
-    e.preventDefault();
-    prompt = e;
-    log('📱 beforeinstallprompt fired!', 'pass');
-    setStatus('📱 Install prompt ready', 'success');
-    updateInstallButton();
-});
+function removeRoute(r) {
+  if (!confirm('Remove this route?')) return;
+  routes = routes.filter(x => x !== r);
+  renderRoutes();
+}
 
-// Listen for app installed
-window.addEventListener('appinstalled', function(){
-    installed = true;
-    prompt = null;
-    log('🎉 App installed successfully!', 'pass');
-    setStatus('🎉 App installed!', 'success');
-    updateInstallButton();
-});
+function renderRoutes() {
+  const container = $('edit-routes-list');
+  if (!routes.length) { container.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>'; return; }
+  container.innerHTML = routes.map(r => {
+    const loc = getLoc(r);
+    const display = loc ? getLocDisplayName(loc) : r;
+    return '<span class="route-tag">' + display + ' <span class="remove" onclick="removeRoute(' + r + ')">✕</span></span>';
+  }).join('');
+}
 
 // ============================================================
-// TOAST (simple alert)
+// PROFILE FUNCTIONS
 // ============================================================
-function toast(msg){
-    alert(msg);
+function loadProfileData() {
+  if (!user) return;
+  
+  // Populate edit form fields
+  $('edit-name').value = user.name || '';
+  $('edit-company').value = user.company_name || '';
+  $('edit-website').value = user.company_web || '';
+  $('edit-pan').value = user.pan || '';
+  $('edit-gst').value = user.gst || '';
+  
+  if (user.location) {
+    const loc = getLoc(user.location);
+    if (loc) {
+      $('search-edit-location').value = getLocDisplayName(loc);
+      $('edit-location-hidden').value = user.location;
+    }
+  }
+  
+  // User Type
+  let types = user.user_type || [];
+  if (!Array.isArray(types) && typeof types === 'number') types = [types];
+  $('edit-type-loadgiver').checked = types.indexOf(1) !== -1;
+  $('edit-type-operator').checked = types.indexOf(2) !== -1;
+  $('edit-type-agent').checked = types.indexOf(3) !== -1;
+  
+  // Load vehicles
+  vehicles = [];
+  vehicleDataMap = {};
+  let vno = user.vehicle_no || [];
+  if (Array.isArray(vno)) vehicles = vno.filter(v => v);
+  else if (typeof vno === 'string') vehicles = vno.split(',').filter(v => v.trim() !== '');
+  
+  if (vehicles.length) {
+    sb.from('active_vehicles').select('*').in('vehicle_number', vehicles)
+      .then(res => {
+        if (res.data) {
+          res.data.forEach(v => {
+            const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
+            vehicleDataMap[v.vehicle_number] = {
+              id: v.id,
+              vehicle_number: v.vehicle_number,
+              vehicle_type: v.vehicle_type || 'Unknown',
+              dimensions: dims
+            };
+          });
+          renderVehicles();
+        }
+      });
+  }
+  renderVehicles();
+  
+  // Load routes
+  routes = [];
+  let pref = user.preferred_routes || [];
+  if (Array.isArray(pref)) routes = pref.filter(r => r);
+  else if (typeof pref === 'string') routes = pref.split(',').filter(r => r.trim() !== '').map(Number);
+  renderRoutes();
+  
+  $('edit-details').value = user.details || '';
+  updateCharCount();
+}
+
+function saveProfile() {
+  if (!user || !user.mobile) { alert('User not logged in.'); return; }
+  
+  const types = [];
+  if ($('edit-type-loadgiver').checked) types.push(1);
+  if ($('edit-type-operator').checked) types.push(2);
+  if ($('edit-type-agent').checked) types.push(3);
+  const location = $('edit-location-hidden').value ? parseInt($('edit-location-hidden').value) : null;
+  
+  const updateData = {
+    name: $('edit-name').value.trim() || null,
+    company_name: $('edit-company').value.trim() || null,
+    company_web: $('edit-website').value.trim() || null,
+    pan: $('edit-pan').value.trim() || null,
+    gst: $('edit-gst').value.trim() || null,
+    location: location,
+    user_type: types.length ? types : null,
+    vehicle_no: vehicles.length ? vehicles : null,
+    preferred_routes: routes.length ? routes : null,
+    details: $('edit-details').value.trim() || null,
+    last_active: new Date().toISOString()
+  };
+  
+  const mobileNum = parseInt(user.mobile);
+  sb.from('active_users').update(updateData).eq('mobile', mobileNum)
+    .then(result => {
+      if (result.error) { alert('Error saving profile: ' + result.error.message); return; }
+      sb.from('active_users').select('*').eq('mobile', mobileNum).single()
+        .then(freshResult => {
+          if (freshResult.data) {
+            Object.assign(user, freshResult.data);
+            const saved = localStorage.getItem('rt_user');
+            if (saved) { const sd = JSON.parse(saved); sd.user = user; localStorage.setItem('rt_user', JSON.stringify(sd)); }
+            alert('✅ Profile saved successfully!');
+          }
+        });
+    }).catch(err => { alert('Error: ' + err.message); });
+}
+
+function updateCharCount() {
+  const input = $('edit-details');
+  const count = $('edit-details-count');
+  if (input && count) count.textContent = input.value.length;
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function goHome() {
+  document.getElementById('home-page').classList.remove('hidden-page');
+  document.getElementById('edit-profile-page').classList.add('hidden-page');
+  document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+  document.querySelectorAll('.nav-fixed .nav-item')[0]?.classList.add('active');
+}
+
+function goToEditProfile() {
+  if (!user && !guest) { showLogin(); return; }
+  document.getElementById('home-page').classList.add('hidden-page');
+  document.getElementById('edit-profile-page').classList.remove('hidden-page');
+  document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+  document.querySelectorAll('.nav-fixed .nav-item')[1]?.classList.add('active');
+  if (user) loadProfileData();
+}
+
+function showLogin() {
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('home-page').classList.add('hidden-page');
+  document.getElementById('edit-profile-page').classList.add('hidden-page');
+}
+
+function continueAsGuest() {
+  guest = true;
+  user = null;
+  localStorage.setItem('rt_user', JSON.stringify({guest: true}));
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('home-page').classList.remove('hidden-page');
+  updateGuestUI();
+}
+
+function loginUser() {
+  const mobile = document.getElementById('mobile').value.trim();
+  const pin = document.getElementById('pin').value.trim();
+  
+  if (!mobile || mobile.length !== 10) {
+    document.getElementById('login-error').textContent = 'Please enter a valid 10-digit mobile number';
+    document.getElementById('login-error').style.display = 'block';
+    return;
+  }
+  if (!pin || pin.length !== 4) {
+    document.getElementById('login-error').textContent = 'Please enter a 4-digit PIN';
+    document.getElementById('login-error').style.display = 'block';
+    return;
+  }
+  
+  document.getElementById('login-error').style.display = 'none';
+  
+  sb.from('active_users').select('*').eq('mobile', parseInt(mobile)).single()
+    .then(result => {
+      if (result.error || !result.data) {
+        document.getElementById('login-error').textContent = 'User not found. Please register first.';
+        document.getElementById('login-error').style.display = 'block';
+        return;
+      }
+      // Accept any 4-digit PIN for demo
+      if (pin.length === 4) {
+        user = result.data;
+        guest = false;
+        localStorage.setItem('rt_user', JSON.stringify({mobile: user.mobile, user: user}));
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('home-page').classList.remove('hidden-page');
+        updateGuestUI();
+        goToEditProfile();
+      } else {
+        document.getElementById('login-error').textContent = 'Invalid PIN. Please try again.';
+        document.getElementById('login-error').style.display = 'block';
+      }
+    }).catch(err => {
+      document.getElementById('login-error').textContent = 'Error: ' + err.message;
+      document.getElementById('login-error').style.display = 'block';
+    });
+}
+
+function updateGuestUI() {
+  if (guest) {
+    document.getElementById('avatar-initials').textContent = 'GU';
+  } else if (user) {
+    let initials = 'U';
+    if (user.name) {
+      const parts = user.name.split(' ');
+      initials = (parts[0]||'')[0] + (parts[1]||'')[0];
+    }
+    document.getElementById('avatar-initials').textContent = initials.toUpperCase() || 'U';
+  }
+}
+
+function toggleDropdown() {
+  document.querySelectorAll('.profile-dropdown').forEach(d => d.classList.toggle('show'));
+}
+
+function closeDropdown() {
+  document.querySelectorAll('.profile-dropdown').forEach(d => d.classList.remove('show'));
+}
+
+function logout() {
+  if (confirm('Logout?')) {
+    localStorage.removeItem('rt_user');
+    user = null;
+    guest = false;
+    window.location.reload();
+  }
 }
 
 // ============================================================
 // INIT
 // ============================================================
-document.addEventListener('DOMContentLoaded', function(){
-    log('🚀 Install Button Test initialized', 'info');
-    log('📱 Device: ' + navigator.userAgent, 'info');
-    log('📱 Standalone mode: ' + (window.matchMedia('(display-mode: standalone)').matches ? 'YES' : 'NO'), 'info');
-    log('📱 Installed: ' + (installed ? 'YES' : 'NO'), 'info');
-    log('----------------------------------------', 'info');
-    
-    // Update install button on load
-    setTimeout(function(){
-        updateInstallButton();
-    }, 500);
-    
-    // Also update after 3 seconds (for demo)
-    setTimeout(function(){
-        log('🔄 Re-checking install status...', 'info');
-        updateInstallButton();
-    }, 3000);
-});
-
-// ============================================================
-// TEST SCENARIOS - Quick test buttons
-// ============================================================
-
-// Simulate mobile device (for testing in desktop)
-function simulateMobile(){
-    // Only for testing - doesn't actually change userAgent
-    log('📱 Simulating mobile...', 'info');
-    // Force show install button
-    var wrapper = $('nav-install-wrapper');
-    if(wrapper){
-        wrapper.classList.add('show');
-        setStatus('✅ Simulated mobile - install button shown', 'success');
-        log('✅ Install button forced to show (simulation)', 'pass');
-    }
-}
-
-// Simulate installed (for testing)
-function simulateInstalled(){
-    installed = true;
-    prompt = null;
-    log('📱 Simulating app installed...', 'info');
-    updateInstallButton();
-    setStatus('📱 Simulated installed', 'success');
-    log('✅ Install button hidden (simulated installed)', 'pass');
-}
-
-// Add simulation buttons dynamically
-document.addEventListener('DOMContentLoaded', function(){
-    var controls = document.querySelector('.controls');
-    var simDiv = document.createElement('div');
-    simDiv.className = 'controls';
-    simDiv.style.marginTop = '6px';
-    simDiv.innerHTML = `
-        <button class="btn-primary" onclick="simulateMobile()">📱 Simulate Mobile</button>
-        <button class="btn-success" onclick="simulateInstalled()">✅ Simulate Installed</button>
-        <button class="btn-gray" onclick="updateInstallButton()">🔄 Re-check</button>
-    `;
-    controls.parentNode.insertBefore(simDiv, controls.nextSibling);
+document.addEventListener('DOMContentLoaded', function() {
+  const saved = localStorage.getItem('rt_user');
+  if (saved) {
+    try {
+      const sd = JSON.parse(saved);
+      if (sd.guest) {
+        guest = true;
+        user = null;
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('home-page').classList.remove('hidden-page');
+        updateGuestUI();
+      } else if (sd.user) {
+        user = sd.user;
+        guest = false;
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('home-page').classList.remove('hidden-page');
+        updateGuestUI();
+      }
+    } catch(e) { console.error('Error parsing saved user:', e); }
+  }
+  
+  // Char count
+  document.getElementById('edit-details')?.addEventListener('input', updateCharCount);
 });
 </script>
 </body>
