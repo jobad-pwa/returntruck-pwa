@@ -740,6 +740,7 @@ function saveVehicleModal() {
         vehicleDataMap[number] = { id: vehicleId, ...data };
         renderVehicles();
         closeVehicleModal();
+        // ✅ FIX: Save to active_users BEFORE refreshing
         autoSaveVehicles().then(() => {
           refreshUserData(function() {
             toast('✅ Vehicle "' + number + '" updated successfully!');
@@ -748,6 +749,7 @@ function saveVehicleModal() {
         });
       });
   } else {
+    // Check if vehicle already exists
     sb.from('active_vehicles').select('id').eq('vehicle_number', number).single()
       .then(checkRes => {
         if (checkRes.data) {
@@ -762,6 +764,7 @@ function saveVehicleModal() {
             renderVehicles();
           }
           closeVehicleModal();
+          // ✅ FIX: Save to active_users BEFORE refreshing
           autoSaveVehicles().then(() => {
             refreshUserData(function() {
               toast('✅ Vehicle "' + number + '" registered successfully!');
