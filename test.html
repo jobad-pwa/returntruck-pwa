@@ -126,7 +126,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
-<!-- ==================== PROFILE VIEW PAGE (READ ONLY) ==================== -->
+<!-- ==================== PROFILE VIEW PAGE ==================== -->
 <div id="profile-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span>
@@ -174,9 +174,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <span class="section-title">🚛 My Vehicles</span>
                 <span class="section-badge active" id="vehicle-count-badge">0 Vehicles</span>
             </div>
-            <div id="profile-vehicles-container">
-                <div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>
-            </div>
+            <div id="profile-vehicles-container"></div>
         </div>
         <div class="profile-section">
             <div class="section-header">
@@ -545,7 +543,6 @@ function refreshUserData(callback) {
     .then(result => {
       if (result.data) {
         Object.assign(user, result.data);
-        // Update localStorage
         const saved = localStorage.getItem('rt_user');
         if (saved) {
           const sd = JSON.parse(saved);
@@ -678,7 +675,6 @@ function openVehicleModalForNew(number) {
 }
 
 function openVehicleEdit(number) {
-  // Fetch vehicle details
   sb.from('active_vehicles').select('*').eq('vehicle_number', number).single()
     .then(res => {
       if (res.data) {
@@ -735,7 +731,6 @@ function saveVehicleModal() {
   const mode = $('modal-edit-mode').value;
   
   if (mode === 'edit' && vehicleId) {
-    // UPDATE existing vehicle
     sb.from('active_vehicles').update(data).eq('id', vehicleId)
       .then(result => {
         if (result.error) { alert('Error: ' + result.error.message); return; }
@@ -745,8 +740,6 @@ function saveVehicleModal() {
         vehicleDataMap[number] = { id: vehicleId, ...data };
         renderVehicles();
         closeVehicleModal();
-        
-        // ✅ FIX: Save to active_users BEFORE refreshing
         autoSaveVehicles().then(() => {
           refreshUserData(function() {
             toast('✅ Vehicle "' + number + '" updated successfully!');
@@ -755,7 +748,6 @@ function saveVehicleModal() {
         });
       });
   } else {
-    // INSERT new vehicle
     sb.from('active_vehicles').select('id').eq('vehicle_number', number).single()
       .then(checkRes => {
         if (checkRes.data) {
@@ -770,8 +762,6 @@ function saveVehicleModal() {
             renderVehicles();
           }
           closeVehicleModal();
-          
-          // ✅ FIX: Save to active_users BEFORE refreshing
           autoSaveVehicles().then(() => {
             refreshUserData(function() {
               toast('✅ Vehicle "' + number + '" registered successfully!');
@@ -796,8 +786,6 @@ function deleteVehicleFromModal() {
       delete vehicleDataMap[number];
       renderVehicles();
       closeVehicleModal();
-      
-      // ✅ FIX: Save to active_users BEFORE refreshing
       autoSaveVehicles().then(() => {
         refreshUserData(function() {
           toast('✅ Vehicle "' + number + '" deleted');
@@ -905,8 +893,50 @@ function renderRoutes() {
 }
 
 // ============================================================
-// PROFILE FUNCTIONS - USING SAME LOGIC AS EDIT PROFILE
+// PROFILE FUNCTIONS - DISPLAY VEHICLES
 // ============================================================
+function renderProfileVehicles() {
+  const container = document.getElementById('profile-vehicles-container');
+  const badge = document.getElementById('vehicle-count-badge');
+  
+  if (!user) return;
+  
+  // Parse vehicle numbers from user data
+  let vno = user.vehicle_no || [];
+  let vehicleNumbers = parsePgArray(vno);
+  
+  if (!vehicleNumbers.length) {
+    badge.textContent = '0 Vehicles';
+    container.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>';
+    document.getElementById('stat-vehicles-count').textContent = '0';
+    return;
+  }
+  
+  // Fetch vehicle details from active_vehicles
+  sb.from('active_vehicles').select('*').in('vehicle_number', vehicleNumbers)
+    .then(res => {
+      if (res.data && res.data.length > 0) {
+        badge.textContent = res.data.length + ' Vehicle(s)';
+        container.innerHTML = res.data.map(v => {
+          const dims = v.dimensions ? v.dimensions.join(' × ') + 'ft' : 'N/A';
+          return '<div class="vehicle-display-item">' +
+            '<div class="vnumber">' + v.vehicle_number + '</div>' +
+            '<div class="vdetails">' + (v.vehicle_type || 'Unknown') + ' • ' + dims + '</div>' +
+            '</div>';
+        }).join('');
+        document.getElementById('stat-vehicles-count').textContent = res.data.length;
+      } else {
+        badge.textContent = '0 Vehicles';
+        container.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>';
+        document.getElementById('stat-vehicles-count').textContent = '0';
+      }
+    }).catch(() => {
+      badge.textContent = '0 Vehicles';
+      container.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>';
+      document.getElementById('stat-vehicles-count').textContent = '0';
+    });
+}
+
 function loadProfile() {
   if (!user) return;
   
@@ -955,67 +985,13 @@ function loadProfile() {
   // Details
   document.getElementById('profile-details-text').textContent = user.details || 'No details added';
   
-  // ===== VEHICLES - Using same logic as Edit Profile =====
-  const vehicleContainer = document.getElementById('profile-vehicles-container');
-  const badge = document.getElementById('vehicle-count-badge');
+  // Render Vehicles
+  renderProfileVehicles();
   
-  // Parse vehicle numbers (same as Edit Profile)
-  let vno = user.vehicle_no || [];
-  let vehicleNumbers = [];
-  if (Array.isArray(vno)) {
-    vehicleNumbers = vno.filter(v => v !== null && v !== '');
-  } else if (typeof vno === 'string' && vno.startsWith('{')) {
-    try {
-      const cleaned = vno.replace(/[{}]/g, '');
-      vehicleNumbers = cleaned.split(',').filter(v => v.trim() !== '');
-    } catch(e) { vehicleNumbers = []; }
-  } else if (typeof vno === 'string') {
-    vehicleNumbers = vno.split(',').filter(v => v.trim() !== '');
-  }
-  
-  if (vehicleNumbers.length) {
-    sb.from('active_vehicles').select('*').in('vehicle_number', vehicleNumbers)
-      .then(res => {
-        if (res.data && res.data.length > 0) {
-          badge.textContent = res.data.length + ' Vehicles';
-          vehicleContainer.innerHTML = res.data.map(v => {
-            const dims = v.dimensions ? v.dimensions.join(' × ') + 'ft' : 'N/A';
-            return '<div class="vehicle-display-item">' +
-              '<div class="vnumber">' + v.vehicle_number + '</div>' +
-              '<div class="vdetails">' + (v.vehicle_type || 'Unknown') + ' • ' + dims + '</div>' +
-              '</div>';
-          }).join('');
-          document.getElementById('stat-vehicles-count').textContent = res.data.length;
-        } else {
-          badge.textContent = '0 Vehicles';
-          vehicleContainer.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>';
-          document.getElementById('stat-vehicles-count').textContent = '0';
-        }
-      }).catch(() => {
-        badge.textContent = '0 Vehicles';
-        vehicleContainer.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>';
-        document.getElementById('stat-vehicles-count').textContent = '0';
-      });
-  } else {
-    badge.textContent = '0 Vehicles';
-    vehicleContainer.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>';
-    document.getElementById('stat-vehicles-count').textContent = '0';
-  }
-  
-  // ===== ROUTES - Using same logic as Edit Profile =====
+  // Routes
   const routeContainer = document.getElementById('profile-routes-container');
   let pref = user.preferred_routes || [];
-  let routeList = [];
-  if (Array.isArray(pref)) {
-    routeList = pref.filter(r => r !== null && r !== '');
-  } else if (typeof pref === 'string' && pref.startsWith('{')) {
-    try {
-      const cleaned = pref.replace(/[{}]/g, '');
-      routeList = cleaned.split(',').filter(r => r.trim() !== '').map(Number);
-    } catch(e) { routeList = []; }
-  } else if (typeof pref === 'string') {
-    routeList = pref.split(',').filter(r => r.trim() !== '').map(Number);
-  }
+  let routeList = parsePgArrayInt(pref);
   
   if (routeList.length) {
     routeContainer.innerHTML = routeList.map(r => {
@@ -1142,7 +1118,6 @@ function goHome() {
 function goToProfile() {
   if (!user && !guest) { showLogin(); return; }
   
-  // ✅ Refresh user data from database first
   refreshUserData(function() {
     document.getElementById('home-page').classList.add('hidden-page');
     document.getElementById('profile-page').classList.remove('hidden-page');
