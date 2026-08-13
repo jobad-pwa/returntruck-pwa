@@ -126,7 +126,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
-<!-- ==================== PROFILE VIEW PAGE ==================== -->
+<!-- ==================== PROFILE VIEW PAGE (READ ONLY) ==================== -->
 <div id="profile-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span>
@@ -174,7 +174,9 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <span class="section-title">🚛 My Vehicles</span>
                 <span class="section-badge active" id="vehicle-count-badge">0 Vehicles</span>
             </div>
-            <div id="profile-vehicles-container"></div>
+            <div id="profile-vehicles-container">
+                <div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>
+            </div>
         </div>
         <div class="profile-section">
             <div class="section-header">
@@ -402,12 +404,12 @@ const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 const sb = window.supabase.createClient(SB_URL, SB_KEY);
 
 // ============================================================
-// SHARED STATE - BOTH PAGES USE THIS
+// STATE
 // ============================================================
 let user = null, guest = false;
-let vehicles = [];          // SHARED - array of vehicle numbers
-let vehicleDataMap = {};    // SHARED - map of vehicle_number -> full vehicle data
-let routes = [];
+let vehicles = [], routes = [];
+let vehicleDataMap = {};
+let editingVehicleNumber = null;
 
 // ============================================================
 // LOCATIONS
@@ -543,6 +545,7 @@ function refreshUserData(callback) {
     .then(result => {
       if (result.data) {
         Object.assign(user, result.data);
+        // Update localStorage
         const saved = localStorage.getItem('rt_user');
         if (saved) {
           const sd = JSON.parse(saved);
@@ -557,101 +560,7 @@ function refreshUserData(callback) {
 }
 
 // ============================================================
-// LOAD VEHICLES INTO SHARED STATE
-// ============================================================
-function loadVehiclesIntoState(callback) {
-  if (!user) { if (callback) callback(); return; }
-  
-  // Reset shared state
-  vehicles = [];
-  vehicleDataMap = {};
-  
-  // Parse vehicle numbers from user
-  let vno = user.vehicle_no || [];
-  let vehicleNumbers = parsePgArray(vno);
-  
-  if (!vehicleNumbers.length) {
-    if (callback) callback();
-    return;
-  }
-  
-  // Fetch full vehicle details
-  sb.from('active_vehicles').select('*').in('vehicle_number', vehicleNumbers)
-    .then(res => {
-      if (res.data) {
-        res.data.forEach(v => {
-          const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
-          vehicleDataMap[v.vehicle_number] = {
-            id: v.id,
-            vehicle_number: v.vehicle_number,
-            vehicle_type: v.vehicle_type || 'Unknown',
-            dimensions: dims,
-            max_weight: v.max_weight || 0,
-            description: v.description || '',
-            odc_allowed: v.odc_allowed || false
-          };
-        });
-        vehicles = vehicleNumbers;
-      }
-      if (callback) callback();
-    }).catch(() => {
-      if (callback) callback();
-    });
-}
-
-// ============================================================
-// AUTO-SAVE VEHICLES TO DATABASE
-// ============================================================
-function autoSaveVehicles() {
-  if (!user || !user.mobile) return Promise.resolve();
-  const mobileNum = parseInt(user.mobile);
-  const vehicleArray = vehicles.length > 0 ? vehicles : null;
-  
-  return sb.from('active_users')
-    .update({ vehicle_no: vehicleArray })
-    .eq('mobile', mobileNum)
-    .then(result => {
-      if (result.error) {
-        console.error('Error auto-saving vehicles:', result.error);
-        return Promise.reject(result.error);
-      }
-      user.vehicle_no = vehicleArray;
-      const saved = localStorage.getItem('rt_user');
-      if (saved) {
-        const sd = JSON.parse(saved);
-        sd.user = user;
-        localStorage.setItem('rt_user', JSON.stringify(sd));
-      }
-      return Promise.resolve();
-    });
-}
-
-function autoSaveRoutes() {
-  if (!user || !user.mobile) return Promise.resolve();
-  const mobileNum = parseInt(user.mobile);
-  const routesArray = routes.length > 0 ? routes : null;
-  
-  return sb.from('active_users')
-    .update({ preferred_routes: routesArray })
-    .eq('mobile', mobileNum)
-    .then(result => {
-      if (result.error) {
-        console.error('Error auto-saving routes:', result.error);
-        return Promise.reject(result.error);
-      }
-      user.preferred_routes = routesArray;
-      const saved = localStorage.getItem('rt_user');
-      if (saved) {
-        const sd = JSON.parse(saved);
-        sd.user = user;
-        localStorage.setItem('rt_user', JSON.stringify(sd));
-      }
-      return Promise.resolve();
-    });
-}
-
-// ============================================================
-// VEHICLE FUNCTIONS - Shared between Profile View and Edit Profile
+// VEHICLE FUNCTIONS
 // ============================================================
 function isValidVehicleNumber(number) {
   return /^[A-Za-z0-9]{9,11}$/.test(number);
@@ -689,12 +598,10 @@ function selectVehicleFromSuggestion(id, number, type, dims) {
     vehicles.push(number);
     vehicleDataMap[number] = { id: id, vehicle_number: number, vehicle_type: type, dimensions: dims };
     renderVehicles();
-    renderProfileVehicles();
     $('edit-vehicle-input').value = '';
     $('vehicle-suggest-dropdown').classList.remove('show');
-    autoSaveVehicles().then(() => {
-      toast('✅ Vehicle "' + number + '" added to your list');
-    });
+    autoSaveVehicles();
+    toast('✅ Vehicle "' + number + '" added to your list');
   } else {
     toast('Vehicle already in your list');
   }
@@ -719,16 +626,20 @@ function openVehicleModalForNew(number) {
 }
 
 function openVehicleEdit(number) {
-  sb.from('active_vehicles').select('*').eq('vehicle_number', number).single()
-    .then(res => {
-      if (res.data) {
-        populateVehicleModal(res.data, 'edit');
-      } else {
-        toast('Vehicle not found');
-      }
-    }).catch(() => {
-      toast('Error loading vehicle');
-    });
+  // First refresh data from database
+  refreshUserData(function() {
+    // Then fetch vehicle details
+    sb.from('active_vehicles').select('*').eq('vehicle_number', number).single()
+      .then(res => {
+        if (res.data) {
+          populateVehicleModal(res.data, 'edit');
+        } else {
+          toast('Vehicle not found');
+        }
+      }).catch(() => {
+        toast('Error loading vehicle');
+      });
+  });
 }
 
 function populateVehicleModal(data, mode) {
@@ -767,7 +678,7 @@ function saveVehicleModal() {
     max_weight: parseFloat($('modal-max-weight').value) || 0,
     description: $('modal-description').value.trim() || null,
     odc_allowed: document.querySelector('input[name="modal-odc"]:checked').value === 'true',
-    modified_by: user ? parseInt(user.mobile) : null,
+    modified_by: user ? user.mobile : 'guest',
     latest_update_at: new Date().toISOString()
   };
   
@@ -775,6 +686,7 @@ function saveVehicleModal() {
   const mode = $('modal-edit-mode').value;
   
   if (mode === 'edit' && vehicleId) {
+    // UPDATE existing vehicle
     sb.from('active_vehicles').update(data).eq('id', vehicleId)
       .then(result => {
         if (result.error) { alert('Error: ' + result.error.message); return; }
@@ -783,15 +695,15 @@ function saveVehicleModal() {
         }
         vehicleDataMap[number] = { id: vehicleId, ...data };
         renderVehicles();
-        renderProfileVehicles();
         closeVehicleModal();
-        autoSaveVehicles().then(() => {
-          refreshUserData(function() {
-            toast('✅ Vehicle "' + number + '" updated successfully!');
-          });
+        // Refresh user data and reload profile
+        refreshUserData(function() {
+          toast('✅ Vehicle "' + number + '" updated successfully!');
+          goToProfile();
         });
       });
   } else {
+    // INSERT new vehicle
     sb.from('active_vehicles').select('id').eq('vehicle_number', number).single()
       .then(checkRes => {
         if (checkRes.data) {
@@ -804,13 +716,12 @@ function saveVehicleModal() {
             vehicles.push(number);
             vehicleDataMap[number] = { id: insertRes.data[0].id, ...data };
             renderVehicles();
-            renderProfileVehicles();
           }
           closeVehicleModal();
-          autoSaveVehicles().then(() => {
-            refreshUserData(function() {
-              toast('✅ Vehicle "' + number + '" registered successfully!');
-            });
+          // Refresh user data and reload profile
+          refreshUserData(function() {
+            toast('✅ Vehicle "' + number + '" registered successfully!');
+            goToProfile();
           });
         });
       });
@@ -829,12 +740,11 @@ function deleteVehicleFromModal() {
       vehicles = vehicles.filter(v => v !== number);
       delete vehicleDataMap[number];
       renderVehicles();
-      renderProfileVehicles();
       closeVehicleModal();
-      autoSaveVehicles().then(() => {
-        refreshUserData(function() {
-          toast('✅ Vehicle "' + number + '" deleted');
-        });
+      // Refresh user data and reload profile
+      refreshUserData(function() {
+        toast('✅ Vehicle "' + number + '" deleted');
+        goToProfile();
       });
     });
 }
@@ -858,11 +768,9 @@ function addSelectedVehicle() {
         const dims = res.data.dimensions ? res.data.dimensions.join('×') : 'N/A';
         vehicleDataMap[val] = { id: res.data.id, ...res.data };
         renderVehicles();
-        renderProfileVehicles();
         input.value = '';
-        autoSaveVehicles().then(() => {
-          toast('✅ Vehicle "' + val + '" added');
-        });
+        autoSaveVehicles();
+        toast('✅ Vehicle "' + val + '" added');
       } else {
         openVehicleModalForNew(val);
       }
@@ -876,17 +784,9 @@ function removeVehicle(v) {
   vehicles = vehicles.filter(x => x !== v);
   delete vehicleDataMap[v];
   renderVehicles();
-  renderProfileVehicles();
-  autoSaveVehicles().then(() => {
-    toast('✅ Vehicle "' + v + '" removed from your list');
-  });
+  autoSaveVehicles();
 }
 
-// ============================================================
-// RENDER FUNCTIONS - BOTH PAGES USE THE SAME SHARED STATE
-// ============================================================
-
-// Render vehicles in Edit Profile page (with Edit/Delete buttons)
 function renderVehicles() {
   const container = $('edit-vehicles-list');
   if (!vehicles.length) { container.innerHTML = '<span style="color:#94a3b8;font-size:12px">No vehicles added</span>'; return; }
@@ -904,28 +804,53 @@ function renderVehicles() {
   }).join('');
 }
 
-// Render vehicles in Profile View page (READ ONLY)
-function renderProfileVehicles() {
-  const container = document.getElementById('profile-vehicles-container');
-  const badge = document.getElementById('vehicle-count-badge');
+// ============================================================
+// AUTO-SAVE VEHICLES TO DATABASE
+// ============================================================
+function autoSaveVehicles() {
+  if (!user || !user.mobile) return;
+  const mobileNum = parseInt(user.mobile);
+  const vehicleArray = vehicles.length > 0 ? vehicles : null;
   
-  if (!vehicles.length) {
-    badge.textContent = '0 Vehicles';
-    container.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>';
-    document.getElementById('stat-vehicles-count').textContent = '0';
-    return;
-  }
+  sb.from('active_users')
+    .update({ vehicle_no: vehicleArray })
+    .eq('mobile', mobileNum)
+    .then(result => {
+      if (result.error) {
+        console.error('Error auto-saving vehicles:', result.error);
+        return;
+      }
+      user.vehicle_no = vehicleArray;
+      const saved = localStorage.getItem('rt_user');
+      if (saved) {
+        const sd = JSON.parse(saved);
+        sd.user = user;
+        localStorage.setItem('rt_user', JSON.stringify(sd));
+      }
+    });
+}
+
+function autoSaveRoutes() {
+  if (!user || !user.mobile) return;
+  const mobileNum = parseInt(user.mobile);
+  const routesArray = routes.length > 0 ? routes : null;
   
-  badge.textContent = vehicles.length + ' Vehicles';
-  container.innerHTML = vehicles.map(v => {
-    const data = vehicleDataMap[v] || { vehicle_type: 'Unknown', dimensions: 'N/A' };
-    const dims = data.dimensions || 'N/A';
-    return '<div class="vehicle-display-item">' +
-      '<div class="vnumber">' + v + '</div>' +
-      '<div class="vdetails">' + (data.vehicle_type || 'Unknown') + ' • ' + dims + 'ft</div>' +
-      '</div>';
-  }).join('');
-  document.getElementById('stat-vehicles-count').textContent = vehicles.length;
+  sb.from('active_users')
+    .update({ preferred_routes: routesArray })
+    .eq('mobile', mobileNum)
+    .then(result => {
+      if (result.error) {
+        console.error('Error auto-saving routes:', result.error);
+        return;
+      }
+      user.preferred_routes = routesArray;
+      const saved = localStorage.getItem('rt_user');
+      if (saved) {
+        const sd = JSON.parse(saved);
+        sd.user = user;
+        localStorage.setItem('rt_user', JSON.stringify(sd));
+      }
+    });
 }
 
 // ============================================================
@@ -941,22 +866,18 @@ function addRoute() {
   $('search-edit-route').value = '';
   $('edit-route-hidden').value = '';
   renderRoutes();
-  renderProfileRoutes();
   const sug = $('suggestions-edit-route');
   if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
-  autoSaveRoutes().then(() => {
-    toast('Route added');
-  });
+  autoSaveRoutes();
+  toast('Route added');
 }
 
 function removeRoute(r) {
   if (!confirm('Remove this route?')) return;
   routes = routes.filter(x => x !== r);
   renderRoutes();
-  renderProfileRoutes();
-  autoSaveRoutes().then(() => {
-    toast('Route removed');
-  });
+  autoSaveRoutes();
+  toast('Route removed');
 }
 
 function renderRoutes() {
@@ -969,113 +890,165 @@ function renderRoutes() {
   }).join('');
 }
 
-function renderProfileRoutes() {
-  const container = document.getElementById('profile-routes-container');
-  if (!routes.length) {
-    container.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>';
-    return;
-  }
-  container.innerHTML = routes.map(r => {
-    const loc = getLoc(r);
-    return '<span class="route-tag">' + (loc ? getLocDisplayName(loc) : r) + '</span>';
-  }).join('');
-}
-
 // ============================================================
-// PROFILE FUNCTIONS - BOTH PAGES USE SHARED STATE
+// PROFILE FUNCTIONS
 // ============================================================
 function loadProfile() {
   if (!user) return;
   
-  // Update header
-  let initials = 'U';
-  if (user.name) {
-    const parts = user.name.split(' ');
-    initials = (parts[0]||'')[0] + (parts[1]||'')[0];
-  }
-  document.getElementById('avatar-initials-profile').textContent = initials.toUpperCase() || 'U';
-  document.getElementById('avatar-initials').textContent = initials.toUpperCase() || 'U';
-  
-  // Name
-  document.getElementById('profile-name').textContent = user.name || user.mobile || 'User';
-  if (user.last_active) {
-    const d = new Date(user.last_active);
-    document.getElementById('profile-last-active').textContent = d.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
-  }
-  
-  // Company
-  document.getElementById('profile-company').textContent = user.company_name || 'Not set';
-  document.getElementById('profile-website').textContent = user.company_web || '--';
-  document.getElementById('profile-pan').textContent = '📛 PAN: ' + (user.pan || '--');
-  document.getElementById('profile-gst').textContent = '📛 GST: ' + (user.gst || '--');
-  const loc = getLoc(user.location);
-  document.getElementById('profile-location').textContent = loc ? '📍 Location: ' + getLocDisplayName(loc) : '📍 Location: Not set';
-  
-  // User Type
-  let types = user.user_type || [];
-  if (!Array.isArray(types) && typeof types === 'number') types = [types];
-  const typeLabels = ['Load Giver', 'Operator', 'Agent'];
-  const typeIcons = ['📦', '🚛', '🤝'];
-  const container = document.getElementById('profile-user-types');
-  if (types && types.length) {
-    container.innerHTML = types.map(t => {
-      const idx = t - 1;
-      if (idx >= 0 && idx < typeLabels.length) {
-        return '<span class="section-badge active">' + typeIcons[idx] + ' ' + typeLabels[idx] + '</span>';
-      }
-      return '';
-    }).join('');
-  } else {
-    container.innerHTML = '<span class="section-badge optional">Not set</span>';
-  }
-  
-  // Details
-  document.getElementById('profile-details-text').textContent = user.details || 'No details added';
-  
-  // ===== VEHICLES - USE SHARED STATE =====
-  renderProfileVehicles();
-  renderProfileRoutes();
+  // First refresh data from database
+  refreshUserData(function() {
+    // Update header
+    let initials = 'U';
+    if (user.name) {
+      const parts = user.name.split(' ');
+      initials = (parts[0]||'')[0] + (parts[1]||'')[0];
+    }
+    document.getElementById('avatar-initials-profile').textContent = initials.toUpperCase() || 'U';
+    document.getElementById('avatar-initials').textContent = initials.toUpperCase() || 'U';
+    
+    // Name
+    document.getElementById('profile-name').textContent = user.name || user.mobile || 'User';
+    if (user.last_active) {
+      const d = new Date(user.last_active);
+      document.getElementById('profile-last-active').textContent = d.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+    }
+    
+    // Company
+    document.getElementById('profile-company').textContent = user.company_name || 'Not set';
+    document.getElementById('profile-website').textContent = user.company_web || '--';
+    document.getElementById('profile-pan').textContent = '📛 PAN: ' + (user.pan || '--');
+    document.getElementById('profile-gst').textContent = '📛 GST: ' + (user.gst || '--');
+    const loc = getLoc(user.location);
+    document.getElementById('profile-location').textContent = loc ? '📍 Location: ' + getLocDisplayName(loc) : '📍 Location: Not set';
+    
+    // User Type
+    let types = user.user_type || [];
+    if (!Array.isArray(types) && typeof types === 'number') types = [types];
+    const typeLabels = ['Load Giver', 'Operator', 'Agent'];
+    const typeIcons = ['📦', '🚛', '🤝'];
+    const container = document.getElementById('profile-user-types');
+    if (types && types.length) {
+      container.innerHTML = types.map(t => {
+        const idx = t - 1;
+        if (idx >= 0 && idx < typeLabels.length) {
+          return '<span class="section-badge active">' + typeIcons[idx] + ' ' + typeLabels[idx] + '</span>';
+        }
+        return '';
+      }).join('');
+    } else {
+      container.innerHTML = '<span class="section-badge optional">Not set</span>';
+    }
+    
+    // Details
+    document.getElementById('profile-details-text').textContent = user.details || 'No details added';
+    
+    // ===== VEHICLES - READ FROM DATABASE =====
+    const vno = user.vehicle_no || [];
+    let vehicleList = parsePgArray(vno);
+    
+    const vehicleContainer = document.getElementById('profile-vehicles-container');
+    const badge = document.getElementById('vehicle-count-badge');
+    
+    if (vehicleList.length) {
+      sb.from('active_vehicles').select('*').in('vehicle_number', vehicleList)
+        .then(res => {
+          if (res.data) {
+            badge.textContent = res.data.length + ' Vehicles';
+            vehicleContainer.innerHTML = res.data.map(v => {
+              const dims = v.dimensions ? v.dimensions.join(' × ') + 'ft' : 'N/A';
+              return '<div class="vehicle-display-item">' +
+                '<div class="vnumber">' + v.vehicle_number + '</div>' +
+                '<div class="vdetails">' + (v.vehicle_type || 'Unknown') + ' • ' + dims + '</div>' +
+                '</div>';
+            }).join('');
+            document.getElementById('stat-vehicles-count').textContent = res.data.length;
+          }
+        });
+    } else {
+      badge.textContent = '0 Vehicles';
+      vehicleContainer.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>';
+      document.getElementById('stat-vehicles-count').textContent = '0';
+    }
+    
+    // ===== ROUTES - READ FROM DATABASE =====
+    const pref = user.preferred_routes || [];
+    let routeList = parsePgArrayInt(pref);
+    
+    const routeContainer = document.getElementById('profile-routes-container');
+    if (routeList.length) {
+      routeContainer.innerHTML = routeList.map(r => {
+        const loc2 = getLoc(r);
+        return '<span class="route-tag">' + (loc2 ? getLocDisplayName(loc2) : r) + '</span>';
+      }).join('');
+    } else {
+      routeContainer.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>';
+    }
+  });
 }
 
+// ============================================================
+// EDIT PROFILE FUNCTIONS
+// ============================================================
 function loadEditProfileData() {
   if (!user) return;
   
-  $('edit-name').value = user.name || '';
-  $('edit-company').value = user.company_name || '';
-  $('edit-website').value = user.company_web || '';
-  $('edit-pan').value = user.pan || '';
-  $('edit-gst').value = user.gst || '';
-  
-  if (user.location) {
-    const loc = getLoc(user.location);
-    if (loc) {
-      $('search-edit-location').value = getLocDisplayName(loc);
-      $('edit-location-hidden').value = user.location;
+  // First refresh data from database
+  refreshUserData(function() {
+    $('edit-name').value = user.name || '';
+    $('edit-company').value = user.company_name || '';
+    $('edit-website').value = user.company_web || '';
+    $('edit-pan').value = user.pan || '';
+    $('edit-gst').value = user.gst || '';
+    
+    if (user.location) {
+      const loc = getLoc(user.location);
+      if (loc) {
+        $('search-edit-location').value = getLocDisplayName(loc);
+        $('edit-location-hidden').value = user.location;
+      }
     }
-  }
-  
-  let types = user.user_type || [];
-  if (!Array.isArray(types) && typeof types === 'number') types = [types];
-  $('edit-type-loadgiver').checked = types.indexOf(1) !== -1;
-  $('edit-type-operator').checked = types.indexOf(2) !== -1;
-  $('edit-type-agent').checked = types.indexOf(3) !== -1;
-  
-  // Load vehicles into shared state
-  loadVehiclesIntoState(function() {
+    
+    let types = user.user_type || [];
+    if (!Array.isArray(types) && typeof types === 'number') types = [types];
+    $('edit-type-loadgiver').checked = types.indexOf(1) !== -1;
+    $('edit-type-operator').checked = types.indexOf(2) !== -1;
+    $('edit-type-agent').checked = types.indexOf(3) !== -1;
+    
+    // Load vehicles from user's vehicle_no array
+    vehicles = [];
+    vehicleDataMap = {};
+    let vno = user.vehicle_no || [];
+    vehicles = parsePgArray(vno);
+    
+    if (vehicles.length) {
+      sb.from('active_vehicles').select('*').in('vehicle_number', vehicles)
+        .then(res => {
+          if (res.data) {
+            res.data.forEach(v => {
+              const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
+              vehicleDataMap[v.vehicle_number] = {
+                id: v.id,
+                vehicle_number: v.vehicle_number,
+                vehicle_type: v.vehicle_type || 'Unknown',
+                dimensions: dims
+              };
+            });
+            renderVehicles();
+          }
+        });
+    }
     renderVehicles();
-    // Also update profile view if it's visible
-    renderProfileVehicles();
+    
+    // Load routes
+    routes = [];
+    let pref = user.preferred_routes || [];
+    routes = parsePgArrayInt(pref);
+    renderRoutes();
+    
+    $('edit-details').value = user.details || '';
+    updateCharCount();
   });
-  
-  // Load routes
-  routes = [];
-  let pref = user.preferred_routes || [];
-  routes = parsePgArrayInt(pref);
-  renderRoutes();
-  renderProfileRoutes();
-  
-  $('edit-details').value = user.details || '';
-  updateCharCount();
 }
 
 function saveProfile() {
@@ -1131,19 +1104,12 @@ function goHome() {
 
 function goToProfile() {
   if (!user && !guest) { showLogin(); return; }
-  
-  // ✅ FIRST: Load vehicles into shared state
-  // ✅ SECOND: Then show profile page
-  refreshUserData(function() {
-    loadVehiclesIntoState(function() {
-      document.getElementById('home-page').classList.add('hidden-page');
-      document.getElementById('profile-page').classList.remove('hidden-page');
-      document.getElementById('edit-profile-page').classList.add('hidden-page');
-      document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-      document.querySelectorAll('.nav-fixed .nav-item')[1]?.classList.add('active');
-      if (user) loadProfile();
-    });
-  });
+  document.getElementById('home-page').classList.add('hidden-page');
+  document.getElementById('profile-page').classList.remove('hidden-page');
+  document.getElementById('edit-profile-page').classList.add('hidden-page');
+  document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+  document.querySelectorAll('.nav-fixed .nav-item')[1]?.classList.add('active');
+  if (user) loadProfile();
 }
 
 function goToEditProfile() {
@@ -1266,8 +1232,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('home-page').classList.remove('hidden-page');
         updateGuestUI();
-        // Load vehicles into shared state on startup
-        loadVehiclesIntoState(function() {});
       }
     } catch(e) { console.error('Error parsing saved user:', e); }
   }
