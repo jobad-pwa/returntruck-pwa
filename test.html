@@ -662,28 +662,7 @@ function populateVehicleModal(data, mode) {
 }
 
 function saveVehicleModal() {
-  const number = $('modal-vehicle-number').value;
-  if (!number) { toast('No vehicle number'); return; }
-  const vehicleType = $('modal-vehicle-type').value;
-  if (!vehicleType) { toast('Please select a vehicle type'); return; }
-  
-  const data = {
-    vehicle_number: number,
-    vehicle_type: vehicleType,
-    dimensions: [
-      parseFloat($('modal-length').value) || 0,
-      parseFloat($('modal-width').value) || 0,
-      parseFloat($('modal-height').value) || 0
-    ],
-    max_weight: parseFloat($('modal-max-weight').value) || 0,
-    description: $('modal-description').value.trim() || null,
-    odc_allowed: document.querySelector('input[name="modal-odc"]:checked').value === 'true',
-    modified_by: user ? user.mobile : 'guest',
-    latest_update_at: new Date().toISOString()
-  };
-  
-  const vehicleId = $('modal-vehicle-id').value;
-  const mode = $('modal-edit-mode').value;
+  // ... validation and data preparation ...
   
   if (mode === 'edit' && vehicleId) {
     // UPDATE existing vehicle
@@ -696,35 +675,34 @@ function saveVehicleModal() {
         vehicleDataMap[number] = { id: vehicleId, ...data };
         renderVehicles();
         closeVehicleModal();
-        // Refresh user data and reload profile
-        refreshUserData(function() {
-          toast('✅ Vehicle "' + number + '" updated successfully!');
-          goToProfile();
-        });
-      });
-  } else {
-    // INSERT new vehicle
-    sb.from('active_vehicles').select('id').eq('vehicle_number', number).single()
-      .then(checkRes => {
-        if (checkRes.data) {
-          alert('Vehicle "' + number + '" already exists in the system!');
-          return;
-        }
-        sb.from('active_vehicles').insert(data).then(insertRes => {
-          if (insertRes.error) { alert('Error: ' + insertRes.error.message); return; }
-          if (!vehicles.includes(number)) {
-            vehicles.push(number);
-            vehicleDataMap[number] = { id: insertRes.data[0].id, ...data };
-            renderVehicles();
-          }
-          closeVehicleModal();
-          // Refresh user data and reload profile
+        
+        // ✅ CRITICAL FIX: Save to active_users BEFORE refreshing
+        autoSaveVehicles().then(() => {
           refreshUserData(function() {
-            toast('✅ Vehicle "' + number + '" registered successfully!');
+            toast('✅ Vehicle "' + number + '" updated successfully!');
             goToProfile();
           });
         });
       });
+  } else {
+    // INSERT new vehicle
+    sb.from('active_vehicles').insert(data).then(insertRes => {
+      if (insertRes.error) { alert('Error: ' + insertRes.error.message); return; }
+      if (!vehicles.includes(number)) {
+        vehicles.push(number);
+        vehicleDataMap[number] = { id: insertRes.data[0].id, ...data };
+        renderVehicles();
+      }
+      closeVehicleModal();
+      
+      // ✅ CRITICAL FIX: Save to active_users BEFORE refreshing
+      autoSaveVehicles().then(() => {
+        refreshUserData(function() {
+          toast('✅ Vehicle "' + number + '" registered successfully!');
+          goToProfile();
+        });
+      });
+    });
   }
 }
 
@@ -808,17 +786,17 @@ function renderVehicles() {
 // AUTO-SAVE VEHICLES TO DATABASE
 // ============================================================
 function autoSaveVehicles() {
-  if (!user || !user.mobile) return;
+  if (!user || !user.mobile) return Promise.resolve();
   const mobileNum = parseInt(user.mobile);
   const vehicleArray = vehicles.length > 0 ? vehicles : null;
   
-  sb.from('active_users')
+  return sb.from('active_users')
     .update({ vehicle_no: vehicleArray })
     .eq('mobile', mobileNum)
     .then(result => {
       if (result.error) {
         console.error('Error auto-saving vehicles:', result.error);
-        return;
+        return Promise.reject(result.error);
       }
       user.vehicle_no = vehicleArray;
       const saved = localStorage.getItem('rt_user');
@@ -827,6 +805,7 @@ function autoSaveVehicles() {
         sd.user = user;
         localStorage.setItem('rt_user', JSON.stringify(sd));
       }
+      return Promise.resolve();
     });
 }
 
