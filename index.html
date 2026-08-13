@@ -934,7 +934,7 @@ function renderRoutes() {
 }
 
 // ============================================================
-// PROFILE FUNCTIONS
+// PROFILE FUNCTIONS - FIXED: Use IN operator instead of modified_by
 // ============================================================
 function loadProfile() {
   if (!user) return;
@@ -983,15 +983,36 @@ function loadProfile() {
 
   $('profile-details-text').textContent = user.details || 'No details added';
   
-  // Load Vehicles (READ ONLY)
-  if (user.mobile) {
-    sb.from('active_vehicles').select('*').eq('modified_by', user.mobile)
+  // ============================================================
+  // FIXED: Load Vehicles using IN operator from vehicle_no array
+  // ============================================================
+  const container2 = $('profile-vehicles-container');
+  const badge = $('vehicle-count-badge');
+  
+  // Parse vehicle_no from user (handles both array and PostgreSQL array string)
+  let vno = user.vehicle_no || [];
+  let vehicleNumbers = [];
+  
+  if (Array.isArray(vno)) {
+    vehicleNumbers = vno.filter(v => v !== null && v !== '');
+  } else if (typeof vno === 'string' && vno.startsWith('{')) {
+    try {
+      const cleaned = vno.replace(/[{}]/g, '');
+      vehicleNumbers = cleaned.split(',').filter(v => v.trim() !== '');
+    } catch(e) {
+      vehicleNumbers = [];
+    }
+  } else if (typeof vno === 'string') {
+    vehicleNumbers = vno.split(',').filter(v => v.trim() !== '');
+  }
+  
+  if (vehicleNumbers.length) {
+    // ✅ FIX: Use IN operator to fetch vehicles by number, not modified_by
+    sb.from('active_vehicles').select('*').in('vehicle_number', vehicleNumbers)
       .then(result => {
         const vdata = result.data || [];
-        const container2 = $('profile-vehicles-container');
-        const badge = $('vehicle-count-badge');
         if (!vdata.length) {
-          container2.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>';
+          container2.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles found</div>';
           badge.textContent = '0 Vehicles';
           return;
         }
@@ -1005,6 +1026,10 @@ function loadProfile() {
         }).join('');
         $('stat-vehicles-count').textContent = vdata.length;
       });
+  } else {
+    container2.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>';
+    badge.textContent = '0 Vehicles';
+    $('stat-vehicles-count').textContent = '0';
   }
 
   // Routes (READ ONLY)
