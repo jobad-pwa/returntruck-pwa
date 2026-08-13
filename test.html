@@ -1104,12 +1104,15 @@ function goHome() {
 
 function goToProfile() {
   if (!user && !guest) { showLogin(); return; }
-  document.getElementById('home-page').classList.add('hidden-page');
-  document.getElementById('profile-page').classList.remove('hidden-page');
-  document.getElementById('edit-profile-page').classList.add('hidden-page');
-  document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-  document.querySelectorAll('.nav-fixed .nav-item')[1]?.classList.add('active');
-  if (user) loadProfile();
+  // Refresh user data from database first
+  refreshUserData(function() {
+    document.getElementById('home-page').classList.add('hidden-page');
+    document.getElementById('profile-page').classList.remove('hidden-page');
+    document.getElementById('edit-profile-page').classList.add('hidden-page');
+    document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+    document.querySelectorAll('.nav-fixed .nav-item')[1]?.classList.add('active');
+    if (user) loadProfile();
+  });
 }
 
 function goToEditProfile() {
