@@ -443,16 +443,15 @@ function selectVehicleFromSuggestion(id, number, type, dims) {
     $('edit-vehicle-input').value = '';
     $('vehicle-suggest-dropdown').classList.remove('show');
     toast('✅ Vehicle "' + number + '" added to your list');
+    // Auto-save after adding
+    autoSaveVehicles();
   } else {
     toast('Vehicle already in your list');
   }
 }
 
 function openNewVehicleRegistration(number) {
-  // Close dropdown
   $('vehicle-suggest-dropdown').classList.remove('show');
-  
-  // Open modal with vehicle number pre-filled
   $('modal-vehicle-title').textContent = '📝 Register New Vehicle';
   $('modal-vehicle-number').textContent = 'Vehicle Number: ' + number;
   $('modal-vehicle-id').value = '';
@@ -478,7 +477,6 @@ function openVehicleEdit(number) {
       });
     return;
   }
-  // Fetch full data
   sb.from('active_vehicles').select('*').eq('id', data.id).single()
     .then(res => {
       if (res.data) {
@@ -526,11 +524,23 @@ function saveVehicleModal() {
   };
   
   const vehicleId = $('modal-vehicle-id').value;
-  let query;
+  
   if (vehicleId) {
-    query = sb.from('active_vehicles').update(data).eq('id', vehicleId);
+    // UPDATE existing vehicle
+    sb.from('active_vehicles').update(data).eq('id', vehicleId)
+      .then(result => {
+        if (result.error) { alert('Error: ' + result.error.message); return; }
+        if (!vehicles.includes(number)) {
+          vehicles.push(number);
+        }
+        vehicleDataMap[number] = { id: vehicleId, ...data };
+        renderVehicles();
+        closeVehicleModal();
+        autoSaveVehicles();
+        toast('✅ Vehicle "' + number + '" updated successfully!');
+      });
   } else {
-    // Check if vehicle already exists
+    // INSERT new vehicle
     sb.from('active_vehicles').select('id').eq('vehicle_number', number).single()
       .then(checkRes => {
         if (checkRes.data) {
@@ -545,22 +555,11 @@ function saveVehicleModal() {
             renderVehicles();
           }
           closeVehicleModal();
+          autoSaveVehicles();
           toast('✅ Vehicle "' + number + '" registered successfully!');
         });
       });
-    return;
   }
-  
-  query.then(result => {
-    if (result.error) { alert('Error: ' + result.error.message); return; }
-    if (!vehicles.includes(number)) {
-      vehicles.push(number);
-    }
-    vehicleDataMap[number] = { id: vehicleId || result.data[0]?.id, ...data };
-    renderVehicles();
-    closeVehicleModal();
-    toast('✅ Vehicle "' + number + '" updated successfully!');
-  });
 }
 
 function deleteVehicleFromModal() {
@@ -576,6 +575,7 @@ function deleteVehicleFromModal() {
       delete vehicleDataMap[number];
       renderVehicles();
       closeVehicleModal();
+      autoSaveVehicles();
       toast('✅ Vehicle "' + number + '" deleted');
     });
 }
@@ -592,7 +592,6 @@ function addSelectedVehicle() {
   if (!isValidVehicleNumber(val)) { alert('Vehicle number must be 9-11 characters'); return; }
   if (vehicles.includes(val)) { toast('Already in your list'); return; }
   
-  // Check if vehicle exists
   sb.from('active_vehicles').select('*').eq('vehicle_number', val).single()
     .then(res => {
       if (res.data) {
@@ -601,9 +600,9 @@ function addSelectedVehicle() {
         vehicleDataMap[val] = { id: res.data.id, ...res.data };
         renderVehicles();
         input.value = '';
+        autoSaveVehicles();
         toast('✅ Vehicle "' + val + '" added');
       } else {
-        // Open registration modal
         openNewVehicleRegistration(val);
       }
     }).catch(() => {
@@ -616,6 +615,7 @@ function removeVehicle(v) {
   vehicles = vehicles.filter(x => x !== v);
   delete vehicleDataMap[v];
   renderVehicles();
+  autoSaveVehicles();
 }
 
 function renderVehicles() {
@@ -636,6 +636,36 @@ function renderVehicles() {
 }
 
 // ============================================================
+// AUTO-SAVE VEHICLES TO DATABASE
+// ============================================================
+function autoSaveVehicles() {
+  if (!user || !user.mobile) return;
+  
+  const mobileNum = parseInt(user.mobile);
+  const vehicleArray = vehicles.length > 0 ? vehicles : null;
+  
+  sb.from('active_users')
+    .update({ vehicle_no: vehicleArray })
+    .eq('mobile', mobileNum)
+    .then(result => {
+      if (result.error) {
+        console.error('Error auto-saving vehicles:', result.error);
+        return;
+      }
+      console.log('Vehicles auto-saved:', vehicleArray);
+      
+      // Update local user object
+      user.vehicle_no = vehicleArray;
+      const saved = localStorage.getItem('rt_user');
+      if (saved) {
+        const sd = JSON.parse(saved);
+        sd.user = user;
+        localStorage.setItem('rt_user', JSON.stringify(sd));
+      }
+    });
+}
+
+// ============================================================
 // ROUTE FUNCTIONS
 // ============================================================
 function addRoute() {
@@ -650,6 +680,7 @@ function addRoute() {
   renderRoutes();
   const sug = $('suggestions-edit-route');
   if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
+  autoSaveRoutes();
   toast('Route added');
 }
 
@@ -657,6 +688,8 @@ function removeRoute(r) {
   if (!confirm('Remove this route?')) return;
   routes = routes.filter(x => x !== r);
   renderRoutes();
+  autoSaveRoutes();
+  toast('Route removed');
 }
 
 function renderRoutes() {
@@ -669,13 +702,37 @@ function renderRoutes() {
   }).join('');
 }
 
+function autoSaveRoutes() {
+  if (!user || !user.mobile) return;
+  
+  const mobileNum = parseInt(user.mobile);
+  const routesArray = routes.length > 0 ? routes : null;
+  
+  sb.from('active_users')
+    .update({ preferred_routes: routesArray })
+    .eq('mobile', mobileNum)
+    .then(result => {
+      if (result.error) {
+        console.error('Error auto-saving routes:', result.error);
+        return;
+      }
+      console.log('Routes auto-saved:', routesArray);
+      user.preferred_routes = routesArray;
+      const saved = localStorage.getItem('rt_user');
+      if (saved) {
+        const sd = JSON.parse(saved);
+        sd.user = user;
+        localStorage.setItem('rt_user', JSON.stringify(sd));
+      }
+    });
+}
+
 // ============================================================
 // PROFILE FUNCTIONS
 // ============================================================
 function loadProfileData() {
   if (!user) return;
   
-  // Populate edit form fields
   $('edit-name').value = user.name || '';
   $('edit-company').value = user.company_name || '';
   $('edit-website').value = user.company_web || '';
@@ -690,19 +747,30 @@ function loadProfileData() {
     }
   }
   
-  // User Type
   let types = user.user_type || [];
   if (!Array.isArray(types) && typeof types === 'number') types = [types];
   $('edit-type-loadgiver').checked = types.indexOf(1) !== -1;
   $('edit-type-operator').checked = types.indexOf(2) !== -1;
   $('edit-type-agent').checked = types.indexOf(3) !== -1;
   
-  // Load vehicles
+  // Load vehicles - handle both array and PostgreSQL array string
   vehicles = [];
   vehicleDataMap = {};
   let vno = user.vehicle_no || [];
-  if (Array.isArray(vno)) vehicles = vno.filter(v => v);
-  else if (typeof vno === 'string') vehicles = vno.split(',').filter(v => v.trim() !== '');
+  
+  if (Array.isArray(vno)) {
+    vehicles = vno.filter(v => v !== null && v !== '');
+  } else if (typeof vno === 'string' && vno.startsWith('{')) {
+    // PostgreSQL array format: {MH12AB1234,MH12CD5678}
+    try {
+      const cleaned = vno.replace(/[{}]/g, '');
+      vehicles = cleaned.split(',').filter(v => v.trim() !== '');
+    } catch(e) {
+      vehicles = [];
+    }
+  } else if (typeof vno === 'string') {
+    vehicles = vno.split(',').filter(v => v.trim() !== '');
+  }
   
   if (vehicles.length) {
     sb.from('active_vehicles').select('*').in('vehicle_number', vehicles)
@@ -726,8 +794,18 @@ function loadProfileData() {
   // Load routes
   routes = [];
   let pref = user.preferred_routes || [];
-  if (Array.isArray(pref)) routes = pref.filter(r => r);
-  else if (typeof pref === 'string') routes = pref.split(',').filter(r => r.trim() !== '').map(Number);
+  if (Array.isArray(pref)) {
+    routes = pref.filter(r => r !== null && r !== '');
+  } else if (typeof pref === 'string' && pref.startsWith('{')) {
+    try {
+      const cleaned = pref.replace(/[{}]/g, '');
+      routes = cleaned.split(',').filter(r => r.trim() !== '').map(Number);
+    } catch(e) {
+      routes = [];
+    }
+  } else if (typeof pref === 'string') {
+    routes = pref.split(',').filter(r => r.trim() !== '').map(Number);
+  }
   renderRoutes();
   
   $('edit-details').value = user.details || '';
@@ -837,7 +915,6 @@ function loginUser() {
         document.getElementById('login-error').style.display = 'block';
         return;
       }
-      // Accept any 4-digit PIN for demo
       if (pin.length === 4) {
         user = result.data;
         guest = false;
@@ -910,7 +987,6 @@ document.addEventListener('DOMContentLoaded', function() {
     } catch(e) { console.error('Error parsing saved user:', e); }
   }
   
-  // Char count
   document.getElementById('edit-details')?.addEventListener('input', updateCharCount);
 });
 </script>
