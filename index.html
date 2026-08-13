@@ -97,6 +97,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .section-btn.secondary:hover{background:#cbd5e1}
 .section-btn.danger{background:#dc2626;color:#fff}
 .section-btn.danger:hover{background:#b91c1c}
+.section-btn.success{background:#16a34a;color:#fff}
+.section-btn.success:hover{background:#15803d}
 .form-control{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;background:#fff;outline:none}
 .form-control:focus{border-color:#2563eb}
 .form-label{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
@@ -125,8 +127,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .list-item .actions .edit:hover{background:#bfdbfe}
 .list-item .actions .delete{background:#fef2f2;color:#991b1b}
 .list-item .actions .delete:hover{background:#fee2e2}
-.list-item .actions .interests{background:#fef3c7;color:#92400e}
-.list-item .actions .interests:hover{background:#fde68a}
 .status-badge{font-size:9px;padding:2px 8px;border-radius:10px;font-weight:600;display:inline-block}
 .status-badge.active{background:#dcfce7;color:#166534}
 .status-badge.draft{background:#fef3c7;color:#92400e}
@@ -146,9 +146,15 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .vehicle-suggest-dropdown .item .sub{font-size:10px;color:#94a3b8}
 .vehicle-suggest-dropdown .item .add-new{color:#2563eb;font-weight:600}
 .vehicle-number-input{font-family:monospace;letter-spacing:0.5px;text-transform:uppercase}
-.vehicle-item{display:flex;align-items:center;justify-content:space-between;background:#f8fafc;padding:6px 12px;border-radius:6px;margin-bottom:4px;border:1px solid #e2e8f0}
-.vehicle-item .remove{color:#dc2626;cursor:pointer;font-weight:700;padding:0 4px}
-.vehicle-item .remove:hover{color:#b91c1c}
+.vehicle-item{display:flex;align-items:center;justify-content:space-between;background:#f8fafc;padding:8px 12px;border-radius:6px;margin-bottom:4px;border:1px solid #e2e8f0}
+.vehicle-item .vnumber{font-weight:600;font-size:13px;color:#0f172a;flex:1}
+.vehicle-item .vdetails{font-size:11px;color:#64748b;flex:1}
+.vehicle-item .actions{display:flex;gap:4px}
+.vehicle-item .actions button{padding:3px 8px;font-size:9px;border:none;border-radius:4px;font-weight:600;cursor:pointer}
+.vehicle-item .actions .edit-btn{background:#dbeafe;color:#1e40af}
+.vehicle-item .actions .edit-btn:hover{background:#bfdbfe}
+.vehicle-item .actions .delete-btn{background:#fef2f2;color:#991b1b}
+.vehicle-item .actions .delete-btn:hover{background:#fee2e2}
 .count-badge{background:#2563eb;color:#fff;font-size:10px;border-radius:10px;padding:1px 8px;margin-left:4px}
 .vehicle-display-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;margin-bottom:6px}
 .vehicle-display-item .vnumber{font-weight:700;font-size:14px;color:#0f172a}
@@ -522,7 +528,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <label class="form-label">🚛 My Vehicles</label>
             <div class="route-input-row">
                 <input class="form-control vehicle-number-input" id="edit-vehicle-input" placeholder="Type vehicle number..." oninput="validateAndSearchVehicle(this.value)" autocomplete="off" style="flex:2">
-                <button class="section-btn" onclick="addSelectedVehicle()">➕ Add</button>
+                <button class="section-btn success" onclick="addSelectedVehicle()">➕ Add</button>
             </div>
             <div class="vehicle-suggest-dropdown" id="vehicle-suggest-dropdown"></div>
             <div id="edit-vehicles-list" style="margin-top:8px"></div>
@@ -589,6 +595,7 @@ let homePinId = null, toPinId = null, filterOpen = true;
 let vehicles = [], routes = [];
 let otpTimer = null, otpSeconds = 300, otpVerified = false, generatedOTP = '';
 let isResetFlow = false, otpPurpose = 'registration';
+let vehicleDataMap = {}; // Store full vehicle data for editing
 
 // ============================================================
 // LOCATIONS
@@ -706,7 +713,7 @@ function selectLoc(ctx, pinId) {
 }
 
 // ============================================================
-// VEHICLE FUNCTIONS
+// VEHICLE FUNCTIONS - ENHANCED WITH EDIT/DELETE
 // ============================================================
 function isValidVehicleNumber(number) {
   return /^[A-Za-z0-9]{9,11}$/.test(number);
@@ -751,6 +758,7 @@ function searchVehicles(query) {
 function selectVehicleFromSuggestion(id, number, type, dims) {
   if (!vehicles.includes(number)) {
     vehicles.push(number);
+    vehicleDataMap[number] = { id: id, vehicle_number: number, vehicle_type: type, dimensions: dims };
     renderVehicles();
     $('edit-vehicle-input').value = '';
     $('vehicle-suggest-dropdown').classList.remove('show');
@@ -774,6 +782,7 @@ function addNewVehicleFromSuggestion(number) {
   }).then(res => {
     if (res.error) { alert('Error creating vehicle: ' + res.error.message); return; }
     vehicles.push(number);
+    vehicleDataMap[number] = { id: res.data[0].id, vehicle_number: number, vehicle_type: 'Unknown', dimensions: '0×0×0' };
     renderVehicles();
     $('edit-vehicle-input').value = '';
     $('vehicle-suggest-dropdown').classList.remove('show');
@@ -791,6 +800,8 @@ function addSelectedVehicle() {
     .then(res => {
       if (res.data) {
         vehicles.push(val);
+        const dims = res.data.dimensions ? res.data.dimensions.join('×') : 'N/A';
+        vehicleDataMap[val] = { id: res.data.id, vehicle_number: val, vehicle_type: res.data.vehicle_type || 'Unknown', dimensions: dims };
         renderVehicles();
         input.value = '';
         toast('✅ Vehicle "' + val + '" added');
@@ -805,6 +816,7 @@ function addSelectedVehicle() {
         }).then(ins => {
           if (ins.error) { alert('Error: ' + ins.error.message); return; }
           vehicles.push(val);
+          vehicleDataMap[val] = { id: ins.data[0].id, vehicle_number: val, vehicle_type: 'Unknown', dimensions: '0×0×0' };
           renderVehicles();
           input.value = '';
           toast('✅ New vehicle "' + val + '" created and added');
@@ -814,19 +826,65 @@ function addSelectedVehicle() {
 }
 
 function removeVehicle(v) {
+  if (!confirm('Remove vehicle "' + v + '" from your list?')) return;
   vehicles = vehicles.filter(x => x !== v);
+  delete vehicleDataMap[v];
   renderVehicles();
+}
+
+function editVehicleDetails(v) {
+  const data = vehicleDataMap[v];
+  if (!data) {
+    // Fetch from DB if not in map
+    sb.from('active_vehicles').select('*').eq('vehicle_number', v).single()
+      .then(res => {
+        if (res.data) {
+          openVehicleEditModal(res.data);
+        } else {
+          toast('Vehicle not found');
+        }
+      });
+    return;
+  }
+  // Open a simple prompt to edit vehicle type and dimensions
+  const currentType = data.vehicle_type || 'Unknown';
+  const currentDims = data.dimensions || '0×0×0';
+  const newType = prompt('Enter vehicle type for ' + v + ':', currentType);
+  if (newType === null) return;
+  const newDims = prompt('Enter dimensions (L×W×H in feet):', currentDims);
+  if (newDims === null) return;
+  
+  // Update in database
+  const dimParts = newDims.split('×').map(Number);
+  const updateData = {
+    vehicle_type: newType.trim() || 'Unknown',
+    dimensions: dimParts.length === 3 ? dimParts : [0, 0, 0],
+    latest_update_at: new Date().toISOString()
+  };
+  sb.from('active_vehicles').update(updateData).eq('id', data.id)
+    .then(res => {
+      if (res.error) { alert('Error updating vehicle: ' + res.error.message); return; }
+      vehicleDataMap[v] = { ...data, vehicle_type: newType.trim() || 'Unknown', dimensions: newDims };
+      renderVehicles();
+      toast('✅ Vehicle details updated');
+    });
 }
 
 function renderVehicles() {
   const container = $('edit-vehicles-list');
   if (!vehicles.length) { container.innerHTML = '<span style="color:#94a3b8;font-size:12px">No vehicles added</span>'; return; }
-  container.innerHTML = vehicles.map(v =>
-    '<div class="vehicle-item">' +
-    '<span>' + v + '</span>' +
-    '<span class="remove" onclick="removeVehicle(\'' + v + '\')">✕</span>' +
-    '</div>'
-  ).join('');
+  container.innerHTML = vehicles.map(v => {
+    const data = vehicleDataMap[v] || { vehicle_type: 'Unknown', dimensions: 'N/A' };
+    const dims = data.dimensions || 'N/A';
+    return '<div class="vehicle-item">' +
+      '<span class="vnumber">' + v + '</span>' +
+      '<span class="vdetails">' + (data.vehicle_type || 'Unknown') + ' • ' + dims + 'ft</span>' +
+      '<div class="actions">' +
+        '<button class="edit-btn" onclick="editVehicleDetails(\'' + v + '\')">✏️ Edit</button>' +
+        '<button class="delete-btn" onclick="removeVehicle(\'' + v + '\')">🗑️</button>' +
+      '</div>' +
+      '</div>';
+  }).join('');
 }
 
 // ============================================================
@@ -848,6 +906,7 @@ function addRoute() {
 }
 
 function removeRoute(r) {
+  if (!confirm('Remove this route?')) return;
   routes = routes.filter(x => x !== r);
   renderRoutes();
 }
@@ -889,7 +948,7 @@ function loadProfile() {
     container.innerHTML = '<span class="section-badge optional">Not set</span>';
   }
 
-  // Vehicles - show with type and dimensions
+  // Vehicles - show with type and dimensions (read-only)
   if (user.mobile) {
     sb.from('active_vehicles').select('*').eq('modified_by', user.mobile)
       .then(res => {
@@ -913,7 +972,7 @@ function loadProfile() {
       });
   }
 
-  // Routes
+  // Routes (read-only)
   let routeArr = user.preferred_routes || [];
   if (typeof routeArr === 'string') routeArr = routeArr.split(',').filter(r => r.trim() !== '').map(Number);
   const rc = $('profile-routes-container');
@@ -1013,10 +1072,31 @@ function populateEditForm() {
   $('edit-type-operator').checked = types.indexOf(2) !== -1;
   $('edit-type-agent').checked = types.indexOf(3) !== -1;
 
+  // Load vehicles with full data
   vehicles = [];
+  vehicleDataMap = {};
   let vno = user.vehicle_no || [];
   if (Array.isArray(vno)) vehicles = vno.filter(v => v);
   else if (typeof vno === 'string') vehicles = vno.split(',').filter(v => v.trim() !== '');
+  
+  // Fetch full vehicle data for each vehicle
+  if (vehicles.length) {
+    sb.from('active_vehicles').select('*').in('vehicle_number', vehicles)
+      .then(res => {
+        if (res.data) {
+          res.data.forEach(v => {
+            const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
+            vehicleDataMap[v.vehicle_number] = { 
+              id: v.id, 
+              vehicle_number: v.vehicle_number, 
+              vehicle_type: v.vehicle_type || 'Unknown', 
+              dimensions: dims 
+            };
+          });
+          renderVehicles();
+        }
+      });
+  }
   renderVehicles();
 
   routes = [];
