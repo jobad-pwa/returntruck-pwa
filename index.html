@@ -111,12 +111,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .success-text{color:#16a34a;font-size:12px;text-align:center;margin-top:4px;display:none}
 .resend-btn{background:transparent;border:none;color:#2563eb;font-weight:600;cursor:pointer;font-size:12px;text-decoration:underline}
 .resend-btn:disabled{color:#94a3b8;cursor:not-allowed}
-.profile-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;background:#e2e8f0;padding:3px;border-radius:10px;margin-bottom:12px}
-.profile-tabs button{padding:8px 4px;font-size:11px;font-weight:700;border:none;border-radius:8px;cursor:pointer}
-.profile-tabs .active{background:#fff;color:#1e293b}
-.profile-tabs .inactive{background:transparent;color:#64748b}
-.profile-tab-content{display:none}
-.profile-tab-content.active{display:block}
 .stat-cards{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px}
 .stat-card{background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0}
 .stat-card .icon{font-size:20px;display:block;margin-bottom:2px}
@@ -133,8 +127,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .list-item .actions .delete:hover{background:#fee2e2}
 .list-item .actions .interests{background:#fef3c7;color:#92400e}
 .list-item .actions .interests:hover{background:#fde68a}
-.list-item .actions .view{background:#e2e8f0;color:#475569}
-.list-item .actions .view:hover{background:#cbd5e1}
 .status-badge{font-size:9px;padding:2px 8px;border-radius:10px;font-weight:600;display:inline-block}
 .status-badge.active{background:#dcfce7;color:#166534}
 .status-badge.draft{background:#fef3c7;color:#92400e}
@@ -158,9 +150,10 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .vehicle-item .remove{color:#dc2626;cursor:pointer;font-weight:700;padding:0 4px}
 .vehicle-item .remove:hover{color:#b91c1c}
 .count-badge{background:#2563eb;color:#fff;font-size:10px;border-radius:10px;padding:1px 8px;margin-left:4px}
+.vehicle-display-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;margin-bottom:6px}
+.vehicle-display-item .vnumber{font-weight:700;font-size:14px;color:#0f172a}
+.vehicle-display-item .vdetails{font-size:12px;color:#64748b;margin-top:2px}
 .nav-install-wrapper{display:none}
-.install-banner{display:none !important}
-.floating-install-btn{display:none !important}
 </style>
 </head>
 <body>
@@ -745,7 +738,7 @@ function searchVehicles(query) {
       let html = '';
       vlist.forEach(v => {
         const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
-        html += '<div class="item" onclick="selectVehicle(\'' + v.id + '\',\'' + v.vehicle_number + '\')">' +
+        html += '<div class="item" onclick="selectVehicleFromSuggestion(\'' + v.id + '\',\'' + v.vehicle_number + '\',\'' + v.vehicle_type + '\',\'' + dims + '\')">' +
           v.vehicle_number + ' <span class="sub">' + v.vehicle_type + ' • ' + dims + 'ft</span>' +
           '</div>';
       });
@@ -755,7 +748,7 @@ function searchVehicles(query) {
     }).catch(() => { dropdown.classList.remove('show'); });
 }
 
-function selectVehicle(id, number) {
+function selectVehicleFromSuggestion(id, number, type, dims) {
   if (!vehicles.includes(number)) {
     vehicles.push(number);
     renderVehicles();
@@ -896,7 +889,7 @@ function loadProfile() {
     container.innerHTML = '<span class="section-badge optional">Not set</span>';
   }
 
-  // Vehicles
+  // Vehicles - show with type and dimensions
   if (user.mobile) {
     sb.from('active_vehicles').select('*').eq('modified_by', user.mobile)
       .then(res => {
@@ -909,12 +902,13 @@ function loadProfile() {
           return;
         }
         badge.textContent = vdata.length + ' Vehicles';
-        container2.innerHTML = vdata.map(v =>
-          '<div class="list-item" style="padding:8px">' +
-          '<div class="title">' + v.vehicle_number + '</div>' +
-          '<div class="sub">' + v.vehicle_type + ' • ' + (v.dimensions ? v.dimensions.join('×') : 'N/A') + 'ft</div>' +
-          '</div>'
-        ).join('');
+        container2.innerHTML = vdata.map(v => {
+          const dims = v.dimensions ? v.dimensions.join(' × ') + 'ft' : 'N/A';
+          return '<div class="vehicle-display-item">' +
+            '<div class="vnumber">' + v.vehicle_number + '</div>' +
+            '<div class="vdetails">' + (v.vehicle_type || 'Unknown') + ' • ' + dims + '</div>' +
+            '</div>';
+        }).join('');
         $('stat-vehicles-count').textContent = vdata.length;
       });
   }
@@ -934,7 +928,6 @@ function loadProfile() {
 
   $('profile-details-text').textContent = user.details || 'No details added';
   
-  // Load my loads/trucks
   loadMyLoads();
   loadMyTrucks();
   loadStats();
