@@ -127,6 +127,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .list-item .actions .edit:hover{background:#bfdbfe}
 .list-item .actions .delete{background:#fef2f2;color:#991b1b}
 .list-item .actions .delete:hover{background:#fee2e2}
+.list-item .actions .interests{background:#fef3c7;color:#92400e}
+.list-item .actions .interests:hover{background:#fde68a}
 .status-badge{font-size:9px;padding:2px 8px;border-radius:10px;font-weight:600;display:inline-block}
 .status-badge.active{background:#dcfce7;color:#166534}
 .status-badge.draft{background:#fef3c7;color:#92400e}
@@ -407,7 +409,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div style="display:flex;justify-content:space-between;align-items:center">
                 <div>
                     <div id="profile-name" style="font-size:20px;font-weight:700">--</div>
-                    <div style="font-size:10px;opacity:.7">⭐ last update on <span id="profile-last-active">10 Jan 2026</span></div>
+                    <div style="font-size:10px;opacity:.7">⭐ Last active: <span id="profile-last-active">Never</span></div>
                 </div>
                 <div style="text-align:right">
                     <div style="font-size:20px">👤</div>
@@ -595,7 +597,7 @@ let homePinId = null, toPinId = null, filterOpen = true;
 let vehicles = [], routes = [];
 let otpTimer = null, otpSeconds = 300, otpVerified = false, generatedOTP = '';
 let isResetFlow = false, otpPurpose = 'registration';
-let vehicleDataMap = {}; // Store full vehicle data for editing
+let vehicleDataMap = {};
 
 // ============================================================
 // LOCATIONS
@@ -713,7 +715,7 @@ function selectLoc(ctx, pinId) {
 }
 
 // ============================================================
-// VEHICLE FUNCTIONS - ENHANCED WITH EDIT/DELETE
+// VEHICLE FUNCTIONS
 // ============================================================
 function isValidVehicleNumber(number) {
   return /^[A-Za-z0-9]{9,11}$/.test(number);
@@ -835,39 +837,49 @@ function removeVehicle(v) {
 function editVehicleDetails(v) {
   const data = vehicleDataMap[v];
   if (!data) {
-    // Fetch from DB if not in map
     sb.from('active_vehicles').select('*').eq('vehicle_number', v).single()
       .then(res => {
         if (res.data) {
-          openVehicleEditModal(res.data);
+          const currentType = res.data.vehicle_type || 'Unknown';
+          const currentDims = res.data.dimensions ? res.data.dimensions.join('×') : '0×0×0';
+          const newType = prompt('Enter vehicle type for ' + v + ':', currentType);
+          if (newType === null) return;
+          const newDims = prompt('Enter dimensions (L×W×H in feet):', currentDims);
+          if (newDims === null) return;
+          const dimParts = newDims.split('×').map(Number);
+          sb.from('active_vehicles').update({
+            vehicle_type: newType.trim() || 'Unknown',
+            dimensions: dimParts.length === 3 ? dimParts : [0, 0, 0],
+            latest_update_at: new Date().toISOString()
+          }).eq('id', res.data.id).then(upd => {
+            if (upd.error) { alert('Error: ' + upd.error.message); return; }
+            vehicleDataMap[v] = { id: res.data.id, vehicle_number: v, vehicle_type: newType.trim() || 'Unknown', dimensions: newDims };
+            renderVehicles();
+            toast('✅ Vehicle details updated');
+          });
         } else {
           toast('Vehicle not found');
         }
       });
     return;
   }
-  // Open a simple prompt to edit vehicle type and dimensions
   const currentType = data.vehicle_type || 'Unknown';
   const currentDims = data.dimensions || '0×0×0';
   const newType = prompt('Enter vehicle type for ' + v + ':', currentType);
   if (newType === null) return;
   const newDims = prompt('Enter dimensions (L×W×H in feet):', currentDims);
   if (newDims === null) return;
-  
-  // Update in database
   const dimParts = newDims.split('×').map(Number);
-  const updateData = {
+  sb.from('active_vehicles').update({
     vehicle_type: newType.trim() || 'Unknown',
     dimensions: dimParts.length === 3 ? dimParts : [0, 0, 0],
     latest_update_at: new Date().toISOString()
-  };
-  sb.from('active_vehicles').update(updateData).eq('id', data.id)
-    .then(res => {
-      if (res.error) { alert('Error updating vehicle: ' + res.error.message); return; }
-      vehicleDataMap[v] = { ...data, vehicle_type: newType.trim() || 'Unknown', dimensions: newDims };
-      renderVehicles();
-      toast('✅ Vehicle details updated');
-    });
+  }).eq('id', data.id).then(res => {
+    if (res.error) { alert('Error updating vehicle: ' + res.error.message); return; }
+    vehicleDataMap[v] = { ...data, vehicle_type: newType.trim() || 'Unknown', dimensions: newDims };
+    renderVehicles();
+    toast('✅ Vehicle details updated');
+  });
 }
 
 function renderVehicles() {
@@ -927,32 +939,55 @@ function renderRoutes() {
 function loadProfile() {
   if (!user) return;
   $('profile-name').textContent = user.name || user.mobile || 'User';
+  if (user.last_active) {
+    const d = new Date(user.last_active);
+    $('profile-last-active').textContent = d.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+  }
+  let initials = '';
+  if (user.name) {
+    const parts = user.name.split(' ');
+    initials = (parts[0]||'')[0] + (parts[1]||'')[0];
+  } else {
+    initials = (user.mobile||'GU').toString().slice(-2);
+  }
+  $('avatar-initials-profile').textContent = initials.toUpperCase();
+  $('avatar-initials').textContent = initials.toUpperCase();
+
   $('profile-company').textContent = user.company_name || 'Not set';
   $('profile-website').textContent = user.company_web || '--';
   $('profile-pan').textContent = '📛 PAN: ' + (user.pan || '--');
   $('profile-gst').textContent = '📛 GST: ' + (user.gst || '--');
-  const loc = getLoc(user.location);
-  $('profile-location').textContent = loc ? '📍 Location: ' + getLocDisplayName(loc) : '📍 Location: Not set';
+  if (user.location) {
+    const loc = getLoc(user.location);
+    $('profile-location').textContent = loc ? '📍 Location: ' + getLocDisplayName(loc) : '📍 Location: Unknown';
+  } else {
+    $('profile-location').textContent = '📍 Location: Not set';
+  }
 
   let types = user.user_type || [];
   if (!Array.isArray(types) && typeof types === 'number') types = [types];
-  const labels = ['Load Giver', 'Operator', 'Agent'];
-  const icons = ['📦', '🚛', '🤝'];
+  const typeLabels = ['Load Giver', 'Operator', 'Agent'];
+  const typeIcons = ['📦', '🚛', '🤝'];
   const container = $('profile-user-types');
-  if (types.length) {
+  if (types && types.length) {
     container.innerHTML = types.map(t => {
       const idx = t - 1;
-      return idx >= 0 && idx < labels.length ? '<span class="section-badge active">' + icons[idx] + ' ' + labels[idx] + '</span>' : '';
+      if (idx >= 0 && idx < typeLabels.length) {
+        return '<span class="section-badge active">' + typeIcons[idx] + ' ' + typeLabels[idx] + '</span>';
+      }
+      return '';
     }).join('');
   } else {
     container.innerHTML = '<span class="section-badge optional">Not set</span>';
   }
 
-  // Vehicles - show with type and dimensions (read-only)
+  $('profile-details-text').textContent = user.details || 'No details added';
+  
+  // Load Vehicles (READ ONLY)
   if (user.mobile) {
     sb.from('active_vehicles').select('*').eq('modified_by', user.mobile)
-      .then(res => {
-        const vdata = res.data || [];
+      .then(result => {
+        const vdata = result.data || [];
         const container2 = $('profile-vehicles-container');
         const badge = $('vehicle-count-badge');
         if (!vdata.length) {
@@ -972,20 +1007,20 @@ function loadProfile() {
       });
   }
 
-  // Routes (read-only)
+  // Routes (READ ONLY)
   let routeArr = user.preferred_routes || [];
-  if (typeof routeArr === 'string') routeArr = routeArr.split(',').filter(r => r.trim() !== '').map(Number);
+  if (typeof routeArr === 'string') {
+    routeArr = routeArr.split(',').filter(r => r.trim() !== '').map(Number);
+  }
   const rc = $('profile-routes-container');
-  if (routeArr.length) {
+  if (routeArr && routeArr.length) {
     rc.innerHTML = routeArr.map(r => {
-      const loc2 = getLoc(r);
-      return '<span class="route-tag">' + (loc2 ? getLocDisplayName(loc2) : r) + '</span>';
+      const loc = getLoc(r);
+      return '<span class="route-tag">' + (loc ? getLocDisplayName(loc) : r) + '</span>';
     }).join('');
   } else {
     rc.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>';
   }
-
-  $('profile-details-text').textContent = user.details || 'No details added';
   
   loadMyLoads();
   loadMyTrucks();
@@ -1047,11 +1082,14 @@ function deleteTruckItem(id) {
   sb.from('active_trucks').update({status: 0}).eq('id', id).then(() => { loadMyTrucks(); loadStats(); });
 }
 
+// ============================================================
+// EDIT PROFILE FUNCTIONS
+// ============================================================
 function openEditProfile() {
-  if (!user) return;
+  if (!user) { alert('Please login first'); return; }
   sb.from('active_users').select('*').eq('mobile', parseInt(user.mobile)).single()
-    .then(res => {
-      if (res.data) Object.assign(user, res.data);
+    .then(result => {
+      if (result.data) Object.assign(user, result.data);
       populateEditForm();
     }).catch(() => populateEditForm());
 }
@@ -1072,25 +1110,23 @@ function populateEditForm() {
   $('edit-type-operator').checked = types.indexOf(2) !== -1;
   $('edit-type-agent').checked = types.indexOf(3) !== -1;
 
-  // Load vehicles with full data
   vehicles = [];
   vehicleDataMap = {};
   let vno = user.vehicle_no || [];
   if (Array.isArray(vno)) vehicles = vno.filter(v => v);
   else if (typeof vno === 'string') vehicles = vno.split(',').filter(v => v.trim() !== '');
   
-  // Fetch full vehicle data for each vehicle
   if (vehicles.length) {
     sb.from('active_vehicles').select('*').in('vehicle_number', vehicles)
       .then(res => {
         if (res.data) {
           res.data.forEach(v => {
             const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
-            vehicleDataMap[v.vehicle_number] = { 
-              id: v.id, 
-              vehicle_number: v.vehicle_number, 
-              vehicle_type: v.vehicle_type || 'Unknown', 
-              dimensions: dims 
+            vehicleDataMap[v.vehicle_number] = {
+              id: v.id,
+              vehicle_number: v.vehicle_number,
+              vehicle_type: v.vehicle_type || 'Unknown',
+              dimensions: dims
             };
           });
           renderVehicles();
@@ -1106,11 +1142,12 @@ function populateEditForm() {
   renderRoutes();
 
   $('edit-details').value = user.details || '';
-  switchPage('edit-profile-page', 4);
+  updateCharCount('edit-details', 'edit-details-count');
+  switchPage('edit-profile-page');
 }
 
 function saveProfile() {
-  if (!user) return;
+  if (!user || !user.mobile) { alert('User not logged in.'); return; }
   const types = [];
   if ($('edit-type-loadgiver').checked) types.push(1);
   if ($('edit-type-operator').checked) types.push(2);
@@ -1129,17 +1166,32 @@ function saveProfile() {
     details: $('edit-details').value.trim() || null,
     last_active: new Date().toISOString()
   };
-  sb.from('active_users').update(updateData).eq('mobile', parseInt(user.mobile))
-    .then(res => {
-      if (res.error) { alert('Error: ' + res.error.message); return; }
-      alert('✅ Profile saved!');
-      closeEditProfile();
-    });
+  const mobileNum = parseInt(user.mobile);
+  sb.from('active_users').update(updateData).eq('mobile', mobileNum)
+    .then(result => {
+      if (result.error) { alert('Error saving profile: ' + result.error.message); return; }
+      sb.from('active_users').select('*').eq('mobile', mobileNum).single()
+        .then(freshResult => {
+          if (freshResult.data) {
+            Object.assign(user, freshResult.data);
+            const saved = localStorage.getItem('rt_user');
+            if (saved) { const sd = JSON.parse(saved); sd.user = user; localStorage.setItem('rt_user', JSON.stringify(sd)); }
+            alert('✅ Profile saved successfully!');
+            closeEditProfile();
+          } else { alert('✅ Profile saved!'); closeEditProfile(); }
+        }).catch(() => { alert('✅ Profile saved!'); closeEditProfile(); });
+    }).catch(err => { alert('Error: ' + err.message); });
 }
 
 function closeEditProfile() {
-  switchPage('profile-page', 4);
+  switchPage('profile-page');
   loadProfile();
+}
+
+function updateCharCount(inputId, countId) {
+  const input = $(inputId);
+  const count = $(countId);
+  if (input && count) count.textContent = input.value.length;
 }
 
 // ============================================================
@@ -1190,15 +1242,14 @@ function goHome() {
   document.querySelectorAll('.nav-fixed .nav-item')[0].classList.add('active');
   setTimeout(() => { renderFeed(); }, 50);
 }
-function switchPage(id, idx) {
-  ['home-page','profile-page','postload-page','posttruck-page','detail-page','edit-profile-page'].forEach(i => { const el = $(i); if (el) el.classList.toggle('hidden-page', i !== id); });
-  document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-  const navs = document.querySelectorAll('.nav-fixed .nav-item');
-  if (navs && navs[idx]) navs[idx].classList.add('active');
+
+function switchPage(id) {
+  ['home-page','profile-page','edit-profile-page'].forEach(i => { const el = $(i); if (el) el.classList.toggle('hidden-page', i !== id); });
 }
-function goPostLoad() { if (guest || !user) { showLogin(); return; } switchPage('postload-page', 2); }
-function goPostTruck() { if (guest || !user) { showLogin(); return; } switchPage('posttruck-page', 3); }
-function goToProfile() { if (guest || !user) { showLogin(); return; } switchPage('profile-page', 4); loadProfile(); }
+
+function goPostLoad() { if (guest || !user) { showLogin(); return; } switchPage('postload-page'); }
+function goPostTruck() { if (guest || !user) { showLogin(); return; } switchPage('posttruck-page'); }
+function goToProfile() { if (guest || !user) { showLogin(); return; } switchPage('profile-page'); loadProfile(); }
 function cancelPost() { goHome(); }
 function closeDetail() { detail = null; goHome(); }
 
@@ -1208,7 +1259,7 @@ function closeDetail() { detail = null; goHome(); }
 function openDetail(type, id) {
   const table = type === 'LOAD' ? 'active_loads' : 'active_trucks';
   sb.from(table).select('*').eq('id', id).single().then(r => {
-    if (r.data) { detail = r.data; switchPage('detail-page', 0); $('detail-title').textContent = type === 'LOAD' ? r.data.material || 'Details' : r.data.truck_no || 'Details'; $('detail-company').textContent = type === 'LOAD' ? r.data.company || 'N/A' : r.data.company_name || 'N/A'; }
+    if (r.data) { detail = r.data; switchPage('detail-page'); $('detail-title').textContent = type === 'LOAD' ? r.data.material || 'Details' : r.data.truck_no || 'Details'; $('detail-company').textContent = type === 'LOAD' ? r.data.company || 'N/A' : r.data.company_name || 'N/A'; }
   });
 }
 function makeCall() { if (detail) { const num = detail.mobile || detail.driver_mobile; if (num) window.location.href = 'tel:' + num; } }
