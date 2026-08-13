@@ -1,1243 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ReturnTruck - Profile</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-*{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
-body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
-.card{max-width:420px;width:100%;background:#fff;border-radius:24px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);display:flex;flex-direction:column;height:95vh;max-height:800px;position:relative;overflow:hidden}
-.hidden-page{display:none !important}.hidden{display:none !important}
-.header-fixed{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #f1f5f9;background:#fff;z-index:10;width:100%;min-height:50px}
-.logo{font-size:22px;font-weight:900;color:#2563eb;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none}
-.logo-icon{font-size:28px;line-height:1}.logo-text{font-size:22px;font-weight:900;color:#2563eb;letter-spacing:-0.5px}
-.back-btn{background:transparent;border:none;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;padding:4px 8px}.back-btn:hover{color:#2563eb}
-.scroll-body{overflow-y:auto;padding:8px 0;-webkit-overflow-scrolling:touch;display:block;width:100%;flex:1}
-.scroll-body::-webkit-scrollbar{width:4px}.scroll-body::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
-.nav-fixed{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e2e8f0;background:#fff;position:relative;z-index:10;min-height:65px;width:100%;padding-bottom:5px;margin-top:auto}
-.nav-item{display:flex;flex-direction:column;align-items:center;color:#94a3b8;font-size:9px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px;position:relative;z-index:2}
-.nav-item.active{color:#2563eb}.nav-item .icon{font-size:22px;margin-bottom:2px}.nav-item .label{font-size:9px;text-transform:uppercase;letter-spacing:.05em}
-.profile-header-card{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:12px;padding:16px;color:#fff;margin-bottom:12px}
-.profile-section{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px}
-.profile-section .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.profile-section .section-title{font-size:14px;font-weight:700;color:#1e293b}
-.profile-section .section-badge{font-size:9px;padding:2px 10px;border-radius:12px;font-weight:700}
-.section-badge.active{background:#dcfce7;color:#166534}
-.section-badge.optional{background:#e2e8f0;color:#64748b}
-.section-btn{padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px}
-.section-btn:hover{background:#1d4ed8}
-.section-btn.secondary{background:#e2e8f0;color:#1e293b}
-.section-btn.secondary:hover{background:#cbd5e1}
-.section-btn.danger{background:#dc2626;color:#fff}
-.section-btn.danger:hover{background:#b91c1c}
-.section-btn.success{background:#16a34a;color:#fff}
-.section-btn.success:hover{background:#15803d}
-.form-control{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;background:#fff;outline:none}
-.form-control:focus{border-color:#2563eb}
-.form-control:disabled{background:#f1f5f9;color:#64748b;cursor:not-allowed}
-.form-label{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
-.btn-primary{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px}
-.btn-primary:hover{background:#1d4ed8}
-.btn-primary.success{background:#16a34a}.btn-primary.success:hover{background:#15803d}
-.vehicle-item{display:flex;align-items:center;justify-content:space-between;background:#f8fafc;padding:8px 12px;border-radius:6px;margin-bottom:4px;border:1px solid #e2e8f0}
-.vehicle-item .vnumber{font-weight:600;font-size:13px;color:#0f172a;flex:1}
-.vehicle-item .vdetails{font-size:11px;color:#64748b;flex:1}
-.vehicle-item .actions{display:flex;gap:4px}
-.vehicle-item .actions button{padding:3px 8px;font-size:9px;border:none;border-radius:4px;font-weight:600;cursor:pointer}
-.vehicle-item .actions .edit-btn{background:#dbeafe;color:#1e40af}
-.vehicle-item .actions .edit-btn:hover{background:#bfdbfe}
-.vehicle-item .actions .delete-btn{background:#fef2f2;color:#991b1b}
-.vehicle-item .actions .delete-btn:hover{background:#fee2e2}
-.route-tag{background:#e2e8f0;padding:4px 10px;border-radius:6px;font-size:12px;display:inline-block;margin:2px}
-.route-tag .remove{color:#dc2626;cursor:pointer;margin-left:6px;font-weight:700}
-.route-tag .remove:hover{color:#b91c1c}
-.user-type-checkbox{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
-.user-type-checkbox label{font-size:13px;display:flex;align-items:center;gap:4px;cursor:pointer}
-.route-input-row{display:flex;gap:6px;margin-bottom:8px}
-.route-input-row input{flex:2}
-.route-input-row button{flex-shrink:0}
-.vehicle-suggest-dropdown{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:8px;margin-top:4px;max-height:150px;overflow-y:auto;z-index:50;display:none}
-.vehicle-suggest-dropdown.show{display:block}
-.vehicle-suggest-dropdown .item{padding:8px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid #f1f5f9}
-.vehicle-suggest-dropdown .item:hover{background:#f1f5f9}
-.vehicle-suggest-dropdown .item .sub{font-size:10px;color:#94a3b8}
-.vehicle-suggest-dropdown .item .add-new{color:#2563eb;font-weight:600}
-.vehicle-number-input{font-family:monospace;letter-spacing:0.5px;text-transform:uppercase}
-.search-wrapper{position:relative;width:100%}
-.search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
-.search-wrapper .suggestions.show{display:block}
-.search-wrapper .suggestions .item{padding:10px 16px;font-size:13px;color:#1e293b;cursor:pointer;border-bottom:1px solid #f1f5f9}
-.search-wrapper .suggestions .item:last-child{border-bottom:none}
-.search-wrapper .suggestions .item:hover{background:#f8fafc}
-.search-wrapper .suggestions .item .highlight{background:#dbeafe;font-weight:600}
-.avatar-btn{width:36px;height:36px;border-radius:50%;border:2px solid #e2e8f0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;background:#94a3b8;transition:all .2s}
-.header-right{display:flex;align-items:center;gap:8px;position:relative}
-.profile-dropdown{position:absolute;top:45px;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:160px;z-index:100;display:none}
-.profile-dropdown.show{display:block}
-.dropdown-item{padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:#1e293b;cursor:pointer;border:none;background:transparent;width:100%}
-.dropdown-item:hover{background:#f8fafc}
-.dropdown-divider{height:1px;background:#e2e8f0;margin:4px 12px}
-.vehicle-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000}
-.vehicle-modal.show{display:flex}
-.vehicle-modal-content{background:#fff;border-radius:16px;padding:24px;max-width:420px;width:90%;max-height:85vh;overflow-y:auto}
-.vehicle-modal-content .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.vehicle-modal-content .modal-header h3{margin:0;font-size:18px;color:#0f172a}
-.vehicle-modal-content .modal-close{background:transparent;border:none;font-size:24px;cursor:pointer;color:#94a3b8}
-.vehicle-modal-content .modal-close:hover{color:#dc2626}
-.vehicle-modal-content .form-group{margin-bottom:12px}
-.vehicle-modal-content .form-group .readonly-number{background:#f1f5f9;padding:10px 12px;border-radius:8px;font-weight:700;font-size:16px;color:#0f172a;border:1px solid #e2e8f0}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.vehicle-display-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;margin-bottom:6px}
-.vehicle-display-item .vnumber{font-weight:700;font-size:14px;color:#0f172a}
-.vehicle-display-item .vdetails{font-size:12px;color:#64748b;margin-top:2px}
-.count-badge{background:#2563eb;color:#fff;font-size:10px;border-radius:10px;padding:1px 8px;margin-left:4px}
-.input-field{width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;background:#fff;margin-bottom:12px}
-.input-field:focus{border-color:#2563eb;outline:none}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - User Vehicles</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: system-ui; max-width: 600px; margin: 40px auto; padding: 20px; }
+        .card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .vehicle { background: #f8fafc; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .vehicle-number { font-weight: 700; font-size: 16px; }
+        .vehicle-details { color: #64748b; font-size: 14px; margin-top: 4px; }
+        .badge { background: #2563eb; color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 12px; }
+        pre { background: #f1f5f9; padding: 16px; border-radius: 8px; overflow-x: auto; font-size: 13px; }
+        .loading { color: #64748b; text-align: center; padding: 40px; }
+        .error { color: #dc2626; padding: 20px; background: #fef2f2; border-radius: 8px; }
+    </style>
 </head>
 <body>
-<div class="card" id="app-card">
-
-<!-- HOME PAGE -->
-<div id="home-page" style="display:flex;flex-direction:column;height:100%">
-    <div class="header-fixed">
-        <div class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></div>
-        <div class="header-right">
-            <button class="avatar-btn" id="avatar-btn" onclick="toggleDropdown()"><span id="avatar-initials">GU</span></button>
-            <div class="profile-dropdown" id="profile-dropdown">
-                <button class="dropdown-item" onclick="closeDropdown();goToProfile()">👤 View Profile</button>
-                <button class="dropdown-item" onclick="closeDropdown();goToEditProfile()">✏️ Edit Profile</button>
-                <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button>
-            </div>
+    <div class="card">
+        <h2>🚛 Test: User Vehicles</h2>
+        <p><strong>Mobile:</strong> 6300067332</p>
+        <hr>
+        <div id="result">
+            <div class="loading">Loading...</div>
         </div>
     </div>
-    <div style="padding:20px;text-align:center;color:#64748b">
-        <h3>🏠 Home Page</h3>
-        <p>Click Profile to view or Edit Profile to manage</p>
-        <button onclick="goToProfile()" class="btn-primary" style="width:auto;padding:10px 30px">👤 Profile</button>
-        <button onclick="goToEditProfile()" class="btn-primary" style="width:auto;padding:10px 30px;background:#16a34a">✏️ Edit</button>
-    </div>
-    <div class="nav-fixed">
-        <button class="nav-item active" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
-        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
-        <button class="nav-item" onclick="goToEditProfile()"><span class="icon">✏️</span><span class="label">Edit</span></button>
-    </div>
-</div>
 
-<!-- ==================== PROFILE VIEW PAGE (READ ONLY) ==================== -->
-<div id="profile-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
-    <div class="header-fixed">
-        <span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span>
-        <div class="header-right">
-            <button class="avatar-btn" id="avatar-btn-profile" onclick="toggleDropdown()"><span id="avatar-initials-profile">GU</span></button>
-            <div class="profile-dropdown" id="profile-dropdown-profile">
-                <button class="dropdown-item" onclick="closeDropdown();goToEditProfile()">✏️ Edit Profile</button>
-                <div class="dropdown-divider"></div>
-                <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button>
-            </div>
+    <div class="card" style="margin-top: 20px;">
+        <h4>📋 Raw Data from Database</h4>
+        <div id="raw-data">
+            <div class="loading">Loading raw data...</div>
         </div>
     </div>
-    <div class="scroll-body" id="profile-scroll">
-        <div class="profile-header-card">
-            <div style="display:flex;justify-content:space-between;align-items:center">
-                <div>
-                    <div id="profile-name" style="font-size:20px;font-weight:700">--</div>
-                    <div style="font-size:10px;opacity:.7">⭐ Last active: <span id="profile-last-active">Never</span></div>
-                </div>
-                <div style="text-align:right">
-                    <div style="font-size:20px">👤</div>
-                    <div style="font-size:10px;background:rgba(255,255,255,.2);padding:2px 12px;border-radius:12px;display:inline-block">⭐ Member</div>
-                </div>
-            </div>
-        </div>
-        <div class="profile-section">
-            <div class="section-header">
-                <span class="section-title">🏢 Company Details</span>
-                <button class="section-btn secondary" style="padding:4px 12px;font-size:10px" onclick="goToEditProfile()">✏️ Edit</button>
-            </div>
-            <div style="font-weight:600;font-size:15px;color:#1e293b" id="profile-company">Not set</div>
-            <div style="font-size:12px;color:#2563eb" id="profile-website">--</div>
-            <div style="font-size:11px;color:#64748b;margin-top:4px" id="profile-pan">📛 PAN: --</div>
-            <div style="font-size:11px;color:#64748b;margin-top:2px" id="profile-gst">📛 GST: --</div>
-            <div style="font-size:11px;color:#64748b;margin-top:2px" id="profile-location">📍 Location: Not set</div>
-        </div>
-        <div class="profile-section">
-            <label class="form-label" style="margin-bottom:6px">🎯 User Type</label>
-            <div id="profile-user-types" style="display:flex;gap:8px;flex-wrap:wrap">
-                <span class="section-badge optional">Not set</span>
-            </div>
-        </div>
-        <div class="profile-section">
-            <div class="section-header">
-                <span class="section-title">🚛 My Vehicles</span>
-                <span class="section-badge active" id="vehicle-count-badge">0 Vehicles</span>
-            </div>
-            <div id="profile-vehicles-container">
-                <div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>
-            </div>
-        </div>
-        <div class="profile-section">
-            <div class="section-header">
-                <span class="section-title">🗺️ Preferred Routes</span>
-                <span class="section-badge optional">Optional</span>
-            </div>
-            <div id="profile-routes-container" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
-                <span style="color:#94a3b8;font-size:12px">No routes added</span>
-            </div>
-        </div>
-        <div class="profile-section">
-            <label class="form-label">📝 About / Details</label>
-            <div id="profile-details-text" style="font-size:14px;color:#475569;padding:4px 0">No details added</div>
-        </div>
-        <div style="margin:12px 0 8px">
-            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px">📊 MY STATISTICS</div>
-            <div class="stat-cards" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px">
-                <div class="stat-card" style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0">
-                    <span class="icon" style="font-size:20px;display:block;margin-bottom:2px">📦</span>
-                    <span class="number" id="stat-loads-count" style="font-size:20px;font-weight:800;color:#1e293b">0</span>
-                    <span class="label" style="font-size:8px;color:#94a3b8;text-transform:uppercase;font-weight:600">Loads</span>
-                </div>
-                <div class="stat-card" style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0">
-                    <span class="icon" style="font-size:20px;display:block;margin-bottom:2px">🚛</span>
-                    <span class="number" id="stat-trucks-count" style="font-size:20px;font-weight:800;color:#1e293b">0</span>
-                    <span class="label" style="font-size:8px;color:#94a3b8;text-transform:uppercase;font-weight:600">Trucks</span>
-                </div>
-                <div class="stat-card" style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0">
-                    <span class="icon" style="font-size:20px;display:block;margin-bottom:2px">🚚</span>
-                    <span class="number" id="stat-vehicles-count" style="font-size:20px;font-weight:800;color:#1e293b">0</span>
-                    <span class="label" style="font-size:8px;color:#94a3b8;text-transform:uppercase;font-weight:600">Vehicles</span>
-                </div>
-                <div class="stat-card" style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0">
-                    <span class="icon" style="font-size:20px;display:block;margin-bottom:2px">⭐</span>
-                    <span class="number" id="stat-rating" style="font-size:20px;font-weight:800;color:#1e293b">4.8</span>
-                    <span class="label" style="font-size:8px;color:#94a3b8;text-transform:uppercase;font-weight:600">Rating</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="nav-fixed">
-        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
-        <button class="nav-item active" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
-        <button class="nav-item" onclick="goToEditProfile()"><span class="icon">✏️</span><span class="label">Edit</span></button>
-    </div>
-</div>
 
-<!-- ==================== EDIT PROFILE PAGE ==================== -->
-<div id="edit-profile-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
-    <div class="header-fixed">
-        <span class="logo"><span class="logo-icon">✏️</span><span class="logo-text">Edit Profile</span></span>
-        <button class="back-btn" onclick="goToProfile()">✕</button>
-    </div>
-    <div class="scroll-body" id="edit-profile-scroll">
-        <div class="profile-section">
-            <label class="form-label">👤 Full Name</label>
-            <input class="form-control" id="edit-name" placeholder="Rajesh Kumar">
-        </div>
-        <div class="profile-section">
-            <label class="form-label">🏢 Company Name</label>
-            <input class="form-control" id="edit-company" placeholder="ABC Steel Traders">
-        </div>
-        <div class="profile-section">
-            <label class="form-label">🌐 Company Website</label>
-            <input class="form-control" id="edit-website" placeholder="https://www.abcsteel.com">
-        </div>
-        <div class="profile-section">
-            <label class="form-label">📛 PAN Number</label>
-            <input class="form-control" id="edit-pan" placeholder="AABCP1234D">
-        </div>
-        <div class="profile-section">
-            <label class="form-label">📛 GST Number</label>
-            <input class="form-control" id="edit-gst" placeholder="22AABC1234D1ZP">
-        </div>
-        <div class="profile-section">
-            <label class="form-label">📍 Location PIN</label>
-            <div style="position:relative;width:100%">
-                <input type="text" id="search-edit-location" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('edit-location')" autocomplete="off" class="form-control">
-                <div class="search-wrapper"><div class="suggestions" id="suggestions-edit-location"></div></div>
-                <input type="hidden" id="edit-location-hidden">
-            </div>
-        </div>
-        <div class="profile-section">
-            <label class="form-label">🎯 User Type</label>
-            <div class="user-type-checkbox">
-                <label><input type="checkbox" id="edit-type-loadgiver" value="1"> 📦 Load Giver</label>
-                <label><input type="checkbox" id="edit-type-operator" value="2"> 🚛 Operator</label>
-                <label><input type="checkbox" id="edit-type-agent" value="3"> 🤝 Agent</label>
-            </div>
-            <div style="font-size:10px;color:#94a3b8;margin-top:4px">Select all that apply</div>
-        </div>
-        <div class="profile-section">
-            <label class="form-label">🚛 My Vehicles</label>
-            <div class="route-input-row">
-                <div style="flex:2;position:relative">
-                    <input class="form-control vehicle-number-input" id="edit-vehicle-input" placeholder="Type vehicle number..." oninput="searchVehicles(this.value)" autocomplete="off">
-                    <div class="vehicle-suggest-dropdown" id="vehicle-suggest-dropdown"></div>
-                </div>
-                <button class="section-btn success" onclick="addSelectedVehicle()">➕ Add</button>
-            </div>
-            <div id="edit-vehicles-list" style="margin-top:8px"></div>
-        </div>
-        <div class="profile-section">
-            <label class="form-label">🗺️ Preferred Routes</label>
-            <div class="route-input-row">
-                <div style="flex:2;position:relative">
-                    <input class="form-control" id="search-edit-route" placeholder="Search location/pin..." onclick="selectInputText(this)" oninput="searchLocation('edit-route')" autocomplete="off">
-                    <div class="search-wrapper"><div class="suggestions" id="suggestions-edit-route"></div></div>
-                    <input type="hidden" id="edit-route-hidden">
-                </div>
-                <button class="section-btn" onclick="addRoute()">Add</button>
-            </div>
-            <div id="edit-routes-list" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"></div>
-        </div>
-        <div class="profile-section">
-            <label class="form-label">📝 About / Details</label>
-            <textarea class="form-control" id="edit-details" rows="3" placeholder="About your business, services, etc." style="resize:vertical"></textarea>
-            <div style="font-size:10px;color:#94a3b8;text-align:right"><span id="edit-details-count">0</span>/300</div>
-        </div>
-        <button class="btn-primary success" onclick="saveProfile()" style="margin-top:8px">💾 Save Profile</button>
-    </div>
-    <div class="nav-fixed">
-        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
-        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
-        <button class="nav-item active" onclick="goToEditProfile()"><span class="icon">✏️</span><span class="label">Edit</span></button>
-    </div>
-</div>
+    <script>
+        // ============================================================
+        // CONFIG
+        // ============================================================
+        const SB_URL = 'https://ghjoffovatgvhzxlupef.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
+        const sb = window.supabase.createClient(SB_URL, SB_KEY);
 
-<!-- ==================== VEHICLE EDIT MODAL ==================== -->
-<div class="vehicle-modal" id="vehicle-modal">
-    <div class="vehicle-modal-content">
-        <div class="modal-header">
-            <h3 id="modal-vehicle-title">✏️ Edit Vehicle</h3>
-            <button class="modal-close" onclick="closeVehicleModal()">✕</button>
-        </div>
-        <div class="form-group">
-            <label class="form-label">🚛 Vehicle Number (Read Only)</label>
-            <div class="readonly-number" id="modal-vehicle-number-display"></div>
-            <input type="hidden" id="modal-vehicle-number">
-        </div>
-        <div class="form-group">
-            <label class="form-label">🚛 Vehicle Type *</label>
-            <select class="form-control" id="modal-vehicle-type">
-                <option value="">Select vehicle type...</option>
-                <option value="3-Wheeler / Tempo">3-Wheeler / Tempo</option>
-                <option value="Mini Truck">Mini Truck</option>
-                <option value="LCV Open Body Truck">LCV Open Body Truck</option>
-                <option value="LCV - Container">LCV - Container</option>
-                <option value="LCV - Flat bed">LCV - Flat bed</option>
-                <option value="Open Body Truck">Open Body Truck</option>
-                <option value="Box Body Truck">Box Body Truck</option>
-                <option value="Flat bed Truck">Flat bed Truck</option>
-                <option value="Trailer - Open Body">Trailer - Open Body</option>
-                <option value="Trailer - Box Body">Trailer - Box Body</option>
-                <option value="Trailer - High Bed">Trailer - High Bed</option>
-                <option value="Trailer - Semi Low Bed">Trailer - Semi Low Bed</option>
-                <option value="Trailer - Low Bed">Trailer - Low Bed</option>
-                <option value="Trailer - Automobile Carrier">Trailer - Automobile Carrier</option>
-                <option value="Tipper / Dumper">Tipper / Dumper</option>
-                <option value="Tanker">Tanker</option>
-                <option value="Cement Bulker">Cement Bulker</option>
-                <option value="Refrigerated / Reefer">Refrigerated / Reefer</option>
-                <option value="Explosive / Hazardous Vehicle">Explosive / Hazardous Vehicle</option>
-                <option value="Over-Dimensional Cargo (ODC)">Over-Dimensional Cargo (ODC)</option>
-            </select>
-        </div>
-        <div class="grid-2">
-            <div class="form-group">
-                <label class="form-label">Length (ft)</label>
-                <input class="form-control" id="modal-length" type="number" step="0.1">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Width (ft)</label>
-                <input class="form-control" id="modal-width" type="number" step="0.1">
-            </div>
-        </div>
-        <div class="grid-2">
-            <div class="form-group">
-                <label class="form-label">Height (ft)</label>
-                <input class="form-control" id="modal-height" type="number" step="0.1">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Max Weight (Kg)</label>
-                <input class="form-control" id="modal-max-weight" type="number" placeholder="0">
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="form-label">📝 Description</label>
-            <input class="form-control" id="modal-description" placeholder="Vehicle description...">
-        </div>
-        <div class="form-group">
-            <label class="form-label">🚛 ODC Allowed</label>
-            <div style="display:flex;gap:16px;margin-top:4px">
-                <label><input type="radio" name="modal-odc" value="true" checked> Yes</label>
-                <label><input type="radio" name="modal-odc" value="false"> No</label>
-            </div>
-        </div>
-        <button class="btn-primary success" onclick="saveVehicleModal()">💾 Save Vehicle</button>
-        <button class="btn-primary" style="background:#dc2626;margin-top:6px" onclick="deleteVehicleFromModal()">🗑️ Delete Vehicle</button>
-        <input type="hidden" id="modal-vehicle-id">
-        <input type="hidden" id="modal-edit-mode">
-    </div>
-</div>
+        // ============================================================
+        // TEST: Query user with mobile 6300067332
+        // ============================================================
+        const MOBILE = 6300067332;
 
-<!-- LOGIN SCREEN -->
-<div id="login-screen" style="display:flex;flex-direction:column;height:100%;width:100%;padding:20px">
-    <div style="text-align:center;margin-bottom:20px">
-        <div style="font-size:48px">🚛</div>
-        <h2>ReturnTruck</h2>
-        <p style="color:#64748b">Login to manage your profile</p>
-    </div>
-    <input type="tel" id="mobile" class="input-field" placeholder="Enter Mobile Number" maxlength="10">
-    <input type="password" id="pin" class="input-field" placeholder="Enter 4-digit PIN" maxlength="4" style="letter-spacing:4px">
-    <button onclick="loginUser()" class="btn-primary">🔐 Login</button>
-    <button onclick="continueAsGuest()" style="width:100%;padding:12px;border:1.5px solid #8b5cf6;border-radius:12px;font-size:14px;font-weight:600;color:#8b5cf6;background:transparent;cursor:pointer">👤 Guest</button>
-    <div id="login-error" style="color:#dc2626;font-size:12px;text-align:center;margin-top:10px;display:none"></div>
-</div>
+        async function testQuery() {
+            const resultDiv = document.getElementById('result');
+            const rawDiv = document.getElementById('raw-data');
 
-<script>
-// ============================================================
-// CONFIG
-// ============================================================
-const SB_URL = 'https://ghjoffovatgvhzxlupef.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
-const sb = window.supabase.createClient(SB_URL, SB_KEY);
+            try {
+                // 1. Get user data
+                console.log('🔍 Fetching user with mobile:', MOBILE);
+                const { data: userData, error: userError } = await sb
+                    .from('active_users')
+                    .select('*')
+                    .eq('mobile', MOBILE)
+                    .single();
 
-// ============================================================
-// STATE
-// ============================================================
-let user = null, guest = false;
-let vehicles = [], routes = [];
-let vehicleDataMap = {};
-let editingVehicleNumber = null;
+                if (userError) {
+                    resultDiv.innerHTML = `<div class="error">❌ Error fetching user: ${userError.message}</div>`;
+                    rawDiv.innerHTML = `<div class="error">❌ ${userError.message}</div>`;
+                    return;
+                }
 
-// ============================================================
-// LOCATIONS
-// ============================================================
-const LOCATIONS = [
-  {pin_id:50000101, pincode:"500001", name:"Hyderabad G.P.O.", district:"HYDERABAD", state:"TG", lat:17.387993, lng:78.47652},
-  {pin_id:50004501, pincode:"500045", name:"Yousufguda", district:"HYDERABAD", state:"TG", lat:17.441504, lng:78.424536},
-  {pin_id:50004902, pincode:"500049", name:"Miyapur", district:"MEDCHAL MALKAJGIRI", state:"TG", lat:17.49253338, lng:78.35148793},
-  {pin_id:53300104, pincode:"533001", name:"Kakinada", district:"Kakinada", state:"AP", lat:16.9550556, lng:82.2354722},
-  {pin_id:52400103, pincode:"524001", name:"Nellore", district:"SPSR NELLORE", state:"AP", lat:14.451895, lng:79.980856},
-  {pin_id:52420106, pincode:"524201", name:"Kavali", district:"SPSR NELLORE", state:"AP", lat:14.91658, lng:79.993121}
-];
+                console.log('✅ User found:', userData);
 
-function getLoc(pinId) {
-  if (!pinId) return null;
-  const pinNum = parseInt(pinId);
-  if (isNaN(pinNum)) return null;
-  return LOCATIONS.find(l => l.pin_id === pinNum) || null;
-}
-function getLocDisplayName(loc) {
-  if (!loc) return 'Unknown';
-  return loc.name + ', ' + loc.district + ', ' + loc.state + ' (' + loc.pincode + ')';
-}
+                // 2. Parse vehicle_no
+                let vehicleNumbers = [];
+                let vehicleNoRaw = userData.vehicle_no;
 
-// ============================================================
-// UTILITY
-// ============================================================
-function $(id) { return document.getElementById(id); }
-function toast(msg) { alert(msg); }
-function selectInputText(input) { input.select(); input.classList.add('selected'); }
+                console.log('📦 Raw vehicle_no:', vehicleNoRaw);
+                console.log('📦 Type of vehicle_no:', typeof vehicleNoRaw);
 
-// ============================================================
-// SEARCH LOCATION
-// ============================================================
-function searchLocation(ctx) {
-  const inp = $('search-' + ctx);
-  const sug = $('suggestions-' + ctx);
-  if (!inp || !sug) return;
-  const q = inp.value.trim();
-  if (!q) { sug.classList.remove('show'); sug.innerHTML = ''; return; }
-  const res = LOCATIONS.filter(l =>
-    l.name.toLowerCase().includes(q.toLowerCase()) ||
-    l.pincode.includes(q) ||
-    l.district.toLowerCase().includes(q.toLowerCase()) ||
-    l.state.toLowerCase().includes(q.toLowerCase()) ||
-    String(l.pin_id).includes(q)
-  ).slice(0, 10);
-  if (!res.length) { sug.classList.remove('show'); sug.innerHTML = ''; return; }
-  let html = '';
-  res.forEach(l => {
-    const dn = getLocDisplayName(l);
-    const idx = dn.toLowerCase().indexOf(q.toLowerCase());
-    let dh = dn;
-    if (idx !== -1) dh = dn.substring(0, idx) + '<span class="highlight">' + dn.substring(idx, idx + q.length) + '</span>' + dn.substring(idx + q.length);
-    html += '<div class="item" data-ctx="' + ctx + '" data-pinid="' + l.pin_id + '">' + dh + '</div>';
-  });
-  sug.innerHTML = html;
-  sug.classList.add('show');
-}
+                // Parse based on type
+                if (Array.isArray(vehicleNoRaw)) {
+                    vehicleNumbers = vehicleNoRaw.filter(v => v !== null && v !== '');
+                } else if (typeof vehicleNoRaw === 'string' && vehicleNoRaw.startsWith('{')) {
+                    // PostgreSQL array format: {MH12AB1234,MH12CD5678}
+                    try {
+                        const cleaned = vehicleNoRaw.replace(/[{}]/g, '');
+                        vehicleNumbers = cleaned.split(',').filter(v => v.trim() !== '');
+                    } catch(e) {
+                        vehicleNumbers = [];
+                    }
+                } else if (typeof vehicleNoRaw === 'string') {
+                    vehicleNumbers = vehicleNoRaw.split(',').filter(v => v.trim() !== '');
+                }
 
-document.addEventListener('click', function(e) {
-  const item = e.target.closest('.item');
-  if (item) {
-    const ctx = item.dataset.ctx;
-    const pinId = item.dataset.pinid;
-    if (ctx && pinId) selectLoc(ctx, pinId);
-  }
-  document.querySelectorAll('.suggestions').forEach(s => {
-    const parent = s.parentElement;
-    if (parent && !parent.contains(e.target)) { s.classList.remove('show'); s.innerHTML = ''; }
-  });
-});
+                console.log('📋 Parsed vehicle numbers:', vehicleNumbers);
 
-function selectLoc(ctx, pinId) {
-  const l = getLoc(pinId);
-  if (!l) return;
-  const dn = getLocDisplayName(l);
-  const inp = $('search-' + ctx);
-  if (inp) { inp.value = dn; setTimeout(() => { inp.select(); inp.classList.add('selected'); }, 100); }
-  let hid = null;
-  if (ctx === 'edit-location') hid = 'edit-location-hidden';
-  else if (ctx === 'edit-route') hid = 'edit-route-hidden';
-  if (hid && $(hid)) $(hid).value = pinId;
-  const sug = $('suggestions-' + ctx);
-  if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
-}
+                // 3. Build HTML for vehicles
+                let vehiclesHtml = '';
+                let vehicleDetails = [];
 
-// ============================================================
-// PARSE POSTGRES ARRAY HELPER
-// ============================================================
-function parsePgArray(value) {
-  if (!value) return [];
-  if (Array.isArray(value)) return value.filter(v => v !== null && v !== '');
-  if (typeof value === 'string' && value.startsWith('{')) {
-    try {
-      const cleaned = value.replace(/[{}]/g, '');
-      return cleaned.split(',').filter(v => v.trim() !== '');
-    } catch(e) {
-      return [];
-    }
-  }
-  if (typeof value === 'string') {
-    return value.split(',').filter(v => v.trim() !== '');
-  }
-  return [];
-}
+                if (vehicleNumbers.length === 0) {
+                    vehiclesHtml = '<p style="color:#94a3b8;">No vehicles found for this user.</p>';
+                } else {
+                    // Fetch vehicle details from active_vehicles
+                    const { data: vehicleData, error: vehicleError } = await sb
+                        .from('active_vehicles')
+                        .select('*')
+                        .in('vehicle_number', vehicleNumbers);
 
-function parsePgArrayInt(value) {
-  if (!value) return [];
-  if (Array.isArray(value)) return value.filter(v => v !== null && v !== '');
-  if (typeof value === 'string' && value.startsWith('{')) {
-    try {
-      const cleaned = value.replace(/[{}]/g, '');
-      return cleaned.split(',').filter(v => v.trim() !== '').map(Number);
-    } catch(e) {
-      return [];
-    }
-  }
-  if (typeof value === 'string') {
-    return value.split(',').filter(v => v.trim() !== '').map(Number);
-  }
-  return [];
-}
+                    if (vehicleError) {
+                        console.error('Error fetching vehicles:', vehicleError);
+                        vehiclesHtml = `<div class="error">❌ Error fetching vehicle details: ${vehicleError.message}</div>`;
+                    } else {
+                        console.log('🚚 Vehicle details:', vehicleData);
+                        vehicleDetails = vehicleData || [];
 
-// ============================================================
-// REFRESH USER DATA FROM DATABASE
-// ============================================================
-function refreshUserData(callback) {
-  if (!user || !user.mobile) { if (callback) callback(); return; }
-  
-  const mobileNum = parseInt(user.mobile);
-  sb.from('active_users').select('*').eq('mobile', mobileNum).single()
-    .then(result => {
-      if (result.data) {
-        Object.assign(user, result.data);
-        // Update localStorage
-        const saved = localStorage.getItem('rt_user');
-        if (saved) {
-          const sd = JSON.parse(saved);
-          sd.user = user;
-          localStorage.setItem('rt_user', JSON.stringify(sd));
+                        vehiclesHtml = vehicleDetails.map(v => {
+                            const dims = v.dimensions ? v.dimensions.join(' × ') + 'ft' : 'N/A';
+                            return `<div class="vehicle">
+                                <div class="vehicle-number">🚛 ${v.vehicle_number}</div>
+                                <div class="vehicle-details">${v.vehicle_type || 'Unknown'} • ${dims}</div>
+                                <div class="vehicle-details" style="font-size:12px;color:#94a3b8;">ID: ${v.id} | Modified By: ${v.modified_by}</div>
+                            </div>`;
+                        }).join('');
+                    }
+                }
+
+                // 4. Display results
+                resultDiv.innerHTML = `
+                    <div style="margin-bottom: 16px;">
+                        <span class="badge">${vehicleNumbers.length} Vehicle(s)</span>
+                        <span class="badge" style="background:#16a34a;">User: ${userData.name || 'N/A'}</span>
+                    </div>
+                    ${vehiclesHtml}
+                `;
+
+                // 5. Raw data display
+                rawDiv.innerHTML = `
+                    <p><strong>vehicle_no (raw):</strong> ${JSON.stringify(vehicleNoRaw)}</p>
+                    <p><strong>vehicle_no (type):</strong> ${typeof vehicleNoRaw}</p>
+                    <p><strong>Parsed array:</strong> ${JSON.stringify(vehicleNumbers)}</p>
+                    <p><strong>Vehicle details:</strong></p>
+                    <pre>${JSON.stringify(vehicleDetails, null, 2)}</pre>
+                    <p><strong>Full user data:</strong></p>
+                    <pre>${JSON.stringify(userData, null, 2)}</pre>
+                `;
+
+            } catch (err) {
+                console.error('❌ Error:', err);
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;
+                rawDiv.innerHTML = `<div class="error">❌ ${err.message}</div>`;
+            }
         }
-      }
-      if (callback) callback();
-    }).catch(() => {
-      if (callback) callback();
-    });
-}
 
-// ============================================================
-// VEHICLE FUNCTIONS
-// ============================================================
-function isValidVehicleNumber(number) {
-  return /^[A-Za-z0-9]{9,11}$/.test(number);
-}
-
-function searchVehicles(query) {
-  const dropdown = $('vehicle-suggest-dropdown');
-  const q = query.trim().toUpperCase();
-  if (!q || q.length < 2) { dropdown.classList.remove('show'); return; }
-  
-  sb.from('active_vehicles').select('*').ilike('vehicle_number', '%' + q + '%').limit(10)
-    .then(result => {
-      if (result.error) { console.error(result.error); return; }
-      const vlist = result.data || [];
-      if (!vlist.length) {
-        dropdown.innerHTML = '<div class="item add-new" onclick="openVehicleModalForNew(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
-        dropdown.classList.add('show');
-        return;
-      }
-      let html = '';
-      vlist.forEach(v => {
-        const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
-        html += '<div class="item" onclick="selectVehicleFromSuggestion(\'' + v.id + '\',\'' + v.vehicle_number + '\',\'' + v.vehicle_type + '\',\'' + dims + '\')">' +
-          v.vehicle_number + ' <span class="sub">' + v.vehicle_type + ' • ' + dims + 'ft</span>' +
-          '</div>';
-      });
-      html += '<div class="item add-new" onclick="openVehicleModalForNew(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
-      dropdown.innerHTML = html;
-      dropdown.classList.add('show');
-    }).catch(() => { dropdown.classList.remove('show'); });
-}
-
-function selectVehicleFromSuggestion(id, number, type, dims) {
-  if (!vehicles.includes(number)) {
-    vehicles.push(number);
-    vehicleDataMap[number] = { id: id, vehicle_number: number, vehicle_type: type, dimensions: dims };
-    renderVehicles();
-    $('edit-vehicle-input').value = '';
-    $('vehicle-suggest-dropdown').classList.remove('show');
-    autoSaveVehicles();
-    toast('✅ Vehicle "' + number + '" added to your list');
-  } else {
-    toast('Vehicle already in your list');
-  }
-}
-
-function openVehicleModalForNew(number) {
-  $('vehicle-suggest-dropdown').classList.remove('show');
-  $('modal-vehicle-title').textContent = '📝 Register New Vehicle';
-  $('modal-vehicle-number-display').textContent = number;
-  $('modal-vehicle-number').value = number;
-  $('modal-vehicle-id').value = '';
-  $('modal-edit-mode').value = 'new';
-  $('modal-vehicle-type').value = '';
-  $('modal-length').value = '40';
-  $('modal-width').value = '8.2';
-  $('modal-height').value = '8';
-  $('modal-max-weight').value = '';
-  $('modal-description').value = '';
-  document.querySelector('input[name="modal-odc"][value="true"]').checked = true;
-  editingVehicleNumber = number;
-  $('vehicle-modal').classList.add('show');
-}
-
-function openVehicleEdit(number) {
-  // First refresh data from database
-  refreshUserData(function() {
-    // Then fetch vehicle details
-    sb.from('active_vehicles').select('*').eq('vehicle_number', number).single()
-      .then(res => {
-        if (res.data) {
-          populateVehicleModal(res.data, 'edit');
-        } else {
-          toast('Vehicle not found');
-        }
-      }).catch(() => {
-        toast('Error loading vehicle');
-      });
-  });
-}
-
-function populateVehicleModal(data, mode) {
-  $('modal-vehicle-title').textContent = mode === 'edit' ? '✏️ Edit Vehicle' : '📝 Register New Vehicle';
-  $('modal-vehicle-number-display').textContent = data.vehicle_number;
-  $('modal-vehicle-number').value = data.vehicle_number;
-  $('modal-vehicle-id').value = data.id || '';
-  $('modal-edit-mode').value = mode;
-  $('modal-vehicle-type').value = data.vehicle_type || '';
-  if (data.dimensions && data.dimensions.length >= 3) {
-    $('modal-length').value = data.dimensions[0] || '40';
-    $('modal-width').value = data.dimensions[1] || '8.2';
-    $('modal-height').value = data.dimensions[2] || '8';
-  }
-  $('modal-max-weight').value = data.max_weight || '';
-  $('modal-description').value = data.description || '';
-  document.querySelector('input[name="modal-odc"][value="' + (data.odc_allowed ? 'true' : 'false') + '"]').checked = true;
-  editingVehicleNumber = data.vehicle_number;
-  $('vehicle-modal').classList.add('show');
-}
-
-function saveVehicleModal() {
-  const number = $('modal-vehicle-number').value;
-  if (!number) { toast('No vehicle number'); return; }
-  const vehicleType = $('modal-vehicle-type').value;
-  if (!vehicleType) { toast('Please select a vehicle type'); return; }
-  
-  const data = {
-    vehicle_number: number,
-    vehicle_type: vehicleType,
-    dimensions: [
-      parseFloat($('modal-length').value) || 0,
-      parseFloat($('modal-width').value) || 0,
-      parseFloat($('modal-height').value) || 0
-    ],
-    max_weight: parseFloat($('modal-max-weight').value) || 0,
-    description: $('modal-description').value.trim() || null,
-    odc_allowed: document.querySelector('input[name="modal-odc"]:checked').value === 'true',
-    modified_by: user ? user.mobile : 'guest',
-    latest_update_at: new Date().toISOString()
-  };
-  
-  const vehicleId = $('modal-vehicle-id').value;
-  const mode = $('modal-edit-mode').value;
-  
-  if (mode === 'edit' && vehicleId) {
-    // UPDATE existing vehicle
-    sb.from('active_vehicles').update(data).eq('id', vehicleId)
-      .then(result => {
-        if (result.error) { alert('Error: ' + result.error.message); return; }
-        if (!vehicles.includes(number)) {
-          vehicles.push(number);
-        }
-        vehicleDataMap[number] = { id: vehicleId, ...data };
-        renderVehicles();
-        closeVehicleModal();
-        // Refresh user data and reload profile
-        refreshUserData(function() {
-          toast('✅ Vehicle "' + number + '" updated successfully!');
-          goToProfile();
-        });
-      });
-  } else {
-    // INSERT new vehicle
-    sb.from('active_vehicles').select('id').eq('vehicle_number', number).single()
-      .then(checkRes => {
-        if (checkRes.data) {
-          alert('Vehicle "' + number + '" already exists in the system!');
-          return;
-        }
-        sb.from('active_vehicles').insert(data).then(insertRes => {
-          if (insertRes.error) { alert('Error: ' + insertRes.error.message); return; }
-          if (!vehicles.includes(number)) {
-            vehicles.push(number);
-            vehicleDataMap[number] = { id: insertRes.data[0].id, ...data };
-            renderVehicles();
-          }
-          closeVehicleModal();
-          // Refresh user data and reload profile
-          refreshUserData(function() {
-            toast('✅ Vehicle "' + number + '" registered successfully!');
-            goToProfile();
-          });
-        });
-      });
-  }
-}
-
-function deleteVehicleFromModal() {
-  const number = $('modal-vehicle-number').value;
-  const vehicleId = $('modal-vehicle-id').value;
-  if (!vehicleId) { toast('Cannot delete - vehicle not saved'); return; }
-  if (!confirm('Delete vehicle "' + number + '" permanently?')) return;
-  
-  sb.from('active_vehicles').delete().eq('id', vehicleId)
-    .then(result => {
-      if (result.error) { alert('Error: ' + result.error.message); return; }
-      vehicles = vehicles.filter(v => v !== number);
-      delete vehicleDataMap[number];
-      renderVehicles();
-      closeVehicleModal();
-      // Refresh user data and reload profile
-      refreshUserData(function() {
-        toast('✅ Vehicle "' + number + '" deleted');
-        goToProfile();
-      });
-    });
-}
-
-function closeVehicleModal() {
-  $('vehicle-modal').classList.remove('show');
-  editingVehicleNumber = null;
-}
-
-function addSelectedVehicle() {
-  const input = $('edit-vehicle-input');
-  const val = input.value.trim().toUpperCase();
-  if (!val) { toast('Please enter a vehicle number'); return; }
-  if (!isValidVehicleNumber(val)) { alert('Vehicle number must be 9-11 characters'); return; }
-  if (vehicles.includes(val)) { toast('Already in your list'); return; }
-  
-  sb.from('active_vehicles').select('*').eq('vehicle_number', val).single()
-    .then(res => {
-      if (res.data) {
-        vehicles.push(val);
-        const dims = res.data.dimensions ? res.data.dimensions.join('×') : 'N/A';
-        vehicleDataMap[val] = { id: res.data.id, ...res.data };
-        renderVehicles();
-        input.value = '';
-        autoSaveVehicles();
-        toast('✅ Vehicle "' + val + '" added');
-      } else {
-        openVehicleModalForNew(val);
-      }
-    }).catch(() => {
-      openVehicleModalForNew(val);
-    });
-}
-
-function removeVehicle(v) {
-  if (!confirm('Remove vehicle "' + v + '" from your list?')) return;
-  vehicles = vehicles.filter(x => x !== v);
-  delete vehicleDataMap[v];
-  renderVehicles();
-  autoSaveVehicles();
-}
-
-function renderVehicles() {
-  const container = $('edit-vehicles-list');
-  if (!vehicles.length) { container.innerHTML = '<span style="color:#94a3b8;font-size:12px">No vehicles added</span>'; return; }
-  container.innerHTML = vehicles.map(v => {
-    const data = vehicleDataMap[v] || { vehicle_type: 'Unknown', dimensions: 'N/A' };
-    const dims = data.dimensions || 'N/A';
-    return '<div class="vehicle-item">' +
-      '<span class="vnumber">' + v + '</span>' +
-      '<span class="vdetails">' + (data.vehicle_type || 'Unknown') + ' • ' + dims + 'ft</span>' +
-      '<div class="actions">' +
-        '<button class="edit-btn" onclick="openVehicleEdit(\'' + v + '\')">✏️ Edit</button>' +
-        '<button class="delete-btn" onclick="removeVehicle(\'' + v + '\')">🗑️</button>' +
-      '</div>' +
-      '</div>';
-  }).join('');
-}
-
-// ============================================================
-// AUTO-SAVE VEHICLES TO DATABASE
-// ============================================================
-function autoSaveVehicles() {
-  if (!user || !user.mobile) return;
-  const mobileNum = parseInt(user.mobile);
-  const vehicleArray = vehicles.length > 0 ? vehicles : null;
-  
-  sb.from('active_users')
-    .update({ vehicle_no: vehicleArray })
-    .eq('mobile', mobileNum)
-    .then(result => {
-      if (result.error) {
-        console.error('Error auto-saving vehicles:', result.error);
-        return;
-      }
-      user.vehicle_no = vehicleArray;
-      const saved = localStorage.getItem('rt_user');
-      if (saved) {
-        const sd = JSON.parse(saved);
-        sd.user = user;
-        localStorage.setItem('rt_user', JSON.stringify(sd));
-      }
-    });
-}
-
-function autoSaveRoutes() {
-  if (!user || !user.mobile) return;
-  const mobileNum = parseInt(user.mobile);
-  const routesArray = routes.length > 0 ? routes : null;
-  
-  sb.from('active_users')
-    .update({ preferred_routes: routesArray })
-    .eq('mobile', mobileNum)
-    .then(result => {
-      if (result.error) {
-        console.error('Error auto-saving routes:', result.error);
-        return;
-      }
-      user.preferred_routes = routesArray;
-      const saved = localStorage.getItem('rt_user');
-      if (saved) {
-        const sd = JSON.parse(saved);
-        sd.user = user;
-        localStorage.setItem('rt_user', JSON.stringify(sd));
-      }
-    });
-}
-
-// ============================================================
-// ROUTE FUNCTIONS
-// ============================================================
-function addRoute() {
-  const route = $('edit-route-hidden').value;
-  if (!route) { toast('Please search and select a location first'); return; }
-  const routeInt = parseInt(route);
-  if (isNaN(routeInt)) { toast('Invalid location'); return; }
-  if (routes.indexOf(routeInt) !== -1) { toast('Route already added'); return; }
-  routes.push(routeInt);
-  $('search-edit-route').value = '';
-  $('edit-route-hidden').value = '';
-  renderRoutes();
-  const sug = $('suggestions-edit-route');
-  if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
-  autoSaveRoutes();
-  toast('Route added');
-}
-
-function removeRoute(r) {
-  if (!confirm('Remove this route?')) return;
-  routes = routes.filter(x => x !== r);
-  renderRoutes();
-  autoSaveRoutes();
-  toast('Route removed');
-}
-
-function renderRoutes() {
-  const container = $('edit-routes-list');
-  if (!routes.length) { container.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>'; return; }
-  container.innerHTML = routes.map(r => {
-    const loc = getLoc(r);
-    const display = loc ? getLocDisplayName(loc) : r;
-    return '<span class="route-tag">' + display + ' <span class="remove" onclick="removeRoute(' + r + ')">✕</span></span>';
-  }).join('');
-}
-
-// ============================================================
-// PROFILE FUNCTIONS
-// ============================================================
-function loadProfile() {
-  if (!user) return;
-  
-  // First refresh data from database
-  refreshUserData(function() {
-    // Update header
-    let initials = 'U';
-    if (user.name) {
-      const parts = user.name.split(' ');
-      initials = (parts[0]||'')[0] + (parts[1]||'')[0];
-    }
-    document.getElementById('avatar-initials-profile').textContent = initials.toUpperCase() || 'U';
-    document.getElementById('avatar-initials').textContent = initials.toUpperCase() || 'U';
-    
-    // Name
-    document.getElementById('profile-name').textContent = user.name || user.mobile || 'User';
-    if (user.last_active) {
-      const d = new Date(user.last_active);
-      document.getElementById('profile-last-active').textContent = d.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
-    }
-    
-    // Company
-    document.getElementById('profile-company').textContent = user.company_name || 'Not set';
-    document.getElementById('profile-website').textContent = user.company_web || '--';
-    document.getElementById('profile-pan').textContent = '📛 PAN: ' + (user.pan || '--');
-    document.getElementById('profile-gst').textContent = '📛 GST: ' + (user.gst || '--');
-    const loc = getLoc(user.location);
-    document.getElementById('profile-location').textContent = loc ? '📍 Location: ' + getLocDisplayName(loc) : '📍 Location: Not set';
-    
-    // User Type
-    let types = user.user_type || [];
-    if (!Array.isArray(types) && typeof types === 'number') types = [types];
-    const typeLabels = ['Load Giver', 'Operator', 'Agent'];
-    const typeIcons = ['📦', '🚛', '🤝'];
-    const container = document.getElementById('profile-user-types');
-    if (types && types.length) {
-      container.innerHTML = types.map(t => {
-        const idx = t - 1;
-        if (idx >= 0 && idx < typeLabels.length) {
-          return '<span class="section-badge active">' + typeIcons[idx] + ' ' + typeLabels[idx] + '</span>';
-        }
-        return '';
-      }).join('');
-    } else {
-      container.innerHTML = '<span class="section-badge optional">Not set</span>';
-    }
-    
-    // Details
-    document.getElementById('profile-details-text').textContent = user.details || 'No details added';
-    
-    // ===== VEHICLES - READ FROM DATABASE =====
-    const vno = user.vehicle_no || [];
-    let vehicleList = parsePgArray(vno);
-    
-    const vehicleContainer = document.getElementById('profile-vehicles-container');
-    const badge = document.getElementById('vehicle-count-badge');
-    
-    if (vehicleList.length) {
-      sb.from('active_vehicles').select('*').in('vehicle_number', vehicleList)
-        .then(res => {
-          if (res.data) {
-            badge.textContent = res.data.length + ' Vehicles';
-            vehicleContainer.innerHTML = res.data.map(v => {
-              const dims = v.dimensions ? v.dimensions.join(' × ') + 'ft' : 'N/A';
-              return '<div class="vehicle-display-item">' +
-                '<div class="vnumber">' + v.vehicle_number + '</div>' +
-                '<div class="vdetails">' + (v.vehicle_type || 'Unknown') + ' • ' + dims + '</div>' +
-                '</div>';
-            }).join('');
-            document.getElementById('stat-vehicles-count').textContent = res.data.length;
-          }
-        });
-    } else {
-      badge.textContent = '0 Vehicles';
-      vehicleContainer.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>';
-      document.getElementById('stat-vehicles-count').textContent = '0';
-    }
-    
-    // ===== ROUTES - READ FROM DATABASE =====
-    const pref = user.preferred_routes || [];
-    let routeList = parsePgArrayInt(pref);
-    
-    const routeContainer = document.getElementById('profile-routes-container');
-    if (routeList.length) {
-      routeContainer.innerHTML = routeList.map(r => {
-        const loc2 = getLoc(r);
-        return '<span class="route-tag">' + (loc2 ? getLocDisplayName(loc2) : r) + '</span>';
-      }).join('');
-    } else {
-      routeContainer.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>';
-    }
-  });
-}
-
-// ============================================================
-// EDIT PROFILE FUNCTIONS
-// ============================================================
-function loadEditProfileData() {
-  if (!user) return;
-  
-  // First refresh data from database
-  refreshUserData(function() {
-    $('edit-name').value = user.name || '';
-    $('edit-company').value = user.company_name || '';
-    $('edit-website').value = user.company_web || '';
-    $('edit-pan').value = user.pan || '';
-    $('edit-gst').value = user.gst || '';
-    
-    if (user.location) {
-      const loc = getLoc(user.location);
-      if (loc) {
-        $('search-edit-location').value = getLocDisplayName(loc);
-        $('edit-location-hidden').value = user.location;
-      }
-    }
-    
-    let types = user.user_type || [];
-    if (!Array.isArray(types) && typeof types === 'number') types = [types];
-    $('edit-type-loadgiver').checked = types.indexOf(1) !== -1;
-    $('edit-type-operator').checked = types.indexOf(2) !== -1;
-    $('edit-type-agent').checked = types.indexOf(3) !== -1;
-    
-    // Load vehicles from user's vehicle_no array
-    vehicles = [];
-    vehicleDataMap = {};
-    let vno = user.vehicle_no || [];
-    vehicles = parsePgArray(vno);
-    
-    if (vehicles.length) {
-      sb.from('active_vehicles').select('*').in('vehicle_number', vehicles)
-        .then(res => {
-          if (res.data) {
-            res.data.forEach(v => {
-              const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
-              vehicleDataMap[v.vehicle_number] = {
-                id: v.id,
-                vehicle_number: v.vehicle_number,
-                vehicle_type: v.vehicle_type || 'Unknown',
-                dimensions: dims
-              };
-            });
-            renderVehicles();
-          }
-        });
-    }
-    renderVehicles();
-    
-    // Load routes
-    routes = [];
-    let pref = user.preferred_routes || [];
-    routes = parsePgArrayInt(pref);
-    renderRoutes();
-    
-    $('edit-details').value = user.details || '';
-    updateCharCount();
-  });
-}
-
-function saveProfile() {
-  if (!user || !user.mobile) { alert('User not logged in.'); return; }
-  
-  const types = [];
-  if ($('edit-type-loadgiver').checked) types.push(1);
-  if ($('edit-type-operator').checked) types.push(2);
-  if ($('edit-type-agent').checked) types.push(3);
-  const location = $('edit-location-hidden').value ? parseInt($('edit-location-hidden').value) : null;
-  
-  const updateData = {
-    name: $('edit-name').value.trim() || null,
-    company_name: $('edit-company').value.trim() || null,
-    company_web: $('edit-website').value.trim() || null,
-    pan: $('edit-pan').value.trim() || null,
-    gst: $('edit-gst').value.trim() || null,
-    location: location,
-    user_type: types.length ? types : null,
-    vehicle_no: vehicles.length ? vehicles : null,
-    preferred_routes: routes.length ? routes : null,
-    details: $('edit-details').value.trim() || null,
-    last_active: new Date().toISOString()
-  };
-  
-  const mobileNum = parseInt(user.mobile);
-  sb.from('active_users').update(updateData).eq('mobile', mobileNum)
-    .then(result => {
-      if (result.error) { alert('Error saving profile: ' + result.error.message); return; }
-      refreshUserData(function() {
-        alert('✅ Profile saved successfully!');
-        goToProfile();
-      });
-    }).catch(err => { alert('Error: ' + err.message); });
-}
-
-function updateCharCount() {
-  const input = $('edit-details');
-  const count = $('edit-details-count');
-  if (input && count) count.textContent = input.value.length;
-}
-
-// ============================================================
-// NAVIGATION
-// ============================================================
-function goHome() {
-  document.getElementById('home-page').classList.remove('hidden-page');
-  document.getElementById('profile-page').classList.add('hidden-page');
-  document.getElementById('edit-profile-page').classList.add('hidden-page');
-  document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-  document.querySelectorAll('.nav-fixed .nav-item')[0]?.classList.add('active');
-}
-
-function goToProfile() {
-  if (!user && !guest) { showLogin(); return; }
-  document.getElementById('home-page').classList.add('hidden-page');
-  document.getElementById('profile-page').classList.remove('hidden-page');
-  document.getElementById('edit-profile-page').classList.add('hidden-page');
-  document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-  document.querySelectorAll('.nav-fixed .nav-item')[1]?.classList.add('active');
-  if (user) loadProfile();
-}
-
-function goToEditProfile() {
-  if (!user && !guest) { showLogin(); return; }
-  document.getElementById('home-page').classList.add('hidden-page');
-  document.getElementById('profile-page').classList.add('hidden-page');
-  document.getElementById('edit-profile-page').classList.remove('hidden-page');
-  document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-  document.querySelectorAll('.nav-fixed .nav-item')[2]?.classList.add('active');
-  if (user) loadEditProfileData();
-}
-
-function showLogin() {
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('home-page').classList.add('hidden-page');
-  document.getElementById('profile-page').classList.add('hidden-page');
-  document.getElementById('edit-profile-page').classList.add('hidden-page');
-}
-
-function continueAsGuest() {
-  guest = true;
-  user = null;
-  localStorage.setItem('rt_user', JSON.stringify({guest: true}));
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('home-page').classList.remove('hidden-page');
-  updateGuestUI();
-}
-
-function loginUser() {
-  const mobile = document.getElementById('mobile').value.trim();
-  const pin = document.getElementById('pin').value.trim();
-  
-  if (!mobile || mobile.length !== 10) {
-    document.getElementById('login-error').textContent = 'Please enter a valid 10-digit mobile number';
-    document.getElementById('login-error').style.display = 'block';
-    return;
-  }
-  if (!pin || pin.length !== 4) {
-    document.getElementById('login-error').textContent = 'Please enter a 4-digit PIN';
-    document.getElementById('login-error').style.display = 'block';
-    return;
-  }
-  
-  document.getElementById('login-error').style.display = 'none';
-  
-  sb.from('active_users').select('*').eq('mobile', parseInt(mobile)).single()
-    .then(result => {
-      if (result.error || !result.data) {
-        document.getElementById('login-error').textContent = 'User not found. Please register first.';
-        document.getElementById('login-error').style.display = 'block';
-        return;
-      }
-      if (pin.length === 4) {
-        user = result.data;
-        guest = false;
-        localStorage.setItem('rt_user', JSON.stringify({mobile: user.mobile, user: user}));
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('home-page').classList.remove('hidden-page');
-        updateGuestUI();
-        goToProfile();
-      } else {
-        document.getElementById('login-error').textContent = 'Invalid PIN. Please try again.';
-        document.getElementById('login-error').style.display = 'block';
-      }
-    }).catch(err => {
-      document.getElementById('login-error').textContent = 'Error: ' + err.message;
-      document.getElementById('login-error').style.display = 'block';
-    });
-}
-
-function updateGuestUI() {
-  if (guest) {
-    document.getElementById('avatar-initials').textContent = 'GU';
-    document.getElementById('avatar-initials-profile').textContent = 'GU';
-  } else if (user) {
-    let initials = 'U';
-    if (user.name) {
-      const parts = user.name.split(' ');
-      initials = (parts[0]||'')[0] + (parts[1]||'')[0];
-    }
-    document.getElementById('avatar-initials').textContent = initials.toUpperCase() || 'U';
-    document.getElementById('avatar-initials-profile').textContent = initials.toUpperCase() || 'U';
-  }
-}
-
-function toggleDropdown() {
-  document.querySelectorAll('.profile-dropdown').forEach(d => d.classList.toggle('show'));
-}
-
-function closeDropdown() {
-  document.querySelectorAll('.profile-dropdown').forEach(d => d.classList.remove('show'));
-}
-
-function logout() {
-  if (confirm('Logout?')) {
-    localStorage.removeItem('rt_user');
-    user = null;
-    guest = false;
-    window.location.reload();
-  }
-}
-
-// ============================================================
-// INIT
-// ============================================================
-document.addEventListener('DOMContentLoaded', function() {
-  const saved = localStorage.getItem('rt_user');
-  if (saved) {
-    try {
-      const sd = JSON.parse(saved);
-      if (sd.guest) {
-        guest = true;
-        user = null;
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('home-page').classList.remove('hidden-page');
-        updateGuestUI();
-      } else if (sd.user) {
-        user = sd.user;
-        guest = false;
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('home-page').classList.remove('hidden-page');
-        updateGuestUI();
-      }
-    } catch(e) { console.error('Error parsing saved user:', e); }
-  }
-  
-  document.getElementById('edit-details')?.addEventListener('input', updateCharCount);
-});
-</script>
+        // ============================================================
+        // RUN TEST
+        // ============================================================
+        testQuery();
+    </script>
 </body>
 </html>
