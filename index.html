@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ReturnTruck - Profile</title>
+<title>ReturnTruck - Edit Profile</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
@@ -19,7 +19,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .nav-fixed{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e2e8f0;background:#fff;position:relative;z-index:10;min-height:65px;width:100%;padding-bottom:5px;margin-top:auto}
 .nav-item{display:flex;flex-direction:column;align-items:center;color:#94a3b8;font-size:9px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px;position:relative;z-index:2}
 .nav-item.active{color:#2563eb}.nav-item .icon{font-size:22px;margin-bottom:2px}.nav-item .label{font-size:9px;text-transform:uppercase;letter-spacing:.05em}
-.profile-header-card{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:12px;padding:16px;color:#fff;margin-bottom:12px}
 .profile-section{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px}
 .profile-section .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .profile-section .section-title{font-size:14px;font-weight:700;color:#1e293b}
@@ -36,7 +35,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .section-btn.success:hover{background:#15803d}
 .form-control{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;background:#fff;outline:none}
 .form-control:focus{border-color:#2563eb}
-.form-control:disabled{background:#f1f5f9;color:#64748b;cursor:not-allowed}
 .form-label{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
 .btn-primary{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px}
 .btn-primary:hover{background:#1d4ed8}
@@ -81,33 +79,25 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .dropdown-divider{height:1px;background:#e2e8f0;margin:4px 12px}
 .vehicle-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000}
 .vehicle-modal.show{display:flex}
-.vehicle-modal-content{background:#fff;border-radius:16px;padding:24px;max-width:420px;width:90%;max-height:85vh;overflow-y:auto}
+.vehicle-modal-content{background:#fff;border-radius:16px;padding:24px;max-width:400px;width:90%;max-height:80vh;overflow-y:auto}
 .vehicle-modal-content .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .vehicle-modal-content .modal-header h3{margin:0;font-size:18px;color:#0f172a}
 .vehicle-modal-content .modal-close{background:transparent;border:none;font-size:24px;cursor:pointer;color:#94a3b8}
 .vehicle-modal-content .modal-close:hover{color:#dc2626}
 .vehicle-modal-content .form-group{margin-bottom:12px}
-.vehicle-modal-content .form-group .readonly-number{background:#f1f5f9;padding:10px 12px;border-radius:8px;font-weight:700;font-size:16px;color:#0f172a;border:1px solid #e2e8f0}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.vehicle-display-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;margin-bottom:6px}
-.vehicle-display-item .vnumber{font-weight:700;font-size:14px;color:#0f172a}
-.vehicle-display-item .vdetails{font-size:12px;color:#64748b;margin-top:2px}
-.count-badge{background:#2563eb;color:#fff;font-size:10px;border-radius:10px;padding:1px 8px;margin-left:4px}
-.input-field{width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;background:#fff;margin-bottom:12px}
-.input-field:focus{border-color:#2563eb;outline:none}
 </style>
 </head>
 <body>
 <div class="card" id="app-card">
 
-<!-- HOME PAGE -->
+<!-- HOME PAGE (stub) -->
 <div id="home-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <div class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></div>
         <div class="header-right">
             <button class="avatar-btn" id="avatar-btn" onclick="toggleDropdown()"><span id="avatar-initials">GU</span></button>
             <div class="profile-dropdown" id="profile-dropdown">
-                <button class="dropdown-item" onclick="closeDropdown();goToProfile()">👤 View Profile</button>
                 <button class="dropdown-item" onclick="closeDropdown();goToEditProfile()">✏️ Edit Profile</button>
                 <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button>
             </div>
@@ -115,109 +105,11 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
     <div style="padding:20px;text-align:center;color:#64748b">
         <h3>🏠 Home Page</h3>
-        <p>Click Profile to view or Edit Profile to manage</p>
-        <button onclick="goToProfile()" class="btn-primary" style="width:auto;padding:10px 30px">👤 Profile</button>
-        <button onclick="goToEditProfile()" class="btn-primary" style="width:auto;padding:10px 30px;background:#16a34a">✏️ Edit</button>
+        <p>Click Edit Profile to manage your vehicles and routes</p>
+        <button onclick="goToEditProfile()" class="btn-primary" style="width:auto;padding:10px 30px">✏️ Edit Profile</button>
     </div>
     <div class="nav-fixed">
         <button class="nav-item active" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
-        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
-        <button class="nav-item" onclick="goToEditProfile()"><span class="icon">✏️</span><span class="label">Edit</span></button>
-    </div>
-</div>
-
-<!-- ==================== PROFILE VIEW PAGE ==================== -->
-<div id="profile-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
-    <div class="header-fixed">
-        <span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span>
-        <div class="header-right">
-            <button class="avatar-btn" id="avatar-btn-profile" onclick="toggleDropdown()"><span id="avatar-initials-profile">GU</span></button>
-            <div class="profile-dropdown" id="profile-dropdown-profile">
-                <button class="dropdown-item" onclick="closeDropdown();goToEditProfile()">✏️ Edit Profile</button>
-                <div class="dropdown-divider"></div>
-                <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button>
-            </div>
-        </div>
-    </div>
-    <div class="scroll-body" id="profile-scroll">
-        <div class="profile-header-card">
-            <div style="display:flex;justify-content:space-between;align-items:center">
-                <div>
-                    <div id="profile-name" style="font-size:20px;font-weight:700">--</div>
-                    <div style="font-size:10px;opacity:.7">⭐ Last active: <span id="profile-last-active">Never</span></div>
-                </div>
-                <div style="text-align:right">
-                    <div style="font-size:20px">👤</div>
-                    <div style="font-size:10px;background:rgba(255,255,255,.2);padding:2px 12px;border-radius:12px;display:inline-block">⭐ Member</div>
-                </div>
-            </div>
-        </div>
-        <div class="profile-section">
-            <div class="section-header">
-                <span class="section-title">🏢 Company Details</span>
-                <button class="section-btn secondary" style="padding:4px 12px;font-size:10px" onclick="goToEditProfile()">✏️ Edit</button>
-            </div>
-            <div style="font-weight:600;font-size:15px;color:#1e293b" id="profile-company">Not set</div>
-            <div style="font-size:12px;color:#2563eb" id="profile-website">--</div>
-            <div style="font-size:11px;color:#64748b;margin-top:4px" id="profile-pan">📛 PAN: --</div>
-            <div style="font-size:11px;color:#64748b;margin-top:2px" id="profile-gst">📛 GST: --</div>
-            <div style="font-size:11px;color:#64748b;margin-top:2px" id="profile-location">📍 Location: Not set</div>
-        </div>
-        <div class="profile-section">
-            <label class="form-label" style="margin-bottom:6px">🎯 User Type</label>
-            <div id="profile-user-types" style="display:flex;gap:8px;flex-wrap:wrap">
-                <span class="section-badge optional">Not set</span>
-            </div>
-        </div>
-        <div class="profile-section">
-            <div class="section-header">
-                <span class="section-title">🚛 My Vehicles</span>
-                <span class="section-badge active" id="vehicle-count-badge">0 Vehicles</span>
-            </div>
-            <div id="profile-vehicles-container"></div>
-        </div>
-        <div class="profile-section">
-            <div class="section-header">
-                <span class="section-title">🗺️ Preferred Routes</span>
-                <span class="section-badge optional">Optional</span>
-            </div>
-            <div id="profile-routes-container" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
-                <span style="color:#94a3b8;font-size:12px">No routes added</span>
-            </div>
-        </div>
-        <div class="profile-section">
-            <label class="form-label">📝 About / Details</label>
-            <div id="profile-details-text" style="font-size:14px;color:#475569;padding:4px 0">No details added</div>
-        </div>
-        <div style="margin:12px 0 8px">
-            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px">📊 MY STATISTICS</div>
-            <div class="stat-cards" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px">
-                <div class="stat-card" style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0">
-                    <span class="icon" style="font-size:20px;display:block;margin-bottom:2px">📦</span>
-                    <span class="number" id="stat-loads-count" style="font-size:20px;font-weight:800;color:#1e293b">0</span>
-                    <span class="label" style="font-size:8px;color:#94a3b8;text-transform:uppercase;font-weight:600">Loads</span>
-                </div>
-                <div class="stat-card" style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0">
-                    <span class="icon" style="font-size:20px;display:block;margin-bottom:2px">🚛</span>
-                    <span class="number" id="stat-trucks-count" style="font-size:20px;font-weight:800;color:#1e293b">0</span>
-                    <span class="label" style="font-size:8px;color:#94a3b8;text-transform:uppercase;font-weight:600">Trucks</span>
-                </div>
-                <div class="stat-card" style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0">
-                    <span class="icon" style="font-size:20px;display:block;margin-bottom:2px">🚚</span>
-                    <span class="number" id="stat-vehicles-count" style="font-size:20px;font-weight:800;color:#1e293b">0</span>
-                    <span class="label" style="font-size:8px;color:#94a3b8;text-transform:uppercase;font-weight:600">Vehicles</span>
-                </div>
-                <div class="stat-card" style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0">
-                    <span class="icon" style="font-size:20px;display:block;margin-bottom:2px">⭐</span>
-                    <span class="number" id="stat-rating" style="font-size:20px;font-weight:800;color:#1e293b">4.8</span>
-                    <span class="label" style="font-size:8px;color:#94a3b8;text-transform:uppercase;font-weight:600">Rating</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="nav-fixed">
-        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
-        <button class="nav-item active" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
         <button class="nav-item" onclick="goToEditProfile()"><span class="icon">✏️</span><span class="label">Edit</span></button>
     </div>
 </div>
@@ -226,29 +118,40 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 <div id="edit-profile-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <span class="logo"><span class="logo-icon">✏️</span><span class="logo-text">Edit Profile</span></span>
-        <button class="back-btn" onclick="goToProfile()">✕</button>
+        <button class="back-btn" onclick="goHome()">✕</button>
     </div>
     <div class="scroll-body" id="edit-profile-scroll">
+        <!-- Full Name -->
         <div class="profile-section">
             <label class="form-label">👤 Full Name</label>
             <input class="form-control" id="edit-name" placeholder="Rajesh Kumar">
         </div>
+
+        <!-- Company Name -->
         <div class="profile-section">
             <label class="form-label">🏢 Company Name</label>
             <input class="form-control" id="edit-company" placeholder="ABC Steel Traders">
         </div>
+
+        <!-- Company Website -->
         <div class="profile-section">
             <label class="form-label">🌐 Company Website</label>
             <input class="form-control" id="edit-website" placeholder="https://www.abcsteel.com">
         </div>
+
+        <!-- PAN Number -->
         <div class="profile-section">
             <label class="form-label">📛 PAN Number</label>
             <input class="form-control" id="edit-pan" placeholder="AABCP1234D">
         </div>
+
+        <!-- GST Number -->
         <div class="profile-section">
             <label class="form-label">📛 GST Number</label>
             <input class="form-control" id="edit-gst" placeholder="22AABC1234D1ZP">
         </div>
+
+        <!-- Location PIN -->
         <div class="profile-section">
             <label class="form-label">📍 Location PIN</label>
             <div style="position:relative;width:100%">
@@ -257,6 +160,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <input type="hidden" id="edit-location-hidden">
             </div>
         </div>
+
+        <!-- User Type - Checkboxes -->
         <div class="profile-section">
             <label class="form-label">🎯 User Type</label>
             <div class="user-type-checkbox">
@@ -266,6 +171,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
             <div style="font-size:10px;color:#94a3b8;margin-top:4px">Select all that apply</div>
         </div>
+
+        <!-- My Vehicles -->
         <div class="profile-section">
             <label class="form-label">🚛 My Vehicles</label>
             <div class="route-input-row">
@@ -277,6 +184,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
             <div id="edit-vehicles-list" style="margin-top:8px"></div>
         </div>
+
+        <!-- Preferred Routes -->
         <div class="profile-section">
             <label class="form-label">🗺️ Preferred Routes</label>
             <div class="route-input-row">
@@ -289,16 +198,18 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
             <div id="edit-routes-list" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"></div>
         </div>
+
+        <!-- About / Details -->
         <div class="profile-section">
             <label class="form-label">📝 About / Details</label>
             <textarea class="form-control" id="edit-details" rows="3" placeholder="About your business, services, etc." style="resize:vertical"></textarea>
             <div style="font-size:10px;color:#94a3b8;text-align:right"><span id="edit-details-count">0</span>/300</div>
         </div>
+
         <button class="btn-primary success" onclick="saveProfile()" style="margin-top:8px">💾 Save Profile</button>
     </div>
     <div class="nav-fixed">
         <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
-        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
         <button class="nav-item active" onclick="goToEditProfile()"><span class="icon">✏️</span><span class="label">Edit</span></button>
     </div>
 </div>
@@ -310,13 +221,9 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <h3 id="modal-vehicle-title">✏️ Edit Vehicle</h3>
             <button class="modal-close" onclick="closeVehicleModal()">✕</button>
         </div>
+        <div id="modal-vehicle-number" style="font-weight:700;font-size:16px;color:#0f172a;margin-bottom:12px"></div>
         <div class="form-group">
-            <label class="form-label">🚛 Vehicle Number (Read Only)</label>
-            <div class="readonly-number" id="modal-vehicle-number-display"></div>
-            <input type="hidden" id="modal-vehicle-number">
-        </div>
-        <div class="form-group">
-            <label class="form-label">🚛 Vehicle Type *</label>
+            <label class="form-label">🚛 Vehicle Type</label>
             <select class="form-control" id="modal-vehicle-type">
                 <option value="">Select vehicle type...</option>
                 <option value="3-Wheeler / Tempo">3-Wheeler / Tempo</option>
@@ -344,17 +251,17 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div class="grid-2">
             <div class="form-group">
                 <label class="form-label">Length (ft)</label>
-                <input class="form-control" id="modal-length" type="number" step="0.1">
+                <input class="form-control" id="modal-length" type="number" step="0.1" value="40">
             </div>
             <div class="form-group">
                 <label class="form-label">Width (ft)</label>
-                <input class="form-control" id="modal-width" type="number" step="0.1">
+                <input class="form-control" id="modal-width" type="number" step="0.1" value="8.2">
             </div>
         </div>
         <div class="grid-2">
             <div class="form-group">
                 <label class="form-label">Height (ft)</label>
-                <input class="form-control" id="modal-height" type="number" step="0.1">
+                <input class="form-control" id="modal-height" type="number" step="0.1" value="8">
             </div>
             <div class="form-group">
                 <label class="form-label">Max Weight (Kg)</label>
@@ -372,10 +279,9 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <label><input type="radio" name="modal-odc" value="false"> No</label>
             </div>
         </div>
-        <button class="btn-primary success" onclick="saveVehicleModal()">💾 Save Vehicle</button>
+        <button class="btn-primary success" onclick="saveVehicleModal()">💾 Save Vehicle Details</button>
         <button class="btn-primary" style="background:#dc2626;margin-top:6px" onclick="deleteVehicleFromModal()">🗑️ Delete Vehicle</button>
         <input type="hidden" id="modal-vehicle-id">
-        <input type="hidden" id="modal-edit-mode">
     </div>
 </div>
 
@@ -496,118 +402,6 @@ function selectLoc(ctx, pinId) {
 }
 
 // ============================================================
-// PARSE POSTGRES ARRAY HELPER
-// ============================================================
-function parsePgArray(value) {
-  if (!value) return [];
-  if (Array.isArray(value)) return value.filter(v => v !== null && v !== '');
-  if (typeof value === 'string' && value.startsWith('{')) {
-    try {
-      const cleaned = value.replace(/[{}]/g, '');
-      return cleaned.split(',').filter(v => v.trim() !== '');
-    } catch(e) {
-      return [];
-    }
-  }
-  if (typeof value === 'string') {
-    return value.split(',').filter(v => v.trim() !== '');
-  }
-  return [];
-}
-
-function parsePgArrayInt(value) {
-  if (!value) return [];
-  if (Array.isArray(value)) return value.filter(v => v !== null && v !== '');
-  if (typeof value === 'string' && value.startsWith('{')) {
-    try {
-      const cleaned = value.replace(/[{}]/g, '');
-      return cleaned.split(',').filter(v => v.trim() !== '').map(Number);
-    } catch(e) {
-      return [];
-    }
-  }
-  if (typeof value === 'string') {
-    return value.split(',').filter(v => v.trim() !== '').map(Number);
-  }
-  return [];
-}
-
-// ============================================================
-// REFRESH USER DATA FROM DATABASE
-// ============================================================
-function refreshUserData(callback) {
-  if (!user || !user.mobile) { if (callback) callback(); return; }
-  
-  const mobileNum = parseInt(user.mobile);
-  sb.from('active_users').select('*').eq('mobile', mobileNum).single()
-    .then(result => {
-      if (result.data) {
-        Object.assign(user, result.data);
-        const saved = localStorage.getItem('rt_user');
-        if (saved) {
-          const sd = JSON.parse(saved);
-          sd.user = user;
-          localStorage.setItem('rt_user', JSON.stringify(sd));
-        }
-      }
-      if (callback) callback();
-    }).catch(() => {
-      if (callback) callback();
-    });
-}
-
-// ============================================================
-// AUTO-SAVE VEHICLES TO DATABASE (RETURNS PROMISE)
-// ============================================================
-function autoSaveVehicles() {
-  if (!user || !user.mobile) return Promise.resolve();
-  const mobileNum = parseInt(user.mobile);
-  const vehicleArray = vehicles.length > 0 ? vehicles : null;
-  
-  return sb.from('active_users')
-    .update({ vehicle_no: vehicleArray })
-    .eq('mobile', mobileNum)
-    .then(result => {
-      if (result.error) {
-        console.error('Error auto-saving vehicles:', result.error);
-        return Promise.reject(result.error);
-      }
-      user.vehicle_no = vehicleArray;
-      const saved = localStorage.getItem('rt_user');
-      if (saved) {
-        const sd = JSON.parse(saved);
-        sd.user = user;
-        localStorage.setItem('rt_user', JSON.stringify(sd));
-      }
-      return Promise.resolve();
-    });
-}
-
-function autoSaveRoutes() {
-  if (!user || !user.mobile) return Promise.resolve();
-  const mobileNum = parseInt(user.mobile);
-  const routesArray = routes.length > 0 ? routes : null;
-  
-  return sb.from('active_users')
-    .update({ preferred_routes: routesArray })
-    .eq('mobile', mobileNum)
-    .then(result => {
-      if (result.error) {
-        console.error('Error auto-saving routes:', result.error);
-        return Promise.reject(result.error);
-      }
-      user.preferred_routes = routesArray;
-      const saved = localStorage.getItem('rt_user');
-      if (saved) {
-        const sd = JSON.parse(saved);
-        sd.user = user;
-        localStorage.setItem('rt_user', JSON.stringify(sd));
-      }
-      return Promise.resolve();
-    });
-}
-
-// ============================================================
 // VEHICLE FUNCTIONS
 // ============================================================
 function isValidVehicleNumber(number) {
@@ -624,7 +418,7 @@ function searchVehicles(query) {
       if (result.error) { console.error(result.error); return; }
       const vlist = result.data || [];
       if (!vlist.length) {
-        dropdown.innerHTML = '<div class="item add-new" onclick="openVehicleModalForNew(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
+        dropdown.innerHTML = '<div class="item add-new" onclick="openNewVehicleRegistration(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
         dropdown.classList.add('show');
         return;
       }
@@ -635,7 +429,7 @@ function searchVehicles(query) {
           v.vehicle_number + ' <span class="sub">' + v.vehicle_type + ' • ' + dims + 'ft</span>' +
           '</div>';
       });
-      html += '<div class="item add-new" onclick="openVehicleModalForNew(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
+      html += '<div class="item add-new" onclick="openNewVehicleRegistration(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
       dropdown.innerHTML = html;
       dropdown.classList.add('show');
     }).catch(() => { dropdown.classList.remove('show'); });
@@ -648,21 +442,19 @@ function selectVehicleFromSuggestion(id, number, type, dims) {
     renderVehicles();
     $('edit-vehicle-input').value = '';
     $('vehicle-suggest-dropdown').classList.remove('show');
-    autoSaveVehicles().then(() => {
-      toast('✅ Vehicle "' + number + '" added to your list');
-    });
+    toast('✅ Vehicle "' + number + '" added to your list');
+    // Auto-save after adding
+    autoSaveVehicles();
   } else {
     toast('Vehicle already in your list');
   }
 }
 
-function openVehicleModalForNew(number) {
+function openNewVehicleRegistration(number) {
   $('vehicle-suggest-dropdown').classList.remove('show');
   $('modal-vehicle-title').textContent = '📝 Register New Vehicle';
-  $('modal-vehicle-number-display').textContent = number;
-  $('modal-vehicle-number').value = number;
+  $('modal-vehicle-number').textContent = 'Vehicle Number: ' + number;
   $('modal-vehicle-id').value = '';
-  $('modal-edit-mode').value = 'new';
   $('modal-vehicle-type').value = '';
   $('modal-length').value = '40';
   $('modal-width').value = '8.2';
@@ -675,24 +467,28 @@ function openVehicleModalForNew(number) {
 }
 
 function openVehicleEdit(number) {
-  sb.from('active_vehicles').select('*').eq('vehicle_number', number).single()
+  const data = vehicleDataMap[number];
+  if (!data) {
+    sb.from('active_vehicles').select('*').eq('vehicle_number', number).single()
+      .then(res => {
+        if (res.data) {
+          populateVehicleModal(res.data, 'edit');
+        }
+      });
+    return;
+  }
+  sb.from('active_vehicles').select('*').eq('id', data.id).single()
     .then(res => {
       if (res.data) {
         populateVehicleModal(res.data, 'edit');
-      } else {
-        toast('Vehicle not found');
       }
-    }).catch(() => {
-      toast('Error loading vehicle');
     });
 }
 
 function populateVehicleModal(data, mode) {
   $('modal-vehicle-title').textContent = mode === 'edit' ? '✏️ Edit Vehicle' : '📝 Register New Vehicle';
-  $('modal-vehicle-number-display').textContent = data.vehicle_number;
-  $('modal-vehicle-number').value = data.vehicle_number;
+  $('modal-vehicle-number').textContent = 'Vehicle Number: ' + data.vehicle_number;
   $('modal-vehicle-id').value = data.id || '';
-  $('modal-edit-mode').value = mode;
   $('modal-vehicle-type').value = data.vehicle_type || '';
   if (data.dimensions && data.dimensions.length >= 3) {
     $('modal-length').value = data.dimensions[0] || '40';
@@ -707,7 +503,7 @@ function populateVehicleModal(data, mode) {
 }
 
 function saveVehicleModal() {
-  const number = $('modal-vehicle-number').value;
+  const number = editingVehicleNumber;
   if (!number) { toast('No vehicle number'); return; }
   const vehicleType = $('modal-vehicle-type').value;
   if (!vehicleType) { toast('Please select a vehicle type'); return; }
@@ -723,14 +519,14 @@ function saveVehicleModal() {
     max_weight: parseFloat($('modal-max-weight').value) || 0,
     description: $('modal-description').value.trim() || null,
     odc_allowed: document.querySelector('input[name="modal-odc"]:checked').value === 'true',
-    modified_by: user ? parseInt(user.mobile) : null,
+    modified_by: user ? user.mobile : 'guest',
     latest_update_at: new Date().toISOString()
   };
   
   const vehicleId = $('modal-vehicle-id').value;
-  const mode = $('modal-edit-mode').value;
   
-  if (mode === 'edit' && vehicleId) {
+  if (vehicleId) {
+    // UPDATE existing vehicle
     sb.from('active_vehicles').update(data).eq('id', vehicleId)
       .then(result => {
         if (result.error) { alert('Error: ' + result.error.message); return; }
@@ -740,16 +536,11 @@ function saveVehicleModal() {
         vehicleDataMap[number] = { id: vehicleId, ...data };
         renderVehicles();
         closeVehicleModal();
-        // ✅ FIX: Save to active_users BEFORE refreshing
-        autoSaveVehicles().then(() => {
-          refreshUserData(function() {
-            toast('✅ Vehicle "' + number + '" updated successfully!');
-            goToProfile();
-          });
-        });
+        autoSaveVehicles();
+        toast('✅ Vehicle "' + number + '" updated successfully!');
       });
   } else {
-    // Check if vehicle already exists
+    // INSERT new vehicle
     sb.from('active_vehicles').select('id').eq('vehicle_number', number).single()
       .then(checkRes => {
         if (checkRes.data) {
@@ -764,20 +555,15 @@ function saveVehicleModal() {
             renderVehicles();
           }
           closeVehicleModal();
-          // ✅ FIX: Save to active_users BEFORE refreshing
-          autoSaveVehicles().then(() => {
-            refreshUserData(function() {
-              toast('✅ Vehicle "' + number + '" registered successfully!');
-              goToProfile();
-            });
-          });
+          autoSaveVehicles();
+          toast('✅ Vehicle "' + number + '" registered successfully!');
         });
       });
   }
 }
 
 function deleteVehicleFromModal() {
-  const number = $('modal-vehicle-number').value;
+  const number = editingVehicleNumber;
   const vehicleId = $('modal-vehicle-id').value;
   if (!vehicleId) { toast('Cannot delete - vehicle not saved'); return; }
   if (!confirm('Delete vehicle "' + number + '" permanently?')) return;
@@ -789,12 +575,8 @@ function deleteVehicleFromModal() {
       delete vehicleDataMap[number];
       renderVehicles();
       closeVehicleModal();
-      autoSaveVehicles().then(() => {
-        refreshUserData(function() {
-          toast('✅ Vehicle "' + number + '" deleted');
-          goToProfile();
-        });
-      });
+      autoSaveVehicles();
+      toast('✅ Vehicle "' + number + '" deleted');
     });
 }
 
@@ -818,14 +600,13 @@ function addSelectedVehicle() {
         vehicleDataMap[val] = { id: res.data.id, ...res.data };
         renderVehicles();
         input.value = '';
-        autoSaveVehicles().then(() => {
-          toast('✅ Vehicle "' + val + '" added');
-        });
+        autoSaveVehicles();
+        toast('✅ Vehicle "' + val + '" added');
       } else {
-        openVehicleModalForNew(val);
+        openNewVehicleRegistration(val);
       }
     }).catch(() => {
-      openVehicleModalForNew(val);
+      openNewVehicleRegistration(val);
     });
 }
 
@@ -834,9 +615,7 @@ function removeVehicle(v) {
   vehicles = vehicles.filter(x => x !== v);
   delete vehicleDataMap[v];
   renderVehicles();
-  autoSaveVehicles().then(() => {
-    toast('✅ Vehicle "' + v + '" removed from your list');
-  });
+  autoSaveVehicles();
 }
 
 function renderVehicles() {
@@ -857,6 +636,36 @@ function renderVehicles() {
 }
 
 // ============================================================
+// AUTO-SAVE VEHICLES TO DATABASE
+// ============================================================
+function autoSaveVehicles() {
+  if (!user || !user.mobile) return;
+  
+  const mobileNum = parseInt(user.mobile);
+  const vehicleArray = vehicles.length > 0 ? vehicles : null;
+  
+  sb.from('active_users')
+    .update({ vehicle_no: vehicleArray })
+    .eq('mobile', mobileNum)
+    .then(result => {
+      if (result.error) {
+        console.error('Error auto-saving vehicles:', result.error);
+        return;
+      }
+      console.log('Vehicles auto-saved:', vehicleArray);
+      
+      // Update local user object
+      user.vehicle_no = vehicleArray;
+      const saved = localStorage.getItem('rt_user');
+      if (saved) {
+        const sd = JSON.parse(saved);
+        sd.user = user;
+        localStorage.setItem('rt_user', JSON.stringify(sd));
+      }
+    });
+}
+
+// ============================================================
 // ROUTE FUNCTIONS
 // ============================================================
 function addRoute() {
@@ -871,18 +680,16 @@ function addRoute() {
   renderRoutes();
   const sug = $('suggestions-edit-route');
   if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
-  autoSaveRoutes().then(() => {
-    toast('Route added');
-  });
+  autoSaveRoutes();
+  toast('Route added');
 }
 
 function removeRoute(r) {
   if (!confirm('Remove this route?')) return;
   routes = routes.filter(x => x !== r);
   renderRoutes();
-  autoSaveRoutes().then(() => {
-    toast('Route removed');
-  });
+  autoSaveRoutes();
+  toast('Route removed');
 }
 
 function renderRoutes() {
@@ -895,121 +702,35 @@ function renderRoutes() {
   }).join('');
 }
 
-// ============================================================
-// PROFILE FUNCTIONS - DISPLAY VEHICLES
-// ============================================================
-function renderProfileVehicles() {
-  const container = document.getElementById('profile-vehicles-container');
-  const badge = document.getElementById('vehicle-count-badge');
+function autoSaveRoutes() {
+  if (!user || !user.mobile) return;
   
-  if (!user) return;
+  const mobileNum = parseInt(user.mobile);
+  const routesArray = routes.length > 0 ? routes : null;
   
-  // Parse vehicle numbers from user data
-  let vno = user.vehicle_no || [];
-  let vehicleNumbers = parsePgArray(vno);
-  
-  if (!vehicleNumbers.length) {
-    badge.textContent = '0 Vehicles';
-    container.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>';
-    document.getElementById('stat-vehicles-count').textContent = '0';
-    return;
-  }
-  
-  // Fetch vehicle details from active_vehicles
-  sb.from('active_vehicles').select('*').in('vehicle_number', vehicleNumbers)
-    .then(res => {
-      if (res.data && res.data.length > 0) {
-        badge.textContent = res.data.length + ' Vehicle(s)';
-        container.innerHTML = res.data.map(v => {
-          const dims = v.dimensions ? v.dimensions.join(' × ') + 'ft' : 'N/A';
-          return '<div class="vehicle-display-item">' +
-            '<div class="vnumber">' + v.vehicle_number + '</div>' +
-            '<div class="vdetails">' + (v.vehicle_type || 'Unknown') + ' • ' + dims + '</div>' +
-            '</div>';
-        }).join('');
-        document.getElementById('stat-vehicles-count').textContent = res.data.length;
-      } else {
-        badge.textContent = '0 Vehicles';
-        container.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>';
-        document.getElementById('stat-vehicles-count').textContent = '0';
+  sb.from('active_users')
+    .update({ preferred_routes: routesArray })
+    .eq('mobile', mobileNum)
+    .then(result => {
+      if (result.error) {
+        console.error('Error auto-saving routes:', result.error);
+        return;
       }
-    }).catch(() => {
-      badge.textContent = '0 Vehicles';
-      container.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>';
-      document.getElementById('stat-vehicles-count').textContent = '0';
+      console.log('Routes auto-saved:', routesArray);
+      user.preferred_routes = routesArray;
+      const saved = localStorage.getItem('rt_user');
+      if (saved) {
+        const sd = JSON.parse(saved);
+        sd.user = user;
+        localStorage.setItem('rt_user', JSON.stringify(sd));
+      }
     });
 }
 
-function loadProfile() {
-  if (!user) return;
-  
-  // Update header
-  let initials = 'U';
-  if (user.name) {
-    const parts = user.name.split(' ');
-    initials = (parts[0]||'')[0] + (parts[1]||'')[0];
-  }
-  document.getElementById('avatar-initials-profile').textContent = initials.toUpperCase() || 'U';
-  document.getElementById('avatar-initials').textContent = initials.toUpperCase() || 'U';
-  
-  // Name
-  document.getElementById('profile-name').textContent = user.name || user.mobile || 'User';
-  if (user.last_active) {
-    const d = new Date(user.last_active);
-    document.getElementById('profile-last-active').textContent = d.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
-  }
-  
-  // Company
-  document.getElementById('profile-company').textContent = user.company_name || 'Not set';
-  document.getElementById('profile-website').textContent = user.company_web || '--';
-  document.getElementById('profile-pan').textContent = '📛 PAN: ' + (user.pan || '--');
-  document.getElementById('profile-gst').textContent = '📛 GST: ' + (user.gst || '--');
-  const loc = getLoc(user.location);
-  document.getElementById('profile-location').textContent = loc ? '📍 Location: ' + getLocDisplayName(loc) : '📍 Location: Not set';
-  
-  // User Type
-  let types = user.user_type || [];
-  if (!Array.isArray(types) && typeof types === 'number') types = [types];
-  const typeLabels = ['Load Giver', 'Operator', 'Agent'];
-  const typeIcons = ['📦', '🚛', '🤝'];
-  const container = document.getElementById('profile-user-types');
-  if (types && types.length) {
-    container.innerHTML = types.map(t => {
-      const idx = t - 1;
-      if (idx >= 0 && idx < typeLabels.length) {
-        return '<span class="section-badge active">' + typeIcons[idx] + ' ' + typeLabels[idx] + '</span>';
-      }
-      return '';
-    }).join('');
-  } else {
-    container.innerHTML = '<span class="section-badge optional">Not set</span>';
-  }
-  
-  // Details
-  document.getElementById('profile-details-text').textContent = user.details || 'No details added';
-  
-  // Render Vehicles
-  renderProfileVehicles();
-  
-  // Routes
-  const routeContainer = document.getElementById('profile-routes-container');
-  let pref = user.preferred_routes || [];
-  let routeList = parsePgArrayInt(pref);
-  
-  if (routeList.length) {
-    routeContainer.innerHTML = routeList.map(r => {
-      const loc2 = getLoc(r);
-      return '<span class="route-tag">' + (loc2 ? getLocDisplayName(loc2) : r) + '</span>';
-    }).join('');
-  } else {
-    routeContainer.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>';
-  }
-}
-
 // ============================================================
-// EDIT PROFILE FUNCTIONS
+// PROFILE FUNCTIONS
 // ============================================================
-function loadEditProfileData() {
+function loadProfileData() {
   if (!user) return;
   
   $('edit-name').value = user.name || '';
@@ -1032,11 +753,24 @@ function loadEditProfileData() {
   $('edit-type-operator').checked = types.indexOf(2) !== -1;
   $('edit-type-agent').checked = types.indexOf(3) !== -1;
   
-  // Load vehicles from user's vehicle_no array
+  // Load vehicles - handle both array and PostgreSQL array string
   vehicles = [];
   vehicleDataMap = {};
   let vno = user.vehicle_no || [];
-  vehicles = parsePgArray(vno);
+  
+  if (Array.isArray(vno)) {
+    vehicles = vno.filter(v => v !== null && v !== '');
+  } else if (typeof vno === 'string' && vno.startsWith('{')) {
+    // PostgreSQL array format: {MH12AB1234,MH12CD5678}
+    try {
+      const cleaned = vno.replace(/[{}]/g, '');
+      vehicles = cleaned.split(',').filter(v => v.trim() !== '');
+    } catch(e) {
+      vehicles = [];
+    }
+  } else if (typeof vno === 'string') {
+    vehicles = vno.split(',').filter(v => v.trim() !== '');
+  }
   
   if (vehicles.length) {
     sb.from('active_vehicles').select('*').in('vehicle_number', vehicles)
@@ -1060,7 +794,18 @@ function loadEditProfileData() {
   // Load routes
   routes = [];
   let pref = user.preferred_routes || [];
-  routes = parsePgArrayInt(pref);
+  if (Array.isArray(pref)) {
+    routes = pref.filter(r => r !== null && r !== '');
+  } else if (typeof pref === 'string' && pref.startsWith('{')) {
+    try {
+      const cleaned = pref.replace(/[{}]/g, '');
+      routes = cleaned.split(',').filter(r => r.trim() !== '').map(Number);
+    } catch(e) {
+      routes = [];
+    }
+  } else if (typeof pref === 'string') {
+    routes = pref.split(',').filter(r => r.trim() !== '').map(Number);
+  }
   renderRoutes();
   
   $('edit-details').value = user.details || '';
@@ -1094,10 +839,15 @@ function saveProfile() {
   sb.from('active_users').update(updateData).eq('mobile', mobileNum)
     .then(result => {
       if (result.error) { alert('Error saving profile: ' + result.error.message); return; }
-      refreshUserData(function() {
-        alert('✅ Profile saved successfully!');
-        goToProfile();
-      });
+      sb.from('active_users').select('*').eq('mobile', mobileNum).single()
+        .then(freshResult => {
+          if (freshResult.data) {
+            Object.assign(user, freshResult.data);
+            const saved = localStorage.getItem('rt_user');
+            if (saved) { const sd = JSON.parse(saved); sd.user = user; localStorage.setItem('rt_user', JSON.stringify(sd)); }
+            alert('✅ Profile saved successfully!');
+          }
+        });
     }).catch(err => { alert('Error: ' + err.message); });
 }
 
@@ -1112,39 +862,23 @@ function updateCharCount() {
 // ============================================================
 function goHome() {
   document.getElementById('home-page').classList.remove('hidden-page');
-  document.getElementById('profile-page').classList.add('hidden-page');
   document.getElementById('edit-profile-page').classList.add('hidden-page');
   document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
   document.querySelectorAll('.nav-fixed .nav-item')[0]?.classList.add('active');
 }
 
-function goToProfile() {
-  if (!user && !guest) { showLogin(); return; }
-  
-  refreshUserData(function() {
-    document.getElementById('home-page').classList.add('hidden-page');
-    document.getElementById('profile-page').classList.remove('hidden-page');
-    document.getElementById('edit-profile-page').classList.add('hidden-page');
-    document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-    document.querySelectorAll('.nav-fixed .nav-item')[1]?.classList.add('active');
-    if (user) loadProfile();
-  });
-}
-
 function goToEditProfile() {
   if (!user && !guest) { showLogin(); return; }
   document.getElementById('home-page').classList.add('hidden-page');
-  document.getElementById('profile-page').classList.add('hidden-page');
   document.getElementById('edit-profile-page').classList.remove('hidden-page');
   document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-  document.querySelectorAll('.nav-fixed .nav-item')[2]?.classList.add('active');
-  if (user) loadEditProfileData();
+  document.querySelectorAll('.nav-fixed .nav-item')[1]?.classList.add('active');
+  if (user) loadProfileData();
 }
 
 function showLogin() {
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('home-page').classList.add('hidden-page');
-  document.getElementById('profile-page').classList.add('hidden-page');
   document.getElementById('edit-profile-page').classList.add('hidden-page');
 }
 
@@ -1188,7 +922,7 @@ function loginUser() {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('home-page').classList.remove('hidden-page');
         updateGuestUI();
-        goToProfile();
+        goToEditProfile();
       } else {
         document.getElementById('login-error').textContent = 'Invalid PIN. Please try again.';
         document.getElementById('login-error').style.display = 'block';
@@ -1202,7 +936,6 @@ function loginUser() {
 function updateGuestUI() {
   if (guest) {
     document.getElementById('avatar-initials').textContent = 'GU';
-    document.getElementById('avatar-initials-profile').textContent = 'GU';
   } else if (user) {
     let initials = 'U';
     if (user.name) {
@@ -1210,7 +943,6 @@ function updateGuestUI() {
       initials = (parts[0]||'')[0] + (parts[1]||'')[0];
     }
     document.getElementById('avatar-initials').textContent = initials.toUpperCase() || 'U';
-    document.getElementById('avatar-initials-profile').textContent = initials.toUpperCase() || 'U';
   }
 }
 
