@@ -45,6 +45,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .input-field:focus{border-color:#2563eb;outline:none}
 .btn-primary{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px}
 .btn-primary:hover{background:#1d4ed8}
+.btn-primary.success{background:#16a34a}.btn-primary.success:hover{background:#15803d}
 .btn-back{width:100%;padding:14px;background:#6b7280;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer}
 .login-divider{display:flex;align-items:center;gap:12px;margin:16px 0}
 .location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
@@ -101,7 +102,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .section-btn.success:hover{background:#15803d}
 .form-control{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;background:#fff;outline:none}
 .form-control:focus{border-color:#2563eb}
-.form-control:disabled{background:#f1f5f9;color:#64748b;cursor:not-allowed}
 .form-label{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .detail-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:12px}
@@ -336,34 +336,99 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
-<!-- POST LOAD PAGE -->
+<!-- ==================== POST LOAD PAGE ==================== -->
 <div id="postload-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span>
         <button class="back-btn" onclick="cancelPost()">Cancel</button>
     </div>
     <div class="scroll-body" id="postload-scroll">
-        <div class="form-group"><label class="form-label">Material Type *</label>
-            <select class="form-control" id="pl-material"><option value="">Select</option><option value="Steel Pipes">Steel Pipes</option><option value="Cement">Cement</option><option value="Other">Other</option></select></div>
-        <div class="grid-2"><div><label>Weight (Kg)</label><input class="form-control" type="number" id="pl-weight"></div><div><label>Dimensions (ft)</label><input class="form-control" type="text" id="pl-dim" placeholder="40x8x8"></div></div>
+        <div class="profile-section">
+            <label class="form-label">📦 Material Type *</label>
+            <select class="form-control" id="pl-material">
+                <option value="">Select material...</option>
+                <option value="Steel Pipes">Steel Pipes</option>
+                <option value="Cement">Cement</option>
+                <option value="Bricks">Bricks</option>
+                <option value="Sand">Sand</option>
+                <option value="Aggregates">Aggregates</option>
+                <option value="Food Grains">Food Grains</option>
+                <option value="Chemicals">Chemicals</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Furniture">Furniture</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
         <div class="grid-2">
-            <div><label>📍 Pickup</label>
+            <div class="profile-section" style="margin-bottom:0;">
+                <label class="form-label">⚖️ Weight (Kg)</label>
+                <input class="form-control" type="number" id="pl-weight" placeholder="0">
+            </div>
+            <div class="profile-section" style="margin-bottom:0;">
+                <label class="form-label">📐 Dimensions (ft)</label>
+                <input class="form-control" type="text" id="pl-dim" placeholder="40x8x8">
+            </div>
+        </div>
+        <div class="profile-section">
+            <label class="form-label">🚛 Vehicle Type</label>
+            <select class="form-control" id="pl-vehicle-type">
+                <option value="">Select vehicle type...</option>
+                <option value="3-Wheeler / Tempo">3-Wheeler / Tempo</option>
+                <option value="Mini Truck">Mini Truck</option>
+                <option value="LCV Open Body Truck">LCV Open Body Truck</option>
+                <option value="LCV - Container">LCV - Container</option>
+                <option value="LCV - Flat bed">LCV - Flat bed</option>
+                <option value="Open Body Truck">Open Body Truck</option>
+                <option value="Box Body Truck">Box Body Truck</option>
+                <option value="Flat bed Truck">Flat bed Truck</option>
+                <option value="Trailer - Open Body">Trailer - Open Body</option>
+                <option value="Trailer - Box Body">Trailer - Box Body</option>
+                <option value="Trailer - High Bed">Trailer - High Bed</option>
+                <option value="Trailer - Semi Low Bed">Trailer - Semi Low Bed</option>
+                <option value="Trailer - Low Bed">Trailer - Low Bed</option>
+                <option value="Trailer - Automobile Carrier">Trailer - Automobile Carrier</option>
+                <option value="Tipper / Dumper">Tipper / Dumper</option>
+                <option value="Tanker">Tanker</option>
+                <option value="Cement Bulker">Cement Bulker</option>
+                <option value="Refrigerated / Reefer">Refrigerated / Reefer</option>
+                <option value="Explosive / Hazardous Vehicle">Explosive / Hazardous Vehicle</option>
+                <option value="Over-Dimensional Cargo (ODC)">Over-Dimensional Cargo (ODC)</option>
+            </select>
+        </div>
+        <div class="grid-2">
+            <div class="profile-section" style="margin-bottom:0;">
+                <label class="form-label">📍 Pickup PIN *</label>
                 <div style="position:relative;width:100%">
-                    <input type="text" id="search-pl-pickup" placeholder="📍 Search Location" onclick="selectInputText(this)" oninput="searchLocation('pl-pickup')" autocomplete="off">
+                    <input type="text" id="search-pl-pickup" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('pl-pickup')" autocomplete="off" class="form-control">
                     <div class="search-wrapper"><div class="suggestions" id="suggestions-pl-pickup"></div></div>
                     <input type="hidden" id="pl-pickup-hidden">
                 </div>
             </div>
-            <div><label>📍 Drop</label>
+            <div class="profile-section" style="margin-bottom:0;">
+                <label class="form-label">📍 Drop PIN *</label>
                 <div style="position:relative;width:100%">
-                    <input type="text" id="search-pl-drop" placeholder="📍 Search Location" onclick="selectInputText(this)" oninput="searchLocation('pl-drop')" autocomplete="off">
+                    <input type="text" id="search-pl-drop" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('pl-drop')" autocomplete="off" class="form-control">
                     <div class="search-wrapper"><div class="suggestions" id="suggestions-pl-drop"></div></div>
                     <input type="hidden" id="pl-drop-hidden">
                 </div>
             </div>
         </div>
-        <div class="grid-2"><div><label>Rate (₹)</label><input class="form-control" type="text" id="pl-rate"></div><div><label>Date</label><input class="form-control" type="date" id="pl-date"></div></div>
-        <button class="btn-primary" onclick="publishLoad()">📤 Publish Load</button>
+        <div class="grid-2">
+            <div class="profile-section" style="margin-bottom:0;">
+                <label class="form-label">💰 Rate (₹)</label>
+                <input class="form-control" type="text" id="pl-rate" placeholder="0">
+            </div>
+            <div class="profile-section" style="margin-bottom:0;">
+                <label class="form-label">📅 Pickup Date</label>
+                <input class="form-control" type="date" id="pl-date">
+            </div>
+        </div>
+        <div class="profile-section">
+            <label class="form-label">📝 Instructions</label>
+            <textarea class="form-control" id="pl-instructions" rows="2" placeholder="Loading instructions, special requirements..."></textarea>
+            <div style="font-size:10px;color:#94a3b8;text-align:right"><span id="pl-instructions-count">0</span>/200</div>
+        </div>
+        <button class="btn-primary success" onclick="publishLoad()" style="margin-top:8px">📤 Publish Load</button>
     </div>
     <div class="nav-fixed" id="bottom-nav2">
         <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
@@ -373,24 +438,44 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
-<!-- POST TRUCK PAGE -->
+<!-- ==================== POST TRUCK PAGE ==================== -->
 <div id="posttruck-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span>
         <button class="back-btn" onclick="cancelPost()">Cancel</button>
     </div>
     <div class="scroll-body" id="posttruck-scroll">
-        <div class="form-group"><label>Vehicle Number</label><div style="display:flex;gap:8px"><input class="form-control vehicle-number-input" id="pt-number" style="flex:2" placeholder="MH12AB1234"><button class="btn-primary" style="width:auto;padding:10px 16px" onclick="autoFetchVehicle()">🔍 Auto-Fetch</button></div></div>
-        <div class="form-group"><label>📍 Location</label>
+        <div class="profile-section">
+            <label class="form-label">🚛 Vehicle Number *</label>
+            <div style="display:flex;gap:8px">
+                <input class="form-control vehicle-number-input" id="pt-number" style="flex:2" placeholder="MH12AB1234">
+                <button class="section-btn" onclick="autoFetchVehicle()" style="padding:10px 12px;">🔍 Fetch</button>
+            </div>
+        </div>
+        <div class="profile-section">
+            <label class="form-label">📍 Location PIN *</label>
             <div style="position:relative;width:100%">
-                <input type="text" id="search-pt-location" placeholder="📍 Search Location" onclick="selectInputText(this)" oninput="searchLocation('pt-location')" autocomplete="off">
+                <input type="text" id="search-pt-location" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('pt-location')" autocomplete="off" class="form-control">
                 <div class="search-wrapper"><div class="suggestions" id="suggestions-pt-location"></div></div>
                 <input type="hidden" id="pt-location-hidden">
             </div>
         </div>
-        <div class="grid-2"><div><label>Available From</label><input class="form-control" type="date" id="pt-available"></div><div><label>Rate / KM</label><input class="form-control" type="text" id="pt-rate-km"></div></div>
-        <div class="grid-2"><div><label>Driver Name</label><input class="form-control" id="pt-driver"></div><div><label>Driver Mobile</label><input class="form-control" id="pt-driver-mobile" maxlength="10"></div></div>
-        <button class="btn-primary" onclick="publishTruck()">📤 List Truck</button>
+        <div class="grid-2">
+            <div class="profile-section" style="margin-bottom:0;">
+                <label class="form-label">📅 Available From</label>
+                <input class="form-control" type="date" id="pt-available">
+            </div>
+            <div class="profile-section" style="margin-bottom:0;">
+                <label class="form-label">💰 Expected Rate/KM</label>
+                <input class="form-control" type="text" id="pt-rate-km" placeholder="0">
+            </div>
+        </div>
+        <div class="profile-section">
+            <label class="form-label">📝 Other Details</label>
+            <textarea class="form-control" id="pt-other-details" rows="3" placeholder="Vehicle features, GPS tracking, driver details, etc."></textarea>
+            <div style="font-size:10px;color:#94a3b8;text-align:right"><span id="pt-other-details-count">0</span>/300</div>
+        </div>
+        <button class="btn-primary success" onclick="publishTruck()" style="margin-top:8px">📤 List Truck</button>
     </div>
     <div class="nav-fixed" id="bottom-nav3">
         <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
@@ -400,7 +485,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
-<!-- PROFILE PAGE -->
+<!-- ==================== PROFILE PAGE ==================== -->
 <div id="profile-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span>
@@ -415,6 +500,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         </div>
     </div>
     <div class="scroll-body" id="profile-scroll">
+        <!-- Profile Header -->
         <div class="profile-header-card">
             <div style="display:flex;justify-content:space-between;align-items:center">
                 <div>
@@ -427,6 +513,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 </div>
             </div>
         </div>
+
+        <!-- Company Details -->
         <div class="profile-section">
             <div class="section-header">
                 <span class="section-title">🏢 Company Details</span>
@@ -438,12 +526,16 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div style="font-size:11px;color:#64748b;margin-top:2px" id="profile-gst">📛 GST: --</div>
             <div style="font-size:11px;color:#64748b;margin-top:2px" id="profile-location">📍 Location: Not set</div>
         </div>
+
+        <!-- User Type -->
         <div class="profile-section">
             <label class="form-label" style="margin-bottom:6px">🎯 User Type</label>
             <div id="profile-user-types" style="display:flex;gap:8px;flex-wrap:wrap">
                 <span class="section-badge optional">Not set</span>
             </div>
         </div>
+
+        <!-- My Vehicles (READ ONLY) -->
         <div class="profile-section">
             <div class="section-header">
                 <span class="section-title">🚛 My Vehicles</span>
@@ -453,6 +545,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>
             </div>
         </div>
+
+        <!-- Preferred Routes (READ ONLY) -->
         <div class="profile-section">
             <div class="section-header">
                 <span class="section-title">🗺️ Preferred Routes</span>
@@ -462,18 +556,26 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <span style="color:#94a3b8;font-size:12px">No routes added</span>
             </div>
         </div>
-        <div class="profile-section" id="profile-about-section">
+
+        <!-- About/Details -->
+        <div class="profile-section">
             <label class="form-label">📝 About / Details</label>
             <div id="profile-details-text" style="font-size:14px;color:#475569;padding:4px 0">No details added</div>
         </div>
+
+        <!-- My Loads -->
         <div style="margin-bottom:8px">
             <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px">📦 My Loads <span class="count-badge" id="my-loads-count">0</span></div>
             <div id="my-loads-container"></div>
         </div>
+
+        <!-- My Trucks -->
         <div style="margin-bottom:8px">
             <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px">🚛 My Trucks <span class="count-badge" id="my-trucks-count">0</span></div>
             <div id="my-trucks-container"></div>
         </div>
+
+        <!-- Statistics -->
         <div style="margin:12px 0 8px">
             <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px">📊 MY STATISTICS</div>
             <div class="stat-cards">
@@ -492,7 +594,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
-<!-- EDIT PROFILE PAGE -->
+<!-- ==================== EDIT PROFILE PAGE ==================== -->
 <div id="edit-profile-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <span class="logo"><span class="logo-icon">✏️</span><span class="logo-text">Edit Profile</span></span>
@@ -564,7 +666,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <textarea class="form-control" id="edit-details" rows="3" placeholder="About your business, services, etc." style="resize:vertical"></textarea>
             <div style="font-size:10px;color:#94a3b8;text-align:right"><span id="edit-details-count">0</span>/300</div>
         </div>
-        <button class="btn-primary" onclick="saveProfile()" style="margin-top:8px">💾 Save Profile</button>
+        <button class="btn-primary success" onclick="saveProfile()" style="margin-top:8px">💾 Save Profile</button>
     </div>
     <div class="nav-fixed" id="bottom-nav-edit">
         <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
@@ -687,6 +789,30 @@ let otpTimer = null, otpSeconds = 300, otpVerified = false, generatedOTP = '';
 let isResetFlow = false, otpPurpose = 'registration';
 let vehicleDataMap = {};
 let editingVehicleNumber = null;
+
+// ============================================================
+// HELPER FUNCTIONS FOR UNIQUE ARRAYS
+// ============================================================
+function addUniqueToArray(array, value) {
+    if (!array) return [value];
+    if (array.includes(value)) return array;
+    return [...array, value];
+}
+
+function removeFromArray(array, value) {
+    if (!array) return [];
+    return array.filter(item => item !== value);
+}
+
+function ensureUniqueArray(array) {
+    if (!array) return [];
+    return [...new Set(array)];
+}
+
+function existsInArray(array, value) {
+    if (!array) return false;
+    return array.includes(value);
+}
 
 // ============================================================
 // LOCATIONS
@@ -821,24 +947,21 @@ function validateAndSearchVehicle(value) {
 }
 
 // ============================================================
-// VEHICLE SEARCH DROPDOWN - FIXED
+// VEHICLE SEARCH DROPDOWN
 // ============================================================
 function searchVehicles(query) {
   const dropdown = $('vehicle-suggest-dropdown');
   const q = query.trim().toUpperCase();
   
-  // Clear dropdown if query is empty or too short
   if (!q || q.length < 1) {
     dropdown.classList.remove('show');
     dropdown.innerHTML = '';
     return;
   }
   
-  // Show loading state
   dropdown.innerHTML = '<div class="item" style="color:#94a3b8;">Searching...</div>';
   dropdown.classList.add('show');
   
-  // Query active_vehicles table
   sb.from('active_vehicles')
     .select('*')
     .ilike('vehicle_number', '%' + q + '%')
@@ -852,14 +975,12 @@ function searchVehicles(query) {
       
       const vlist = result.data || [];
       
-      // If no results
       if (!vlist.length) {
         dropdown.innerHTML = '<div class="item add-new" onclick="openVehicleModalForNew(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
         dropdown.classList.add('show');
         return;
       }
       
-      // Build dropdown items
       let html = '';
       vlist.forEach(v => {
         const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
@@ -879,7 +1000,6 @@ function searchVehicles(query) {
 }
 
 function selectVehicleFromSuggestion(id, number, type, dims) {
-  // Check if already in list
   if (vehicles.includes(number)) {
     toast('Vehicle "' + number + '" already in your list');
     $('vehicle-suggest-dropdown').classList.remove('show');
@@ -887,14 +1007,12 @@ function selectVehicleFromSuggestion(id, number, type, dims) {
     return;
   }
   
-  // Add to list
-  vehicles.push(number);
+  vehicles = addUniqueToArray(vehicles, number);
   vehicleDataMap[number] = { id: id, vehicle_number: number, vehicle_type: type, dimensions: dims };
   renderVehicles();
   $('edit-vehicle-input').value = '';
   $('vehicle-suggest-dropdown').classList.remove('show');
   
-  // Auto-save to database
   autoSaveVehicles().then(() => {
     toast('✅ Vehicle "' + number + '" added to your list');
   });
@@ -918,9 +1036,6 @@ function openVehicleModalForNew(number) {
   $('vehicle-modal').classList.add('show');
 }
 
-// ============================================================
-// REST OF THE CODE (same as before)
-// ============================================================
 function openVehicleEdit(number) {
   sb.from('active_vehicles').select('*').eq('vehicle_number', number).single()
     .then(res => {
@@ -981,9 +1096,7 @@ function saveVehicleModal() {
     sb.from('active_vehicles').update(data).eq('id', vehicleId)
       .then(result => {
         if (result.error) { alert('Error: ' + result.error.message); return; }
-        if (!vehicles.includes(number)) {
-          vehicles.push(number);
-        }
+        vehicles = addUniqueToArray(vehicles, number);
         vehicleDataMap[number] = { id: vehicleId, ...data };
         renderVehicles();
         closeVehicleModal();
@@ -1002,11 +1115,9 @@ function saveVehicleModal() {
         }
         sb.from('active_vehicles').insert(data).then(insertRes => {
           if (insertRes.error) { alert('Error: ' + insertRes.error.message); return; }
-          if (!vehicles.includes(number)) {
-            vehicles.push(number);
-            vehicleDataMap[number] = { id: insertRes.data[0].id, ...data };
-            renderVehicles();
-          }
+          vehicles = addUniqueToArray(vehicles, number);
+          vehicleDataMap[number] = { id: insertRes.data[0].id, ...data };
+          renderVehicles();
           closeVehicleModal();
           autoSaveVehicles().then(() => {
             refreshUserData(function() {
@@ -1027,7 +1138,7 @@ function deleteVehicleFromModal() {
   sb.from('active_vehicles').delete().eq('id', vehicleId)
     .then(result => {
       if (result.error) { alert('Error: ' + result.error.message); return; }
-      vehicles = vehicles.filter(v => v !== number);
+      vehicles = removeFromArray(vehicles, number);
       delete vehicleDataMap[number];
       renderVehicles();
       closeVehicleModal();
@@ -1054,7 +1165,7 @@ function addSelectedVehicle() {
   sb.from('active_vehicles').select('*').eq('vehicle_number', val).single()
     .then(res => {
       if (res.data) {
-        vehicles.push(val);
+        vehicles = addUniqueToArray(vehicles, val);
         const dims = res.data.dimensions ? res.data.dimensions.join('×') : 'N/A';
         vehicleDataMap[val] = { id: res.data.id, ...res.data };
         renderVehicles();
@@ -1072,7 +1183,7 @@ function addSelectedVehicle() {
 
 function removeVehicle(v) {
   if (!confirm('Remove vehicle "' + v + '" from your list?')) return;
-  vehicles = vehicles.filter(x => x !== v);
+  vehicles = removeFromArray(vehicles, v);
   delete vehicleDataMap[v];
   renderVehicles();
   autoSaveVehicles().then(() => {
@@ -1098,12 +1209,52 @@ function renderVehicles() {
 }
 
 // ============================================================
+// ROUTE FUNCTIONS
+// ============================================================
+function addRoute() {
+  const route = $('edit-route-hidden').value;
+  if (!route) { toast('Please search and select a location first'); return; }
+  const routeInt = parseInt(route);
+  if (isNaN(routeInt)) { toast('Invalid location'); return; }
+  if (routes.includes(routeInt)) { toast('Route already added'); return; }
+  routes = addUniqueToArray(routes, routeInt);
+  $('search-edit-route').value = '';
+  $('edit-route-hidden').value = '';
+  renderRoutes();
+  const sug = $('suggestions-edit-route');
+  if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
+  autoSaveRoutes().then(() => {
+    toast('Route added');
+  });
+}
+
+function removeRoute(r) {
+  if (!confirm('Remove this route?')) return;
+  routes = removeFromArray(routes, r);
+  renderRoutes();
+  autoSaveRoutes().then(() => {
+    toast('Route removed');
+  });
+}
+
+function renderRoutes() {
+  const container = $('edit-routes-list');
+  if (!routes.length) { container.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>'; return; }
+  container.innerHTML = routes.map(r => {
+    const loc = getLoc(r);
+    const display = loc ? getLocDisplayName(loc) : r;
+    return '<span class="route-tag">' + display + ' <span class="remove" onclick="removeRoute(' + r + ')">✕</span></span>';
+  }).join('');
+}
+
+// ============================================================
 // AUTO-SAVE FUNCTIONS
 // ============================================================
 function autoSaveVehicles() {
   if (!user || !user.mobile) return Promise.resolve();
   const mobileNum = parseInt(user.mobile);
-  const vehicleArray = vehicles.length > 0 ? vehicles : null;
+  const uniqueVehicles = ensureUniqueArray(vehicles);
+  const vehicleArray = uniqueVehicles.length > 0 ? uniqueVehicles : null;
   
   return sb.from('active_users')
     .update({ vehicle_no: vehicleArray })
@@ -1127,7 +1278,8 @@ function autoSaveVehicles() {
 function autoSaveRoutes() {
   if (!user || !user.mobile) return Promise.resolve();
   const mobileNum = parseInt(user.mobile);
-  const routesArray = routes.length > 0 ? routes : null;
+  const uniqueRoutes = ensureUniqueArray(routes);
+  const routesArray = uniqueRoutes.length > 0 ? uniqueRoutes : null;
   
   return sb.from('active_users')
     .update({ preferred_routes: routesArray })
@@ -1170,42 +1322,125 @@ function refreshUserData(callback) {
 }
 
 // ============================================================
-// ROUTE FUNCTIONS
+// POST LOAD - MATCHES active_loads TABLE
 // ============================================================
-function addRoute() {
-  const route = $('edit-route-hidden').value;
-  if (!route) { toast('Please search and select a location first'); return; }
-  const routeInt = parseInt(route);
-  if (isNaN(routeInt)) { toast('Invalid location'); return; }
-  if (routes.indexOf(routeInt) !== -1) { toast('Route already added'); return; }
-  routes.push(routeInt);
-  $('search-edit-route').value = '';
-  $('edit-route-hidden').value = '';
-  renderRoutes();
-  const sug = $('suggestions-edit-route');
-  if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
-  autoSaveRoutes().then(() => {
-    toast('Route added');
-  });
+function publishLoad() {
+  if (!user) { toast('Please login first'); return; }
+  
+  const material = $('pl-material').value;
+  const pickupPinId = $('pl-pickup-hidden').value;
+  const dropPinId = $('pl-drop-hidden').value;
+  
+  if (!material || !pickupPinId || !dropPinId) {
+    toast('Please fill all required fields (Material, Pickup, Drop)');
+    return;
+  }
+  
+  // Parse dimensions as array
+  const dimStr = $('pl-dim').value.trim();
+  let dimensions = null;
+  if (dimStr) {
+    const parts = dimStr.split('x').map(Number);
+    if (parts.length === 3 && parts.every(p => !isNaN(p))) {
+      dimensions = parts;
+    }
+  }
+  
+  const loadData = {
+    mobile: parseInt(user.mobile),
+    company: user.company_name || '',
+    company_web: user.company_web || '',
+    material: material,
+    weight: parseFloat($('pl-weight').value) || 0,
+    dimensions: dimensions,
+    vehicle_type: $('pl-vehicle-type').value || null,
+    pickup_pin: parseInt(pickupPinId),
+    drop_pin: parseInt(dropPinId),
+    pickup_date: $('pl-date').value || null,
+    instructions: $('pl-instructions').value.trim() || null,
+    status: 1,
+    views: 0,
+    calls: 0,
+    interests: [],
+    shares: 0,
+    agents: [],
+    created_at: new Date().toISOString(),
+    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days expiry
+  };
+  
+  sb.from('active_loads').insert(loadData)
+    .then(res => {
+      if (res.error) { alert('Error: ' + res.error.message); return; }
+      toast('✅ Load published successfully!');
+      goHome();
+    }).catch(err => { alert('Error: ' + err.message); });
 }
 
-function removeRoute(r) {
-  if (!confirm('Remove this route?')) return;
-  routes = routes.filter(x => x !== r);
-  renderRoutes();
-  autoSaveRoutes().then(() => {
-    toast('Route removed');
-  });
+// ============================================================
+// POST TRUCK - MATCHES active_trucks TABLE
+// ============================================================
+function publishTruck() {
+  if (!user) { toast('Please login first'); return; }
+  
+  const number = $('pt-number').value.trim().toUpperCase();
+  const locationPinId = $('pt-location-hidden').value;
+  
+  if (!number || !locationPinId) {
+    toast('Please fill all required fields (Vehicle Number, Location)');
+    return;
+  }
+  if (!isValidVehicleNumber(number)) {
+    alert('Vehicle number must be 9-11 characters');
+    return;
+  }
+  
+  // Check if vehicle exists in active_vehicles
+  sb.from('active_vehicles').select('id').eq('vehicle_number', number).single()
+    .then(checkRes => {
+      if (!checkRes.data) {
+        toast('Vehicle "' + number + '" not found. Please register it first in Edit Profile.');
+        return;
+      }
+      
+      const truckData = {
+        mobile: parseInt(user.mobile),
+        truck_no: number,
+        share: 0,
+        calls: 0,
+        views: 0,
+        interested: [],
+        available_date: $('pt-available').value ? new Date($('pt-available').value).toISOString() : null,
+        location_pin: parseInt(locationPinId),
+        other_details: $('pt-other-details').value.trim() || null,
+        status: 1,
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        created_at: new Date().toISOString()
+      };
+      
+      sb.from('active_trucks').insert(truckData)
+        .then(res => {
+          if (res.error) { alert('Error: ' + res.error.message); return; }
+          toast('✅ Truck listed successfully!');
+          goHome();
+        }).catch(err => { alert('Error: ' + err.message); });
+    }).catch(() => {
+      toast('Vehicle "' + number + '" not found. Please register it first in Edit Profile.');
+    });
 }
 
-function renderRoutes() {
-  const container = $('edit-routes-list');
-  if (!routes.length) { container.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>'; return; }
-  container.innerHTML = routes.map(r => {
-    const loc = getLoc(r);
-    const display = loc ? getLocDisplayName(loc) : r;
-    return '<span class="route-tag">' + display + ' <span class="remove" onclick="removeRoute(' + r + ')">✕</span></span>';
-  }).join('');
+function autoFetchVehicle() {
+  const number = $('pt-number').value.trim().toUpperCase();
+  if (!number) return;
+  
+  sb.from('active_vehicles').select('*').eq('vehicle_number', number).maybeSingle()
+    .then(res => {
+      if (res.data) {
+        $('pt-number').value = res.data.vehicle_number;
+        toast('✅ Vehicle found: ' + res.data.vehicle_number);
+      } else {
+        toast('Vehicle not found. Please register it in Edit Profile.');
+      }
+    });
 }
 
 // ============================================================
@@ -1258,21 +1493,21 @@ function loadProfile() {
 
   $('profile-details-text').textContent = user.details || 'No details added';
   
-  // Load Vehicles using IN operator
+  // Load Vehicles
   const container2 = $('profile-vehicles-container');
   const badge = $('vehicle-count-badge');
   
   let vno = user.vehicle_no || [];
   let vehicleNumbers = [];
   if (Array.isArray(vno)) {
-    vehicleNumbers = vno.filter(v => v !== null && v !== '');
+    vehicleNumbers = ensureUniqueArray(vno.filter(v => v !== null && v !== ''));
   } else if (typeof vno === 'string' && vno.startsWith('{')) {
     try {
       const cleaned = vno.replace(/[{}]/g, '');
-      vehicleNumbers = cleaned.split(',').filter(v => v.trim() !== '');
+      vehicleNumbers = ensureUniqueArray(cleaned.split(',').filter(v => v.trim() !== ''));
     } catch(e) { vehicleNumbers = []; }
   } else if (typeof vno === 'string') {
-    vehicleNumbers = vno.split(',').filter(v => v.trim() !== '');
+    vehicleNumbers = ensureUniqueArray(vno.split(',').filter(v => v.trim() !== ''));
   }
   
   if (vehicleNumbers.length) {
@@ -1302,12 +1537,21 @@ function loadProfile() {
 
   // Routes
   let routeArr = user.preferred_routes || [];
-  if (typeof routeArr === 'string') {
-    routeArr = routeArr.split(',').filter(r => r.trim() !== '').map(Number);
+  let routeList = [];
+  if (Array.isArray(routeArr)) {
+    routeList = ensureUniqueArray(routeArr.filter(r => r !== null && r !== ''));
+  } else if (typeof routeArr === 'string' && routeArr.startsWith('{')) {
+    try {
+      const cleaned = routeArr.replace(/[{}]/g, '');
+      routeList = ensureUniqueArray(cleaned.split(',').filter(r => r.trim() !== '').map(Number));
+    } catch(e) { routeList = []; }
+  } else if (typeof routeArr === 'string') {
+    routeList = ensureUniqueArray(routeArr.split(',').filter(r => r.trim() !== '').map(Number));
   }
+  
   const rc = $('profile-routes-container');
-  if (routeArr && routeArr.length) {
-    rc.innerHTML = routeArr.map(r => {
+  if (routeList && routeList.length) {
+    rc.innerHTML = routeList.map(r => {
       const loc = getLoc(r);
       return '<span class="route-tag">' + (loc ? getLocDisplayName(loc) : r) + '</span>';
     }).join('');
@@ -1320,9 +1564,12 @@ function loadProfile() {
   loadStats();
 }
 
+// ============================================================
+// LOAD MY LOADS & TRUCKS
+// ============================================================
 function loadMyLoads() {
   if (!user) return;
-  sb.from('active_loads').select('*').eq('mobile', user.mobile).eq('status', 1)
+  sb.from('active_loads').select('*').eq('mobile', parseInt(user.mobile)).eq('status', 1)
     .then(res => {
       const loads = res.data || [];
       const container = $('my-loads-container');
@@ -1332,7 +1579,7 @@ function loadMyLoads() {
       container.innerHTML = loads.map(l =>
         '<div class="list-item">' +
         '<div class="title">' + l.material + ' • ' + getLocName(l.pickup_pin) + ' → ' + getLocName(l.drop_pin) + '</div>' +
-        '<div class="sub">💰 ₹' + (l.rate || 0).toLocaleString() + ' • ⚖️ ' + (l.weight || 0) + ' Kg</div>' +
+        '<div class="sub">💰 ₹' + (l.weight || 0) + ' Kg • 🚛 ' + (l.vehicle_type || 'Any') + '</div>' +
         '<div class="actions"><button class="delete" onclick="deleteLoadItem(\'' + l.id + '\')">🗑️ Delete</button></div>' +
         '</div>'
       ).join('');
@@ -1341,7 +1588,7 @@ function loadMyLoads() {
 
 function loadMyTrucks() {
   if (!user) return;
-  sb.from('active_trucks').select('*').eq('mobile', user.mobile).eq('status', 1)
+  sb.from('active_trucks').select('*').eq('mobile', parseInt(user.mobile)).eq('status', 1)
     .then(res => {
       const trucks = res.data || [];
       const container = $('my-trucks-container');
@@ -1350,8 +1597,8 @@ function loadMyTrucks() {
       count.textContent = trucks.length;
       container.innerHTML = trucks.map(t =>
         '<div class="list-item">' +
-        '<div class="title">' + t.truck_no + ' • ' + t.vehicle_type + '</div>' +
-        '<div class="sub">📍 ' + getLocName(t.location_pin) + ' • ₹' + (t.rate_km || 0) + '/km</div>' +
+        '<div class="title">' + t.truck_no + ' • 📍 ' + getLocName(t.location_pin) + '</div>' +
+        '<div class="sub">📅 ' + (t.available_date ? new Date(t.available_date).toLocaleDateString() : 'Flexible') + '</div>' +
         '<div class="actions"><button class="delete" onclick="deleteTruckItem(\'' + t.id + '\')">🗑️ Delete</button></div>' +
         '</div>'
       ).join('');
@@ -1360,9 +1607,9 @@ function loadMyTrucks() {
 
 function loadStats() {
   if (!user) return;
-  sb.from('active_loads').select('*', {count:'exact', head:true}).eq('mobile', user.mobile).eq('status', 1)
+  sb.from('active_loads').select('*', {count:'exact', head:true}).eq('mobile', parseInt(user.mobile)).eq('status', 1)
     .then(r => { $('stat-loads-count').textContent = r.count || 0; });
-  sb.from('active_trucks').select('*', {count:'exact', head:true}).eq('mobile', user.mobile).eq('status', 1)
+  sb.from('active_trucks').select('*', {count:'exact', head:true}).eq('mobile', parseInt(user.mobile)).eq('status', 1)
     .then(r => { $('stat-trucks-count').textContent = r.count || 0; });
 }
 
@@ -1370,6 +1617,7 @@ function deleteLoadItem(id) {
   if (!confirm('Delete this load?')) return;
   sb.from('active_loads').update({status: 0}).eq('id', id).then(() => { loadMyLoads(); loadStats(); });
 }
+
 function deleteTruckItem(id) {
   if (!confirm('Delete this truck?')) return;
   sb.from('active_trucks').update({status: 0}).eq('id', id).then(() => { loadMyTrucks(); loadStats(); });
@@ -1454,8 +1702,8 @@ function saveProfile() {
     gst: $('edit-gst').value.trim() || null,
     location: location,
     user_type: types.length ? types : null,
-    vehicle_no: vehicles.length ? vehicles : null,
-    preferred_routes: routes.length ? routes : null,
+    vehicle_no: ensureUniqueArray(vehicles).length ? ensureUniqueArray(vehicles) : null,
+    preferred_routes: ensureUniqueArray(routes).length ? ensureUniqueArray(routes) : null,
     details: $('edit-details').value.trim() || null,
     last_active: new Date().toISOString()
   };
@@ -1495,8 +1743,33 @@ async function renderFeed() {
     const {data: loads} = await sb.from('active_loads').select('*').eq('status', 1);
     const {data: trucks} = await sb.from('active_trucks').select('*').eq('status', 1);
     items = [];
-    (loads || []).forEach(l => items.push({type:'LOAD', title: l.material || 'Cargo', company: l.company || '', from_pin: l.pickup_pin, to_pin: l.drop_pin, weight: l.weight || 0, vehicle: l.vehicle_type || '', rate: l.rate || 0, views: l.views || 0, interests: (l.interests || []).length, shares: l.shares || 0, id: l.id}));
-    (trucks || []).forEach(t => items.push({type:'TRUCK', title: t.truck_no || 'Truck', company: t.company_name || '', from_pin: t.location_pin, to_pin: t.destination_pin, vehicle: t.vehicle_type || '', rate: t.rate_km || 0, views: t.views || 0, interests: (t.interested || []).length, shares: t.share || 0, id: t.id}));
+    (loads || []).forEach(l => items.push({
+      type:'LOAD',
+      title: l.material || 'Cargo',
+      company: l.company || '',
+      from_pin: l.pickup_pin,
+      to_pin: l.drop_pin,
+      weight: l.weight || 0,
+      vehicle: l.vehicle_type || '',
+      views: l.views || 0,
+      interests: (l.interests || []).length,
+      shares: l.shares || 0,
+      id: l.id,
+      mobile: l.mobile
+    }));
+    (trucks || []).forEach(t => items.push({
+      type:'TRUCK',
+      title: t.truck_no || 'Truck',
+      company: user?.company_name || '',
+      from_pin: t.location_pin,
+      to_pin: null,
+      vehicle: 'Truck',
+      views: t.views || 0,
+      interests: (t.interested || []).length,
+      shares: t.share || 0,
+      id: t.id,
+      mobile: t.mobile
+    }));
 
     let filtered = items.slice();
     const radius = parseInt($('radius-select').value) || 50;
@@ -1511,12 +1784,19 @@ async function renderFeed() {
     if (!filtered.length) { $('feed-container').innerHTML = '<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>'; return; }
     $('feed-container').innerHTML = filtered.map(i => {
       const bc = i.type === 'LOAD' ? 'load' : 'truck';
-      let loc = '', sub = '', rate = '', stats = '';
-      if (i.type === 'LOAD') { loc = '📍 ' + getLocName(i.from_pin) + ' → ' + getLocName(i.to_pin); sub = '💼 ' + i.company; rate = '💰 ₹' + (i.rate || 0).toLocaleString(); stats = '⚖️ ' + (i.weight || 0) + ' Kg • 🚛 ' + i.vehicle; }
-      else { const td = i.to_pin ? getLocName(i.to_pin) : 'Any'; loc = '📍 ' + getLocName(i.from_pin) + ' → ' + td; sub = '💼 ' + i.company; rate = '💰 ₹' + (i.rate || 0) + '/km'; stats = '🚛 ' + i.vehicle; }
+      let loc = '', sub = '', stats = '';
+      if (i.type === 'LOAD') {
+        loc = '📍 ' + getLocName(i.from_pin) + ' → ' + getLocName(i.to_pin);
+        sub = '💼 ' + i.company;
+        stats = '⚖️ ' + (i.weight || 0) + ' Kg • 🚛 ' + i.vehicle;
+      } else {
+        loc = '📍 ' + getLocName(i.from_pin);
+        sub = '🚛 ' + i.title;
+        stats = '📅 Available Now';
+      }
       return '<div class="feed-card" onclick="openDetail(\'' + i.type + '\',\'' + i.id + '\')">' +
         '<div class="header-row"><div class="title">' + i.title + '</div><span class="type-badge ' + bc + '">' + i.type + '</span></div>' +
-        '<div class="company">' + sub + '</div><div class="meta">' + loc + '</div><div class="meta">' + rate + '</div><div class="meta">' + stats + '</div>' +
+        '<div class="company">' + sub + '</div><div class="meta">' + loc + '</div><div class="meta">' + stats + '</div>' +
         '<div class="stats-row"><span>👁️ <span class="val">' + i.views + '</span></span><span>🤝 <span class="val">' + i.interests + '</span></span><span>📨 <span class="val">' + i.shares + '</span></span></div></div>';
     }).join('');
   } catch(e) { $('feed-container').innerHTML = '<div style="padding:30px 0;color:#ef4444;text-align:center">Error loading feed</div>'; }
@@ -1537,7 +1817,7 @@ function goHome() {
 }
 
 function switchPage(id) {
-  ['home-page','profile-page','edit-profile-page'].forEach(i => { const el = $(i); if (el) el.classList.toggle('hidden-page', i !== id); });
+  ['home-page','profile-page','edit-profile-page','postload-page','posttruck-page','detail-page'].forEach(i => { const el = $(i); if (el) el.classList.toggle('hidden-page', i !== id); });
 }
 
 function goPostLoad() { if (guest || !user) { showLogin(); return; } switchPage('postload-page'); }
@@ -1552,16 +1832,16 @@ function closeDetail() { detail = null; goHome(); }
 function openDetail(type, id) {
   const table = type === 'LOAD' ? 'active_loads' : 'active_trucks';
   sb.from(table).select('*').eq('id', id).single().then(r => {
-    if (r.data) { detail = r.data; switchPage('detail-page'); $('detail-title').textContent = type === 'LOAD' ? r.data.material || 'Details' : r.data.truck_no || 'Details'; $('detail-company').textContent = type === 'LOAD' ? r.data.company || 'N/A' : r.data.company_name || 'N/A'; }
+    if (r.data) { detail = r.data; switchPage('detail-page'); $('detail-title').textContent = type === 'LOAD' ? r.data.material || 'Details' : r.data.truck_no || 'Details'; $('detail-company').textContent = type === 'LOAD' ? r.data.company || 'N/A' : 'Truck Owner'; }
   });
 }
-function makeCall() { if (detail) { const num = detail.mobile || detail.driver_mobile; if (num) window.location.href = 'tel:' + num; } }
+function makeCall() { if (detail) { const num = detail.mobile; if (num) window.location.href = 'tel:' + num; } }
 function expressInterest() {}
 function contactUser() {}
 function handleShareClick() { if (navigator.share) navigator.share({title: 'ReturnTruck', text: 'Check out this listing on ReturnTruck!', url: window.location.href}); }
 
 // ============================================================
-// AUTH
+// AUTH FUNCTIONS (Login, OTP, Register)
 // ============================================================
 function continueAsGuest() { guest = true; user = null; localStorage.setItem('rt_user', JSON.stringify({guest: true})); showHome(); }
 function showLogin() { resetForm(); $('mobile').focus(); }
@@ -1789,67 +2069,20 @@ function autoLocate() {
 }
 
 // ============================================================
-// POST LOAD & TRUCK
-// ============================================================
-function publishLoad() {
-  if (!user) return;
-  const pickupPinId = $('pl-pickup-hidden').value;
-  const dropPinId = $('pl-drop-hidden').value;
-  if (!$('pl-material').value || !pickupPinId || !dropPinId) { toast('Please fill all required fields'); return; }
-  const loadData = {
-    material: $('pl-material').value,
-    weight: parseInt($('pl-weight').value) || 0,
-    dimensions: $('pl-dim').value || '',
-    pickup_pin: parseInt(pickupPinId),
-    drop_pin: parseInt(dropPinId),
-    rate: parseFloat($('pl-rate').value) || 0,
-    pickup_date: $('pl-date').value || null,
-    company: user.company_name || '',
-    mobile: user.mobile,
-    status: 1,
-    views: 0,
-    interests: [],
-    shares: 0,
-    created_at: new Date().toISOString()
-  };
-  sb.from('active_loads').insert(loadData).then(res => { if (res.error) { alert('Error: ' + res.error.message); return; } goHome(); });
-}
-
-function publishTruck() {
-  if (!user) return;
-  const locationPinId = $('pt-location-hidden').value;
-  const number = $('pt-number').value.trim().toUpperCase();
-  if (!number || !locationPinId) { toast('Please fill all required fields'); return; }
-  if (!isValidVehicleNumber(number)) { alert('Vehicle number must be 9-11 characters'); return; }
-  const truckData = {
-    truck_no: number,
-    location_pin: parseInt(locationPinId),
-    available_date: $('pt-available').value || null,
-    rate_km: parseFloat($('pt-rate-km').value) || 0,
-    driver_name: $('pt-driver').value || '',
-    driver_mobile: $('pt-driver-mobile').value || '',
-    company_name: user.company_name || '',
-    mobile: user.mobile,
-    vehicle_type: 'container',
-    status: 1,
-    views: 0,
-    interested: [],
-    share: 0,
-    created_at: new Date().toISOString()
-  };
-  sb.from('active_trucks').insert(truckData).then(res => { if (res.error) { alert('Error: ' + res.error.message); return; } goHome(); });
-}
-function autoFetchVehicle() {
-  const number = $('pt-number').value.trim().toUpperCase();
-  if (!number) return;
-  sb.from('active_vehicles').select('*').eq('vehicle_number', number).eq('modified_by', user.mobile).maybeSingle()
-    .then(res => { if (res.data) $('pt-number').value = res.data.vehicle_number; });
-}
-
-// ============================================================
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
+  // Set up character counts
+  document.getElementById('edit-details')?.addEventListener('input', function() {
+    updateCharCount('edit-details', 'edit-details-count');
+  });
+  document.getElementById('pl-instructions')?.addEventListener('input', function() {
+    updateCharCount('pl-instructions', 'pl-instructions-count');
+  });
+  document.getElementById('pt-other-details')?.addEventListener('input', function() {
+    updateCharCount('pt-other-details', 'pt-other-details-count');
+  });
+
   const saved = localStorage.getItem('rt_user');
   if (saved) {
     const sd = JSON.parse(saved);
