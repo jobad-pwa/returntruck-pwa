@@ -78,6 +78,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .feed-card .type-badge{flex-shrink:0;font-size:8px;padding:2px 8px;border-radius:4px;font-weight:700;text-transform:uppercase}
 .feed-card .type-badge.load{background:#dbeafe;color:#1e40af}
 .feed-card .type-badge.truck{background:#dcfce7;color:#166534}
+.feed-card .type-badge.agent{background:#fef3c7;color:#92400e}
 .feed-card .company{font-size:12px;color:#2563eb;font-weight:600;margin-bottom:2px}
 .feed-card .meta{font-size:11px;color:#475569;margin-top:3px;display:flex;align-items:center;gap:4px}
 .feed-card .stats-row{margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9;display:flex;gap:12px;font-size:10px;color:#94a3b8}
@@ -763,11 +764,10 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 <div id="detail-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span>
-        <button class="back-btn" onclick="closeDetail()">Cancel</button>
+        <button class="back-btn" onclick="closeDetail()">✕</button>
     </div>
     <div class="scroll-body" id="detail-scroll">
-        <div style="margin-bottom:12px"><div style="font-size:17px;font-weight:700" id="detail-title">Title</div><div id="detail-company" style="font-size:13px;color:#2563eb">Company</div></div>
-        <div class="detail-actions"><button class="btn-call" onclick="makeCall()">📞 Call</button><button class="btn-contact" onclick="contactUser()">✉️ Contact</button><button class="btn-bid" onclick="expressInterest()">🤝 Interest</button><button class="btn-share" onclick="handleShareClick()">↗️ Share</button></div>
+        <div id="detail-content"></div>
     </div>
     <div class="nav-fixed" id="bottom-nav5">
         <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
@@ -947,11 +947,9 @@ document.addEventListener('click', function(e) {
     const pinId = item.dataset.pinid;
     if (ctx && pinId) {
       selectLoc(ctx, pinId);
-      // Prevent the click from bubbling up and reopening
       e.stopPropagation();
     }
   }
-  // Close all suggestions when clicking outside
   document.querySelectorAll('.suggestions').forEach(s => {
     const parent = s.parentElement;
     if (parent && !parent.contains(e.target)) { 
@@ -972,7 +970,6 @@ function selectLoc(ctx, pinId) {
       inp.select(); 
       inp.classList.add('selected'); 
     }, 100);
-    // Close the suggestions dropdown
     const sug = $('suggestions-' + ctx);
     if (sug) { 
       sug.classList.remove('show'); 
@@ -993,14 +990,11 @@ function selectLoc(ctx, pinId) {
   else if (ctx === 'edit-location') hid = 'edit-location-hidden';
   else if (ctx === 'edit-route') hid = 'edit-route-hidden';
   if (hid && $(hid)) $(hid).value = pinId;
-  
-  // Close suggestions again (for safety)
   const sug = $('suggestions-' + ctx);
   if (sug) { 
     sug.classList.remove('show'); 
     sug.innerHTML = ''; 
   }
-  
   if (ctx === 'to') applyFilters();
 }
 
@@ -2176,7 +2170,11 @@ async function renderFeed() {
   try {
     const {data: loads} = await sb.from('active_loads').select('*').eq('status', 1);
     const {data: trucks} = await sb.from('active_trucks').select('*').eq('status', 1);
+    const {data: users} = await sb.from('active_users').select('*');
+    
     items = [];
+    
+    // Add loads
     (loads || []).forEach(l => items.push({
       type:'LOAD', 
       title: l.material || 'Cargo', 
@@ -2192,10 +2190,12 @@ async function renderFeed() {
       id: l.id, 
       mobile: l.mobile
     }));
+    
+    // Add trucks
     (trucks || []).forEach(t => items.push({
       type:'TRUCK', 
       title: t.truck_no || 'Truck',
-      company: user?.company_name || '', 
+      company: t.company || '', 
       from_pin: t.location_pin,
       to_pin: null, 
       vehicle: 'Truck', 
@@ -2206,12 +2206,42 @@ async function renderFeed() {
       id: t.id, 
       mobile: t.mobile
     }));
+    
+    // Add agents (users with user_type containing 3)
+    (users || []).forEach(u => {
+      let ut = u.user_type || [];
+      if (!Array.isArray(ut) && typeof ut === 'number') ut = [ut];
+      if (ut.includes(3)) {
+        let loadCount = 0, truckCount = 0;
+        (loads || []).forEach(l => { if (l.mobile == u.mobile) loadCount++; });
+        (trucks || []).forEach(t => { if (t.mobile == u.mobile) truckCount++; });
+        items.push({
+          type:'AGENT', 
+          title: u.company_name || u.name || 'Agent',
+          company: u.company_name || '',
+          from_pin: u.location,
+          to_pin: null, 
+          vehicle: 'Agent', 
+          views: 0,
+          rate: 0,
+          interests: 0, 
+          shares: 0,
+          id: u.mobile, 
+          mobile: u.mobile,
+          user: u,
+          loads_count: loadCount,
+          trucks_count: truckCount,
+          rating: u.rating || '4.8'
+        });
+      }
+    });
 
     let filtered = items.slice();
     const radius = parseInt(document.getElementById('radius-select').value) || 50;
     if (homePinId) { const hl = getLoc(homePinId); if (hl) filtered = filtered.filter(i => { const fl = getLoc(i.from_pin); return fl ? dist(hl.lat, hl.lng, fl.lat, fl.lng) <= radius : false; }); }
     if (tab === 'LOAD') filtered = filtered.filter(i => i.type === 'LOAD');
     else if (tab === 'TRUCK') filtered = filtered.filter(i => i.type === 'TRUCK');
+    else if (tab === 'AGENT') filtered = filtered.filter(i => i.type === 'AGENT');
     if (toPinId) { const tl = getLoc(toPinId); if (tl) filtered = filtered.filter(i => { const tl2 = getLoc(i.to_pin); return tl2 ? dist(tl.lat, tl.lng, tl2.lat, tl2.lng) <= radius : false; }); }
     const v = document.getElementById('filter-vehicle')?.value;
     if (v && v !== 'ALL') filtered = filtered.filter(i => i.vehicle && i.vehicle.toLowerCase().includes(v.toLowerCase()));
@@ -2219,18 +2249,23 @@ async function renderFeed() {
     document.getElementById('results-count').textContent = 'Showing ' + filtered.length + ' Records within ' + radius + ' KM';
     if (!filtered.length) { document.getElementById('feed-container').innerHTML = '<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>'; return; }
     document.getElementById('feed-container').innerHTML = filtered.map(i => {
-      const bc = i.type === 'LOAD' ? 'load' : 'truck';
+      let bc = i.type === 'LOAD' ? 'load' : (i.type === 'TRUCK' ? 'truck' : 'agent');
       let loc = '', sub = '', stats = '', rateDisplay = '';
       if (i.type === 'LOAD') {
         loc = '📍 ' + getLocName(i.from_pin) + ' → ' + getLocName(i.to_pin);
         sub = '💼 ' + i.company;
         stats = '⚖️ ' + formatIndianNumber(i.weight || 0) + ' Kg • 🚛 ' + i.vehicle;
         rateDisplay = ' ₹' + formatIndianNumber(i.rate);
-      } else {
+      } else if (i.type === 'TRUCK') {
         loc = '📍 ' + getLocName(i.from_pin);
         sub = '🚛 ' + i.title;
         stats = '📅 Available Now';
         rateDisplay = ' ₹' + formatIndianNumber(i.rate);
+      } else if (i.type === 'AGENT') {
+        loc = '📍 ' + (i.from_pin ? getLocName(i.from_pin) : 'Multiple Locations');
+        sub = '🤝 ' + i.company;
+        stats = '📦 ' + (i.loads_count || 0) + ' Loads • 🚛 ' + (i.trucks_count || 0) + ' Trucks';
+        rateDisplay = '⭐ ' + (i.rating || '4.8');
       }
       return '<div class="feed-card" onclick="openDetail(\'' + i.type + '\',\'' + i.id + '\')">' +
         '<div class="header-row"><div class="title">' + i.title + '</div><span class="type-badge ' + bc + '">' + i.type + '</span></div>' +
@@ -2239,7 +2274,10 @@ async function renderFeed() {
         '<div class="meta">' + stats + '</div>' +
         '<div class="stats-row"><span>👁️ <span class="val">' + i.views + '</span></span><span>🤝 <span class="val">' + i.interests + '</span></span><span>📨 <span class="val">' + i.shares + '</span></span></div></div>';
     }).join('');
-  } catch(e) { document.getElementById('feed-container').innerHTML = '<div style="padding:30px 0;color:#ef4444;text-align:center">Error loading feed</div>'; }
+  } catch(e) { 
+    console.error('Render feed error:', e);
+    document.getElementById('feed-container').innerHTML = '<div style="padding:30px 0;color:#ef4444;text-align:center">Error loading feed</div>'; 
+  }
 }
 
 function applyFilters() { renderFeed(); }
@@ -2267,18 +2305,367 @@ function cancelPost() { goHome(); }
 function closeDetail() { detail = null; goHome(); }
 
 // ============================================================
-// DETAIL
+// DETAIL FUNCTIONS - Load, Truck, Agent Views
 // ============================================================
+
 function openDetail(type, id) {
-  const table = type === 'LOAD' ? 'active_loads' : 'active_trucks';
-  sb.from(table).select('*').eq('id', id).single().then(r => {
-    if (r.data) { detail = r.data; switchPage('detail-page'); document.getElementById('detail-title').textContent = type === 'LOAD' ? r.data.material || 'Details' : r.data.truck_no || 'Details'; document.getElementById('detail-company').textContent = type === 'LOAD' ? r.data.company || 'N/A' : 'Truck Owner'; }
-  });
+    if (type === 'AGENT') {
+        sb.from('active_users').select('*').eq('mobile', parseInt(id)).single()
+            .then(async r => {
+                if (r.data) {
+                    detail = { type: 'AGENT', id: id, user: r.data, mobile: parseInt(id) };
+                    // Count loads and trucks for this agent
+                    const [loads, trucks] = await Promise.all([
+                        sb.from('active_loads').select('*', {count:'exact'}).eq('mobile', parseInt(id)).eq('status', 1),
+                        sb.from('active_trucks').select('*', {count:'exact'}).eq('mobile', parseInt(id)).eq('status', 1)
+                    ]);
+                    detail.loads_count = loads.count || 0;
+                    detail.trucks_count = trucks.count || 0;
+                    switchPage('detail-page');
+                    renderDetailView(detail);
+                }
+            });
+        return;
+    }
+    
+    const table = type === 'LOAD' ? 'active_loads' : 'active_trucks';
+    sb.from(table).select('*').eq('id', id).single()
+        .then(async r => {
+            if (r.data) {
+                detail = r.data;
+                detail.type = type;
+                
+                const { data: userData } = await sb
+                    .from('active_users')
+                    .select('*')
+                    .eq('mobile', r.data.mobile)
+                    .single();
+                
+                detail.user = userData;
+                switchPage('detail-page');
+                renderDetailView(detail);
+            }
+        }).catch(err => {
+            console.error('Error loading detail:', err);
+            toast('Error loading details');
+        });
 }
-function makeCall() { if (detail) { const num = detail.mobile; if (num) window.location.href = 'tel:' + num; } }
-function expressInterest() {}
-function contactUser() {}
-function handleShareClick() { if (navigator.share) navigator.share({title: 'ReturnTruck', text: 'Check out this listing on ReturnTruck!', url: window.location.href}); }
+
+function renderDetailView(data) {
+    const container = document.getElementById('detail-content');
+    
+    if (data.type === 'LOAD') {
+        container.innerHTML = renderLoadDetail(data);
+    } else if (data.type === 'TRUCK') {
+        container.innerHTML = renderTruckDetail(data);
+    } else if (data.type === 'AGENT') {
+        container.innerHTML = renderAgentDetail(data);
+    }
+    
+    updateStats(data);
+}
+
+function renderLoadDetail(load) {
+    const user = load.user || {};
+    const fromLoc = getLoc(load.pickup_pin);
+    const toLoc = getLoc(load.drop_pin);
+    const distance = fromLoc && toLoc ? Math.round(dist(fromLoc.lat, fromLoc.lng, toLoc.lat, toLoc.lng)) : 'N/A';
+    const dimensions = load.dimensions ? load.dimensions.join(' x ') + ' ft' : 'N/A';
+    const interests = load.interests || [];
+    const website = user.company_web ? `<a href="${user.company_web.startsWith('http') ? user.company_web : 'https://' + user.company_web}" target="_blank" class="website-link" onclick="event.stopPropagation();">${user.company_web} ↗</a>` : '';
+    const isVerified = (user.pan && user.gst) ? '✅ Verified' : '🔒 Unverified';
+    
+    return `
+        <div style="margin-bottom:12px;">
+            <div style="font-size:20px;font-weight:700;color:#0f172a;">📦 ${load.material || 'Cargo'}</div>
+            <div style="font-size:14px;color:#2563eb;font-weight:600;margin-top:2px;">
+                ${user.company_name || 'Unknown Company'}
+                ${website ? ` • ${website}` : ''}
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-top:2px;">
+                ⭐ ${load.rating || '4.8'} • ${isVerified}
+                ${user.pan ? ` • PAN: ${user.pan}` : ''}
+                ${user.gst ? ` • GST: ${user.gst}` : ''}
+            </div>
+        </div>
+        
+        <div class="profile-section">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px;">📋 LOAD SPECS</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:13px;color:#475569;">
+                <div>⚖️ Weight: <strong>${formatIndianNumber(load.weight || 0)} Kg</strong></div>
+                <div>📐 Dimensions: <strong>${dimensions}</strong></div>
+                <div>🚛 Vehicle: <strong>${load.vehicle_type || 'Any'}</strong></div>
+                <div>💲 Rate: <strong>₹${formatIndianNumber(load.rate || 0)}</strong></div>
+                ${load.odc_allowed !== undefined ? `<div>🚛 ODC: <strong>${load.odc_allowed ? '✅ Yes' : '❌ No'}</strong></div>` : ''}
+            </div>
+        </div>
+        
+        <div class="profile-section">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px;">📍 ROUTE</div>
+            <div style="font-size:13px;color:#475569;">
+                <div>🔵 <strong>From:</strong> ${fromLoc ? getLocDisplayName(fromLoc) : 'N/A'}</div>
+                <div style="text-align:center;font-size:16px;padding:4px 0;">⬇️</div>
+                <div>🔴 <strong>To:</strong> ${toLoc ? getLocDisplayName(toLoc) : 'N/A'}</div>
+                <div style="margin-top:4px;font-size:12px;color:#94a3b8;">📏 Estimated Distance: <strong>${distance} KM</strong></div>
+                <div style="margin-top:4px;font-size:12px;color:#94a3b8;">📅 Pickup: <strong>${load.pickup_date ? new Date(load.pickup_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'Flexible'}</strong></div>
+            </div>
+        </div>
+        
+        ${load.instructions ? `
+        <div class="profile-section">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:4px;">📝 Instructions</div>
+            <div style="font-size:13px;color:#475569;">${load.instructions}</div>
+        </div>
+        ` : ''}
+        
+        <div class="profile-section">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px;">📊 STATS</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;text-align:center;">
+                <div><span style="font-size:16px;">👁️</span><br><strong style="font-size:16px;color:#0f172a;">${load.views || 0}</strong><br><span style="font-size:9px;color:#94a3b8;">Views</span></div>
+                <div><span style="font-size:16px;">📞</span><br><strong style="font-size:16px;color:#0f172a;">${load.calls || 0}</strong><br><span style="font-size:9px;color:#94a3b8;">Calls</span></div>
+                <div><span style="font-size:16px;">🤝</span><br><strong style="font-size:16px;color:#0f172a;">${interests.length}</strong><br><span style="font-size:9px;color:#94a3b8;">Interests</span></div>
+                <div><span style="font-size:16px;">📨</span><br><strong style="font-size:16px;color:#0f172a;">${load.shares || 0}</strong><br><span style="font-size:9px;color:#94a3b8;">Shares</span></div>
+            </div>
+            ${interests.length > 0 ? `
+            <div style="margin-top:8px;font-size:11px;color:#64748b;">
+                🤝 Interested Users: ${interests.map(m => m).join(', ')}
+            </div>
+            ` : ''}
+        </div>
+        
+        ${renderActionButtons(load)}
+    `;
+}
+
+function renderTruckDetail(truck) {
+    const user = truck.user || {};
+    const loc = getLoc(truck.location_pin);
+    const interests = truck.interested || [];
+    const website = user.company_web ? `<a href="${user.company_web.startsWith('http') ? user.company_web : 'https://' + user.company_web}" target="_blank" class="website-link" onclick="event.stopPropagation();">${user.company_web} ↗</a>` : '';
+    const isVerified = (user.pan && user.gst) ? '✅ Verified' : '🔒 Unverified';
+    
+    // Get vehicle details
+    let vehicleSpecsHtml = '<div>🔄 Loading...</div>';
+    sb.from('active_vehicles').select('*').eq('vehicle_number', truck.truck_no).single()
+        .then(v => {
+            if (v.data) {
+                const dims = v.data.dimensions ? v.data.dimensions.join(' x ') + ' ft' : 'N/A';
+                const vehDetail = document.getElementById('vehicle-detail-specs');
+                if (vehDetail) {
+                    vehDetail.innerHTML = `
+                        <div>🚛 Type: <strong>${v.data.vehicle_type || 'N/A'}</strong></div>
+                        <div>📐 Dimensions: <strong>${dims}</strong></div>
+                        <div>⚖️ Max Weight: <strong>${formatIndianNumber(v.data.max_weight || 0)} Kg</strong></div>
+                        <div>🚛 ODC: <strong>${v.data.odc_allowed ? '✅ Yes' : '❌ No'}</strong></div>
+                    `;
+                }
+            }
+        });
+    
+    return `
+        <div style="margin-bottom:12px;">
+            <div style="font-size:20px;font-weight:700;color:#0f172a;">🚛 ${truck.truck_no || 'Truck'}</div>
+            <div style="font-size:14px;color:#2563eb;font-weight:600;margin-top:2px;">
+                ${user.company_name || 'Unknown Company'}
+                ${website ? ` • ${website}` : ''}
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-top:2px;">
+                ⭐ ${truck.rating || '4.7'} • ${isVerified}
+                ${user.pan ? ` • PAN: ${user.pan}` : ''}
+                ${user.gst ? ` • GST: ${user.gst}` : ''}
+            </div>
+        </div>
+        
+        <div class="profile-section">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px;">📋 VEHICLE SPECS</div>
+            <div id="vehicle-detail-specs" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:13px;color:#475569;">
+                ${vehicleSpecsHtml}
+            </div>
+            <div style="margin-top:6px;font-size:13px;color:#475569;">
+                💲 Rate/KM: <strong>₹${formatIndianNumber(truck.rate || 0)}</strong>
+            </div>
+        </div>
+        
+        <div class="profile-section">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px;">📍 CURRENT LOCATION</div>
+            <div style="font-size:13px;color:#475569;">
+                <div>📌 ${loc ? getLocDisplayName(loc) : 'N/A'}</div>
+                <div style="margin-top:4px;font-size:12px;color:#94a3b8;">📅 Available: <strong>${truck.available_date ? new Date(truck.available_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'Now'}</strong></div>
+            </div>
+        </div>
+        
+        ${user.preferred_routes && user.preferred_routes.length > 0 ? `
+        <div class="profile-section">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:4px;">🗺️ Preferred Routes</div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px;">
+                ${user.preferred_routes.map(r => {
+                    const loc2 = getLoc(r);
+                    return `<span class="route-tag">${loc2 ? getLocDisplayName(loc2) : r}</span>`;
+                }).join('')}
+            </div>
+        </div>
+        ` : ''}
+        
+        ${truck.other_details ? `
+        <div class="profile-section">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:4px;">📝 Other Details</div>
+            <div style="font-size:13px;color:#475569;">${truck.other_details}</div>
+        </div>
+        ` : ''}
+        
+        <div class="profile-section">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px;">📊 STATS</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;text-align:center;">
+                <div><span style="font-size:16px;">👁️</span><br><strong style="font-size:16px;color:#0f172a;">${truck.views || 0}</strong><br><span style="font-size:9px;color:#94a3b8;">Views</span></div>
+                <div><span style="font-size:16px;">📞</span><br><strong style="font-size:16px;color:#0f172a;">${truck.calls || 0}</strong><br><span style="font-size:9px;color:#94a3b8;">Calls</span></div>
+                <div><span style="font-size:16px;">🤝</span><br><strong style="font-size:16px;color:#0f172a;">${interests.length}</strong><br><span style="font-size:9px;color:#94a3b8;">Interests</span></div>
+                <div><span style="font-size:16px;">📨</span><br><strong style="font-size:16px;color:#0f172a;">${truck.share || 0}</strong><br><span style="font-size:9px;color:#94a3b8;">Shares</span></div>
+            </div>
+            ${interests.length > 0 ? `
+            <div style="margin-top:8px;font-size:11px;color:#64748b;">
+                🤝 Interested Users: ${interests.map(m => m).join(', ')}
+            </div>
+            ` : ''}
+        </div>
+        
+        ${renderActionButtons(truck)}
+    `;
+}
+
+function renderAgentDetail(agent) {
+    const user = agent.user || {};
+    const website = user.company_web ? `<a href="${user.company_web.startsWith('http') ? user.company_web : 'https://' + user.company_web}" target="_blank" class="website-link" onclick="event.stopPropagation();">${user.company_web} ↗</a>` : '';
+    const isVerified = (user.pan && user.gst) ? '✅ Verified Agent' : '🔒 Unverified';
+    const endorsements = user.endorsements || 0;
+    const rating = user.rating || '4.8';
+    
+    return `
+        <div style="margin-bottom:12px;">
+            <div style="font-size:20px;font-weight:700;color:#0f172a;">🤝 ${user.company_name || agent.name || 'Agent'}</div>
+            <div style="font-size:14px;color:#2563eb;font-weight:600;margin-top:2px;">
+                ${website ? website : ''}
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-top:2px;">
+                ⭐ ${rating} (${endorsements} endorsements) • ${isVerified}
+                ${user.pan ? ` • PAN: ${user.pan}` : ''}
+                ${user.gst ? ` • GST: ${user.gst}` : ''}
+            </div>
+        </div>
+        
+        ${user.preferred_routes && user.preferred_routes.length > 0 ? `
+        <div class="profile-section">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px;">📍 Service Routes</div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px;">
+                ${user.preferred_routes.map(r => {
+                    const loc = getLoc(r);
+                    return `<span class="route-tag">${loc ? getLocDisplayName(loc) : r}</span>`;
+                }).join('')}
+            </div>
+        </div>
+        ` : ''}
+        
+        ${user.details ? `
+        <div class="profile-section">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:4px;">📝 Details</div>
+            <div style="font-size:13px;color:#475569;">${user.details}</div>
+        </div>
+        ` : ''}
+        
+        <div class="profile-section">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px;">📊 STATS</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;text-align:center;">
+                <div><span style="font-size:16px;">📦</span><br><strong style="font-size:16px;color:#0f172a;">${agent.loads_count || 0}</strong><br><span style="font-size:9px;color:#94a3b8;">Loads</span></div>
+                <div><span style="font-size:16px;">🚛</span><br><strong style="font-size:16px;color:#0f172a;">${agent.trucks_count || 0}</strong><br><span style="font-size:9px;color:#94a3b8;">Trucks</span></div>
+                <div><span style="font-size:16px;">🤝</span><br><strong style="font-size:16px;color:#0f172a;">${agent.deals || 0}</strong><br><span style="font-size:9px;color:#94a3b8;">Deals</span></div>
+                <div><span style="font-size:16px;">⭐</span><br><strong style="font-size:16px;color:#0f172a;">${rating}</strong><br><span style="font-size:9px;color:#94a3b8;">Rating</span></div>
+            </div>
+        </div>
+        
+        ${renderActionButtons(agent)}
+    `;
+}
+
+function renderActionButtons(item) {
+    const isOwner = user && item.mobile && user.mobile == item.mobile;
+    const mobileNum = item.mobile || '';
+    
+    return `
+        <div class="detail-actions">
+            <button class="btn-call" onclick="makeCall('${mobileNum}')">📞 <span style="font-size:8px;">Call</span></button>
+            <button class="btn-contact" onclick="contactUser('${mobileNum}')">💬 <span style="font-size:8px;">Chat</span></button>
+            <button class="btn-bid" onclick="expressInterest('${item.id}', '${item.type}')">🤝 <span style="font-size:8px;">Interest</span></button>
+            <button class="btn-share" onclick="handleShareClick()">↗️ <span style="font-size:8px;">Share</span></button>
+        </div>
+        ${!isOwner ? `<button class="btn-primary" style="background:#8b5cf6;margin-top:8px;" onclick="expressInterest('${item.id}', '${item.type}')">🔒 Express Interest</button>` : ''}
+    `;
+}
+
+// ============================================================
+// DETAIL ACTION FUNCTIONS
+// ============================================================
+
+function makeCall(mobile) {
+    if (mobile) {
+        window.location.href = 'tel:' + mobile;
+    } else {
+        toast('Phone number not available');
+    }
+}
+
+function contactUser(mobile) {
+    if (mobile) {
+        window.open('https://wa.me/91' + mobile, '_blank');
+    } else {
+        toast('Mobile number not available');
+    }
+}
+
+function expressInterest(id, type) {
+    if (!user) {
+        toast('Please login first to express interest');
+        return;
+    }
+    
+    const table = type === 'LOAD' ? 'active_loads' : (type === 'TRUCK' ? 'active_trucks' : 'active_users');
+    const field = type === 'LOAD' ? 'interests' : (type === 'TRUCK' ? 'interested' : 'endorsements');
+    
+    sb.from(table).select(field).eq('id', id).single()
+        .then(r => {
+            if (r.data) {
+                let interests = r.data[field] || [];
+                if (!Array.isArray(interests)) interests = [];
+                
+                if (interests.includes(parseInt(user.mobile))) {
+                    toast('You already expressed interest');
+                    return;
+                }
+                
+                interests.push(parseInt(user.mobile));
+                
+                sb.from(table).update({ [field]: interests }).eq('id', id)
+                    .then(() => {
+                        toast('✅ Interest expressed successfully!');
+                        // Update the detail view
+                        openDetail(type, id);
+                    });
+            }
+        });
+}
+
+function updateStats(item) {
+    if (!item || !item.id) return;
+    const table = item.type === 'LOAD' ? 'active_loads' : 'active_trucks';
+    const views = (item.views || 0) + 1;
+    sb.from(table).update({ views: views }).eq('id', item.id).then(() => {});
+}
+
+function handleShareClick() { 
+    if (navigator.share) {
+        navigator.share({title: 'ReturnTruck', text: 'Check out this listing on ReturnTruck!', url: window.location.href});
+    } else {
+        toast('Share this listing with your contacts');
+    }
+}
 
 // ============================================================
 // AUTO LOCATE
