@@ -453,7 +453,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         </div>
         <div class="grid-2">
             <div class="profile-section" style="margin-bottom:0;">
-                <label class="form-label">💲 Negotiable Price (₹)</label>
+                <label class="form-label"> Negotiable Price (₹)</label>
                 <input class="form-control" type="text" id="pl-rate" placeholder="0" oninput="formatInputNumber(this)">
             </div>
             <div class="profile-section" style="margin-bottom:0;">
@@ -505,7 +505,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <input class="form-control" type="date" id="pt-available">
             </div>
             <div class="profile-section" style="margin-bottom:0;">
-                <label class="form-label">💲 Negotiable Price (₹)</label>
+                <label class="form-label"> Price/KM (₹)</label>
                 <input class="form-control" type="text" id="pt-rate" placeholder="0" oninput="formatInputNumber(this)">
             </div>
         </div>
@@ -2014,7 +2014,7 @@ function loadMyLoads() {
       container.innerHTML = loads.map(l =>
         '<div class="list-item">' +
         '<div class="title">' + l.material + ' • ' + getLocName(l.pickup_pin) + ' → ' + getLocName(l.drop_pin) + '</div>' +
-        '<div class="sub">💲 ₹' + formatIndianNumber(l.rate || 0) + ' • ⚖️ ' + formatIndianNumber(l.weight || 0) + ' Kg • 🚛 ' + (l.vehicle_type || 'Any') + '</div>' +
+        '<div class="sub"> ₹' + formatIndianNumber(l.rate || 0) + ' • ⚖️ ' + formatIndianNumber(l.weight || 0) + ' Kg • 🚛 ' + (l.vehicle_type || 'Any') + '</div>' +
         '<div class="actions"><button class="delete" onclick="deleteLoadItem(\'' + l.id + '\')">🗑️ Delete</button></div>' +
         '</div>'
       ).join('');
@@ -2033,7 +2033,7 @@ function loadMyTrucks() {
       container.innerHTML = trucks.map(t =>
         '<div class="list-item">' +
         '<div class="title">' + t.truck_no + ' • 📍 ' + getLocName(t.location_pin) + '</div>' +
-        '<div class="sub">💲 ₹' + formatIndianNumber(t.rate || 0) + ' • 📅 ' + (t.available_date ? new Date(t.available_date).toLocaleDateString() : 'Flexible') + '</div>' +
+        '<div class="sub"> ₹' + formatIndianNumber(t.rate || 0) + ' • 📅 ' + (t.available_date ? new Date(t.available_date).toLocaleDateString() : 'Flexible') + '</div>' +
         '<div class="actions"><button class="delete" onclick="deleteTruckItem(\'' + t.id + '\')">🗑️ Delete</button></div>' +
         '</div>'
       ).join('');
@@ -2225,12 +2225,12 @@ async function renderFeed() {
         loc = '📍 ' + getLocName(i.from_pin) + ' → ' + getLocName(i.to_pin);
         sub = '💼 ' + i.company;
         stats = '⚖️ ' + formatIndianNumber(i.weight || 0) + ' Kg • 🚛 ' + i.vehicle;
-        rateDisplay = '💲 ₹' + formatIndianNumber(i.rate);
+        rateDisplay = ' ₹' + formatIndianNumber(i.rate);
       } else {
         loc = '📍 ' + getLocName(i.from_pin);
         sub = '🚛 ' + i.title;
         stats = '📅 Available Now';
-        rateDisplay = '💲 ₹' + formatIndianNumber(i.rate);
+        rateDisplay = ' ₹' + formatIndianNumber(i.rate);
       }
       return '<div class="feed-card" onclick="openDetail(\'' + i.type + '\',\'' + i.id + '\')">' +
         '<div class="header-row"><div class="title">' + i.title + '</div><span class="type-badge ' + bc + '">' + i.type + '</span></div>' +
