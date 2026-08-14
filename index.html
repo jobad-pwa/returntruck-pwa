@@ -43,8 +43,10 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .login-step-container{flex:1;display:flex;flex-direction:column;justify-content:center}
 .input-field{width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;background:#fff;margin-bottom:12px}
 .input-field:focus{border-color:#2563eb;outline:none}
+.input-field:disabled{background:#f1f5f9;color:#94a3b8}
 .btn-primary{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px}
 .btn-primary:hover{background:#1d4ed8}
+.btn-primary:disabled{opacity:0.6;cursor:not-allowed}
 .btn-primary.success{background:#16a34a}.btn-primary.success:hover{background:#15803d}
 .btn-back{width:100%;padding:14px;background:#6b7280;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer}
 .login-divider{display:flex;align-items:center;gap:12px;margin:16px 0}
@@ -110,6 +112,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .back-btn{background:transparent;border:none;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;padding:4px 8px}.back-btn:hover{color:#2563eb}
 .otp-input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff}
 .otp-input:focus{border-color:#2563eb;outline:none}
+.otp-input:disabled{background:#f1f5f9;color:#94a3b8}
 .error-text{color:#dc2626;font-size:12px;text-align:center;margin-top:4px;display:none}
 .success-text{color:#16a34a;font-size:12px;text-align:center;margin-top:4px;display:none}
 .resend-btn{background:transparent;border:none;color:#2563eb;font-weight:600;cursor:pointer;font-size:12px;text-decoration:underline}
@@ -172,6 +175,9 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .vehicle-modal-content .modal-close:hover{color:#dc2626}
 .vehicle-modal-content .form-group{margin-bottom:12px}
 .vehicle-modal-content .form-group .readonly-number{background:#f1f5f9;padding:10px 12px;border-radius:8px;font-weight:700;font-size:16px;color:#0f172a;border:1px solid #e2e8f0}
+.spinner{display:inline-block;width:20px;height:20px;border:3px solid #e2e8f0;border-top-color:#2563eb;border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{display:flex;align-items:center;justify-content:center;gap:8px;color:#64748b;font-size:14px;padding:8px}
 </style>
 </head>
 <body>
@@ -196,24 +202,40 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         </div>
     </div>
     <div class="login-step-container">
+        <!-- Step 1: Enter Mobile Number -->
         <div id="step1">
             <input type="tel" id="mobile" class="input-field" placeholder="Enter Mobile Number" maxlength="10" autofocus>
             <div id="mobile-status" style="font-size:12px;color:#94a3b8;text-align:center;margin-top:4px"></div>
+            <div id="mobile-loading" class="loading-text hidden">
+                <span class="spinner"></span>
+                <span>Checking...</span>
+            </div>
             <div class="login-divider"><div style="flex:1;height:1px;background:#e2e8f0"></div><span style="font-size:10px;color:#94a3b8">or continue as</span><div style="flex:1;height:1px;background:#e2e8f0"></div></div>
             <button style="width:100%;padding:12px;border:1.5px solid #8b5cf6;border-radius:12px;font-size:14px;font-weight:600;color:#8b5cf6;background:transparent;cursor:pointer" onclick="continueAsGuest()">👤 Guest</button>
         </div>
+        
+        <!-- Step 2: Enter PIN -->
         <div id="step2" class="hidden">
-            <div style="text-align:center;margin-bottom:16px"><div id="display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div><div style="font-size:14px;font-weight:500;color:#475569">Enter your 4-digit PIN</div></div>
+            <div style="text-align:center;margin-bottom:16px">
+                <div id="display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
+                <div style="font-size:14px;font-weight:500;color:#475569">Enter your 4-digit PIN</div>
+            </div>
             <input type="password" id="pin" class="input-field" style="letter-spacing:4px;" placeholder="Enter 4-digit PIN" maxlength="4">
             <div id="pin-error" class="error-text">❌ Incorrect PIN. Please try again.</div>
             <div style="font-size:12px;text-align:center;margin-bottom:12px;color:#64748b">Forgot PIN? <span style="color:#2563eb;cursor:pointer;font-weight:600" onclick="showResetOTP()">Reset PIN</span></div>
             <button onclick="submitPin()" id="submitBtn" class="btn-primary" style="background:#16a34a">🔐 Login</button>
             <button onclick="resetForm()" class="btn-back">← Change Number</button>
         </div>
+        
+        <!-- Step 3: OTP Verification -->
         <div id="step3" class="hidden">
             <div style="text-align:center;margin-bottom:12px">
                 <div id="wa-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
                 <div id="otp-purpose" style="font-size:13px;color:#475569">Enter OTP sent via WhatsApp</div>
+                <div id="otp-loading" class="loading-text hidden" style="justify-content:center;padding:4px">
+                    <span class="spinner"></span>
+                    <span>Sending OTP...</span>
+                </div>
             </div>
             <div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px">
                 <input type="text" maxlength="1" class="otp-input" inputmode="numeric" oninput="otpInput(this)">
@@ -234,6 +256,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <button onclick="verifyOTP()" id="verify-btn" class="btn-primary" style="background:#16a34a">✅ Verify</button>
             <button onclick="resetForm()" class="btn-back">← Change Number</button>
         </div>
+        
+        <!-- Step 4: Set PIN -->
         <div id="step4" class="hidden">
             <div style="text-align:center;margin-bottom:16px"><div id="reg-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
             <div id="step4-purpose" style="font-size:13px;color:#475569">Set your 4-digit PIN for login</div></div>
@@ -336,7 +360,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
-<!-- ==================== POST LOAD PAGE ==================== -->
+<!-- POST LOAD PAGE -->
 <div id="postload-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span>
@@ -438,7 +462,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
-<!-- ==================== POST TRUCK PAGE ==================== -->
+<!-- POST TRUCK PAGE -->
 <div id="posttruck-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span>
@@ -486,7 +510,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
-<!-- ==================== PROFILE PAGE ==================== -->
+<!-- PROFILE PAGE -->
 <div id="profile-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span>
@@ -578,7 +602,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
-<!-- ==================== EDIT PROFILE PAGE ==================== -->
+<!-- EDIT PROFILE PAGE -->
 <div id="edit-profile-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <span class="logo"><span class="logo-icon">✏️</span><span class="logo-text">Edit Profile</span></span>
@@ -660,7 +684,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
-<!-- ==================== VEHICLE EDIT MODAL ==================== -->
+<!-- VEHICLE EDIT MODAL -->
 <div class="vehicle-modal" id="vehicle-modal">
     <div class="vehicle-modal-content">
         <div class="modal-header">
@@ -773,6 +797,7 @@ let otpTimer = null, otpSeconds = 300, otpVerified = false, generatedOTP = '';
 let isResetFlow = false, otpPurpose = 'registration';
 let vehicleDataMap = {};
 let editingVehicleNumber = null;
+let mobileCheckTimeout = null;
 
 // ============================================================
 // HELPER FUNCTIONS FOR UNIQUE ARRAYS
@@ -799,7 +824,7 @@ function existsInArray(array, value) {
 }
 
 // ============================================================
-// VEHICLE NUMBER VALIDATION - 9-12 characters, only letters and numbers
+// VEHICLE NUMBER VALIDATION
 // ============================================================
 function isValidVehicleNumber(number) {
     return /^[A-Za-z0-9]{9,12}$/.test(number);
@@ -810,73 +835,6 @@ function validateVehicleNumberInput(input) {
     if (input.value !== cleaned) input.value = cleaned;
     input.value = input.value.toUpperCase();
     if (input.value.length > 12) input.value = input.value.substring(0, 12);
-}
-
-// ============================================================
-// VEHICLE SEARCH FOR TRUCK PAGE
-// ============================================================
-function searchVehiclesForTruck(query) {
-    const dropdown = document.getElementById('pt-vehicle-suggest-dropdown');
-    const q = query.trim().toUpperCase();
-    
-    // Validate input - only letters and numbers
-    const cleaned = q.replace(/[^A-Za-z0-9]/g, '');
-    if (q !== cleaned) {
-        document.getElementById('pt-vehicle-number').value = cleaned;
-    }
-    
-    if (!q || q.length < 1) {
-        dropdown.classList.remove('show');
-        dropdown.innerHTML = '';
-        return;
-    }
-    
-    dropdown.innerHTML = '<div class="item" style="color:#94a3b8;">Searching...</div>';
-    dropdown.classList.add('show');
-    
-    sb.from('active_vehicles')
-        .select('*')
-        .ilike('vehicle_number', '%' + q + '%')
-        .limit(10)
-        .then(result => {
-            if (result.error) {
-                console.error('Error searching vehicles:', result.error);
-                dropdown.innerHTML = '<div class="item" style="color:#dc2626;">Error loading vehicles</div>';
-                return;
-            }
-            
-            const vlist = result.data || [];
-            
-            if (!vlist.length) {
-                dropdown.innerHTML = '<div class="item add-new" onclick="showTruckVehicleNotFound(\'' + q + '\')">➕ Vehicle "' + q + '" not found. Please register in Edit Profile.</div>';
-                dropdown.classList.add('show');
-                return;
-            }
-            
-            let html = '';
-            vlist.forEach(v => {
-                const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
-                html += '<div class="item" onclick="selectVehicleForTruck(\'' + v.vehicle_number + '\')">' +
-                    v.vehicle_number + ' <span class="sub">' + v.vehicle_type + ' • ' + dims + 'ft</span>' +
-                    '</div>';
-            });
-            dropdown.innerHTML = html;
-            dropdown.classList.add('show');
-        }).catch(err => {
-            console.error('Error:', err);
-            dropdown.innerHTML = '<div class="item" style="color:#dc2626;">Error loading vehicles</div>';
-        });
-}
-
-function selectVehicleForTruck(number) {
-    document.getElementById('pt-vehicle-number').value = number;
-    document.getElementById('pt-vehicle-suggest-dropdown').classList.remove('show');
-    toast('✅ Vehicle "' + number + '" selected');
-}
-
-function showTruckVehicleNotFound(number) {
-    document.getElementById('pt-vehicle-suggest-dropdown').classList.remove('show');
-    toast('Vehicle "' + number + '" not found. Please register it in Edit Profile.');
 }
 
 // ============================================================
@@ -995,10 +953,415 @@ function selectLoc(ctx, pinId) {
 }
 
 // ============================================================
-// VEHICLE SEARCH FOR EDIT PROFILE (same as before)
+// LOGIN FUNCTIONS - FIXED WITH LOADING INDICATOR
+// ============================================================
+
+function showMobileLoading(show) {
+    const loading = document.getElementById('mobile-loading');
+    const status = document.getElementById('mobile-status');
+    const mobileInput = document.getElementById('mobile');
+    
+    if (show) {
+        loading.classList.remove('hidden');
+        status.textContent = '⏳ Checking user...';
+        status.style.color = '#f59e0b';
+        mobileInput.disabled = true;
+    } else {
+        loading.classList.add('hidden');
+        mobileInput.disabled = false;
+    }
+}
+
+document.getElementById('mobile').addEventListener('input', function(e) {
+    const m = this.value.trim();
+    
+    if (mobileCheckTimeout) {
+        clearTimeout(mobileCheckTimeout);
+        mobileCheckTimeout = null;
+    }
+    
+    const status = document.getElementById('mobile-status');
+    status.textContent = '';
+    
+    if (m.length === 10) {
+        mobile = m;
+        showMobileLoading(true);
+        mobileCheckTimeout = setTimeout(function() {
+            checkUserAndShowStep(m);
+        }, 300);
+    } else {
+        showMobileLoading(false);
+    }
+});
+
+async function checkUserAndShowStep(mobileNum) {
+    try {
+        const resp = await fetch(EDGE_URL + '/login-user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': 'Bearer ' + SB_KEY
+            },
+            body: JSON.stringify({mobile: mobileNum, action: 'check'})
+        });
+        
+        const result = await resp.json();
+        showMobileLoading(false);
+        
+        if (result.exists === true) {
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.remove('hidden');
+            document.getElementById('display-mobile').textContent = mobileNum;
+            const status = document.getElementById('mobile-status');
+            status.textContent = '✅ Existing user - Enter your PIN';
+            status.style.color = '#16a34a';
+            document.getElementById('pin').value = '';
+            document.getElementById('pin').focus();
+            document.getElementById('pin-error').style.display = 'none';
+        } else {
+            otpPurpose = 'registration';
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step3').classList.remove('hidden');
+            document.getElementById('wa-display-mobile').textContent = mobileNum;
+            document.getElementById('otp-purpose').textContent = 'Enter OTP sent via WhatsApp for Registration';
+            const status = document.getElementById('mobile-status');
+            status.textContent = '📝 New user - Verify OTP to create account';
+            status.style.color = '#f59e0b';
+            const otpLoading = document.getElementById('otp-loading');
+            otpLoading.classList.remove('hidden');
+            await sendWhatsAppOTP();
+            otpLoading.classList.add('hidden');
+        }
+    } catch(e) {
+        console.error('Error checking user:', e);
+        showMobileLoading(false);
+        const status = document.getElementById('mobile-status');
+        status.textContent = '❌ Error connecting to server. Please try again.';
+        status.style.color = '#dc2626';
+        document.getElementById('step1').classList.add('hidden');
+        document.getElementById('step2').classList.remove('hidden');
+        document.getElementById('display-mobile').textContent = mobileNum;
+    }
+}
+
+function sendWhatsAppOTP() {
+    if (!mobile || mobile.length !== 10) return;
+    
+    const otp = generateOTP();
+    generatedOTP = otp;
+    const purposeText = (otpPurpose === 'reset') ? 'PIN Reset' : 'Registration';
+    const message = '🔐 ReturnTruck - ' + purposeText + '\n\nYour OTP is: ' + otp + '\n\nThis OTP is valid for 5 minutes.\n\n📱 Mobile: ' + mobile + '\n\n- ReturnTruck Team';
+    
+    const otpLoading = document.getElementById('otp-loading');
+    otpLoading.classList.remove('hidden');
+    
+    window.open('https://wa.me/91' + mobile + '?text=' + encodeURIComponent(message), '_blank');
+    
+    setTimeout(function() {
+        otpLoading.classList.add('hidden');
+    }, 500);
+    
+    startOTPTimer();
+    document.getElementById('verify-btn').disabled = false;
+    document.getElementById('verify-btn').textContent = '✅ Verify';
+}
+
+function resetForm() {
+  otpVerified = false; isResetFlow = false; otpPurpose = 'registration';
+  if (otpTimer) clearInterval(otpTimer);
+  ['step2','step3','step4'].forEach(i => $(i).classList.add('hidden'));
+  document.getElementById('step1').classList.remove('hidden');
+  document.getElementById('login-screen').style.display = 'flex';
+  document.querySelectorAll('.otp-input').forEach(i => i.value = '');
+  document.getElementById('pin-error').style.display = 'none';
+  document.getElementById('otp-error').style.display = 'none';
+  document.getElementById('otp-success').style.display = 'none';
+  document.getElementById('verify-btn').disabled = false;
+  document.getElementById('verify-btn').textContent = '✅ Verify';
+  showMobileLoading(false);
+}
+
+function submitPin() {
+  const pin = document.getElementById('pin').value.trim();
+  if (!pin || pin.length !== 4) return;
+  
+  const btn = document.getElementById('submitBtn');
+  btn.textContent = '⏳ Checking...';
+  btn.disabled = true;
+  document.getElementById('pin-error').style.display = 'none';
+  
+  fetch(EDGE_URL + '/login-user', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','Accept':'application/json','Authorization':'Bearer '+SB_KEY},
+    body: JSON.stringify({mobile: mobile, action: 'login', pin: pin})
+  })
+  .then(r => r.json())
+  .then(result => {
+    if (result.success === true && result.user) {
+      user = result.user; user.mobile = mobile;
+      localStorage.setItem('rt_user', JSON.stringify({mobile: user.mobile, user: user}));
+      guest = false;
+      btn.textContent = '🔐 Login';
+      btn.disabled = false;
+      showHome();
+      return;
+    }
+    if (result.isNewUser === true) {
+      otpPurpose = 'registration';
+      document.getElementById('step2').classList.add('hidden');
+      document.getElementById('step3').classList.remove('hidden');
+      document.getElementById('wa-display-mobile').textContent = mobile;
+      document.getElementById('otp-purpose').textContent = 'Enter OTP sent via WhatsApp for Registration';
+      sendWhatsAppOTP();
+      btn.textContent = '🔐 Login';
+      btn.disabled = false;
+      return;
+    }
+    document.getElementById('pin-error').style.display = 'block';
+    document.getElementById('pin-error').textContent = '❌ ' + (result.error || 'Incorrect PIN. Please try again.');
+    document.getElementById('pin').value = '';
+    document.getElementById('pin').focus();
+    btn.textContent = '🔐 Login';
+    btn.disabled = false;
+  })
+  .catch(e => {
+    console.error(e);
+    document.getElementById('pin-error').style.display = 'block';
+    document.getElementById('pin-error').textContent = '❌ Error connecting to server. Please try again.';
+    btn.textContent = '🔐 Login';
+    btn.disabled = false;
+  });
+}
+
+function registerUser() {
+  if (!otpVerified) return;
+  const pin = document.getElementById('reg-pin').value.trim();
+  const conf = document.getElementById('reg-pin-confirm').value.trim();
+  if (!pin || pin.length !== 4 || pin !== conf) return;
+  
+  const btn = document.getElementById('register-btn');
+  btn.textContent = '⏳ Processing...';
+  btn.disabled = true;
+  
+  if (otpPurpose === 'reset') {
+    fetch(EDGE_URL + '/login-user', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Accept':'application/json','Authorization':'Bearer '+SB_KEY},
+      body: JSON.stringify({mobile: mobile, action: 'reset_pin', new_pin: pin})
+    })
+    .then(r => r.json())
+    .then(result => {
+      if (result.success && result.user) {
+        user = result.user; user.mobile = mobile;
+        localStorage.setItem('rt_user', JSON.stringify({mobile: user.mobile, user: user}));
+        guest = false;
+        showHome();
+      }
+      btn.textContent = '🔄 Reset PIN';
+      btn.disabled = false;
+    });
+    return;
+  }
+  
+  fetch(EDGE_URL + '/register-user', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','Accept':'application/json','Authorization':'Bearer '+SB_KEY},
+    body: JSON.stringify({mobile: mobile, pin: pin, name: '', company_name: '', location: null})
+  })
+  .then(r => r.json())
+  .then(result => {
+    if (result.success && result.user) {
+      user = result.user; user.mobile = mobile;
+      localStorage.setItem('rt_user', JSON.stringify({mobile: user.mobile, user: user}));
+      guest = false;
+      showHome();
+      return;
+    }
+    btn.textContent = '✅ Create Account';
+    btn.disabled = false;
+  })
+  .catch(e => {
+    console.error(e);
+    btn.textContent = '✅ Create Account';
+    btn.disabled = false;
+  });
+}
+
+// OTP Functions
+function otpInput(el) {
+  if (el.value.length === 1) { const next = el.nextElementSibling; if (next) next.focus(); }
+  document.getElementById('otp-error').style.display = 'none';
+}
+
+function startOTPTimer() {
+  otpSeconds = 300; otpVerified = false;
+  if (otpTimer) clearInterval(otpTimer);
+  const timerDisplay = document.getElementById('otp-timer');
+  const resendBtn = document.getElementById('resend-otp-btn');
+  resendBtn.disabled = true;
+  document.getElementById('otp-success').style.display = 'none';
+  otpTimer = setInterval(() => {
+    otpSeconds--;
+    const m = Math.floor(otpSeconds/60), s = otpSeconds%60;
+    timerDisplay.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+    if (otpSeconds <= 0) {
+      clearInterval(otpTimer);
+      document.getElementById('verify-btn').disabled = true;
+      document.getElementById('verify-btn').textContent = '⏳ Expired';
+      resendBtn.disabled = false;
+    }
+  }, 1000);
+}
+
+function generateOTP() { let otp = ''; for (let i=0; i<6; i++) otp += Math.floor(Math.random()*10); return otp; }
+
+function verifyOTP() {
+  const inputs = document.querySelectorAll('.otp-input');
+  let otp = '';
+  inputs.forEach(i => otp += i.value);
+  if (otp.length !== 6) {
+    document.getElementById('otp-error').style.display = 'block';
+    document.getElementById('otp-error').textContent = '❌ Enter complete 6-digit OTP';
+    return;
+  }
+  if (otp === generatedOTP) {
+    otpVerified = true;
+    document.getElementById('otp-error').style.display = 'none';
+    document.getElementById('otp-success').style.display = 'block';
+    clearInterval(otpTimer);
+    setTimeout(() => {
+      document.getElementById('step3').classList.add('hidden');
+      document.getElementById('step4').classList.remove('hidden');
+      document.getElementById('reg-display-mobile').textContent = mobile;
+      if (otpPurpose === 'reset') {
+        document.getElementById('step4-purpose').textContent = 'Set your new 4-digit PIN';
+        document.getElementById('register-btn').textContent = '🔄 Reset PIN';
+      } else {
+        document.getElementById('step4-purpose').textContent = 'Set your 4-digit PIN for login';
+        document.getElementById('register-btn').textContent = '✅ Create Account';
+      }
+    }, 500);
+  } else {
+    document.getElementById('otp-error').style.display = 'block';
+    document.getElementById('otp-error').textContent = '❌ Invalid OTP. Please try again.';
+    document.querySelectorAll('.otp-input').forEach(i => i.value = '');
+    document.querySelectorAll('.otp-input')[0].focus();
+  }
+}
+
+function resendOTP() { if (otpSeconds > 0) return; sendWhatsAppOTP(); }
+
+function showResetOTP() {
+  isResetFlow = true; otpPurpose = 'reset';
+  document.getElementById('step2').classList.add('hidden');
+  document.getElementById('step3').classList.remove('hidden');
+  document.getElementById('wa-display-mobile').textContent = mobile;
+  document.getElementById('otp-purpose').textContent = 'Enter OTP sent via WhatsApp for PIN Reset';
+  sendWhatsAppOTP();
+}
+
+function continueAsGuest() {
+  guest = true; user = null;
+  localStorage.setItem('rt_user', JSON.stringify({guest: true}));
+  showHome();
+}
+
+function showLogin() {
+  resetForm();
+  document.getElementById('mobile').focus();
+}
+
+function showHome() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('home-page').classList.remove('hidden-page');
+  updateGuestUI();
+  setTimeout(() => { renderFeed(); autoLocate(); }, 50);
+}
+
+function updateGuestUI() {
+  const b = document.getElementById('guest-banner');
+  if (b) { b.style.display = guest ? 'flex' : 'none'; if (guest) b.classList.remove('hidden'); else b.classList.add('hidden'); }
+}
+
+function toggleDropdown() { document.querySelectorAll('.profile-dropdown').forEach(d => d.classList.toggle('show')); }
+function closeDropdown() { document.querySelectorAll('.profile-dropdown').forEach(d => d.classList.remove('show')); }
+
+function logout() {
+  if (confirm('Logout?')) {
+    localStorage.removeItem('rt_user');
+    window.location.reload();
+  }
+}
+
+function openChangePin() { toast('Change PIN stub'); }
+
+// ============================================================
+// VEHICLE SEARCH FOR TRUCK PAGE
+// ============================================================
+function searchVehiclesForTruck(query) {
+    const dropdown = document.getElementById('pt-vehicle-suggest-dropdown');
+    const q = query.trim().toUpperCase();
+    
+    const cleaned = q.replace(/[^A-Za-z0-9]/g, '');
+    if (q !== cleaned) {
+        document.getElementById('pt-vehicle-number').value = cleaned;
+    }
+    
+    if (!q || q.length < 1) {
+        dropdown.classList.remove('show');
+        dropdown.innerHTML = '';
+        return;
+    }
+    
+    dropdown.innerHTML = '<div class="item" style="color:#94a3b8;">Searching...</div>';
+    dropdown.classList.add('show');
+    
+    sb.from('active_vehicles')
+        .select('*')
+        .ilike('vehicle_number', '%' + q + '%')
+        .limit(10)
+        .then(result => {
+            if (result.error) {
+                console.error('Error searching vehicles:', result.error);
+                dropdown.innerHTML = '<div class="item" style="color:#dc2626;">Error loading vehicles</div>';
+                return;
+            }
+            
+            const vlist = result.data || [];
+            
+            if (!vlist.length) {
+                dropdown.innerHTML = '<div class="item add-new" onclick="toast(\'Vehicle not found. Please register in Edit Profile.\')">➕ Vehicle "' + q + '" not found</div>';
+                dropdown.classList.add('show');
+                return;
+            }
+            
+            let html = '';
+            vlist.forEach(v => {
+                const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
+                html += '<div class="item" onclick="selectVehicleForTruck(\'' + v.vehicle_number + '\')">' +
+                    v.vehicle_number + ' <span class="sub">' + v.vehicle_type + ' • ' + dims + 'ft</span>' +
+                    '</div>';
+            });
+            dropdown.innerHTML = html;
+            dropdown.classList.add('show');
+        }).catch(err => {
+            console.error('Error:', err);
+            dropdown.innerHTML = '<div class="item" style="color:#dc2626;">Error loading vehicles</div>';
+        });
+}
+
+function selectVehicleForTruck(number) {
+    document.getElementById('pt-vehicle-number').value = number;
+    document.getElementById('pt-vehicle-suggest-dropdown').classList.remove('show');
+    toast('✅ Vehicle "' + number + '" selected');
+}
+
+// ============================================================
+// VEHICLE SEARCH FOR EDIT PROFILE
 // ============================================================
 function searchVehicles(query) {
-  const dropdown = $('vehicle-suggest-dropdown');
+  const dropdown = document.getElementById('vehicle-suggest-dropdown');
   const q = query.trim().toUpperCase();
   
   if (!q || q.length < 1) {
@@ -1050,16 +1413,16 @@ function searchVehicles(query) {
 function selectVehicleFromSuggestion(id, number, type, dims) {
   if (vehicles.includes(number)) {
     toast('Vehicle "' + number + '" already in your list');
-    $('vehicle-suggest-dropdown').classList.remove('show');
-    $('edit-vehicle-input').value = '';
+    document.getElementById('vehicle-suggest-dropdown').classList.remove('show');
+    document.getElementById('edit-vehicle-input').value = '';
     return;
   }
   
   vehicles = addUniqueToArray(vehicles, number);
   vehicleDataMap[number] = { id: id, vehicle_number: number, vehicle_type: type, dimensions: dims };
   renderVehicles();
-  $('edit-vehicle-input').value = '';
-  $('vehicle-suggest-dropdown').classList.remove('show');
+  document.getElementById('edit-vehicle-input').value = '';
+  document.getElementById('vehicle-suggest-dropdown').classList.remove('show');
   
   autoSaveVehicles().then(() => {
     toast('✅ Vehicle "' + number + '" added to your list');
@@ -1070,21 +1433,21 @@ function selectVehicleFromSuggestion(id, number, type, dims) {
 // VEHICLE MODAL FUNCTIONS
 // ============================================================
 function openVehicleModalForNew(number) {
-  $('vehicle-suggest-dropdown').classList.remove('show');
-  $('modal-vehicle-title').textContent = '📝 Register New Vehicle';
-  $('modal-vehicle-number-display').textContent = number;
-  $('modal-vehicle-number').value = number;
-  $('modal-vehicle-id').value = '';
-  $('modal-edit-mode').value = 'new';
-  $('modal-vehicle-type').value = '';
-  $('modal-length').value = '40';
-  $('modal-width').value = '8.2';
-  $('modal-height').value = '8';
-  $('modal-max-weight').value = '';
-  $('modal-description').value = '';
+  document.getElementById('vehicle-suggest-dropdown').classList.remove('show');
+  document.getElementById('modal-vehicle-title').textContent = '📝 Register New Vehicle';
+  document.getElementById('modal-vehicle-number-display').textContent = number;
+  document.getElementById('modal-vehicle-number').value = number;
+  document.getElementById('modal-vehicle-id').value = '';
+  document.getElementById('modal-edit-mode').value = 'new';
+  document.getElementById('modal-vehicle-type').value = '';
+  document.getElementById('modal-length').value = '40';
+  document.getElementById('modal-width').value = '8.2';
+  document.getElementById('modal-height').value = '8';
+  document.getElementById('modal-max-weight').value = '';
+  document.getElementById('modal-description').value = '';
   document.querySelector('input[name="modal-odc"][value="true"]').checked = true;
   editingVehicleNumber = number;
-  $('vehicle-modal').classList.add('show');
+  document.getElementById('vehicle-modal').classList.add('show');
 }
 
 function openVehicleEdit(number) {
@@ -1101,47 +1464,47 @@ function openVehicleEdit(number) {
 }
 
 function populateVehicleModal(data, mode) {
-  $('modal-vehicle-title').textContent = mode === 'edit' ? '✏️ Edit Vehicle' : '📝 Register New Vehicle';
-  $('modal-vehicle-number-display').textContent = data.vehicle_number;
-  $('modal-vehicle-number').value = data.vehicle_number;
-  $('modal-vehicle-id').value = data.id || '';
-  $('modal-edit-mode').value = mode;
-  $('modal-vehicle-type').value = data.vehicle_type || '';
+  document.getElementById('modal-vehicle-title').textContent = mode === 'edit' ? '✏️ Edit Vehicle' : '📝 Register New Vehicle';
+  document.getElementById('modal-vehicle-number-display').textContent = data.vehicle_number;
+  document.getElementById('modal-vehicle-number').value = data.vehicle_number;
+  document.getElementById('modal-vehicle-id').value = data.id || '';
+  document.getElementById('modal-edit-mode').value = mode;
+  document.getElementById('modal-vehicle-type').value = data.vehicle_type || '';
   if (data.dimensions && data.dimensions.length >= 3) {
-    $('modal-length').value = data.dimensions[0] || '40';
-    $('modal-width').value = data.dimensions[1] || '8.2';
-    $('modal-height').value = data.dimensions[2] || '8';
+    document.getElementById('modal-length').value = data.dimensions[0] || '40';
+    document.getElementById('modal-width').value = data.dimensions[1] || '8.2';
+    document.getElementById('modal-height').value = data.dimensions[2] || '8';
   }
-  $('modal-max-weight').value = data.max_weight || '';
-  $('modal-description').value = data.description || '';
+  document.getElementById('modal-max-weight').value = data.max_weight || '';
+  document.getElementById('modal-description').value = data.description || '';
   document.querySelector('input[name="modal-odc"][value="' + (data.odc_allowed ? 'true' : 'false') + '"]').checked = true;
   editingVehicleNumber = data.vehicle_number;
-  $('vehicle-modal').classList.add('show');
+  document.getElementById('vehicle-modal').classList.add('show');
 }
 
 function saveVehicleModal() {
-  const number = $('modal-vehicle-number').value;
+  const number = document.getElementById('modal-vehicle-number').value;
   if (!number) { toast('No vehicle number'); return; }
-  const vehicleType = $('modal-vehicle-type').value;
+  const vehicleType = document.getElementById('modal-vehicle-type').value;
   if (!vehicleType) { toast('Please select a vehicle type'); return; }
   
   const data = {
     vehicle_number: number,
     vehicle_type: vehicleType,
     dimensions: [
-      parseFloat($('modal-length').value) || 0,
-      parseFloat($('modal-width').value) || 0,
-      parseFloat($('modal-height').value) || 0
+      parseFloat(document.getElementById('modal-length').value) || 0,
+      parseFloat(document.getElementById('modal-width').value) || 0,
+      parseFloat(document.getElementById('modal-height').value) || 0
     ],
-    max_weight: parseFloat($('modal-max-weight').value) || 0,
-    description: $('modal-description').value.trim() || null,
+    max_weight: parseFloat(document.getElementById('modal-max-weight').value) || 0,
+    description: document.getElementById('modal-description').value.trim() || null,
     odc_allowed: document.querySelector('input[name="modal-odc"]:checked').value === 'true',
     modified_by: user ? parseInt(user.mobile) : null,
     latest_update_at: new Date().toISOString()
   };
   
-  const vehicleId = $('modal-vehicle-id').value;
-  const mode = $('modal-edit-mode').value;
+  const vehicleId = document.getElementById('modal-vehicle-id').value;
+  const mode = document.getElementById('modal-edit-mode').value;
   
   if (mode === 'edit' && vehicleId) {
     sb.from('active_vehicles').update(data).eq('id', vehicleId)
@@ -1181,8 +1544,8 @@ function saveVehicleModal() {
 }
 
 function deleteVehicleFromModal() {
-  const number = $('modal-vehicle-number').value;
-  const vehicleId = $('modal-vehicle-id').value;
+  const number = document.getElementById('modal-vehicle-number').value;
+  const vehicleId = document.getElementById('modal-vehicle-id').value;
   if (!vehicleId) { toast('Cannot delete - vehicle not saved'); return; }
   if (!confirm('Delete vehicle "' + number + '" permanently?')) return;
   
@@ -1202,12 +1565,12 @@ function deleteVehicleFromModal() {
 }
 
 function closeVehicleModal() {
-  $('vehicle-modal').classList.remove('show');
+  document.getElementById('vehicle-modal').classList.remove('show');
   editingVehicleNumber = null;
 }
 
 function addSelectedVehicle() {
-  const input = $('edit-vehicle-input');
+  const input = document.getElementById('edit-vehicle-input');
   const val = input.value.trim().toUpperCase();
   if (!val) { toast('Please enter a vehicle number'); return; }
   if (!isValidVehicleNumber(val)) { 
@@ -1246,7 +1609,7 @@ function removeVehicle(v) {
 }
 
 function renderVehicles() {
-  const container = $('edit-vehicles-list');
+  const container = document.getElementById('edit-vehicles-list');
   if (!vehicles.length) { container.innerHTML = '<span style="color:#94a3b8;font-size:12px">No vehicles added</span>'; return; }
   container.innerHTML = vehicles.map(v => {
     const data = vehicleDataMap[v] || { vehicle_type: 'Unknown', dimensions: 'N/A' };
@@ -1266,16 +1629,16 @@ function renderVehicles() {
 // ROUTE FUNCTIONS
 // ============================================================
 function addRoute() {
-  const route = $('edit-route-hidden').value;
+  const route = document.getElementById('edit-route-hidden').value;
   if (!route) { toast('Please search and select a location first'); return; }
   const routeInt = parseInt(route);
   if (isNaN(routeInt)) { toast('Invalid location'); return; }
   if (routes.includes(routeInt)) { toast('Route already added'); return; }
   routes = addUniqueToArray(routes, routeInt);
-  $('search-edit-route').value = '';
-  $('edit-route-hidden').value = '';
+  document.getElementById('search-edit-route').value = '';
+  document.getElementById('edit-route-hidden').value = '';
   renderRoutes();
-  const sug = $('suggestions-edit-route');
+  const sug = document.getElementById('suggestions-edit-route');
   if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
   autoSaveRoutes().then(() => {
     toast('Route added');
@@ -1292,7 +1655,7 @@ function removeRoute(r) {
 }
 
 function renderRoutes() {
-  const container = $('edit-routes-list');
+  const container = document.getElementById('edit-routes-list');
   if (!routes.length) { container.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>'; return; }
   container.innerHTML = routes.map(r => {
     const loc = getLoc(r);
@@ -1376,22 +1739,21 @@ function refreshUserData(callback) {
 }
 
 // ============================================================
-// POST LOAD - dimensions as array
+// POST LOAD
 // ============================================================
 function publishLoad() {
   if (!user) { toast('Please login first'); return; }
   
-  const material = $('pl-material').value;
-  const pickupPinId = $('pl-pickup-hidden').value;
-  const dropPinId = $('pl-drop-hidden').value;
+  const material = document.getElementById('pl-material').value;
+  const pickupPinId = document.getElementById('pl-pickup-hidden').value;
+  const dropPinId = document.getElementById('pl-drop-hidden').value;
   
   if (!material || !pickupPinId || !dropPinId) {
     toast('Please fill all required fields (Material, Pickup, Drop)');
     return;
   }
   
-  // Parse dimensions as array (matches active_loads.dimensions type)
-  const dimStr = $('pl-dim').value.trim();
+  const dimStr = document.getElementById('pl-dim').value.trim();
   let dimensions = null;
   if (dimStr) {
     const parts = dimStr.split('x').map(Number);
@@ -1405,19 +1767,19 @@ function publishLoad() {
     company: user.company_name || '',
     company_web: user.company_web || '',
     material: material,
-    weight: parseFloat($('pl-weight').value) || 0,
-    dimensions: dimensions,  // ✅ Stored as array
-    vehicle_type: $('pl-vehicle-type').value || null,
+    weight: parseFloat(document.getElementById('pl-weight').value) || 0,
+    dimensions: dimensions,
+    vehicle_type: document.getElementById('pl-vehicle-type').value || null,
     pickup_pin: parseInt(pickupPinId),
     drop_pin: parseInt(dropPinId),
-    pickup_date: $('pl-date').value || null,
-    instructions: $('pl-instructions').value.trim() || null,
+    pickup_date: document.getElementById('pl-date').value || null,
+    instructions: document.getElementById('pl-instructions').value.trim() || null,
     status: 1,
     views: 0,
     calls: 0,
-    interests: [],  // ✅ Array - unique values
+    interests: [],
     shares: 0,
-    agents: [],     // ✅ Array - unique values
+    agents: [],
     created_at: new Date().toISOString(),
     expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
   };
@@ -1431,26 +1793,24 @@ function publishLoad() {
 }
 
 // ============================================================
-// POST TRUCK - vehicle number validation and dropdown
+// POST TRUCK
 // ============================================================
 function publishTruck() {
   if (!user) { toast('Please login first'); return; }
   
   const number = document.getElementById('pt-vehicle-number').value.trim().toUpperCase();
-  const locationPinId = $('pt-location-hidden').value;
+  const locationPinId = document.getElementById('pt-location-hidden').value;
   
   if (!number || !locationPinId) {
     toast('Please fill all required fields (Vehicle Number, Location)');
     return;
   }
   
-  // ✅ Validate vehicle number: 9-12 characters, only letters and numbers
   if (!isValidVehicleNumber(number)) {
     alert('Vehicle number must be 9-12 characters (letters and numbers only, no spaces or special characters)');
     return;
   }
   
-  // Check if vehicle exists in active_vehicles
   sb.from('active_vehicles').select('id').eq('vehicle_number', number).single()
     .then(checkRes => {
       if (!checkRes.data) {
@@ -1464,10 +1824,10 @@ function publishTruck() {
         share: 0,
         calls: 0,
         views: 0,
-        interested: [],  // ✅ Array - unique values
-        available_date: $('pt-available').value ? new Date($('pt-available').value).toISOString() : null,
+        interested: [],
+        available_date: document.getElementById('pt-available').value ? new Date(document.getElementById('pt-available').value).toISOString() : null,
         location_pin: parseInt(locationPinId),
-        other_details: $('pt-other-details').value.trim() || null,
+        other_details: document.getElementById('pt-other-details').value.trim() || null,
         status: 1,
         expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
         created_at: new Date().toISOString()
@@ -1489,10 +1849,10 @@ function publishTruck() {
 // ============================================================
 function loadProfile() {
   if (!user) return;
-  $('profile-name').textContent = user.name || user.mobile || 'User';
+  document.getElementById('profile-name').textContent = user.name || user.mobile || 'User';
   if (user.last_active) {
     const d = new Date(user.last_active);
-    $('profile-last-active').textContent = d.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+    document.getElementById('profile-last-active').textContent = d.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
   }
   let initials = '';
   if (user.name) {
@@ -1501,25 +1861,25 @@ function loadProfile() {
   } else {
     initials = (user.mobile||'GU').toString().slice(-2);
   }
-  $('avatar-initials-profile').textContent = initials.toUpperCase();
-  $('avatar-initials').textContent = initials.toUpperCase();
+  document.getElementById('avatar-initials-profile').textContent = initials.toUpperCase();
+  document.getElementById('avatar-initials').textContent = initials.toUpperCase();
 
-  $('profile-company').textContent = user.company_name || 'Not set';
-  $('profile-website').textContent = user.company_web || '--';
-  $('profile-pan').textContent = '📛 PAN: ' + (user.pan || '--');
-  $('profile-gst').textContent = '📛 GST: ' + (user.gst || '--');
+  document.getElementById('profile-company').textContent = user.company_name || 'Not set';
+  document.getElementById('profile-website').textContent = user.company_web || '--';
+  document.getElementById('profile-pan').textContent = '📛 PAN: ' + (user.pan || '--');
+  document.getElementById('profile-gst').textContent = '📛 GST: ' + (user.gst || '--');
   if (user.location) {
     const loc = getLoc(user.location);
-    $('profile-location').textContent = loc ? '📍 Location: ' + getLocDisplayName(loc) : '📍 Location: Unknown';
+    document.getElementById('profile-location').textContent = loc ? '📍 Location: ' + getLocDisplayName(loc) : '📍 Location: Unknown';
   } else {
-    $('profile-location').textContent = '📍 Location: Not set';
+    document.getElementById('profile-location').textContent = '📍 Location: Not set';
   }
 
   let types = user.user_type || [];
   if (!Array.isArray(types) && typeof types === 'number') types = [types];
   const typeLabels = ['Load Giver', 'Operator', 'Agent'];
   const typeIcons = ['📦', '🚛', '🤝'];
-  const container = $('profile-user-types');
+  const container = document.getElementById('profile-user-types');
   if (types && types.length) {
     container.innerHTML = types.map(t => {
       const idx = t - 1;
@@ -1532,11 +1892,11 @@ function loadProfile() {
     container.innerHTML = '<span class="section-badge optional">Not set</span>';
   }
 
-  $('profile-details-text').textContent = user.details || 'No details added';
+  document.getElementById('profile-details-text').textContent = user.details || 'No details added';
   
   // Load Vehicles
-  const container2 = $('profile-vehicles-container');
-  const badge = $('vehicle-count-badge');
+  const container2 = document.getElementById('profile-vehicles-container');
+  const badge = document.getElementById('vehicle-count-badge');
   
   let vno = user.vehicle_no || [];
   let vehicleNumbers = [];
@@ -1568,12 +1928,12 @@ function loadProfile() {
             '<div class="vdetails">' + (v.vehicle_type || 'Unknown') + ' • ' + dims + '</div>' +
             '</div>';
         }).join('');
-        $('stat-vehicles-count').textContent = vdata.length;
+        document.getElementById('stat-vehicles-count').textContent = vdata.length;
       });
   } else {
     container2.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>';
     badge.textContent = '0 Vehicles';
-    $('stat-vehicles-count').textContent = '0';
+    document.getElementById('stat-vehicles-count').textContent = '0';
   }
 
   // Routes
@@ -1590,7 +1950,7 @@ function loadProfile() {
     routeList = ensureUniqueArray(routeArr.split(',').filter(r => r.trim() !== '').map(Number));
   }
   
-  const rc = $('profile-routes-container');
+  const rc = document.getElementById('profile-routes-container');
   if (routeList && routeList.length) {
     rc.innerHTML = routeList.map(r => {
       const loc = getLoc(r);
@@ -1610,8 +1970,8 @@ function loadMyLoads() {
   sb.from('active_loads').select('*').eq('mobile', parseInt(user.mobile)).eq('status', 1)
     .then(res => {
       const loads = res.data || [];
-      const container = $('my-loads-container');
-      const count = $('my-loads-count');
+      const container = document.getElementById('my-loads-container');
+      const count = document.getElementById('my-loads-count');
       if (!loads.length) { container.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No loads posted</div>'; count.textContent = '0'; return; }
       count.textContent = loads.length;
       container.innerHTML = loads.map(l =>
@@ -1629,8 +1989,8 @@ function loadMyTrucks() {
   sb.from('active_trucks').select('*').eq('mobile', parseInt(user.mobile)).eq('status', 1)
     .then(res => {
       const trucks = res.data || [];
-      const container = $('my-trucks-container');
-      const count = $('my-trucks-count');
+      const container = document.getElementById('my-trucks-container');
+      const count = document.getElementById('my-trucks-count');
       if (!trucks.length) { container.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No trucks listed</div>'; count.textContent = '0'; return; }
       count.textContent = trucks.length;
       container.innerHTML = trucks.map(t =>
@@ -1646,9 +2006,9 @@ function loadMyTrucks() {
 function loadStats() {
   if (!user) return;
   sb.from('active_loads').select('*', {count:'exact', head:true}).eq('mobile', parseInt(user.mobile)).eq('status', 1)
-    .then(r => { $('stat-loads-count').textContent = r.count || 0; });
+    .then(r => { document.getElementById('stat-loads-count').textContent = r.count || 0; });
   sb.from('active_trucks').select('*', {count:'exact', head:true}).eq('mobile', parseInt(user.mobile)).eq('status', 1)
-    .then(r => { $('stat-trucks-count').textContent = r.count || 0; });
+    .then(r => { document.getElementById('stat-trucks-count').textContent = r.count || 0; });
 }
 
 function deleteLoadItem(id) {
@@ -1674,20 +2034,20 @@ function openEditProfile() {
 }
 
 function populateEditForm() {
-  $('edit-name').value = user.name || '';
-  $('edit-company').value = user.company_name || '';
-  $('edit-website').value = user.company_web || '';
-  $('edit-pan').value = user.pan || '';
-  $('edit-gst').value = user.gst || '';
+  document.getElementById('edit-name').value = user.name || '';
+  document.getElementById('edit-company').value = user.company_name || '';
+  document.getElementById('edit-website').value = user.company_web || '';
+  document.getElementById('edit-pan').value = user.pan || '';
+  document.getElementById('edit-gst').value = user.gst || '';
   if (user.location) {
     const loc = getLoc(user.location);
-    if (loc) { $('search-edit-location').value = getLocDisplayName(loc); $('edit-location-hidden').value = user.location; }
+    if (loc) { document.getElementById('search-edit-location').value = getLocDisplayName(loc); document.getElementById('edit-location-hidden').value = user.location; }
   }
   let types = user.user_type || [];
   if (!Array.isArray(types) && typeof types === 'number') types = [types];
-  $('edit-type-loadgiver').checked = types.indexOf(1) !== -1;
-  $('edit-type-operator').checked = types.indexOf(2) !== -1;
-  $('edit-type-agent').checked = types.indexOf(3) !== -1;
+  document.getElementById('edit-type-loadgiver').checked = types.indexOf(1) !== -1;
+  document.getElementById('edit-type-operator').checked = types.indexOf(2) !== -1;
+  document.getElementById('edit-type-agent').checked = types.indexOf(3) !== -1;
 
   vehicles = [];
   vehicleDataMap = {};
@@ -1720,7 +2080,7 @@ function populateEditForm() {
   else if (typeof pref === 'string') routes = pref.split(',').filter(r => r.trim() !== '').map(Number);
   renderRoutes();
 
-  $('edit-details').value = user.details || '';
+  document.getElementById('edit-details').value = user.details || '';
   updateCharCount('edit-details', 'edit-details-count');
   switchPage('edit-profile-page');
 }
@@ -1728,21 +2088,21 @@ function populateEditForm() {
 function saveProfile() {
   if (!user || !user.mobile) { alert('User not logged in.'); return; }
   const types = [];
-  if ($('edit-type-loadgiver').checked) types.push(1);
-  if ($('edit-type-operator').checked) types.push(2);
-  if ($('edit-type-agent').checked) types.push(3);
-  const location = $('edit-location-hidden').value ? parseInt($('edit-location-hidden').value) : null;
+  if (document.getElementById('edit-type-loadgiver').checked) types.push(1);
+  if (document.getElementById('edit-type-operator').checked) types.push(2);
+  if (document.getElementById('edit-type-agent').checked) types.push(3);
+  const location = document.getElementById('edit-location-hidden').value ? parseInt(document.getElementById('edit-location-hidden').value) : null;
   const updateData = {
-    name: $('edit-name').value.trim() || null,
-    company_name: $('edit-company').value.trim() || null,
-    company_web: $('edit-website').value.trim() || null,
-    pan: $('edit-pan').value.trim() || null,
-    gst: $('edit-gst').value.trim() || null,
+    name: document.getElementById('edit-name').value.trim() || null,
+    company_name: document.getElementById('edit-company').value.trim() || null,
+    company_web: document.getElementById('edit-website').value.trim() || null,
+    pan: document.getElementById('edit-pan').value.trim() || null,
+    gst: document.getElementById('edit-gst').value.trim() || null,
     location: location,
     user_type: types.length ? types : null,
     vehicle_no: ensureUniqueArray(vehicles).length ? ensureUniqueArray(vehicles) : null,
     preferred_routes: ensureUniqueArray(routes).length ? ensureUniqueArray(routes) : null,
-    details: $('edit-details').value.trim() || null,
+    details: document.getElementById('edit-details').value.trim() || null,
     last_active: new Date().toISOString()
   };
   const mobileNum = parseInt(user.mobile);
@@ -1768,8 +2128,8 @@ function closeEditProfile() {
 }
 
 function updateCharCount(inputId, countId) {
-  const input = $(inputId);
-  const count = $(countId);
+  const input = document.getElementById(inputId);
+  const count = document.getElementById(countId);
   if (input && count) count.textContent = input.value.length;
 }
 
@@ -1810,17 +2170,17 @@ async function renderFeed() {
     }));
 
     let filtered = items.slice();
-    const radius = parseInt($('radius-select').value) || 50;
+    const radius = parseInt(document.getElementById('radius-select').value) || 50;
     if (homePinId) { const hl = getLoc(homePinId); if (hl) filtered = filtered.filter(i => { const fl = getLoc(i.from_pin); return fl ? dist(hl.lat, hl.lng, fl.lat, fl.lng) <= radius : false; }); }
     if (tab === 'LOAD') filtered = filtered.filter(i => i.type === 'LOAD');
     else if (tab === 'TRUCK') filtered = filtered.filter(i => i.type === 'TRUCK');
     if (toPinId) { const tl = getLoc(toPinId); if (tl) filtered = filtered.filter(i => { const tl2 = getLoc(i.to_pin); return tl2 ? dist(tl.lat, tl.lng, tl2.lat, tl2.lng) <= radius : false; }); }
-    const v = $('filter-vehicle')?.value;
+    const v = document.getElementById('filter-vehicle')?.value;
     if (v && v !== 'ALL') filtered = filtered.filter(i => i.vehicle && i.vehicle.toLowerCase().includes(v.toLowerCase()));
 
-    $('results-count').textContent = 'Showing ' + filtered.length + ' Records within ' + radius + ' KM';
-    if (!filtered.length) { $('feed-container').innerHTML = '<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>'; return; }
-    $('feed-container').innerHTML = filtered.map(i => {
+    document.getElementById('results-count').textContent = 'Showing ' + filtered.length + ' Records within ' + radius + ' KM';
+    if (!filtered.length) { document.getElementById('feed-container').innerHTML = '<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>'; return; }
+    document.getElementById('feed-container').innerHTML = filtered.map(i => {
       const bc = i.type === 'LOAD' ? 'load' : 'truck';
       let loc = '', sub = '', stats = '';
       if (i.type === 'LOAD') {
@@ -1837,25 +2197,25 @@ async function renderFeed() {
         '<div class="company">' + sub + '</div><div class="meta">' + loc + '</div><div class="meta">' + stats + '</div>' +
         '<div class="stats-row"><span>👁️ <span class="val">' + i.views + '</span></span><span>🤝 <span class="val">' + i.interests + '</span></span><span>📨 <span class="val">' + i.shares + '</span></span></div></div>';
     }).join('');
-  } catch(e) { $('feed-container').innerHTML = '<div style="padding:30px 0;color:#ef4444;text-align:center">Error loading feed</div>'; }
+  } catch(e) { document.getElementById('feed-container').innerHTML = '<div style="padding:30px 0;color:#ef4444;text-align:center">Error loading feed</div>'; }
 }
 
 function applyFilters() { renderFeed(); }
-function setTab(t) { tab = t; document.querySelectorAll('.type-tabs button').forEach(b => b.className = 'inactive'); const map = {'ALL':'tab-all','LOAD':'tab-loads','TRUCK':'tab-trucks','AGENT':'tab-agents'}; const el = $(map[t]); if (el) el.className = 'active'; renderFeed(); }
-function toggleFilters() { filterOpen = !filterOpen; $('filter-container').classList.toggle('open', filterOpen); $('filter-toggle-label').textContent = filterOpen ? '🔍 Hide Filters' : '🔍 Show Filters'; }
+function setTab(t) { tab = t; document.querySelectorAll('.type-tabs button').forEach(b => b.className = 'inactive'); const map = {'ALL':'tab-all','LOAD':'tab-loads','TRUCK':'tab-trucks','AGENT':'tab-agents'}; const el = document.getElementById(map[t]); if (el) el.className = 'active'; renderFeed(); }
+function toggleFilters() { filterOpen = !filterOpen; document.getElementById('filter-container').classList.toggle('open', filterOpen); document.getElementById('filter-toggle-label').textContent = filterOpen ? '🔍 Hide Filters' : '🔍 Show Filters'; }
 
 // ============================================================
 // NAVIGATION
 // ============================================================
 function goHome() {
-  ['home-page','profile-page','postload-page','posttruck-page','detail-page','edit-profile-page'].forEach(i => { const el = $(i); if (el) el.classList.toggle('hidden-page', i !== 'home-page'); });
+  ['home-page','profile-page','postload-page','posttruck-page','detail-page','edit-profile-page'].forEach(i => { const el = document.getElementById(i); if (el) el.classList.toggle('hidden-page', i !== 'home-page'); });
   document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
   document.querySelectorAll('.nav-fixed .nav-item')[0].classList.add('active');
   setTimeout(() => { renderFeed(); }, 50);
 }
 
 function switchPage(id) {
-  ['home-page','profile-page','edit-profile-page','postload-page','posttruck-page','detail-page'].forEach(i => { const el = $(i); if (el) el.classList.toggle('hidden-page', i !== id); });
+  ['home-page','profile-page','edit-profile-page','postload-page','posttruck-page','detail-page'].forEach(i => { const el = document.getElementById(i); if (el) el.classList.toggle('hidden-page', i !== id); });
 }
 
 function goPostLoad() { if (guest || !user) { showLogin(); return; } switchPage('postload-page'); }
@@ -1870,7 +2230,7 @@ function closeDetail() { detail = null; goHome(); }
 function openDetail(type, id) {
   const table = type === 'LOAD' ? 'active_loads' : 'active_trucks';
   sb.from(table).select('*').eq('id', id).single().then(r => {
-    if (r.data) { detail = r.data; switchPage('detail-page'); $('detail-title').textContent = type === 'LOAD' ? r.data.material || 'Details' : r.data.truck_no || 'Details'; $('detail-company').textContent = type === 'LOAD' ? r.data.company || 'N/A' : 'Truck Owner'; }
+    if (r.data) { detail = r.data; switchPage('detail-page'); document.getElementById('detail-title').textContent = type === 'LOAD' ? r.data.material || 'Details' : r.data.truck_no || 'Details'; document.getElementById('detail-company').textContent = type === 'LOAD' ? r.data.company || 'N/A' : 'Truck Owner'; }
   });
 }
 function makeCall() { if (detail) { const num = detail.mobile; if (num) window.location.href = 'tel:' + num; } }
@@ -1879,14 +2239,10 @@ function contactUser() {}
 function handleShareClick() { if (navigator.share) navigator.share({title: 'ReturnTruck', text: 'Check out this listing on ReturnTruck!', url: window.location.href}); }
 
 // ============================================================
-// AUTH FUNCTIONS (Login, OTP, Register) - same as before
-// ============================================================
-// ... [rest of auth functions remain the same] ...
-// ============================================================
 // AUTO LOCATE
 // ============================================================
 function autoLocate() {
-  const inp = $('search-home');
+  const inp = document.getElementById('search-home');
   if (!inp) return;
   const saved = localStorage.getItem('rt_home_location');
   if (saved) {
@@ -1914,7 +2270,6 @@ function autoLocate() {
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
-  // Set up character counts
   document.getElementById('edit-details')?.addEventListener('input', function() {
     updateCharCount('edit-details', 'edit-details-count');
   });
@@ -1932,8 +2287,8 @@ document.addEventListener('DOMContentLoaded', function() {
     else if (sd.user) { user = sd.user; guest = false; }
     showHome();
   } else {
-    $('login-screen').style.display = 'flex';
-    $('home-page').classList.add('hidden-page');
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('home-page').classList.add('hidden-page');
   }
   setTimeout(() => { autoLocate(); }, 500);
 });
