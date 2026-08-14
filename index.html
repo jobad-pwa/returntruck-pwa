@@ -104,7 +104,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .section-btn.success:hover{background:#15803d}
 .form-control{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;background:#fff;outline:none}
 .form-control:focus{border-color:#2563eb}
-.form-control.weight-input{max-width:120px}
 .form-label{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .grid-2-vehicle{display:grid;grid-template-columns:2fr 1fr;gap:12px}
@@ -414,7 +413,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
             <div class="profile-section" style="margin-bottom:0;">
                 <label class="form-label">⚖️ Weight (Kg)</label>
-                <input class="form-control weight-input" type="number" id="pl-weight" placeholder="0" step="0.01" min="0" max="100000">
+                <input class="form-control weight-input" type="text" id="pl-weight" placeholder="0" oninput="formatInputNumber(this)">
             </div>
         </div>
         <div class="profile-section">
@@ -1733,7 +1732,7 @@ function refreshUserData(callback) {
 }
 
 // ============================================================
-// POST LOAD - WITH NEGOTIABLE PRICE LABEL
+// POST LOAD
 // ============================================================
 function publishLoad() {
   if (!user) { toast('Please login first'); return; }
@@ -1749,13 +1748,14 @@ function publishLoad() {
   const height = parseFloat(document.getElementById('pl-height').value) || 0;
   const dimensions = [length, width, height];
   const rate = parseNumberFromInput(document.getElementById('pl-rate').value);
+  const weight = parseNumberFromInput(document.getElementById('pl-weight').value);
   
   const loadData = {
     mobile: parseInt(user.mobile),
     company: user.company_name || '',
     company_web: user.company_web || '',
     material: material,
-    weight: parseFloat(document.getElementById('pl-weight').value) || 0,
+    weight: weight,
     dimensions: dimensions,
     vehicle_type: document.getElementById('pl-vehicle-type').value || null,
     pickup_pin: parseInt(pickupPinId),
@@ -1781,7 +1781,7 @@ function publishLoad() {
 }
 
 // ============================================================
-// POST TRUCK - WITH NEGOTIABLE PRICE LABEL
+// POST TRUCK
 // ============================================================
 function publishTruck() {
   if (!user) { toast('Please login first'); return; }
@@ -1834,21 +1834,16 @@ function publishTruck() {
 }
 
 // ============================================================
-// PROFILE FUNCTIONS - WITH CLICKABLE WEBSITE LINK AND FORMATTED NUMBERS
+// PROFILE FUNCTIONS
 // ============================================================
 function loadProfile() {
   if (!user) return;
   
-  // Name
   document.getElementById('profile-name').textContent = user.name || user.mobile || 'User';
-  
-  // Last active
   if (user.last_active) {
     const d = new Date(user.last_active);
     document.getElementById('profile-last-active').textContent = d.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
   }
-  
-  // Avatar initials
   let initials = '';
   if (user.name) {
     const parts = user.name.split(' ');
@@ -1859,10 +1854,8 @@ function loadProfile() {
   document.getElementById('avatar-initials-profile').textContent = initials.toUpperCase();
   document.getElementById('avatar-initials').textContent = initials.toUpperCase();
 
-  // Company Details
   document.getElementById('profile-company').textContent = user.company_name || 'Not set';
   
-  // Website - Clickable Link
   const websiteEl = document.getElementById('profile-website');
   if (user.company_web && user.company_web.trim() !== '') {
     let url = user.company_web.trim();
@@ -1874,7 +1867,6 @@ function loadProfile() {
     websiteEl.textContent = '--';
   }
   
-  // PAN, GST, Location
   document.getElementById('profile-pan').textContent = '📛 PAN: ' + (user.pan || '--');
   document.getElementById('profile-gst').textContent = '📛 GST: ' + (user.gst || '--');
   if (user.location) {
@@ -1884,7 +1876,6 @@ function loadProfile() {
     document.getElementById('profile-location').textContent = '📍 Location: Not set';
   }
 
-  // User Type
   let types = user.user_type || [];
   if (!Array.isArray(types) && typeof types === 'number') types = [types];
   const typeLabels = ['Load Giver', 'Operator', 'Agent'];
@@ -1902,7 +1893,6 @@ function loadProfile() {
     container.innerHTML = '<span class="section-badge optional">Not set</span>';
   }
 
-  // About / Details
   document.getElementById('profile-details-text').textContent = user.details || 'No details added';
   
   // Load Vehicles
@@ -2141,7 +2131,7 @@ function updateCharCount(inputId, countId) {
 }
 
 // ============================================================
-// RENDER FEED - WITH NEGOTIABLE PRICE LABEL
+// RENDER FEED
 // ============================================================
 async function renderFeed() {
   try {
