@@ -358,13 +358,14 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
-<!-- POST LOAD PAGE -->
+<!-- POST LOAD PAGE - REVISED LAYOUT -->
 <div id="postload-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span>
         <button class="back-btn" onclick="cancelPost()">Cancel</button>
     </div>
     <div class="scroll-body" id="postload-scroll">
+        <!-- Row 1: Material Type -->
         <div class="profile-section">
             <label class="form-label">📦 Material Type *</label>
             <select class="form-control" id="pl-material">
@@ -381,55 +382,61 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <option value="Other">Other</option>
             </select>
         </div>
+        
+        <!-- Row 2: Weight + Vehicle Type (both on one row) -->
         <div class="grid-2">
             <div class="profile-section" style="margin-bottom:0;">
                 <label class="form-label">⚖️ Weight (Kg)</label>
                 <input class="form-control" type="number" id="pl-weight" placeholder="0">
             </div>
             <div class="profile-section" style="margin-bottom:0;">
-                <label class="form-label">📐 Dimensions (ft)</label>
-                <div class="dim-input" id="pl-dim-container">
-                    <div class="dim-group">
-                        <label>Length</label>
-                        <input type="number" id="pl-length" value="40" step="0.1">
-                    </div>
-                    <div class="dim-group">
-                        <label>Width</label>
-                        <input type="number" id="pl-width" value="8.2" step="0.1">
-                    </div>
-                    <div class="dim-group">
-                        <label>Height</label>
-                        <input type="number" id="pl-height" value="8" step="0.1">
-                    </div>
+                <label class="form-label">🚛 Vehicle Type</label>
+                <select class="form-control" id="pl-vehicle-type">
+                    <option value="">Select type...</option>
+                    <option value="3-Wheeler / Tempo">3-Wheeler / Tempo</option>
+                    <option value="Mini Truck">Mini Truck</option>
+                    <option value="LCV Open Body Truck">LCV Open Body Truck</option>
+                    <option value="LCV - Container">LCV - Container</option>
+                    <option value="LCV - Flat bed">LCV - Flat bed</option>
+                    <option value="Open Body Truck">Open Body Truck</option>
+                    <option value="Box Body Truck">Box Body Truck</option>
+                    <option value="Flat bed Truck">Flat bed Truck</option>
+                    <option value="Trailer - Open Body">Trailer - Open Body</option>
+                    <option value="Trailer - Box Body">Trailer - Box Body</option>
+                    <option value="Trailer - High Bed">Trailer - High Bed</option>
+                    <option value="Trailer - Semi Low Bed">Trailer - Semi Low Bed</option>
+                    <option value="Trailer - Low Bed">Trailer - Low Bed</option>
+                    <option value="Trailer - Automobile Carrier">Trailer - Automobile Carrier</option>
+                    <option value="Tipper / Dumper">Tipper / Dumper</option>
+                    <option value="Tanker">Tanker</option>
+                    <option value="Cement Bulker">Cement Bulker</option>
+                    <option value="Refrigerated / Reefer">Refrigerated / Reefer</option>
+                    <option value="Explosive / Hazardous Vehicle">Explosive / Hazardous Vehicle</option>
+                    <option value="Over-Dimensional Cargo (ODC)">Over-Dimensional Cargo (ODC)</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Row 3: Dimensions (L, W, H in one row) -->
+        <div class="profile-section">
+            <label class="form-label">📐 Dimensions (ft)</label>
+            <div class="dim-input" id="pl-dim-container">
+                <div class="dim-group">
+                    <label>Length</label>
+                    <input type="number" id="pl-length" value="40" step="0.1">
+                </div>
+                <div class="dim-group">
+                    <label>Width</label>
+                    <input type="number" id="pl-width" value="8.2" step="0.1">
+                </div>
+                <div class="dim-group">
+                    <label>Height</label>
+                    <input type="number" id="pl-height" value="8" step="0.1">
                 </div>
             </div>
         </div>
-        <div class="profile-section">
-            <label class="form-label">🚛 Vehicle Type</label>
-            <select class="form-control" id="pl-vehicle-type">
-                <option value="">Select vehicle type...</option>
-                <option value="3-Wheeler / Tempo">3-Wheeler / Tempo</option>
-                <option value="Mini Truck">Mini Truck</option>
-                <option value="LCV Open Body Truck">LCV Open Body Truck</option>
-                <option value="LCV - Container">LCV - Container</option>
-                <option value="LCV - Flat bed">LCV - Flat bed</option>
-                <option value="Open Body Truck">Open Body Truck</option>
-                <option value="Box Body Truck">Box Body Truck</option>
-                <option value="Flat bed Truck">Flat bed Truck</option>
-                <option value="Trailer - Open Body">Trailer - Open Body</option>
-                <option value="Trailer - Box Body">Trailer - Box Body</option>
-                <option value="Trailer - High Bed">Trailer - High Bed</option>
-                <option value="Trailer - Semi Low Bed">Trailer - Semi Low Bed</option>
-                <option value="Trailer - Low Bed">Trailer - Low Bed</option>
-                <option value="Trailer - Automobile Carrier">Trailer - Automobile Carrier</option>
-                <option value="Tipper / Dumper">Tipper / Dumper</option>
-                <option value="Tanker">Tanker</option>
-                <option value="Cement Bulker">Cement Bulker</option>
-                <option value="Refrigerated / Reefer">Refrigerated / Reefer</option>
-                <option value="Explosive / Hazardous Vehicle">Explosive / Hazardous Vehicle</option>
-                <option value="Over-Dimensional Cargo (ODC)">Over-Dimensional Cargo (ODC)</option>
-            </select>
-        </div>
+        
+        <!-- Row 4: Pickup + Drop -->
         <div class="grid-2">
             <div class="profile-section" style="margin-bottom:0;">
                 <label class="form-label">📍 Pickup PIN *</label>
@@ -448,6 +455,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 </div>
             </div>
         </div>
+        
+        <!-- Row 5: Rate + Date -->
         <div class="grid-2">
             <div class="profile-section" style="margin-bottom:0;">
                 <label class="form-label">💰 Rate (₹)</label>
@@ -458,6 +467,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <input class="form-control" type="date" id="pl-date">
             </div>
         </div>
+        
+        <!-- Instructions -->
         <div class="profile-section">
             <label class="form-label">📝 Instructions</label>
             <textarea class="form-control" id="pl-instructions" rows="2" placeholder="Loading instructions, special requirements..."></textarea>
@@ -473,7 +484,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
-<!-- POST TRUCK PAGE -->
+<!-- POST TRUCK PAGE - USING SAME VEHICLE MODAL -->
 <div id="posttruck-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
     <div class="header-fixed">
         <span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span>
@@ -680,11 +691,11 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     </div>
 </div>
 
-<!-- VEHICLE EDIT MODAL -->
+<!-- VEHICLE REGISTRATION MODAL - REUSABLE -->
 <div class="vehicle-modal" id="vehicle-modal">
     <div class="vehicle-modal-content">
         <div class="modal-header">
-            <h3 id="modal-vehicle-title">✏️ Edit Vehicle</h3>
+            <h3 id="modal-vehicle-title">📝 Register New Vehicle</h3>
             <button class="modal-close" onclick="closeVehicleModal()">✕</button>
         </div>
         <div class="form-group">
@@ -813,7 +824,7 @@ function ensureUniqueArray(array) {
 }
 
 // ============================================================
-// VEHICLE NUMBER VALIDATION - 9-12 chars, only letters and numbers
+// VEHICLE NUMBER VALIDATION
 // ============================================================
 function isValidVehicleNumber(number) {
     return /^[A-Za-z0-9]{9,12}$/.test(number);
@@ -942,7 +953,7 @@ function selectLoc(ctx, pinId) {
 }
 
 // ============================================================
-// LOGIN FUNCTIONS
+// LOGIN FUNCTIONS (same as before)
 // ============================================================
 function showMobileLoading(show) {
     const loading = document.getElementById('mobile-loading');
@@ -973,26 +984,14 @@ document.getElementById('mobile').addEventListener('input', function(e) {
     }
 });
 
-// PIN Enter key support - FIXED
 document.getElementById('pin').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        submitPin();
-    }
+    if (e.key === 'Enter') { e.preventDefault(); submitPin(); }
 });
-
 document.getElementById('reg-pin').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('reg-pin-confirm').focus();
-    }
+    if (e.key === 'Enter') { e.preventDefault(); document.getElementById('reg-pin-confirm').focus(); }
 });
-
 document.getElementById('reg-pin-confirm').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        registerUser();
-    }
+    if (e.key === 'Enter') { e.preventDefault(); registerUser(); }
 });
 
 async function checkUserAndShowStep(mobileNum) {
@@ -1077,12 +1076,10 @@ function submitPin() {
     document.getElementById('pin-error').textContent = '❌ Please enter a 4-digit PIN';
     return;
   }
-  
   const btn = document.getElementById('submitBtn');
   btn.textContent = '⏳ Checking...';
   btn.disabled = true;
   document.getElementById('pin-error').style.display = 'none';
-  
   fetch(EDGE_URL + '/login-user', {
     method: 'POST',
     headers: {'Content-Type':'application/json','Accept':'application/json','Authorization':'Bearer '+SB_KEY},
@@ -1135,11 +1132,9 @@ function registerUser() {
     document.getElementById('reg-pin-confirm').focus();
     return;
   }
-  
   const btn = document.getElementById('register-btn');
   btn.textContent = '⏳ Processing...';
   btn.disabled = true;
-  
   if (otpPurpose === 'reset') {
     fetch(EDGE_URL + '/login-user', {
       method: 'POST',
@@ -1159,7 +1154,6 @@ function registerUser() {
     });
     return;
   }
-  
   fetch(EDGE_URL + '/register-user', {
     method: 'POST',
     headers: {'Content-Type':'application/json','Accept':'application/json','Authorization':'Bearer '+SB_KEY},
@@ -1184,7 +1178,6 @@ function registerUser() {
   });
 }
 
-// OTP Functions
 function otpInput(el) {
   if (el.value.length === 1) { const next = el.nextElementSibling; if (next) next.focus(); }
   document.getElementById('otp-error').style.display = 'none';
@@ -1286,22 +1279,16 @@ function logout() { if (confirm('Logout?')) { localStorage.removeItem('rt_user')
 function openChangePin() { toast('Change PIN stub'); }
 
 // ============================================================
-// VEHICLE SEARCH FOR TRUCK PAGE - WITH "ADD NEW" OPTION
+// VEHICLE SEARCH FOR TRUCK PAGE - Opens modal for new vehicles
 // ============================================================
 function searchVehiclesForTruck(query) {
     const dropdown = document.getElementById('pt-vehicle-suggest-dropdown');
     const input = document.getElementById('pt-vehicle-number');
     const q = query.trim().toUpperCase();
     
-    // Validate input - only letters and numbers, no spaces
     const cleaned = q.replace(/[^A-Za-z0-9]/g, '');
-    if (q !== cleaned) {
-        input.value = cleaned;
-    }
-    // Limit to 12 characters
-    if (input.value.length > 12) {
-        input.value = input.value.substring(0, 12);
-    }
+    if (q !== cleaned) { input.value = cleaned; }
+    if (input.value.length > 12) { input.value = input.value.substring(0, 12); }
     
     if (!q || q.length < 1) {
         dropdown.classList.remove('show');
@@ -1322,16 +1309,12 @@ function searchVehiclesForTruck(query) {
                 dropdown.innerHTML = '<div class="item" style="color:#dc2626;">Error loading vehicles</div>';
                 return;
             }
-            
             const vlist = result.data || [];
-            
             if (!vlist.length) {
-                // Show "Add New" option when vehicle not found
-                dropdown.innerHTML = '<div class="item add-new" onclick="openNewVehicleForTruck(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
+                dropdown.innerHTML = '<div class="item add-new" onclick="openVehicleModalForTruck(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
                 dropdown.classList.add('show');
                 return;
             }
-            
             let html = '';
             vlist.forEach(v => {
                 const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
@@ -1339,8 +1322,7 @@ function searchVehiclesForTruck(query) {
                     v.vehicle_number + ' <span class="sub">' + v.vehicle_type + ' • ' + dims + 'ft</span>' +
                     '</div>';
             });
-            // Add "Add New" option at the bottom
-            html += '<div class="item add-new" onclick="openNewVehicleForTruck(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
+            html += '<div class="item add-new" onclick="openVehicleModalForTruck(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
             dropdown.innerHTML = html;
             dropdown.classList.add('show');
         }).catch(err => {
@@ -1356,9 +1338,9 @@ function selectVehicleForTruck(number) {
 }
 
 // Open vehicle registration modal from Truck page
-function openNewVehicleForTruck(number) {
+function openVehicleModalForTruck(number) {
     document.getElementById('pt-vehicle-suggest-dropdown').classList.remove('show');
-    // Open the vehicle modal with pre-filled number
+    // Use the same modal
     document.getElementById('modal-vehicle-title').textContent = '📝 Register New Vehicle';
     document.getElementById('modal-vehicle-number-display').textContent = number;
     document.getElementById('modal-vehicle-number').value = number;
@@ -1381,16 +1363,13 @@ function openNewVehicleForTruck(number) {
 function searchVehicles(query) {
   const dropdown = document.getElementById('vehicle-suggest-dropdown');
   const q = query.trim().toUpperCase();
-  
   if (!q || q.length < 1) {
     dropdown.classList.remove('show');
     dropdown.innerHTML = '';
     return;
   }
-  
   dropdown.innerHTML = '<div class="item" style="color:#94a3b8;">Searching...</div>';
   dropdown.classList.add('show');
-  
   sb.from('active_vehicles')
     .select('*')
     .ilike('vehicle_number', '%' + q + '%')
@@ -1401,15 +1380,12 @@ function searchVehicles(query) {
         dropdown.innerHTML = '<div class="item" style="color:#dc2626;">Error loading vehicles</div>';
         return;
       }
-      
       const vlist = result.data || [];
-      
       if (!vlist.length) {
-        dropdown.innerHTML = '<div class="item add-new" onclick="openVehicleModalForNew(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
+        dropdown.innerHTML = '<div class="item add-new" onclick="openVehicleModalForEdit(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
         dropdown.classList.add('show');
         return;
       }
-      
       let html = '';
       vlist.forEach(v => {
         const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
@@ -1419,13 +1395,31 @@ function searchVehicles(query) {
           (isAlreadyAdded ? ' <span style="color:#16a34a;font-size:10px;">✓ Added</span>' : '') +
           '</div>';
       });
-      html += '<div class="item add-new" onclick="openVehicleModalForNew(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
+      html += '<div class="item add-new" onclick="openVehicleModalForEdit(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
       dropdown.innerHTML = html;
       dropdown.classList.add('show');
     }).catch(err => {
       console.error('Error:', err);
       dropdown.innerHTML = '<div class="item" style="color:#dc2626;">Error loading vehicles</div>';
     });
+}
+
+function openVehicleModalForEdit(number) {
+    document.getElementById('vehicle-suggest-dropdown').classList.remove('show');
+    document.getElementById('modal-vehicle-title').textContent = '📝 Register New Vehicle';
+    document.getElementById('modal-vehicle-number-display').textContent = number;
+    document.getElementById('modal-vehicle-number').value = number;
+    document.getElementById('modal-vehicle-id').value = '';
+    document.getElementById('modal-edit-mode').value = 'new';
+    document.getElementById('modal-vehicle-type').value = '';
+    document.getElementById('modal-length').value = '40';
+    document.getElementById('modal-width').value = '8.2';
+    document.getElementById('modal-height').value = '8';
+    document.getElementById('modal-max-weight').value = '';
+    document.getElementById('modal-description').value = '';
+    document.querySelector('input[name="modal-odc"][value="true"]').checked = true;
+    editingVehicleNumber = number;
+    document.getElementById('vehicle-modal').classList.add('show');
 }
 
 function selectVehicleFromSuggestion(id, number, type, dims) {
@@ -1435,39 +1429,19 @@ function selectVehicleFromSuggestion(id, number, type, dims) {
     document.getElementById('edit-vehicle-input').value = '';
     return;
   }
-  
   vehicles = addUniqueToArray(vehicles, number);
   vehicleDataMap[number] = { id: id, vehicle_number: number, vehicle_type: type, dimensions: dims };
   renderVehicles();
   document.getElementById('edit-vehicle-input').value = '';
   document.getElementById('vehicle-suggest-dropdown').classList.remove('show');
-  
   autoSaveVehicles().then(() => {
     toast('✅ Vehicle "' + number + '" added to your list');
   });
 }
 
 // ============================================================
-// VEHICLE MODAL FUNCTIONS
+// VEHICLE MODAL FUNCTIONS - Saves to both active_vehicles AND active_users.vehicle_no
 // ============================================================
-function openVehicleModalForNew(number) {
-  document.getElementById('vehicle-suggest-dropdown').classList.remove('show');
-  document.getElementById('modal-vehicle-title').textContent = '📝 Register New Vehicle';
-  document.getElementById('modal-vehicle-number-display').textContent = number;
-  document.getElementById('modal-vehicle-number').value = number;
-  document.getElementById('modal-vehicle-id').value = '';
-  document.getElementById('modal-edit-mode').value = 'new';
-  document.getElementById('modal-vehicle-type').value = '';
-  document.getElementById('modal-length').value = '40';
-  document.getElementById('modal-width').value = '8.2';
-  document.getElementById('modal-height').value = '8';
-  document.getElementById('modal-max-weight').value = '';
-  document.getElementById('modal-description').value = '';
-  document.querySelector('input[name="modal-odc"][value="true"]').checked = true;
-  editingVehicleNumber = number;
-  document.getElementById('vehicle-modal').classList.add('show');
-}
-
 function openVehicleEdit(number) {
   sb.from('active_vehicles').select('*').eq('vehicle_number', number).single()
     .then(res => {
@@ -1525,20 +1499,22 @@ function saveVehicleModal() {
   const mode = document.getElementById('modal-edit-mode').value;
   
   if (mode === 'edit' && vehicleId) {
+    // UPDATE existing vehicle
     sb.from('active_vehicles').update(data).eq('id', vehicleId)
       .then(result => {
         if (result.error) { alert('Error: ' + result.error.message); return; }
-        vehicles = addUniqueToArray(vehicles, number);
+        if (!vehicles.includes(number)) {
+          vehicles = addUniqueToArray(vehicles, number);
+          autoSaveVehicles();
+        }
         vehicleDataMap[number] = { id: vehicleId, ...data };
         renderVehicles();
         closeVehicleModal();
-        autoSaveVehicles().then(() => {
-          refreshUserData(function() {
-            toast('✅ Vehicle "' + number + '" updated successfully!');
-          });
-        });
+        toast('✅ Vehicle "' + number + '" updated successfully!');
+        refreshUserData();
       });
   } else {
+    // INSERT new vehicle
     sb.from('active_vehicles').select('id').eq('vehicle_number', number).single()
       .then(checkRes => {
         if (checkRes.data) {
@@ -1547,15 +1523,16 @@ function saveVehicleModal() {
         }
         sb.from('active_vehicles').insert(data).then(insertRes => {
           if (insertRes.error) { alert('Error: ' + insertRes.error.message); return; }
-          vehicles = addUniqueToArray(vehicles, number);
+          // Add to user's vehicle list
+          if (!vehicles.includes(number)) {
+            vehicles = addUniqueToArray(vehicles, number);
+            autoSaveVehicles(); // ✅ Saves to active_users.vehicle_no
+          }
           vehicleDataMap[number] = { id: insertRes.data[0].id, ...data };
           renderVehicles();
           closeVehicleModal();
-          autoSaveVehicles().then(() => {
-            refreshUserData(function() {
-              toast('✅ Vehicle "' + number + '" registered successfully!');
-            });
-          });
+          refreshUserData();
+          toast('✅ Vehicle "' + number + '" registered successfully!');
         });
       });
   }
@@ -1574,11 +1551,9 @@ function deleteVehicleFromModal() {
       delete vehicleDataMap[number];
       renderVehicles();
       closeVehicleModal();
-      autoSaveVehicles().then(() => {
-        refreshUserData(function() {
-          toast('✅ Vehicle "' + number + '" deleted');
-        });
-      });
+      autoSaveVehicles(); // ✅ Updates active_users.vehicle_no
+      refreshUserData();
+      toast('✅ Vehicle "' + number + '" deleted');
     });
 }
 
@@ -1609,10 +1584,10 @@ function addSelectedVehicle() {
           toast('✅ Vehicle "' + val + '" added');
         });
       } else {
-        openVehicleModalForNew(val);
+        openVehicleModalForEdit(val);
       }
     }).catch(() => {
-      openVehicleModalForNew(val);
+      openVehicleModalForEdit(val);
     });
 }
 
@@ -1711,7 +1686,6 @@ function autoSaveRoutes() {
   const mobileNum = parseInt(user.mobile);
   const uniqueRoutes = ensureUniqueArray(routes);
   const routesArray = uniqueRoutes.length > 0 ? uniqueRoutes : null;
-  
   return sb.from('active_users')
     .update({ preferred_routes: routesArray })
     .eq('mobile', mobileNum)
@@ -1750,33 +1724,28 @@ function refreshUserData(callback) {
 }
 
 // ============================================================
-// POST LOAD - dimensions as array from 3 separate inputs
+// POST LOAD
 // ============================================================
 function publishLoad() {
   if (!user) { toast('Please login first'); return; }
-  
   const material = document.getElementById('pl-material').value;
   const pickupPinId = document.getElementById('pl-pickup-hidden').value;
   const dropPinId = document.getElementById('pl-drop-hidden').value;
-  
   if (!material || !pickupPinId || !dropPinId) {
     toast('Please fill all required fields (Material, Pickup, Drop)');
     return;
   }
-  
-  // Build dimensions array from three inputs
   const length = parseFloat(document.getElementById('pl-length').value) || 0;
   const width = parseFloat(document.getElementById('pl-width').value) || 0;
   const height = parseFloat(document.getElementById('pl-height').value) || 0;
   const dimensions = [length, width, height];
-  
   const loadData = {
     mobile: parseInt(user.mobile),
     company: user.company_name || '',
     company_web: user.company_web || '',
     material: material,
     weight: parseFloat(document.getElementById('pl-weight').value) || 0,
-    dimensions: dimensions,  // ✅ Array format: [40, 8.2, 8]
+    dimensions: dimensions,
     vehicle_type: document.getElementById('pl-vehicle-type').value || null,
     pickup_pin: parseInt(pickupPinId),
     drop_pin: parseInt(dropPinId),
@@ -1791,7 +1760,6 @@ function publishLoad() {
     created_at: new Date().toISOString(),
     expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
   };
-  
   sb.from('active_loads').insert(loadData)
     .then(res => {
       if (res.error) { alert('Error: ' + res.error.message); return; }
@@ -1801,35 +1769,28 @@ function publishLoad() {
 }
 
 // ============================================================
-// POST TRUCK - with vehicle number validation and "Add New" option
+// POST TRUCK
 // ============================================================
 function publishTruck() {
   if (!user) { toast('Please login first'); return; }
-  
   const number = document.getElementById('pt-vehicle-number').value.trim().toUpperCase();
   const locationPinId = document.getElementById('pt-location-hidden').value;
-  
   if (!number || !locationPinId) {
     toast('Please fill all required fields (Vehicle Number, Location)');
     return;
   }
-  
   if (!isValidVehicleNumber(number)) {
     alert('Vehicle number must be 9-12 characters (letters and numbers only, no spaces or special characters)');
     return;
   }
-  
-  // First check if vehicle exists in active_vehicles
   sb.from('active_vehicles').select('id').eq('vehicle_number', number).single()
     .then(checkRes => {
       if (!checkRes.data) {
-        // Vehicle not found - open registration modal
         if (confirm('Vehicle "' + number + '" not found. Would you like to register it now?')) {
-          openNewVehicleForTruck(number);
+          openVehicleModalForTruck(number);
         }
         return;
       }
-      
       const truckData = {
         mobile: parseInt(user.mobile),
         truck_no: number,
@@ -1844,7 +1805,6 @@ function publishTruck() {
         expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
         created_at: new Date().toISOString()
       };
-      
       sb.from('active_trucks').insert(truckData)
         .then(res => {
           if (res.error) { alert('Error: ' + res.error.message); return; }
@@ -1852,15 +1812,14 @@ function publishTruck() {
           goHome();
         }).catch(err => { alert('Error: ' + err.message); });
     }).catch(() => {
-      // Error checking - offer registration
       if (confirm('Vehicle "' + number + '" not found. Would you like to register it now?')) {
-        openNewVehicleForTruck(number);
+        openVehicleModalForTruck(number);
       }
     });
 }
 
 // ============================================================
-// PROFILE FUNCTIONS
+// PROFILE FUNCTIONS (same as before)
 // ============================================================
 function loadProfile() {
   if (!user) return;
@@ -1912,7 +1871,6 @@ function loadProfile() {
   // Load Vehicles
   const container2 = document.getElementById('profile-vehicles-container');
   const badge = document.getElementById('vehicle-count-badge');
-  
   let vno = user.vehicle_no || [];
   let vehicleNumbers = [];
   if (Array.isArray(vno)) {
@@ -1925,7 +1883,6 @@ function loadProfile() {
   } else if (typeof vno === 'string') {
     vehicleNumbers = ensureUniqueArray(vno.split(',').filter(v => v.trim() !== ''));
   }
-  
   if (vehicleNumbers.length) {
     sb.from('active_vehicles').select('*').in('vehicle_number', vehicleNumbers)
       .then(result => {
@@ -1951,7 +1908,6 @@ function loadProfile() {
     document.getElementById('stat-vehicles-count').textContent = '0';
   }
 
-  // Routes
   let routeArr = user.preferred_routes || [];
   let routeList = [];
   if (Array.isArray(routeArr)) {
@@ -1964,7 +1920,6 @@ function loadProfile() {
   } else if (typeof routeArr === 'string') {
     routeList = ensureUniqueArray(routeArr.split(',').filter(r => r.trim() !== '').map(Number));
   }
-  
   const rc = document.getElementById('profile-routes-container');
   if (routeList && routeList.length) {
     rc.innerHTML = routeList.map(r => {
@@ -1974,7 +1929,6 @@ function loadProfile() {
   } else {
     rc.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>';
   }
-  
   loadMyLoads();
   loadMyTrucks();
   loadStats();
@@ -2030,7 +1984,6 @@ function deleteLoadItem(id) {
   if (!confirm('Delete this load?')) return;
   sb.from('active_loads').update({status: 0}).eq('id', id).then(() => { loadMyLoads(); loadStats(); });
 }
-
 function deleteTruckItem(id) {
   if (!confirm('Delete this truck?')) return;
   sb.from('active_trucks').update({status: 0}).eq('id', id).then(() => { loadMyTrucks(); loadStats(); });
@@ -2157,31 +2110,18 @@ async function renderFeed() {
     const {data: trucks} = await sb.from('active_trucks').select('*').eq('status', 1);
     items = [];
     (loads || []).forEach(l => items.push({
-      type:'LOAD',
-      title: l.material || 'Cargo',
-      company: l.company || '',
-      from_pin: l.pickup_pin,
-      to_pin: l.drop_pin,
-      weight: l.weight || 0,
-      vehicle: l.vehicle_type || '',
-      views: l.views || 0,
-      interests: (l.interests || []).length,
-      shares: l.shares || 0,
-      id: l.id,
-      mobile: l.mobile
+      type:'LOAD', title: l.material || 'Cargo', company: l.company || '',
+      from_pin: l.pickup_pin, to_pin: l.drop_pin, weight: l.weight || 0,
+      vehicle: l.vehicle_type || '', views: l.views || 0,
+      interests: (l.interests || []).length, shares: l.shares || 0,
+      id: l.id, mobile: l.mobile
     }));
     (trucks || []).forEach(t => items.push({
-      type:'TRUCK',
-      title: t.truck_no || 'Truck',
-      company: user?.company_name || '',
-      from_pin: t.location_pin,
-      to_pin: null,
-      vehicle: 'Truck',
-      views: t.views || 0,
-      interests: (t.interested || []).length,
-      shares: t.share || 0,
-      id: t.id,
-      mobile: t.mobile
+      type:'TRUCK', title: t.truck_no || 'Truck',
+      company: user?.company_name || '', from_pin: t.location_pin,
+      to_pin: null, vehicle: 'Truck', views: t.views || 0,
+      interests: (t.interested || []).length, shares: t.share || 0,
+      id: t.id, mobile: t.mobile
     }));
 
     let filtered = items.slice();
