@@ -178,6 +178,11 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .spinner{display:inline-block;width:20px;height:20px;border:3px solid #e2e8f0;border-top-color:#2563eb;border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{display:flex;align-items:center;justify-content:center;gap:8px;color:#64748b;font-size:14px;padding:8px}
+.dim-input{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px}
+.dim-input .dim-group{background:#f8fafc;border-radius:8px;padding:8px 12px;border:1px solid #e2e8f0;text-align:center}
+.dim-input .dim-group label{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block}
+.dim-input .dim-group input{width:100%;border:none;background:transparent;text-align:center;font-size:16px;font-weight:600;color:#0f172a;padding:4px 0;outline:none}
+.dim-input .dim-group input:focus{color:#2563eb}
 </style>
 </head>
 <body>
@@ -202,7 +207,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         </div>
     </div>
     <div class="login-step-container">
-        <!-- Step 1: Enter Mobile Number -->
         <div id="step1">
             <input type="tel" id="mobile" class="input-field" placeholder="Enter Mobile Number" maxlength="10" autofocus>
             <div id="mobile-status" style="font-size:12px;color:#94a3b8;text-align:center;margin-top:4px"></div>
@@ -213,8 +217,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div class="login-divider"><div style="flex:1;height:1px;background:#e2e8f0"></div><span style="font-size:10px;color:#94a3b8">or continue as</span><div style="flex:1;height:1px;background:#e2e8f0"></div></div>
             <button style="width:100%;padding:12px;border:1.5px solid #8b5cf6;border-radius:12px;font-size:14px;font-weight:600;color:#8b5cf6;background:transparent;cursor:pointer" onclick="continueAsGuest()">👤 Guest</button>
         </div>
-        
-        <!-- Step 2: Enter PIN -->
         <div id="step2" class="hidden">
             <div style="text-align:center;margin-bottom:16px">
                 <div id="display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
@@ -226,8 +228,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <button onclick="submitPin()" id="submitBtn" class="btn-primary" style="background:#16a34a">🔐 Login</button>
             <button onclick="resetForm()" class="btn-back">← Change Number</button>
         </div>
-        
-        <!-- Step 3: OTP Verification -->
         <div id="step3" class="hidden">
             <div style="text-align:center;margin-bottom:12px">
                 <div id="wa-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
@@ -256,8 +256,6 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <button onclick="verifyOTP()" id="verify-btn" class="btn-primary" style="background:#16a34a">✅ Verify</button>
             <button onclick="resetForm()" class="btn-back">← Change Number</button>
         </div>
-        
-        <!-- Step 4: Set PIN -->
         <div id="step4" class="hidden">
             <div style="text-align:center;margin-bottom:16px"><div id="reg-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
             <div id="step4-purpose" style="font-size:13px;color:#475569">Set your 4-digit PIN for login</div></div>
@@ -390,7 +388,20 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
             <div class="profile-section" style="margin-bottom:0;">
                 <label class="form-label">📐 Dimensions (ft)</label>
-                <input class="form-control" type="text" id="pl-dim" placeholder="40x8x8">
+                <div class="dim-input" id="pl-dim-container">
+                    <div class="dim-group">
+                        <label>Length</label>
+                        <input type="number" id="pl-length" value="40" step="0.1">
+                    </div>
+                    <div class="dim-group">
+                        <label>Width</label>
+                        <input type="number" id="pl-width" value="8.2" step="0.1">
+                    </div>
+                    <div class="dim-group">
+                        <label>Height</label>
+                        <input type="number" id="pl-height" value="8" step="0.1">
+                    </div>
+                </div>
             </div>
         </div>
         <div class="profile-section">
@@ -609,26 +620,11 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <button class="back-btn" onclick="closeEditProfile()">✕</button>
     </div>
     <div class="scroll-body" id="edit-profile-scroll">
-        <div class="profile-section">
-            <label class="form-label">👤 Full Name</label>
-            <input class="form-control" id="edit-name" placeholder="Rajesh Kumar">
-        </div>
-        <div class="profile-section">
-            <label class="form-label">🏢 Company Name</label>
-            <input class="form-control" id="edit-company" placeholder="ABC Steel Traders">
-        </div>
-        <div class="profile-section">
-            <label class="form-label">🌐 Company Website</label>
-            <input class="form-control" id="edit-website" placeholder="https://www.abcsteel.com">
-        </div>
-        <div class="profile-section">
-            <label class="form-label">📛 PAN Number</label>
-            <input class="form-control" id="edit-pan" placeholder="AABCP1234D">
-        </div>
-        <div class="profile-section">
-            <label class="form-label">📛 GST Number</label>
-            <input class="form-control" id="edit-gst" placeholder="22AABC1234D1ZP">
-        </div>
+        <div class="profile-section"><label class="form-label">👤 Full Name</label><input class="form-control" id="edit-name" placeholder="Rajesh Kumar"></div>
+        <div class="profile-section"><label class="form-label">🏢 Company Name</label><input class="form-control" id="edit-company" placeholder="ABC Steel Traders"></div>
+        <div class="profile-section"><label class="form-label">🌐 Company Website</label><input class="form-control" id="edit-website" placeholder="https://www.abcsteel.com"></div>
+        <div class="profile-section"><label class="form-label">📛 PAN Number</label><input class="form-control" id="edit-pan" placeholder="AABCP1234D"></div>
+        <div class="profile-section"><label class="form-label">📛 GST Number</label><input class="form-control" id="edit-gst" placeholder="22AABC1234D1ZP"></div>
         <div class="profile-section">
             <label class="form-label">📍 Location PIN</label>
             <div style="position:relative;width:100%">
@@ -800,31 +796,24 @@ let editingVehicleNumber = null;
 let mobileCheckTimeout = null;
 
 // ============================================================
-// HELPER FUNCTIONS FOR UNIQUE ARRAYS
+// HELPER FUNCTIONS
 // ============================================================
 function addUniqueToArray(array, value) {
     if (!array) return [value];
     if (array.includes(value)) return array;
     return [...array, value];
 }
-
 function removeFromArray(array, value) {
     if (!array) return [];
     return array.filter(item => item !== value);
 }
-
 function ensureUniqueArray(array) {
     if (!array) return [];
     return [...new Set(array)];
 }
 
-function existsInArray(array, value) {
-    if (!array) return false;
-    return array.includes(value);
-}
-
 // ============================================================
-// VEHICLE NUMBER VALIDATION
+// VEHICLE NUMBER VALIDATION - 9-12 chars, only letters and numbers
 // ============================================================
 function isValidVehicleNumber(number) {
     return /^[A-Za-z0-9]{9,12}$/.test(number);
@@ -953,14 +942,12 @@ function selectLoc(ctx, pinId) {
 }
 
 // ============================================================
-// LOGIN FUNCTIONS - FIXED WITH LOADING INDICATOR
+// LOGIN FUNCTIONS
 // ============================================================
-
 function showMobileLoading(show) {
     const loading = document.getElementById('mobile-loading');
     const status = document.getElementById('mobile-status');
     const mobileInput = document.getElementById('mobile');
-    
     if (show) {
         loading.classList.remove('hidden');
         status.textContent = '⏳ Checking user...';
@@ -974,23 +961,37 @@ function showMobileLoading(show) {
 
 document.getElementById('mobile').addEventListener('input', function(e) {
     const m = this.value.trim();
-    
-    if (mobileCheckTimeout) {
-        clearTimeout(mobileCheckTimeout);
-        mobileCheckTimeout = null;
-    }
-    
+    if (mobileCheckTimeout) { clearTimeout(mobileCheckTimeout); mobileCheckTimeout = null; }
     const status = document.getElementById('mobile-status');
     status.textContent = '';
-    
     if (m.length === 10) {
         mobile = m;
         showMobileLoading(true);
-        mobileCheckTimeout = setTimeout(function() {
-            checkUserAndShowStep(m);
-        }, 300);
+        mobileCheckTimeout = setTimeout(function() { checkUserAndShowStep(m); }, 300);
     } else {
         showMobileLoading(false);
+    }
+});
+
+// PIN Enter key support - FIXED
+document.getElementById('pin').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        submitPin();
+    }
+});
+
+document.getElementById('reg-pin').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('reg-pin-confirm').focus();
+    }
+});
+
+document.getElementById('reg-pin-confirm').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        registerUser();
     }
 });
 
@@ -998,17 +999,11 @@ async function checkUserAndShowStep(mobileNum) {
     try {
         const resp = await fetch(EDGE_URL + '/login-user', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': 'Bearer ' + SB_KEY
-            },
+            headers: {'Content-Type':'application/json','Accept':'application/json','Authorization':'Bearer '+SB_KEY},
             body: JSON.stringify({mobile: mobileNum, action: 'check'})
         });
-        
         const result = await resp.json();
         showMobileLoading(false);
-        
         if (result.exists === true) {
             document.getElementById('step1').classList.add('hidden');
             document.getElementById('step2').classList.remove('hidden');
@@ -1047,21 +1042,14 @@ async function checkUserAndShowStep(mobileNum) {
 
 function sendWhatsAppOTP() {
     if (!mobile || mobile.length !== 10) return;
-    
     const otp = generateOTP();
     generatedOTP = otp;
     const purposeText = (otpPurpose === 'reset') ? 'PIN Reset' : 'Registration';
     const message = '🔐 ReturnTruck - ' + purposeText + '\n\nYour OTP is: ' + otp + '\n\nThis OTP is valid for 5 minutes.\n\n📱 Mobile: ' + mobile + '\n\n- ReturnTruck Team';
-    
     const otpLoading = document.getElementById('otp-loading');
     otpLoading.classList.remove('hidden');
-    
     window.open('https://wa.me/91' + mobile + '?text=' + encodeURIComponent(message), '_blank');
-    
-    setTimeout(function() {
-        otpLoading.classList.add('hidden');
-    }, 500);
-    
+    setTimeout(function() { otpLoading.classList.add('hidden'); }, 500);
     startOTPTimer();
     document.getElementById('verify-btn').disabled = false;
     document.getElementById('verify-btn').textContent = '✅ Verify';
@@ -1084,7 +1072,11 @@ function resetForm() {
 
 function submitPin() {
   const pin = document.getElementById('pin').value.trim();
-  if (!pin || pin.length !== 4) return;
+  if (!pin || pin.length !== 4) { 
+    document.getElementById('pin-error').style.display = 'block';
+    document.getElementById('pin-error').textContent = '❌ Please enter a 4-digit PIN';
+    return;
+  }
   
   const btn = document.getElementById('submitBtn');
   btn.textContent = '⏳ Checking...';
@@ -1138,7 +1130,11 @@ function registerUser() {
   if (!otpVerified) return;
   const pin = document.getElementById('reg-pin').value.trim();
   const conf = document.getElementById('reg-pin-confirm').value.trim();
-  if (!pin || pin.length !== 4 || pin !== conf) return;
+  if (!pin || pin.length !== 4 || pin !== conf) {
+    document.getElementById('reg-pin-confirm').value = '';
+    document.getElementById('reg-pin-confirm').focus();
+    return;
+  }
   
   const btn = document.getElementById('register-btn');
   btn.textContent = '⏳ Processing...';
@@ -1286,26 +1282,25 @@ function updateGuestUI() {
 
 function toggleDropdown() { document.querySelectorAll('.profile-dropdown').forEach(d => d.classList.toggle('show')); }
 function closeDropdown() { document.querySelectorAll('.profile-dropdown').forEach(d => d.classList.remove('show')); }
-
-function logout() {
-  if (confirm('Logout?')) {
-    localStorage.removeItem('rt_user');
-    window.location.reload();
-  }
-}
-
+function logout() { if (confirm('Logout?')) { localStorage.removeItem('rt_user'); window.location.reload(); } }
 function openChangePin() { toast('Change PIN stub'); }
 
 // ============================================================
-// VEHICLE SEARCH FOR TRUCK PAGE
+// VEHICLE SEARCH FOR TRUCK PAGE - WITH "ADD NEW" OPTION
 // ============================================================
 function searchVehiclesForTruck(query) {
     const dropdown = document.getElementById('pt-vehicle-suggest-dropdown');
+    const input = document.getElementById('pt-vehicle-number');
     const q = query.trim().toUpperCase();
     
+    // Validate input - only letters and numbers, no spaces
     const cleaned = q.replace(/[^A-Za-z0-9]/g, '');
     if (q !== cleaned) {
-        document.getElementById('pt-vehicle-number').value = cleaned;
+        input.value = cleaned;
+    }
+    // Limit to 12 characters
+    if (input.value.length > 12) {
+        input.value = input.value.substring(0, 12);
     }
     
     if (!q || q.length < 1) {
@@ -1331,7 +1326,8 @@ function searchVehiclesForTruck(query) {
             const vlist = result.data || [];
             
             if (!vlist.length) {
-                dropdown.innerHTML = '<div class="item add-new" onclick="toast(\'Vehicle not found. Please register in Edit Profile.\')">➕ Vehicle "' + q + '" not found</div>';
+                // Show "Add New" option when vehicle not found
+                dropdown.innerHTML = '<div class="item add-new" onclick="openNewVehicleForTruck(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
                 dropdown.classList.add('show');
                 return;
             }
@@ -1343,6 +1339,8 @@ function searchVehiclesForTruck(query) {
                     v.vehicle_number + ' <span class="sub">' + v.vehicle_type + ' • ' + dims + 'ft</span>' +
                     '</div>';
             });
+            // Add "Add New" option at the bottom
+            html += '<div class="item add-new" onclick="openNewVehicleForTruck(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
             dropdown.innerHTML = html;
             dropdown.classList.add('show');
         }).catch(err => {
@@ -1355,6 +1353,26 @@ function selectVehicleForTruck(number) {
     document.getElementById('pt-vehicle-number').value = number;
     document.getElementById('pt-vehicle-suggest-dropdown').classList.remove('show');
     toast('✅ Vehicle "' + number + '" selected');
+}
+
+// Open vehicle registration modal from Truck page
+function openNewVehicleForTruck(number) {
+    document.getElementById('pt-vehicle-suggest-dropdown').classList.remove('show');
+    // Open the vehicle modal with pre-filled number
+    document.getElementById('modal-vehicle-title').textContent = '📝 Register New Vehicle';
+    document.getElementById('modal-vehicle-number-display').textContent = number;
+    document.getElementById('modal-vehicle-number').value = number;
+    document.getElementById('modal-vehicle-id').value = '';
+    document.getElementById('modal-edit-mode').value = 'new';
+    document.getElementById('modal-vehicle-type').value = '';
+    document.getElementById('modal-length').value = '40';
+    document.getElementById('modal-width').value = '8.2';
+    document.getElementById('modal-height').value = '8';
+    document.getElementById('modal-max-weight').value = '';
+    document.getElementById('modal-description').value = '';
+    document.querySelector('input[name="modal-odc"][value="true"]').checked = true;
+    editingVehicleNumber = number;
+    document.getElementById('vehicle-modal').classList.add('show');
 }
 
 // ============================================================
@@ -1640,18 +1658,14 @@ function addRoute() {
   renderRoutes();
   const sug = document.getElementById('suggestions-edit-route');
   if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
-  autoSaveRoutes().then(() => {
-    toast('Route added');
-  });
+  autoSaveRoutes().then(() => { toast('Route added'); });
 }
 
 function removeRoute(r) {
   if (!confirm('Remove this route?')) return;
   routes = removeFromArray(routes, r);
   renderRoutes();
-  autoSaveRoutes().then(() => {
-    toast('Route removed');
-  });
+  autoSaveRoutes().then(() => { toast('Route removed'); });
 }
 
 function renderRoutes() {
@@ -1719,7 +1733,6 @@ function autoSaveRoutes() {
 
 function refreshUserData(callback) {
   if (!user || !user.mobile) { if (callback) callback(); return; }
-  
   const mobileNum = parseInt(user.mobile);
   sb.from('active_users').select('*').eq('mobile', mobileNum).single()
     .then(result => {
@@ -1733,13 +1746,11 @@ function refreshUserData(callback) {
         }
       }
       if (callback) callback();
-    }).catch(() => {
-      if (callback) callback();
-    });
+    }).catch(() => { if (callback) callback(); });
 }
 
 // ============================================================
-// POST LOAD
+// POST LOAD - dimensions as array from 3 separate inputs
 // ============================================================
 function publishLoad() {
   if (!user) { toast('Please login first'); return; }
@@ -1753,14 +1764,11 @@ function publishLoad() {
     return;
   }
   
-  const dimStr = document.getElementById('pl-dim').value.trim();
-  let dimensions = null;
-  if (dimStr) {
-    const parts = dimStr.split('x').map(Number);
-    if (parts.length >= 1 && parts.every(p => !isNaN(p))) {
-      dimensions = parts;
-    }
-  }
+  // Build dimensions array from three inputs
+  const length = parseFloat(document.getElementById('pl-length').value) || 0;
+  const width = parseFloat(document.getElementById('pl-width').value) || 0;
+  const height = parseFloat(document.getElementById('pl-height').value) || 0;
+  const dimensions = [length, width, height];
   
   const loadData = {
     mobile: parseInt(user.mobile),
@@ -1768,7 +1776,7 @@ function publishLoad() {
     company_web: user.company_web || '',
     material: material,
     weight: parseFloat(document.getElementById('pl-weight').value) || 0,
-    dimensions: dimensions,
+    dimensions: dimensions,  // ✅ Array format: [40, 8.2, 8]
     vehicle_type: document.getElementById('pl-vehicle-type').value || null,
     pickup_pin: parseInt(pickupPinId),
     drop_pin: parseInt(dropPinId),
@@ -1793,7 +1801,7 @@ function publishLoad() {
 }
 
 // ============================================================
-// POST TRUCK
+// POST TRUCK - with vehicle number validation and "Add New" option
 // ============================================================
 function publishTruck() {
   if (!user) { toast('Please login first'); return; }
@@ -1811,10 +1819,14 @@ function publishTruck() {
     return;
   }
   
+  // First check if vehicle exists in active_vehicles
   sb.from('active_vehicles').select('id').eq('vehicle_number', number).single()
     .then(checkRes => {
       if (!checkRes.data) {
-        toast('Vehicle "' + number + '" not found. Please register it first in Edit Profile.');
+        // Vehicle not found - open registration modal
+        if (confirm('Vehicle "' + number + '" not found. Would you like to register it now?')) {
+          openNewVehicleForTruck(number);
+        }
         return;
       }
       
@@ -1840,7 +1852,10 @@ function publishTruck() {
           goHome();
         }).catch(err => { alert('Error: ' + err.message); });
     }).catch(() => {
-      toast('Vehicle "' + number + '" not found. Please register it first in Edit Profile.');
+      // Error checking - offer registration
+      if (confirm('Vehicle "' + number + '" not found. Would you like to register it now?')) {
+        openNewVehicleForTruck(number);
+      }
     });
 }
 
