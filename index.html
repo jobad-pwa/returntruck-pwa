@@ -911,7 +911,11 @@ function searchLocation(ctx) {
   const sug = $('suggestions-' + ctx);
   if (!inp || !sug) return;
   const q = inp.value.trim();
-  if (!q) { sug.classList.remove('show'); sug.innerHTML = ''; return; }
+  if (!q) { 
+    sug.classList.remove('show'); 
+    sug.innerHTML = ''; 
+    return; 
+  }
   const res = LOCATIONS.filter(l =>
     l.name.toLowerCase().includes(q.toLowerCase()) ||
     l.pincode.includes(q) ||
@@ -919,7 +923,11 @@ function searchLocation(ctx) {
     l.state.toLowerCase().includes(q.toLowerCase()) ||
     String(l.pin_id).includes(q)
   ).slice(0, 10);
-  if (!res.length) { sug.classList.remove('show'); sug.innerHTML = ''; return; }
+  if (!res.length) { 
+    sug.classList.remove('show'); 
+    sug.innerHTML = ''; 
+    return; 
+  }
   let html = '';
   res.forEach(l => {
     const dn = getLocDisplayName(l);
@@ -937,11 +945,19 @@ document.addEventListener('click', function(e) {
   if (item) {
     const ctx = item.dataset.ctx;
     const pinId = item.dataset.pinid;
-    if (ctx && pinId) selectLoc(ctx, pinId);
+    if (ctx && pinId) {
+      selectLoc(ctx, pinId);
+      // Prevent the click from bubbling up and reopening
+      e.stopPropagation();
+    }
   }
+  // Close all suggestions when clicking outside
   document.querySelectorAll('.suggestions').forEach(s => {
     const parent = s.parentElement;
-    if (parent && !parent.contains(e.target)) { s.classList.remove('show'); s.innerHTML = ''; }
+    if (parent && !parent.contains(e.target)) { 
+      s.classList.remove('show'); 
+      s.innerHTML = ''; 
+    }
   });
 });
 
@@ -950,9 +966,26 @@ function selectLoc(ctx, pinId) {
   if (!l) return;
   const dn = getLocDisplayName(l);
   const inp = $('search-' + ctx);
-  if (inp) { inp.value = dn; setTimeout(() => { inp.select(); inp.classList.add('selected'); }, 100); }
+  if (inp) { 
+    inp.value = dn; 
+    setTimeout(() => { 
+      inp.select(); 
+      inp.classList.add('selected'); 
+    }, 100);
+    // Close the suggestions dropdown
+    const sug = $('suggestions-' + ctx);
+    if (sug) { 
+      sug.classList.remove('show'); 
+      sug.innerHTML = ''; 
+    }
+  }
   let hid = null;
-  if (ctx === 'home') { homePinId = pinId; localStorage.setItem('rt_home_location', JSON.stringify({pinId, displayName: dn})); applyFilters(); return; }
+  if (ctx === 'home') { 
+    homePinId = pinId; 
+    localStorage.setItem('rt_home_location', JSON.stringify({pinId, displayName: dn})); 
+    applyFilters(); 
+    return; 
+  }
   if (ctx === 'to') hid = 'filter-to-hidden';
   else if (ctx === 'pl-pickup') hid = 'pl-pickup-hidden';
   else if (ctx === 'pl-drop') hid = 'pl-drop-hidden';
@@ -960,8 +993,14 @@ function selectLoc(ctx, pinId) {
   else if (ctx === 'edit-location') hid = 'edit-location-hidden';
   else if (ctx === 'edit-route') hid = 'edit-route-hidden';
   if (hid && $(hid)) $(hid).value = pinId;
+  
+  // Close suggestions again (for safety)
   const sug = $('suggestions-' + ctx);
-  if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
+  if (sug) { 
+    sug.classList.remove('show'); 
+    sug.innerHTML = ''; 
+  }
+  
   if (ctx === 'to') applyFilters();
 }
 
