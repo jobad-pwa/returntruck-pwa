@@ -185,6 +185,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .dim-input .dim-group label{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block}
 .dim-input .dim-group input{width:100%;border:none;background:transparent;text-align:center;font-size:16px;font-weight:600;color:#0f172a;padding:4px 0;outline:none}
 .dim-input .dim-group input:focus{color:#2563eb}
+.website-link{color:#2563eb;text-decoration:underline;cursor:pointer;word-break:break-all}
+.website-link:hover{color:#1d4ed8}
 </style>
 </head>
 <body>
@@ -556,7 +558,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <button class="section-btn secondary" style="padding:4px 12px;font-size:10px" onclick="openEditProfile()">✏️ Edit</button>
             </div>
             <div style="font-weight:600;font-size:15px;color:#1e293b" id="profile-company">Not set</div>
-            <div style="font-size:12px;color:#2563eb" id="profile-website">--</div>
+            <div id="profile-website" style="font-size:12px;color:#2563eb;word-break:break-all"></div>
             <div style="font-size:11px;color:#64748b;margin-top:4px" id="profile-pan">📛 PAN: --</div>
             <div style="font-size:11px;color:#64748b;margin-top:2px" id="profile-gst">📛 GST: --</div>
             <div style="font-size:11px;color:#64748b;margin-top:2px" id="profile-location">📍 Location: Not set</div>
@@ -1731,7 +1733,7 @@ function refreshUserData(callback) {
 }
 
 // ============================================================
-// POST LOAD - WITH RATE FIELD
+// POST LOAD
 // ============================================================
 function publishLoad() {
   if (!user) { toast('Please login first'); return; }
@@ -1779,7 +1781,7 @@ function publishLoad() {
 }
 
 // ============================================================
-// POST TRUCK - WITH RATE FIELD
+// POST TRUCK
 // ============================================================
 function publishTruck() {
   if (!user) { toast('Please login first'); return; }
@@ -1832,15 +1834,21 @@ function publishTruck() {
 }
 
 // ============================================================
-// PROFILE FUNCTIONS
+// PROFILE FUNCTIONS - WITH CLICKABLE WEBSITE LINK AND FORMATTED NUMBERS
 // ============================================================
 function loadProfile() {
   if (!user) return;
+  
+  // Name
   document.getElementById('profile-name').textContent = user.name || user.mobile || 'User';
+  
+  // Last active
   if (user.last_active) {
     const d = new Date(user.last_active);
     document.getElementById('profile-last-active').textContent = d.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
   }
+  
+  // Avatar initials
   let initials = '';
   if (user.name) {
     const parts = user.name.split(' ');
@@ -1851,8 +1859,22 @@ function loadProfile() {
   document.getElementById('avatar-initials-profile').textContent = initials.toUpperCase();
   document.getElementById('avatar-initials').textContent = initials.toUpperCase();
 
+  // Company Details
   document.getElementById('profile-company').textContent = user.company_name || 'Not set';
-  document.getElementById('profile-website').textContent = user.company_web || '--';
+  
+  // Website - Clickable Link
+  const websiteEl = document.getElementById('profile-website');
+  if (user.company_web && user.company_web.trim() !== '') {
+    let url = user.company_web.trim();
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      url = 'https://' + url;
+    }
+    websiteEl.innerHTML = '<a href="' + url + '" target="_blank" class="website-link" onclick="event.stopPropagation();">' + user.company_web + ' ↗</a>';
+  } else {
+    websiteEl.textContent = '--';
+  }
+  
+  // PAN, GST, Location
   document.getElementById('profile-pan').textContent = '📛 PAN: ' + (user.pan || '--');
   document.getElementById('profile-gst').textContent = '📛 GST: ' + (user.gst || '--');
   if (user.location) {
@@ -1862,6 +1884,7 @@ function loadProfile() {
     document.getElementById('profile-location').textContent = '📍 Location: Not set';
   }
 
+  // User Type
   let types = user.user_type || [];
   if (!Array.isArray(types) && typeof types === 'number') types = [types];
   const typeLabels = ['Load Giver', 'Operator', 'Agent'];
@@ -1879,6 +1902,7 @@ function loadProfile() {
     container.innerHTML = '<span class="section-badge optional">Not set</span>';
   }
 
+  // About / Details
   document.getElementById('profile-details-text').textContent = user.details || 'No details added';
   
   // Load Vehicles
@@ -1943,6 +1967,7 @@ function loadProfile() {
   } else {
     rc.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>';
   }
+  
   loadMyLoads();
   loadMyTrucks();
   loadStats();
@@ -2116,7 +2141,7 @@ function updateCharCount(inputId, countId) {
 }
 
 // ============================================================
-// RENDER FEED - WITH FORMATTED NUMBERS
+// RENDER FEED
 // ============================================================
 async function renderFeed() {
   try {
