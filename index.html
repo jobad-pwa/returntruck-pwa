@@ -453,7 +453,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div class="grid-2">
             <div class="profile-section" style="margin-bottom:0;">
                 <label class="form-label">💰 Rate (₹)</label>
-                <input class="form-control" type="text" id="pl-rate" placeholder="0">
+                <input class="form-control" type="text" id="pl-rate" placeholder="0" oninput="formatInputNumber(this)">
             </div>
             <div class="profile-section" style="margin-bottom:0;">
                 <label class="form-label">📅 Pickup Date</label>
@@ -505,7 +505,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
             <div class="profile-section" style="margin-bottom:0;">
                 <label class="form-label">💰 Rate (₹)</label>
-                <input class="form-control" type="text" id="pt-rate" placeholder="0">
+                <input class="form-control" type="text" id="pt-rate" placeholder="0" oninput="formatInputNumber(this)">
             </div>
         </div>
         <div class="profile-section">
@@ -525,22 +525,255 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 
 <!-- PROFILE PAGE -->
 <div id="profile-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
-    <!-- Same as before -->
+    <div class="header-fixed">
+        <span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span>
+        <div class="header-right">
+            <button class="avatar-btn" id="avatar-btn-profile" onclick="toggleDropdown()"><span id="avatar-initials-profile">GU</span></button>
+            <div class="profile-dropdown" id="profile-dropdown-profile">
+                <button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button>
+                <button class="dropdown-item" onclick="closeDropdown();openEditProfile()">✏️ Edit Profile</button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button>
+            </div>
+        </div>
+    </div>
+    <div class="scroll-body" id="profile-scroll">
+        <div class="profile-header-card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                    <div id="profile-name" style="font-size:20px;font-weight:700">--</div>
+                    <div style="font-size:10px;opacity:.7">⭐ Last active: <span id="profile-last-active">Never</span></div>
+                </div>
+                <div style="text-align:right">
+                    <div style="font-size:20px">👤</div>
+                    <div style="font-size:10px;background:rgba(255,255,255,.2);padding:2px 12px;border-radius:12px;display:inline-block">⭐ Member</div>
+                </div>
+            </div>
+        </div>
+        <div class="profile-section">
+            <div class="section-header">
+                <span class="section-title">🏢 Company Details</span>
+                <button class="section-btn secondary" style="padding:4px 12px;font-size:10px" onclick="openEditProfile()">✏️ Edit</button>
+            </div>
+            <div style="font-weight:600;font-size:15px;color:#1e293b" id="profile-company">Not set</div>
+            <div style="font-size:12px;color:#2563eb" id="profile-website">--</div>
+            <div style="font-size:11px;color:#64748b;margin-top:4px" id="profile-pan">📛 PAN: --</div>
+            <div style="font-size:11px;color:#64748b;margin-top:2px" id="profile-gst">📛 GST: --</div>
+            <div style="font-size:11px;color:#64748b;margin-top:2px" id="profile-location">📍 Location: Not set</div>
+        </div>
+        <div class="profile-section">
+            <label class="form-label" style="margin-bottom:6px">🎯 User Type</label>
+            <div id="profile-user-types" style="display:flex;gap:8px;flex-wrap:wrap">
+                <span class="section-badge optional">Not set</span>
+            </div>
+        </div>
+        <div class="profile-section">
+            <div class="section-header">
+                <span class="section-title">🚛 My Vehicles</span>
+                <span class="section-badge active" id="vehicle-count-badge">0 Vehicles</span>
+            </div>
+            <div id="profile-vehicles-container">
+                <div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>
+            </div>
+        </div>
+        <div class="profile-section">
+            <div class="section-header">
+                <span class="section-title">🗺️ Preferred Routes</span>
+                <span class="section-badge optional">Optional</span>
+            </div>
+            <div id="profile-routes-container" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
+                <span style="color:#94a3b8;font-size:12px">No routes added</span>
+            </div>
+        </div>
+        <div class="profile-section">
+            <label class="form-label">📝 About / Details</label>
+            <div id="profile-details-text" style="font-size:14px;color:#475569;padding:4px 0">No details added</div>
+        </div>
+        <div style="margin-bottom:8px">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px">📦 My Loads <span class="count-badge" id="my-loads-count">0</span></div>
+            <div id="my-loads-container"></div>
+        </div>
+        <div style="margin-bottom:8px">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px">🚛 My Trucks <span class="count-badge" id="my-trucks-count">0</span></div>
+            <div id="my-trucks-container"></div>
+        </div>
+        <div style="margin:12px 0 8px">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px">📊 MY STATISTICS</div>
+            <div class="stat-cards">
+                <div class="stat-card"><span class="icon">📦</span><span class="number" id="stat-loads-count">0</span><span class="label">Loads</span></div>
+                <div class="stat-card"><span class="icon">🚛</span><span class="number" id="stat-trucks-count">0</span><span class="label">Trucks</span></div>
+                <div class="stat-card"><span class="icon">🚚</span><span class="number" id="stat-vehicles-count">0</span><span class="label">Vehicles</span></div>
+                <div class="stat-card"><span class="icon">⭐</span><span class="number" id="stat-rating">4.8</span><span class="label">Rating</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="nav-fixed" id="bottom-nav4">
+        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item active" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+    </div>
 </div>
 
 <!-- EDIT PROFILE PAGE -->
 <div id="edit-profile-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
-    <!-- Same as before -->
+    <div class="header-fixed">
+        <span class="logo"><span class="logo-icon">✏️</span><span class="logo-text">Edit Profile</span></span>
+        <button class="back-btn" onclick="closeEditProfile()">✕</button>
+    </div>
+    <div class="scroll-body" id="edit-profile-scroll">
+        <div class="profile-section"><label class="form-label">👤 Full Name</label><input class="form-control" id="edit-name" placeholder="Rajesh Kumar"></div>
+        <div class="profile-section"><label class="form-label">🏢 Company Name</label><input class="form-control" id="edit-company" placeholder="ABC Steel Traders"></div>
+        <div class="profile-section"><label class="form-label">🌐 Company Website</label><input class="form-control" id="edit-website" placeholder="https://www.abcsteel.com"></div>
+        <div class="profile-section"><label class="form-label">📛 PAN Number</label><input class="form-control" id="edit-pan" placeholder="AABCP1234D"></div>
+        <div class="profile-section"><label class="form-label">📛 GST Number</label><input class="form-control" id="edit-gst" placeholder="22AABC1234D1ZP"></div>
+        <div class="profile-section">
+            <label class="form-label">📍 Location PIN</label>
+            <div style="position:relative;width:100%">
+                <input type="text" id="search-edit-location" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('edit-location')" autocomplete="off" class="form-control">
+                <div class="search-wrapper"><div class="suggestions" id="suggestions-edit-location"></div></div>
+                <input type="hidden" id="edit-location-hidden">
+            </div>
+        </div>
+        <div class="profile-section">
+            <label class="form-label">🎯 User Type</label>
+            <div class="user-type-checkbox">
+                <label><input type="checkbox" id="edit-type-loadgiver" value="1"> 📦 Load Giver</label>
+                <label><input type="checkbox" id="edit-type-operator" value="2"> 🚛 Operator</label>
+                <label><input type="checkbox" id="edit-type-agent" value="3"> 🤝 Agent</label>
+            </div>
+            <div style="font-size:10px;color:#94a3b8;margin-top:4px">Select all that apply</div>
+        </div>
+        <div class="profile-section">
+            <label class="form-label">🚛 My Vehicles</label>
+            <div class="route-input-row">
+                <div style="flex:2;position:relative">
+                    <input class="form-control vehicle-number-input" id="edit-vehicle-input" placeholder="Type vehicle number..." oninput="searchVehicles(this.value)" autocomplete="off">
+                    <div class="vehicle-suggest-dropdown" id="vehicle-suggest-dropdown"></div>
+                </div>
+                <button class="section-btn success" onclick="addSelectedVehicle()">➕ Add</button>
+            </div>
+            <div id="edit-vehicles-list" style="margin-top:8px"></div>
+        </div>
+        <div class="profile-section">
+            <label class="form-label">🗺️ Preferred Routes</label>
+            <div class="route-input-row">
+                <div style="flex:2;position:relative">
+                    <input class="form-control" id="search-edit-route" placeholder="Search location/pin..." onclick="selectInputText(this)" oninput="searchLocation('edit-route')" autocomplete="off">
+                    <div class="search-wrapper"><div class="suggestions" id="suggestions-edit-route"></div></div>
+                    <input type="hidden" id="edit-route-hidden">
+                </div>
+                <button class="section-btn" onclick="addRoute()">Add</button>
+            </div>
+            <div id="edit-routes-list" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"></div>
+        </div>
+        <div class="profile-section">
+            <label class="form-label">📝 About / Details</label>
+            <textarea class="form-control" id="edit-details" rows="3" placeholder="About your business, services, etc." style="resize:vertical"></textarea>
+            <div style="font-size:10px;color:#94a3b8;text-align:right"><span id="edit-details-count">0</span>/300</div>
+        </div>
+        <button class="btn-primary success" onclick="saveProfile()" style="margin-top:8px">💾 Save Profile</button>
+    </div>
+    <div class="nav-fixed" id="bottom-nav-edit">
+        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+    </div>
 </div>
 
 <!-- VEHICLE MODAL -->
-<div id="vehicle-modal" class="vehicle-modal">
-    <!-- Same as before -->
+<div class="vehicle-modal" id="vehicle-modal">
+    <div class="vehicle-modal-content">
+        <div class="modal-header">
+            <h3 id="modal-vehicle-title">📝 Register New Vehicle</h3>
+            <button class="modal-close" onclick="closeVehicleModal()">✕</button>
+        </div>
+        <div class="form-group">
+            <label class="form-label">🚛 Vehicle Number (Read Only)</label>
+            <div class="readonly-number" id="modal-vehicle-number-display"></div>
+            <input type="hidden" id="modal-vehicle-number">
+        </div>
+        <div class="form-group">
+            <label class="form-label">🚛 Vehicle Type *</label>
+            <select class="form-control" id="modal-vehicle-type">
+                <option value="">Select vehicle type...</option>
+                <option value="3-Wheeler / Tempo">3-Wheeler / Tempo</option>
+                <option value="Mini Truck">Mini Truck</option>
+                <option value="LCV Open Body Truck">LCV Open Body Truck</option>
+                <option value="LCV - Container">LCV - Container</option>
+                <option value="LCV - Flat bed">LCV - Flat bed</option>
+                <option value="Open Body Truck">Open Body Truck</option>
+                <option value="Box Body Truck">Box Body Truck</option>
+                <option value="Flat bed Truck">Flat bed Truck</option>
+                <option value="Trailer - Open Body">Trailer - Open Body</option>
+                <option value="Trailer - Box Body">Trailer - Box Body</option>
+                <option value="Trailer - High Bed">Trailer - High Bed</option>
+                <option value="Trailer - Semi Low Bed">Trailer - Semi Low Bed</option>
+                <option value="Trailer - Low Bed">Trailer - Low Bed</option>
+                <option value="Trailer - Automobile Carrier">Trailer - Automobile Carrier</option>
+                <option value="Tipper / Dumper">Tipper / Dumper</option>
+                <option value="Tanker">Tanker</option>
+                <option value="Cement Bulker">Cement Bulker</option>
+                <option value="Refrigerated / Reefer">Refrigerated / Reefer</option>
+                <option value="Explosive / Hazardous Vehicle">Explosive / Hazardous Vehicle</option>
+                <option value="Over-Dimensional Cargo (ODC)">Over-Dimensional Cargo (ODC)</option>
+            </select>
+        </div>
+        <div class="grid-2">
+            <div class="form-group">
+                <label class="form-label">Length (ft)</label>
+                <input class="form-control" id="modal-length" type="number" step="0.1">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Width (ft)</label>
+                <input class="form-control" id="modal-width" type="number" step="0.1">
+            </div>
+        </div>
+        <div class="grid-2">
+            <div class="form-group">
+                <label class="form-label">Height (ft)</label>
+                <input class="form-control" id="modal-height" type="number" step="0.1">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Max Weight (Kg)</label>
+                <input class="form-control" id="modal-max-weight" type="number" placeholder="0">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">📝 Description</label>
+            <input class="form-control" id="modal-description" placeholder="Vehicle description...">
+        </div>
+        <div class="form-group">
+            <label class="form-label">🚛 ODC Allowed</label>
+            <div style="display:flex;gap:16px;margin-top:4px">
+                <label><input type="radio" name="modal-odc" value="true" checked> Yes</label>
+                <label><input type="radio" name="modal-odc" value="false"> No</label>
+            </div>
+        </div>
+        <button class="btn-primary success" onclick="saveVehicleModal()">💾 Save Vehicle</button>
+        <button class="btn-primary" style="background:#dc2626;margin-top:6px" onclick="deleteVehicleFromModal()">🗑️ Delete Vehicle</button>
+        <input type="hidden" id="modal-vehicle-id">
+        <input type="hidden" id="modal-edit-mode">
+    </div>
 </div>
 
 <!-- DETAIL PAGE -->
 <div id="detail-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
-    <!-- Same as before -->
+    <div class="header-fixed">
+        <span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span>
+        <button class="back-btn" onclick="closeDetail()">Cancel</button>
+    </div>
+    <div class="scroll-body" id="detail-scroll">
+        <div style="margin-bottom:12px"><div style="font-size:17px;font-weight:700" id="detail-title">Title</div><div id="detail-company" style="font-size:13px;color:#2563eb">Company</div></div>
+        <div class="detail-actions"><button class="btn-call" onclick="makeCall()">📞 Call</button><button class="btn-contact" onclick="contactUser()">✉️ Contact</button><button class="btn-bid" onclick="expressInterest()">🤝 Interest</button><button class="btn-share" onclick="handleShareClick()">↗️ Share</button></div>
+    </div>
+    <div class="nav-fixed" id="bottom-nav5">
+        <button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button>
+        <button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button>
+        <button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button>
+        <button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button>
+    </div>
 </div>
 
 <script>
@@ -565,28 +798,24 @@ let editingVehicleNumber = null;
 let mobileCheckTimeout = null;
 
 // ============================================================
-// HELPER FUNCTIONS
+// NUMBER FORMATTING FUNCTIONS
 // ============================================================
-function addUniqueToArray(array, value) {
-    if (!array) return [value];
-    if (array.includes(value)) return array;
-    return [...array, value];
-}
-function removeFromArray(array, value) {
-    if (!array) return [];
-    return array.filter(item => item !== value);
-}
-function ensureUniqueArray(array) {
-    if (!array) return [];
-    return [...new Set(array)];
-}
-
-// ============================================================
-// FORMAT NUMBER WITH COMMAS (Indian style)
-// ============================================================
-function formatNumber(num) {
+function formatIndianNumber(num) {
     if (num === undefined || num === null || isNaN(num)) return '0';
     return Number(num).toLocaleString('en-IN');
+}
+
+function formatInputNumber(input) {
+    let val = input.value.replace(/,/g, '');
+    if (val === '') return;
+    let num = parseFloat(val);
+    if (!isNaN(num)) {
+        input.value = formatIndianNumber(num);
+    }
+}
+
+function parseNumberFromInput(value) {
+    return parseFloat(value.replace(/,/g, '')) || 0;
 }
 
 // ============================================================
@@ -601,6 +830,23 @@ function validateVehicleNumberInput(input) {
     if (input.value !== cleaned) input.value = cleaned;
     input.value = input.value.toUpperCase();
     if (input.value.length > 12) input.value = input.value.substring(0, 12);
+}
+
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+function addUniqueToArray(array, value) {
+    if (!array) return [value];
+    if (array.includes(value)) return array;
+    return [...array, value];
+}
+function removeFromArray(array, value) {
+    if (!array) return [];
+    return array.filter(item => item !== value);
+}
+function ensureUniqueArray(array) {
+    if (!array) return [];
+    return [...new Set(array)];
 }
 
 // ============================================================
@@ -719,7 +965,7 @@ function selectLoc(ctx, pinId) {
 }
 
 // ============================================================
-// LOGIN FUNCTIONS (same as before - shortened for brevity)
+// LOGIN FUNCTIONS
 // ============================================================
 function showMobileLoading(show) {
     const loading = document.getElementById('mobile-loading');
@@ -1047,588 +1293,6 @@ function openChangePin() { toast('Change PIN stub'); }
 // ============================================================
 // VEHICLE SEARCH FUNCTIONS
 // ============================================================
-// ... (all vehicle search functions remain the same as before) ...
-
-// ============================================================
-// POST LOAD - WITH RATE FIELD
-// ============================================================
-function publishLoad() {
-  if (!user) { toast('Please login first'); return; }
-  const material = document.getElementById('pl-material').value;
-  const pickupPinId = document.getElementById('pl-pickup-hidden').value;
-  const dropPinId = document.getElementById('pl-drop-hidden').value;
-  if (!material || !pickupPinId || !dropPinId) {
-    toast('Please fill all required fields (Material, Pickup, Drop)');
-    return;
-  }
-  const length = parseFloat(document.getElementById('pl-length').value) || 0;
-  const width = parseFloat(document.getElementById('pl-width').value) || 0;
-  const height = parseFloat(document.getElementById('pl-height').value) || 0;
-  const dimensions = [length, width, height];
-  const rate = parseFloat(document.getElementById('pl-rate').value.replace(/,/g, '')) || 0;
-  
-  const loadData = {
-    mobile: parseInt(user.mobile),
-    company: user.company_name || '',
-    company_web: user.company_web || '',
-    material: material,
-    weight: parseFloat(document.getElementById('pl-weight').value) || 0,
-    dimensions: dimensions,
-    vehicle_type: document.getElementById('pl-vehicle-type').value || null,
-    pickup_pin: parseInt(pickupPinId),
-    drop_pin: parseInt(dropPinId),
-    pickup_date: document.getElementById('pl-date').value || null,
-    instructions: document.getElementById('pl-instructions').value.trim() || null,
-    rate: rate,
-    status: 1,
-    views: 0,
-    calls: 0,
-    interests: [],
-    shares: 0,
-    agents: [],
-    created_at: new Date().toISOString(),
-    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-  };
-  sb.from('active_loads').insert(loadData)
-    .then(res => {
-      if (res.error) { alert('Error: ' + res.error.message); return; }
-      toast('✅ Load published successfully!');
-      goHome();
-    }).catch(err => { alert('Error: ' + err.message); });
-}
-
-// ============================================================
-// POST TRUCK - WITH RATE FIELD
-// ============================================================
-function publishTruck() {
-  if (!user) { toast('Please login first'); return; }
-  const number = document.getElementById('pt-vehicle-number').value.trim().toUpperCase();
-  const locationPinId = document.getElementById('pt-location-hidden').value;
-  if (!number || !locationPinId) {
-    toast('Please fill all required fields (Vehicle Number, Location)');
-    return;
-  }
-  if (!isValidVehicleNumber(number)) {
-    alert('Vehicle number must be 9-12 characters (letters and numbers only, no spaces or special characters)');
-    return;
-  }
-  const rate = parseFloat(document.getElementById('pt-rate').value.replace(/,/g, '')) || 0;
-  
-  sb.from('active_vehicles').select('id').eq('vehicle_number', number).single()
-    .then(checkRes => {
-      if (!checkRes.data) {
-        if (confirm('Vehicle "' + number + '" not found. Would you like to register it now?')) {
-          openVehicleModalForTruck(number);
-        }
-        return;
-      }
-      const truckData = {
-        mobile: parseInt(user.mobile),
-        truck_no: number,
-        share: 0,
-        calls: 0,
-        views: 0,
-        interested: [],
-        available_date: document.getElementById('pt-available').value ? new Date(document.getElementById('pt-available').value).toISOString() : null,
-        location_pin: parseInt(locationPinId),
-        other_details: document.getElementById('pt-other-details').value.trim() || null,
-        rate: rate,
-        status: 1,
-        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        created_at: new Date().toISOString()
-      };
-      sb.from('active_trucks').insert(truckData)
-        .then(res => {
-          if (res.error) { alert('Error: ' + res.error.message); return; }
-          toast('✅ Truck listed successfully!');
-          goHome();
-        }).catch(err => { alert('Error: ' + err.message); });
-    }).catch(() => {
-      if (confirm('Vehicle "' + number + '" not found. Would you like to register it now?')) {
-        openVehicleModalForTruck(number);
-      }
-    });
-}
-
-// ============================================================
-// RENDER FEED - WITH FORMATTED RATES
-// ============================================================
-async function renderFeed() {
-  try {
-    const {data: loads} = await sb.from('active_loads').select('*').eq('status', 1);
-    const {data: trucks} = await sb.from('active_trucks').select('*').eq('status', 1);
-    items = [];
-    (loads || []).forEach(l => items.push({
-      type:'LOAD', 
-      title: l.material || 'Cargo', 
-      company: l.company || '',
-      from_pin: l.pickup_pin, 
-      to_pin: l.drop_pin, 
-      weight: l.weight || 0,
-      vehicle: l.vehicle_type || '', 
-      views: l.views || 0,
-      rate: l.rate || 0,
-      interests: (l.interests || []).length, 
-      shares: l.shares || 0,
-      id: l.id, 
-      mobile: l.mobile
-    }));
-    (trucks || []).forEach(t => items.push({
-      type:'TRUCK', 
-      title: t.truck_no || 'Truck',
-      company: user?.company_name || '', 
-      from_pin: t.location_pin,
-      to_pin: null, 
-      vehicle: 'Truck', 
-      views: t.views || 0,
-      rate: t.rate || 0,
-      interests: (t.interested || []).length, 
-      shares: t.share || 0,
-      id: t.id, 
-      mobile: t.mobile
-    }));
-
-    let filtered = items.slice();
-    const radius = parseInt(document.getElementById('radius-select').value) || 50;
-    if (homePinId) { const hl = getLoc(homePinId); if (hl) filtered = filtered.filter(i => { const fl = getLoc(i.from_pin); return fl ? dist(hl.lat, hl.lng, fl.lat, fl.lng) <= radius : false; }); }
-    if (tab === 'LOAD') filtered = filtered.filter(i => i.type === 'LOAD');
-    else if (tab === 'TRUCK') filtered = filtered.filter(i => i.type === 'TRUCK');
-    if (toPinId) { const tl = getLoc(toPinId); if (tl) filtered = filtered.filter(i => { const tl2 = getLoc(i.to_pin); return tl2 ? dist(tl.lat, tl.lng, tl2.lat, tl2.lng) <= radius : false; }); }
-    const v = document.getElementById('filter-vehicle')?.value;
-    if (v && v !== 'ALL') filtered = filtered.filter(i => i.vehicle && i.vehicle.toLowerCase().includes(v.toLowerCase()));
-
-    document.getElementById('results-count').textContent = 'Showing ' + filtered.length + ' Records within ' + radius + ' KM';
-    if (!filtered.length) { document.getElementById('feed-container').innerHTML = '<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>'; return; }
-    document.getElementById('feed-container').innerHTML = filtered.map(i => {
-      const bc = i.type === 'LOAD' ? 'load' : 'truck';
-      let loc = '', sub = '', stats = '', rateDisplay = '';
-      if (i.type === 'LOAD') {
-        loc = '📍 ' + getLocName(i.from_pin) + ' → ' + getLocName(i.to_pin);
-        sub = '💼 ' + i.company;
-        stats = '⚖️ ' + (i.weight || 0) + ' Kg • 🚛 ' + i.vehicle;
-        rateDisplay = '💰 ₹' + formatNumber(i.rate);
-      } else {
-        loc = '📍 ' + getLocName(i.from_pin);
-        sub = '🚛 ' + i.title;
-        stats = '📅 Available Now';
-        rateDisplay = '💰 ₹' + formatNumber(i.rate);
-      }
-      return '<div class="feed-card" onclick="openDetail(\'' + i.type + '\',\'' + i.id + '\')">' +
-        '<div class="header-row"><div class="title">' + i.title + '</div><span class="type-badge ' + bc + '">' + i.type + '</span></div>' +
-        '<div class="company">' + sub + '</div><div class="meta">' + loc + '</div>' +
-        '<div class="meta">' + rateDisplay + '</div>' +
-        '<div class="meta">' + stats + '</div>' +
-        '<div class="stats-row"><span>👁️ <span class="val">' + i.views + '</span></span><span>🤝 <span class="val">' + i.interests + '</span></span><span>📨 <span class="val">' + i.shares + '</span></span></div></div>';
-    }).join('');
-  } catch(e) { document.getElementById('feed-container').innerHTML = '<div style="padding:30px 0;color:#ef4444;text-align:center">Error loading feed</div>'; }
-}
-
-function applyFilters() { renderFeed(); }
-function setTab(t) { tab = t; document.querySelectorAll('.type-tabs button').forEach(b => b.className = 'inactive'); const map = {'ALL':'tab-all','LOAD':'tab-loads','TRUCK':'tab-trucks','AGENT':'tab-agents'}; const el = document.getElementById(map[t]); if (el) el.className = 'active'; renderFeed(); }
-function toggleFilters() { filterOpen = !filterOpen; document.getElementById('filter-container').classList.toggle('open', filterOpen); document.getElementById('filter-toggle-label').textContent = filterOpen ? '🔍 Hide Filters' : '🔍 Show Filters'; }
-
-// ============================================================
-// NAVIGATION
-// ============================================================
-function goHome() {
-  ['home-page','profile-page','postload-page','posttruck-page','detail-page','edit-profile-page'].forEach(i => { const el = document.getElementById(i); if (el) el.classList.toggle('hidden-page', i !== 'home-page'); });
-  document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-  document.querySelectorAll('.nav-fixed .nav-item')[0].classList.add('active');
-  setTimeout(() => { renderFeed(); }, 50);
-}
-
-function switchPage(id) {
-  ['home-page','profile-page','edit-profile-page','postload-page','posttruck-page','detail-page'].forEach(i => { const el = document.getElementById(i); if (el) el.classList.toggle('hidden-page', i !== id); });
-}
-
-function goPostLoad() { if (guest || !user) { showLogin(); return; } switchPage('postload-page'); }
-function goPostTruck() { if (guest || !user) { showLogin(); return; } switchPage('posttruck-page'); }
-function goToProfile() { if (guest || !user) { showLogin(); return; } switchPage('profile-page'); loadProfile(); }
-function cancelPost() { goHome(); }
-function closeDetail() { detail = null; goHome(); }
-
-// ============================================================
-// DETAIL
-// ============================================================
-function openDetail(type, id) {
-  const table = type === 'LOAD' ? 'active_loads' : 'active_trucks';
-  sb.from(table).select('*').eq('id', id).single().then(r => {
-    if (r.data) { detail = r.data; switchPage('detail-page'); document.getElementById('detail-title').textContent = type === 'LOAD' ? r.data.material || 'Details' : r.data.truck_no || 'Details'; document.getElementById('detail-company').textContent = type === 'LOAD' ? r.data.company || 'N/A' : 'Truck Owner'; }
-  });
-}
-function makeCall() { if (detail) { const num = detail.mobile; if (num) window.location.href = 'tel:' + num; } }
-function expressInterest() {}
-function contactUser() {}
-function handleShareClick() { if (navigator.share) navigator.share({title: 'ReturnTruck', text: 'Check out this listing on ReturnTruck!', url: window.location.href}); }
-
-// ============================================================
-// AUTO LOCATE
-// ============================================================
-function autoLocate() {
-  const inp = document.getElementById('search-home');
-  if (!inp) return;
-  const saved = localStorage.getItem('rt_home_location');
-  if (saved) {
-    try { const l = JSON.parse(saved); const loc = getLoc(l.pinId); if (loc) { inp.value = l.displayName; homePinId = l.pinId; applyFilters(); return; } } catch(e) {}
-  }
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      p => {
-        const lat = p.coords.latitude, lng = p.coords.longitude;
-        let near = null, minD = Infinity;
-        LOCATIONS.forEach(l => { const d = dist(lat, lng, l.lat, l.lng); if (d < minD) { minD = d; near = l; } });
-        if (near && minD < 100) { const dn = getLocDisplayName(near); inp.value = dn; homePinId = near.pin_id; localStorage.setItem('rt_home_location', JSON.stringify({pinId: near.pin_id, displayName: dn})); applyFilters(); }
-      },
-      () => {
-        fetch('https://ipapi.co/json/').then(r => r.json()).then(d => {
-          const city = d.city || '';
-          LOCATIONS.forEach(l => { if (l.name.toLowerCase() === city.toLowerCase() || l.district.toLowerCase() === city.toLowerCase()) { const dn = getLocDisplayName(l); inp.value = dn; homePinId = l.pin_id; localStorage.setItem('rt_home_location', JSON.stringify({pinId: l.pin_id, displayName: dn})); applyFilters(); } });
-        }).catch(() => {});
-      }
-    );
-  }
-}
-
-// ============================================================
-// INIT
-// ============================================================
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('edit-details')?.addEventListener('input', function() {
-    updateCharCount('edit-details', 'edit-details-count');
-  });
-  document.getElementById('pl-instructions')?.addEventListener('input', function() {
-    updateCharCount('pl-instructions', 'pl-instructions-count');
-  });
-  document.getElementById('pt-other-details')?.addEventListener('input', function() {
-    updateCharCount('pt-other-details', 'pt-other-details-count');
-  });
-
-  const saved = localStorage.getItem('rt_user');
-  if (saved) {
-    const sd = JSON.parse(saved);
-    if (sd.guest) { guest = true; user = null; }
-    else if (sd.user) { user = sd.user; guest = false; }
-    showHome();
-  } else {
-    document.getElementById('login-screen').style.display = 'flex';
-    document.getElementById('home-page').classList.add('hidden-page');
-  }
-  setTimeout(() => { autoLocate(); }, 500);
-});
-
-// Helper function for character count (used in edit profile)
-function updateCharCount(inputId, countId) {
-  const input = document.getElementById(inputId);
-  const count = document.getElementById(countId);
-  if (input && count) count.textContent = input.value.length;
-}
-
-// ============================================================
-// PROFILE FUNCTIONS (keep existing)
-// ============================================================
-function loadProfile() {
-  if (!user) return;
-  document.getElementById('profile-name').textContent = user.name || user.mobile || 'User';
-  if (user.last_active) {
-    const d = new Date(user.last_active);
-    document.getElementById('profile-last-active').textContent = d.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
-  }
-  let initials = '';
-  if (user.name) {
-    const parts = user.name.split(' ');
-    initials = (parts[0]||'')[0] + (parts[1]||'')[0];
-  } else {
-    initials = (user.mobile||'GU').toString().slice(-2);
-  }
-  document.getElementById('avatar-initials-profile').textContent = initials.toUpperCase();
-  document.getElementById('avatar-initials').textContent = initials.toUpperCase();
-
-  document.getElementById('profile-company').textContent = user.company_name || 'Not set';
-  document.getElementById('profile-website').textContent = user.company_web || '--';
-  document.getElementById('profile-pan').textContent = '📛 PAN: ' + (user.pan || '--');
-  document.getElementById('profile-gst').textContent = '📛 GST: ' + (user.gst || '--');
-  if (user.location) {
-    const loc = getLoc(user.location);
-    document.getElementById('profile-location').textContent = loc ? '📍 Location: ' + getLocDisplayName(loc) : '📍 Location: Unknown';
-  } else {
-    document.getElementById('profile-location').textContent = '📍 Location: Not set';
-  }
-
-  let types = user.user_type || [];
-  if (!Array.isArray(types) && typeof types === 'number') types = [types];
-  const typeLabels = ['Load Giver', 'Operator', 'Agent'];
-  const typeIcons = ['📦', '🚛', '🤝'];
-  const container = document.getElementById('profile-user-types');
-  if (types && types.length) {
-    container.innerHTML = types.map(t => {
-      const idx = t - 1;
-      if (idx >= 0 && idx < typeLabels.length) {
-        return '<span class="section-badge active">' + typeIcons[idx] + ' ' + typeLabels[idx] + '</span>';
-      }
-      return '';
-    }).join('');
-  } else {
-    container.innerHTML = '<span class="section-badge optional">Not set</span>';
-  }
-
-  document.getElementById('profile-details-text').textContent = user.details || 'No details added';
-  
-  // Load Vehicles - using IN operator
-  const container2 = document.getElementById('profile-vehicles-container');
-  const badge = document.getElementById('vehicle-count-badge');
-  let vno = user.vehicle_no || [];
-  let vehicleNumbers = [];
-  if (Array.isArray(vno)) {
-    vehicleNumbers = ensureUniqueArray(vno.filter(v => v !== null && v !== ''));
-  } else if (typeof vno === 'string' && vno.startsWith('{')) {
-    try {
-      const cleaned = vno.replace(/[{}]/g, '');
-      vehicleNumbers = ensureUniqueArray(cleaned.split(',').filter(v => v.trim() !== ''));
-    } catch(e) { vehicleNumbers = []; }
-  } else if (typeof vno === 'string') {
-    vehicleNumbers = ensureUniqueArray(vno.split(',').filter(v => v.trim() !== ''));
-  }
-  if (vehicleNumbers.length) {
-    sb.from('active_vehicles').select('*').in('vehicle_number', vehicleNumbers)
-      .then(result => {
-        const vdata = result.data || [];
-        if (!vdata.length) {
-          container2.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles found</div>';
-          badge.textContent = '0 Vehicles';
-          return;
-        }
-        badge.textContent = vdata.length + ' Vehicles';
-        container2.innerHTML = vdata.map(v => {
-          const dims = v.dimensions ? v.dimensions.join(' × ') + 'ft' : 'N/A';
-          return '<div class="vehicle-display-item">' +
-            '<div class="vnumber">' + v.vehicle_number + '</div>' +
-            '<div class="vdetails">' + (v.vehicle_type || 'Unknown') + ' • ' + dims + '</div>' +
-            '</div>';
-        }).join('');
-        document.getElementById('stat-vehicles-count').textContent = vdata.length;
-      });
-  } else {
-    container2.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>';
-    badge.textContent = '0 Vehicles';
-    document.getElementById('stat-vehicles-count').textContent = '0';
-  }
-
-  // Routes
-  let routeArr = user.preferred_routes || [];
-  let routeList = [];
-  if (Array.isArray(routeArr)) {
-    routeList = ensureUniqueArray(routeArr.filter(r => r !== null && r !== ''));
-  } else if (typeof routeArr === 'string' && routeArr.startsWith('{')) {
-    try {
-      const cleaned = routeArr.replace(/[{}]/g, '');
-      routeList = ensureUniqueArray(cleaned.split(',').filter(r => r.trim() !== '').map(Number));
-    } catch(e) { routeList = []; }
-  } else if (typeof routeArr === 'string') {
-    routeList = ensureUniqueArray(routeArr.split(',').filter(r => r.trim() !== '').map(Number));
-  }
-  const rc = document.getElementById('profile-routes-container');
-  if (routeList && routeList.length) {
-    rc.innerHTML = routeList.map(r => {
-      const loc = getLoc(r);
-      return '<span class="route-tag">' + (loc ? getLocDisplayName(loc) : r) + '</span>';
-    }).join('');
-  } else {
-    rc.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>';
-  }
-  loadMyLoads();
-  loadMyTrucks();
-  loadStats();
-}
-
-function loadMyLoads() {
-  if (!user) return;
-  sb.from('active_loads').select('*').eq('mobile', parseInt(user.mobile)).eq('status', 1)
-    .then(res => {
-      const loads = res.data || [];
-      const container = document.getElementById('my-loads-container');
-      const count = document.getElementById('my-loads-count');
-      if (!loads.length) { container.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No loads posted</div>'; count.textContent = '0'; return; }
-      count.textContent = loads.length;
-      container.innerHTML = loads.map(l =>
-        '<div class="list-item">' +
-        '<div class="title">' + l.material + ' • ' + getLocName(l.pickup_pin) + ' → ' + getLocName(l.drop_pin) + '</div>' +
-        '<div class="sub">💰 ₹' + formatNumber(l.rate || 0) + ' • ⚖️ ' + (l.weight || 0) + ' Kg • 🚛 ' + (l.vehicle_type || 'Any') + '</div>' +
-        '<div class="actions"><button class="delete" onclick="deleteLoadItem(\'' + l.id + '\')">🗑️ Delete</button></div>' +
-        '</div>'
-      ).join('');
-    });
-}
-
-function loadMyTrucks() {
-  if (!user) return;
-  sb.from('active_trucks').select('*').eq('mobile', parseInt(user.mobile)).eq('status', 1)
-    .then(res => {
-      const trucks = res.data || [];
-      const container = document.getElementById('my-trucks-container');
-      const count = document.getElementById('my-trucks-count');
-      if (!trucks.length) { container.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No trucks listed</div>'; count.textContent = '0'; return; }
-      count.textContent = trucks.length;
-      container.innerHTML = trucks.map(t =>
-        '<div class="list-item">' +
-        '<div class="title">' + t.truck_no + ' • 📍 ' + getLocName(t.location_pin) + '</div>' +
-        '<div class="sub">💰 ₹' + formatNumber(t.rate || 0) + ' • 📅 ' + (t.available_date ? new Date(t.available_date).toLocaleDateString() : 'Flexible') + '</div>' +
-        '<div class="actions"><button class="delete" onclick="deleteTruckItem(\'' + t.id + '\')">🗑️ Delete</button></div>' +
-        '</div>'
-      ).join('');
-    });
-}
-
-function loadStats() {
-  if (!user) return;
-  sb.from('active_loads').select('*', {count:'exact', head:true}).eq('mobile', parseInt(user.mobile)).eq('status', 1)
-    .then(r => { document.getElementById('stat-loads-count').textContent = r.count || 0; });
-  sb.from('active_trucks').select('*', {count:'exact', head:true}).eq('mobile', parseInt(user.mobile)).eq('status', 1)
-    .then(r => { document.getElementById('stat-trucks-count').textContent = r.count || 0; });
-}
-
-function deleteLoadItem(id) {
-  if (!confirm('Delete this load?')) return;
-  sb.from('active_loads').update({status: 0}).eq('id', id).then(() => { loadMyLoads(); loadStats(); });
-}
-function deleteTruckItem(id) {
-  if (!confirm('Delete this truck?')) return;
-  sb.from('active_trucks').update({status: 0}).eq('id', id).then(() => { loadMyTrucks(); loadStats(); });
-}
-
-// ============================================================
-// EDIT PROFILE FUNCTIONS (keep existing)
-// ============================================================
-function openEditProfile() {
-  if (!user) { alert('Please login first'); return; }
-  sb.from('active_users').select('*').eq('mobile', parseInt(user.mobile)).single()
-    .then(result => {
-      if (result.data) Object.assign(user, result.data);
-      populateEditForm();
-    }).catch(() => populateEditForm());
-}
-
-function populateEditForm() {
-  document.getElementById('edit-name').value = user.name || '';
-  document.getElementById('edit-company').value = user.company_name || '';
-  document.getElementById('edit-website').value = user.company_web || '';
-  document.getElementById('edit-pan').value = user.pan || '';
-  document.getElementById('edit-gst').value = user.gst || '';
-  if (user.location) {
-    const loc = getLoc(user.location);
-    if (loc) { document.getElementById('search-edit-location').value = getLocDisplayName(loc); document.getElementById('edit-location-hidden').value = user.location; }
-  }
-  let types = user.user_type || [];
-  if (!Array.isArray(types) && typeof types === 'number') types = [types];
-  document.getElementById('edit-type-loadgiver').checked = types.indexOf(1) !== -1;
-  document.getElementById('edit-type-operator').checked = types.indexOf(2) !== -1;
-  document.getElementById('edit-type-agent').checked = types.indexOf(3) !== -1;
-
-  vehicles = [];
-  vehicleDataMap = {};
-  let vno = user.vehicle_no || [];
-  if (Array.isArray(vno)) vehicles = vno.filter(v => v);
-  else if (typeof vno === 'string') vehicles = vno.split(',').filter(v => v.trim() !== '');
-  
-  if (vehicles.length) {
-    sb.from('active_vehicles').select('*').in('vehicle_number', vehicles)
-      .then(res => {
-        if (res.data) {
-          res.data.forEach(v => {
-            const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
-            vehicleDataMap[v.vehicle_number] = {
-              id: v.id,
-              vehicle_number: v.vehicle_number,
-              vehicle_type: v.vehicle_type || 'Unknown',
-              dimensions: dims
-            };
-          });
-          renderVehicles();
-        }
-      });
-  }
-  renderVehicles();
-
-  routes = [];
-  let pref = user.preferred_routes || [];
-  if (Array.isArray(pref)) routes = pref.filter(r => r);
-  else if (typeof pref === 'string') routes = pref.split(',').filter(r => r.trim() !== '').map(Number);
-  renderRoutes();
-
-  document.getElementById('edit-details').value = user.details || '';
-  updateCharCount('edit-details', 'edit-details-count');
-  switchPage('edit-profile-page');
-}
-
-function saveProfile() {
-  if (!user || !user.mobile) { alert('User not logged in.'); return; }
-  const types = [];
-  if (document.getElementById('edit-type-loadgiver').checked) types.push(1);
-  if (document.getElementById('edit-type-operator').checked) types.push(2);
-  if (document.getElementById('edit-type-agent').checked) types.push(3);
-  const location = document.getElementById('edit-location-hidden').value ? parseInt(document.getElementById('edit-location-hidden').value) : null;
-  const updateData = {
-    name: document.getElementById('edit-name').value.trim() || null,
-    company_name: document.getElementById('edit-company').value.trim() || null,
-    company_web: document.getElementById('edit-website').value.trim() || null,
-    pan: document.getElementById('edit-pan').value.trim() || null,
-    gst: document.getElementById('edit-gst').value.trim() || null,
-    location: location,
-    user_type: types.length ? types : null,
-    vehicle_no: ensureUniqueArray(vehicles).length ? ensureUniqueArray(vehicles) : null,
-    preferred_routes: ensureUniqueArray(routes).length ? ensureUniqueArray(routes) : null,
-    details: document.getElementById('edit-details').value.trim() || null,
-    last_active: new Date().toISOString()
-  };
-  const mobileNum = parseInt(user.mobile);
-  sb.from('active_users').update(updateData).eq('mobile', mobileNum)
-    .then(result => {
-      if (result.error) { alert('Error saving profile: ' + result.error.message); return; }
-      sb.from('active_users').select('*').eq('mobile', mobileNum).single()
-        .then(freshResult => {
-          if (freshResult.data) {
-            Object.assign(user, freshResult.data);
-            const saved = localStorage.getItem('rt_user');
-            if (saved) { const sd = JSON.parse(saved); sd.user = user; localStorage.setItem('rt_user', JSON.stringify(sd)); }
-            alert('✅ Profile saved successfully!');
-            closeEditProfile();
-          } else { alert('✅ Profile saved!'); closeEditProfile(); }
-        }).catch(() => { alert('✅ Profile saved!'); closeEditProfile(); });
-    }).catch(err => { alert('Error: ' + err.message); });
-}
-
-function closeEditProfile() {
-  switchPage('profile-page');
-  loadProfile();
-}
-
-function renderVehicles() {
-  const container = document.getElementById('edit-vehicles-list');
-  if (!vehicles.length) { container.innerHTML = '<span style="color:#94a3b8;font-size:12px">No vehicles added</span>'; return; }
-  container.innerHTML = vehicles.map(v => {
-    const data = vehicleDataMap[v] || { vehicle_type: 'Unknown', dimensions: 'N/A' };
-    const dims = data.dimensions || 'N/A';
-    return '<div class="vehicle-item">' +
-      '<span class="vnumber">' + v + '</span>' +
-      '<span class="vdetails">' + (data.vehicle_type || 'Unknown') + ' • ' + dims + 'ft</span>' +
-      '<div class="actions">' +
-        '<button class="edit-btn" onclick="openVehicleEdit(\'' + v + '\')">✏️ Edit</button>' +
-        '<button class="delete-btn" onclick="removeVehicle(\'' + v + '\')">🗑️</button>' +
-      '</div>' +
-      '</div>';
-  }).join('');
-}
-
-function renderRoutes() {
-  const container = document.getElementById('edit-routes-list');
-  if (!routes.length) { container.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>'; return; }
-  container.innerHTML = routes.map(r => {
-    const loc = getLoc(r);
-    const display = loc ? getLocDisplayName(loc) : r;
-    return '<span class="route-tag">' + display + ' <span class="remove" onclick="removeRoute(' + r + ')">✕</span></span>';
-  }).join('');
-}
-
-// Additional functions that were referenced
 function searchVehiclesForTruck(query) {
     const dropdown = document.getElementById('pt-vehicle-suggest-dropdown');
     const input = document.getElementById('pt-vehicle-number');
@@ -1703,6 +1367,91 @@ function openVehicleModalForTruck(number) {
     document.getElementById('vehicle-modal').classList.add('show');
 }
 
+// ============================================================
+// VEHICLE SEARCH FOR EDIT PROFILE
+// ============================================================
+function searchVehicles(query) {
+  const dropdown = document.getElementById('vehicle-suggest-dropdown');
+  const q = query.trim().toUpperCase();
+  if (!q || q.length < 1) {
+    dropdown.classList.remove('show');
+    dropdown.innerHTML = '';
+    return;
+  }
+  dropdown.innerHTML = '<div class="item" style="color:#94a3b8;">Searching...</div>';
+  dropdown.classList.add('show');
+  sb.from('active_vehicles')
+    .select('*')
+    .ilike('vehicle_number', '%' + q + '%')
+    .limit(10)
+    .then(result => {
+      if (result.error) {
+        console.error('Error searching vehicles:', result.error);
+        dropdown.innerHTML = '<div class="item" style="color:#dc2626;">Error loading vehicles</div>';
+        return;
+      }
+      const vlist = result.data || [];
+      if (!vlist.length) {
+        dropdown.innerHTML = '<div class="item add-new" onclick="openVehicleModalForEdit(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
+        dropdown.classList.add('show');
+        return;
+      }
+      let html = '';
+      vlist.forEach(v => {
+        const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
+        const isAlreadyAdded = vehicles.includes(v.vehicle_number);
+        html += '<div class="item" onclick="selectVehicleFromSuggestion(\'' + v.id + '\',\'' + v.vehicle_number + '\',\'' + v.vehicle_type + '\',\'' + dims + '\')" style="' + (isAlreadyAdded ? 'opacity:0.5;' : '') + '">' +
+          v.vehicle_number + ' <span class="sub">' + v.vehicle_type + ' • ' + dims + 'ft</span>' +
+          (isAlreadyAdded ? ' <span style="color:#16a34a;font-size:10px;">✓ Added</span>' : '') +
+          '</div>';
+      });
+      html += '<div class="item add-new" onclick="openVehicleModalForEdit(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
+      dropdown.innerHTML = html;
+      dropdown.classList.add('show');
+    }).catch(err => {
+      console.error('Error:', err);
+      dropdown.innerHTML = '<div class="item" style="color:#dc2626;">Error loading vehicles</div>';
+    });
+}
+
+function openVehicleModalForEdit(number) {
+    document.getElementById('vehicle-suggest-dropdown').classList.remove('show');
+    document.getElementById('modal-vehicle-title').textContent = '📝 Register New Vehicle';
+    document.getElementById('modal-vehicle-number-display').textContent = number;
+    document.getElementById('modal-vehicle-number').value = number;
+    document.getElementById('modal-vehicle-id').value = '';
+    document.getElementById('modal-edit-mode').value = 'new';
+    document.getElementById('modal-vehicle-type').value = '';
+    document.getElementById('modal-length').value = '40';
+    document.getElementById('modal-width').value = '8.2';
+    document.getElementById('modal-height').value = '8';
+    document.getElementById('modal-max-weight').value = '';
+    document.getElementById('modal-description').value = '';
+    document.querySelector('input[name="modal-odc"][value="true"]').checked = true;
+    editingVehicleNumber = number;
+    document.getElementById('vehicle-modal').classList.add('show');
+}
+
+function selectVehicleFromSuggestion(id, number, type, dims) {
+  if (vehicles.includes(number)) {
+    toast('Vehicle "' + number + '" already in your list');
+    document.getElementById('vehicle-suggest-dropdown').classList.remove('show');
+    document.getElementById('edit-vehicle-input').value = '';
+    return;
+  }
+  vehicles = addUniqueToArray(vehicles, number);
+  vehicleDataMap[number] = { id: id, vehicle_number: number, vehicle_type: type, dimensions: dims };
+  renderVehicles();
+  document.getElementById('edit-vehicle-input').value = '';
+  document.getElementById('vehicle-suggest-dropdown').classList.remove('show');
+  autoSaveVehicles().then(() => {
+    toast('✅ Vehicle "' + number + '" added to your list');
+  });
+}
+
+// ============================================================
+// VEHICLE MODAL FUNCTIONS
+// ============================================================
 function openVehicleEdit(number) {
   sb.from('active_vehicles').select('*').eq('vehicle_number', number).single()
     .then(res => {
@@ -1859,6 +1608,26 @@ function removeVehicle(v) {
   });
 }
 
+function renderVehicles() {
+  const container = document.getElementById('edit-vehicles-list');
+  if (!vehicles.length) { container.innerHTML = '<span style="color:#94a3b8;font-size:12px">No vehicles added</span>'; return; }
+  container.innerHTML = vehicles.map(v => {
+    const data = vehicleDataMap[v] || { vehicle_type: 'Unknown', dimensions: 'N/A' };
+    const dims = data.dimensions || 'N/A';
+    return '<div class="vehicle-item">' +
+      '<span class="vnumber">' + v + '</span>' +
+      '<span class="vdetails">' + (data.vehicle_type || 'Unknown') + ' • ' + dims + 'ft</span>' +
+      '<div class="actions">' +
+        '<button class="edit-btn" onclick="openVehicleEdit(\'' + v + '\')">✏️ Edit</button>' +
+        '<button class="delete-btn" onclick="removeVehicle(\'' + v + '\')">🗑️</button>' +
+      '</div>' +
+      '</div>';
+  }).join('');
+}
+
+// ============================================================
+// ROUTE FUNCTIONS
+// ============================================================
 function addRoute() {
   const route = document.getElementById('edit-route-hidden').value;
   if (!route) { toast('Please search and select a location first'); return; }
@@ -1881,6 +1650,19 @@ function removeRoute(r) {
   autoSaveRoutes().then(() => { toast('Route removed'); });
 }
 
+function renderRoutes() {
+  const container = document.getElementById('edit-routes-list');
+  if (!routes.length) { container.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>'; return; }
+  container.innerHTML = routes.map(r => {
+    const loc = getLoc(r);
+    const display = loc ? getLocDisplayName(loc) : r;
+    return '<span class="route-tag">' + display + ' <span class="remove" onclick="removeRoute(' + r + ')">✕</span></span>';
+  }).join('');
+}
+
+// ============================================================
+// AUTO-SAVE FUNCTIONS
+// ============================================================
 function autoSaveVehicles() {
   if (!user || !user.mobile) return Promise.resolve();
   const mobileNum = parseInt(user.mobile);
@@ -1948,86 +1730,556 @@ function refreshUserData(callback) {
     }).catch(() => { if (callback) callback(); });
 }
 
-// Function to open vehicle modal from edit profile
-function openVehicleModalForEdit(number) {
-    document.getElementById('vehicle-suggest-dropdown').classList.remove('show');
-    document.getElementById('modal-vehicle-title').textContent = '📝 Register New Vehicle';
-    document.getElementById('modal-vehicle-number-display').textContent = number;
-    document.getElementById('modal-vehicle-number').value = number;
-    document.getElementById('modal-vehicle-id').value = '';
-    document.getElementById('modal-edit-mode').value = 'new';
-    document.getElementById('modal-vehicle-type').value = '';
-    document.getElementById('modal-length').value = '40';
-    document.getElementById('modal-width').value = '8.2';
-    document.getElementById('modal-height').value = '8';
-    document.getElementById('modal-max-weight').value = '';
-    document.getElementById('modal-description').value = '';
-    document.querySelector('input[name="modal-odc"][value="true"]').checked = true;
-    editingVehicleNumber = number;
-    document.getElementById('vehicle-modal').classList.add('show');
-}
-
-// Search vehicles for edit profile
-function searchVehicles(query) {
-  const dropdown = document.getElementById('vehicle-suggest-dropdown');
-  const q = query.trim().toUpperCase();
-  if (!q || q.length < 1) {
-    dropdown.classList.remove('show');
-    dropdown.innerHTML = '';
+// ============================================================
+// POST LOAD - WITH RATE FIELD
+// ============================================================
+function publishLoad() {
+  if (!user) { toast('Please login first'); return; }
+  const material = document.getElementById('pl-material').value;
+  const pickupPinId = document.getElementById('pl-pickup-hidden').value;
+  const dropPinId = document.getElementById('pl-drop-hidden').value;
+  if (!material || !pickupPinId || !dropPinId) {
+    toast('Please fill all required fields (Material, Pickup, Drop)');
     return;
   }
-  dropdown.innerHTML = '<div class="item" style="color:#94a3b8;">Searching...</div>';
-  dropdown.classList.add('show');
-  sb.from('active_vehicles')
-    .select('*')
-    .ilike('vehicle_number', '%' + q + '%')
-    .limit(10)
-    .then(result => {
-      if (result.error) {
-        console.error('Error searching vehicles:', result.error);
-        dropdown.innerHTML = '<div class="item" style="color:#dc2626;">Error loading vehicles</div>';
+  const length = parseFloat(document.getElementById('pl-length').value) || 0;
+  const width = parseFloat(document.getElementById('pl-width').value) || 0;
+  const height = parseFloat(document.getElementById('pl-height').value) || 0;
+  const dimensions = [length, width, height];
+  const rate = parseNumberFromInput(document.getElementById('pl-rate').value);
+  
+  const loadData = {
+    mobile: parseInt(user.mobile),
+    company: user.company_name || '',
+    company_web: user.company_web || '',
+    material: material,
+    weight: parseFloat(document.getElementById('pl-weight').value) || 0,
+    dimensions: dimensions,
+    vehicle_type: document.getElementById('pl-vehicle-type').value || null,
+    pickup_pin: parseInt(pickupPinId),
+    drop_pin: parseInt(dropPinId),
+    pickup_date: document.getElementById('pl-date').value || null,
+    instructions: document.getElementById('pl-instructions').value.trim() || null,
+    rate: rate,
+    status: 1,
+    views: 0,
+    calls: 0,
+    interests: [],
+    shares: 0,
+    agents: [],
+    created_at: new Date().toISOString(),
+    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+  };
+  sb.from('active_loads').insert(loadData)
+    .then(res => {
+      if (res.error) { alert('Error: ' + res.error.message); return; }
+      toast('✅ Load published successfully!');
+      goHome();
+    }).catch(err => { alert('Error: ' + err.message); });
+}
+
+// ============================================================
+// POST TRUCK - WITH RATE FIELD
+// ============================================================
+function publishTruck() {
+  if (!user) { toast('Please login first'); return; }
+  const number = document.getElementById('pt-vehicle-number').value.trim().toUpperCase();
+  const locationPinId = document.getElementById('pt-location-hidden').value;
+  if (!number || !locationPinId) {
+    toast('Please fill all required fields (Vehicle Number, Location)');
+    return;
+  }
+  if (!isValidVehicleNumber(number)) {
+    alert('Vehicle number must be 9-12 characters (letters and numbers only, no spaces or special characters)');
+    return;
+  }
+  const rate = parseNumberFromInput(document.getElementById('pt-rate').value);
+  
+  sb.from('active_vehicles').select('id').eq('vehicle_number', number).single()
+    .then(checkRes => {
+      if (!checkRes.data) {
+        if (confirm('Vehicle "' + number + '" not found. Would you like to register it now?')) {
+          openVehicleModalForTruck(number);
+        }
         return;
       }
-      const vlist = result.data || [];
-      if (!vlist.length) {
-        dropdown.innerHTML = '<div class="item add-new" onclick="openVehicleModalForEdit(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
-        dropdown.classList.add('show');
-        return;
+      const truckData = {
+        mobile: parseInt(user.mobile),
+        truck_no: number,
+        share: 0,
+        calls: 0,
+        views: 0,
+        interested: [],
+        available_date: document.getElementById('pt-available').value ? new Date(document.getElementById('pt-available').value).toISOString() : null,
+        location_pin: parseInt(locationPinId),
+        other_details: document.getElementById('pt-other-details').value.trim() || null,
+        rate: rate,
+        status: 1,
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        created_at: new Date().toISOString()
+      };
+      sb.from('active_trucks').insert(truckData)
+        .then(res => {
+          if (res.error) { alert('Error: ' + res.error.message); return; }
+          toast('✅ Truck listed successfully!');
+          goHome();
+        }).catch(err => { alert('Error: ' + err.message); });
+    }).catch(() => {
+      if (confirm('Vehicle "' + number + '" not found. Would you like to register it now?')) {
+        openVehicleModalForTruck(number);
       }
-      let html = '';
-      vlist.forEach(v => {
-        const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
-        const isAlreadyAdded = vehicles.includes(v.vehicle_number);
-        html += '<div class="item" onclick="selectVehicleFromSuggestion(\'' + v.id + '\',\'' + v.vehicle_number + '\',\'' + v.vehicle_type + '\',\'' + dims + '\')" style="' + (isAlreadyAdded ? 'opacity:0.5;' : '') + '">' +
-          v.vehicle_number + ' <span class="sub">' + v.vehicle_type + ' • ' + dims + 'ft</span>' +
-          (isAlreadyAdded ? ' <span style="color:#16a34a;font-size:10px;">✓ Added</span>' : '') +
-          '</div>';
-      });
-      html += '<div class="item add-new" onclick="openVehicleModalForEdit(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
-      dropdown.innerHTML = html;
-      dropdown.classList.add('show');
-    }).catch(err => {
-      console.error('Error:', err);
-      dropdown.innerHTML = '<div class="item" style="color:#dc2626;">Error loading vehicles</div>';
     });
 }
 
-function selectVehicleFromSuggestion(id, number, type, dims) {
-  if (vehicles.includes(number)) {
-    toast('Vehicle "' + number + '" already in your list');
-    document.getElementById('vehicle-suggest-dropdown').classList.remove('show');
-    document.getElementById('edit-vehicle-input').value = '';
-    return;
+// ============================================================
+// PROFILE FUNCTIONS
+// ============================================================
+function loadProfile() {
+  if (!user) return;
+  document.getElementById('profile-name').textContent = user.name || user.mobile || 'User';
+  if (user.last_active) {
+    const d = new Date(user.last_active);
+    document.getElementById('profile-last-active').textContent = d.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
   }
-  vehicles = addUniqueToArray(vehicles, number);
-  vehicleDataMap[number] = { id: id, vehicle_number: number, vehicle_type: type, dimensions: dims };
+  let initials = '';
+  if (user.name) {
+    const parts = user.name.split(' ');
+    initials = (parts[0]||'')[0] + (parts[1]||'')[0];
+  } else {
+    initials = (user.mobile||'GU').toString().slice(-2);
+  }
+  document.getElementById('avatar-initials-profile').textContent = initials.toUpperCase();
+  document.getElementById('avatar-initials').textContent = initials.toUpperCase();
+
+  document.getElementById('profile-company').textContent = user.company_name || 'Not set';
+  document.getElementById('profile-website').textContent = user.company_web || '--';
+  document.getElementById('profile-pan').textContent = '📛 PAN: ' + (user.pan || '--');
+  document.getElementById('profile-gst').textContent = '📛 GST: ' + (user.gst || '--');
+  if (user.location) {
+    const loc = getLoc(user.location);
+    document.getElementById('profile-location').textContent = loc ? '📍 Location: ' + getLocDisplayName(loc) : '📍 Location: Unknown';
+  } else {
+    document.getElementById('profile-location').textContent = '📍 Location: Not set';
+  }
+
+  let types = user.user_type || [];
+  if (!Array.isArray(types) && typeof types === 'number') types = [types];
+  const typeLabels = ['Load Giver', 'Operator', 'Agent'];
+  const typeIcons = ['📦', '🚛', '🤝'];
+  const container = document.getElementById('profile-user-types');
+  if (types && types.length) {
+    container.innerHTML = types.map(t => {
+      const idx = t - 1;
+      if (idx >= 0 && idx < typeLabels.length) {
+        return '<span class="section-badge active">' + typeIcons[idx] + ' ' + typeLabels[idx] + '</span>';
+      }
+      return '';
+    }).join('');
+  } else {
+    container.innerHTML = '<span class="section-badge optional">Not set</span>';
+  }
+
+  document.getElementById('profile-details-text').textContent = user.details || 'No details added';
+  
+  // Load Vehicles
+  const container2 = document.getElementById('profile-vehicles-container');
+  const badge = document.getElementById('vehicle-count-badge');
+  let vno = user.vehicle_no || [];
+  let vehicleNumbers = [];
+  if (Array.isArray(vno)) {
+    vehicleNumbers = ensureUniqueArray(vno.filter(v => v !== null && v !== ''));
+  } else if (typeof vno === 'string' && vno.startsWith('{')) {
+    try {
+      const cleaned = vno.replace(/[{}]/g, '');
+      vehicleNumbers = ensureUniqueArray(cleaned.split(',').filter(v => v.trim() !== ''));
+    } catch(e) { vehicleNumbers = []; }
+  } else if (typeof vno === 'string') {
+    vehicleNumbers = ensureUniqueArray(vno.split(',').filter(v => v.trim() !== ''));
+  }
+  if (vehicleNumbers.length) {
+    sb.from('active_vehicles').select('*').in('vehicle_number', vehicleNumbers)
+      .then(result => {
+        const vdata = result.data || [];
+        if (!vdata.length) {
+          container2.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles found</div>';
+          badge.textContent = '0 Vehicles';
+          return;
+        }
+        badge.textContent = vdata.length + ' Vehicles';
+        container2.innerHTML = vdata.map(v => {
+          const dims = v.dimensions ? v.dimensions.join(' × ') + 'ft' : 'N/A';
+          return '<div class="vehicle-display-item">' +
+            '<div class="vnumber">' + v.vehicle_number + '</div>' +
+            '<div class="vdetails">' + (v.vehicle_type || 'Unknown') + ' • ' + dims + '</div>' +
+            '</div>';
+        }).join('');
+        document.getElementById('stat-vehicles-count').textContent = vdata.length;
+      });
+  } else {
+    container2.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>';
+    badge.textContent = '0 Vehicles';
+    document.getElementById('stat-vehicles-count').textContent = '0';
+  }
+
+  // Routes
+  let routeArr = user.preferred_routes || [];
+  let routeList = [];
+  if (Array.isArray(routeArr)) {
+    routeList = ensureUniqueArray(routeArr.filter(r => r !== null && r !== ''));
+  } else if (typeof routeArr === 'string' && routeArr.startsWith('{')) {
+    try {
+      const cleaned = routeArr.replace(/[{}]/g, '');
+      routeList = ensureUniqueArray(cleaned.split(',').filter(r => r.trim() !== '').map(Number));
+    } catch(e) { routeList = []; }
+  } else if (typeof routeArr === 'string') {
+    routeList = ensureUniqueArray(routeArr.split(',').filter(r => r.trim() !== '').map(Number));
+  }
+  const rc = document.getElementById('profile-routes-container');
+  if (routeList && routeList.length) {
+    rc.innerHTML = routeList.map(r => {
+      const loc = getLoc(r);
+      return '<span class="route-tag">' + (loc ? getLocDisplayName(loc) : r) + '</span>';
+    }).join('');
+  } else {
+    rc.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>';
+  }
+  loadMyLoads();
+  loadMyTrucks();
+  loadStats();
+}
+
+function loadMyLoads() {
+  if (!user) return;
+  sb.from('active_loads').select('*').eq('mobile', parseInt(user.mobile)).eq('status', 1)
+    .then(res => {
+      const loads = res.data || [];
+      const container = document.getElementById('my-loads-container');
+      const count = document.getElementById('my-loads-count');
+      if (!loads.length) { container.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No loads posted</div>'; count.textContent = '0'; return; }
+      count.textContent = loads.length;
+      container.innerHTML = loads.map(l =>
+        '<div class="list-item">' +
+        '<div class="title">' + l.material + ' • ' + getLocName(l.pickup_pin) + ' → ' + getLocName(l.drop_pin) + '</div>' +
+        '<div class="sub">💰 ₹' + formatIndianNumber(l.rate || 0) + ' • ⚖️ ' + formatIndianNumber(l.weight || 0) + ' Kg • 🚛 ' + (l.vehicle_type || 'Any') + '</div>' +
+        '<div class="actions"><button class="delete" onclick="deleteLoadItem(\'' + l.id + '\')">🗑️ Delete</button></div>' +
+        '</div>'
+      ).join('');
+    });
+}
+
+function loadMyTrucks() {
+  if (!user) return;
+  sb.from('active_trucks').select('*').eq('mobile', parseInt(user.mobile)).eq('status', 1)
+    .then(res => {
+      const trucks = res.data || [];
+      const container = document.getElementById('my-trucks-container');
+      const count = document.getElementById('my-trucks-count');
+      if (!trucks.length) { container.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No trucks listed</div>'; count.textContent = '0'; return; }
+      count.textContent = trucks.length;
+      container.innerHTML = trucks.map(t =>
+        '<div class="list-item">' +
+        '<div class="title">' + t.truck_no + ' • 📍 ' + getLocName(t.location_pin) + '</div>' +
+        '<div class="sub">💰 ₹' + formatIndianNumber(t.rate || 0) + ' • 📅 ' + (t.available_date ? new Date(t.available_date).toLocaleDateString() : 'Flexible') + '</div>' +
+        '<div class="actions"><button class="delete" onclick="deleteTruckItem(\'' + t.id + '\')">🗑️ Delete</button></div>' +
+        '</div>'
+      ).join('');
+    });
+}
+
+function loadStats() {
+  if (!user) return;
+  sb.from('active_loads').select('*', {count:'exact', head:true}).eq('mobile', parseInt(user.mobile)).eq('status', 1)
+    .then(r => { document.getElementById('stat-loads-count').textContent = r.count || 0; });
+  sb.from('active_trucks').select('*', {count:'exact', head:true}).eq('mobile', parseInt(user.mobile)).eq('status', 1)
+    .then(r => { document.getElementById('stat-trucks-count').textContent = r.count || 0; });
+}
+
+function deleteLoadItem(id) {
+  if (!confirm('Delete this load?')) return;
+  sb.from('active_loads').update({status: 0}).eq('id', id).then(() => { loadMyLoads(); loadStats(); });
+}
+function deleteTruckItem(id) {
+  if (!confirm('Delete this truck?')) return;
+  sb.from('active_trucks').update({status: 0}).eq('id', id).then(() => { loadMyTrucks(); loadStats(); });
+}
+
+// ============================================================
+// EDIT PROFILE FUNCTIONS
+// ============================================================
+function openEditProfile() {
+  if (!user) { alert('Please login first'); return; }
+  sb.from('active_users').select('*').eq('mobile', parseInt(user.mobile)).single()
+    .then(result => {
+      if (result.data) Object.assign(user, result.data);
+      populateEditForm();
+    }).catch(() => populateEditForm());
+}
+
+function populateEditForm() {
+  document.getElementById('edit-name').value = user.name || '';
+  document.getElementById('edit-company').value = user.company_name || '';
+  document.getElementById('edit-website').value = user.company_web || '';
+  document.getElementById('edit-pan').value = user.pan || '';
+  document.getElementById('edit-gst').value = user.gst || '';
+  if (user.location) {
+    const loc = getLoc(user.location);
+    if (loc) { document.getElementById('search-edit-location').value = getLocDisplayName(loc); document.getElementById('edit-location-hidden').value = user.location; }
+  }
+  let types = user.user_type || [];
+  if (!Array.isArray(types) && typeof types === 'number') types = [types];
+  document.getElementById('edit-type-loadgiver').checked = types.indexOf(1) !== -1;
+  document.getElementById('edit-type-operator').checked = types.indexOf(2) !== -1;
+  document.getElementById('edit-type-agent').checked = types.indexOf(3) !== -1;
+
+  vehicles = [];
+  vehicleDataMap = {};
+  let vno = user.vehicle_no || [];
+  if (Array.isArray(vno)) vehicles = vno.filter(v => v);
+  else if (typeof vno === 'string') vehicles = vno.split(',').filter(v => v.trim() !== '');
+  
+  if (vehicles.length) {
+    sb.from('active_vehicles').select('*').in('vehicle_number', vehicles)
+      .then(res => {
+        if (res.data) {
+          res.data.forEach(v => {
+            const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
+            vehicleDataMap[v.vehicle_number] = {
+              id: v.id,
+              vehicle_number: v.vehicle_number,
+              vehicle_type: v.vehicle_type || 'Unknown',
+              dimensions: dims
+            };
+          });
+          renderVehicles();
+        }
+      });
+  }
   renderVehicles();
-  document.getElementById('edit-vehicle-input').value = '';
-  document.getElementById('vehicle-suggest-dropdown').classList.remove('show');
-  autoSaveVehicles().then(() => {
-    toast('✅ Vehicle "' + number + '" added to your list');
+
+  routes = [];
+  let pref = user.preferred_routes || [];
+  if (Array.isArray(pref)) routes = pref.filter(r => r);
+  else if (typeof pref === 'string') routes = pref.split(',').filter(r => r.trim() !== '').map(Number);
+  renderRoutes();
+
+  document.getElementById('edit-details').value = user.details || '';
+  updateCharCount('edit-details', 'edit-details-count');
+  switchPage('edit-profile-page');
+}
+
+function saveProfile() {
+  if (!user || !user.mobile) { alert('User not logged in.'); return; }
+  const types = [];
+  if (document.getElementById('edit-type-loadgiver').checked) types.push(1);
+  if (document.getElementById('edit-type-operator').checked) types.push(2);
+  if (document.getElementById('edit-type-agent').checked) types.push(3);
+  const location = document.getElementById('edit-location-hidden').value ? parseInt(document.getElementById('edit-location-hidden').value) : null;
+  const updateData = {
+    name: document.getElementById('edit-name').value.trim() || null,
+    company_name: document.getElementById('edit-company').value.trim() || null,
+    company_web: document.getElementById('edit-website').value.trim() || null,
+    pan: document.getElementById('edit-pan').value.trim() || null,
+    gst: document.getElementById('edit-gst').value.trim() || null,
+    location: location,
+    user_type: types.length ? types : null,
+    vehicle_no: ensureUniqueArray(vehicles).length ? ensureUniqueArray(vehicles) : null,
+    preferred_routes: ensureUniqueArray(routes).length ? ensureUniqueArray(routes) : null,
+    details: document.getElementById('edit-details').value.trim() || null,
+    last_active: new Date().toISOString()
+  };
+  const mobileNum = parseInt(user.mobile);
+  sb.from('active_users').update(updateData).eq('mobile', mobileNum)
+    .then(result => {
+      if (result.error) { alert('Error saving profile: ' + result.error.message); return; }
+      sb.from('active_users').select('*').eq('mobile', mobileNum).single()
+        .then(freshResult => {
+          if (freshResult.data) {
+            Object.assign(user, freshResult.data);
+            const saved = localStorage.getItem('rt_user');
+            if (saved) { const sd = JSON.parse(saved); sd.user = user; localStorage.setItem('rt_user', JSON.stringify(sd)); }
+            alert('✅ Profile saved successfully!');
+            closeEditProfile();
+          } else { alert('✅ Profile saved!'); closeEditProfile(); }
+        }).catch(() => { alert('✅ Profile saved!'); closeEditProfile(); });
+    }).catch(err => { alert('Error: ' + err.message); });
+}
+
+function closeEditProfile() {
+  switchPage('profile-page');
+  loadProfile();
+}
+
+function updateCharCount(inputId, countId) {
+  const input = document.getElementById(inputId);
+  const count = document.getElementById(countId);
+  if (input && count) count.textContent = input.value.length;
+}
+
+// ============================================================
+// RENDER FEED - WITH FORMATTED NUMBERS
+// ============================================================
+async function renderFeed() {
+  try {
+    const {data: loads} = await sb.from('active_loads').select('*').eq('status', 1);
+    const {data: trucks} = await sb.from('active_trucks').select('*').eq('status', 1);
+    items = [];
+    (loads || []).forEach(l => items.push({
+      type:'LOAD', 
+      title: l.material || 'Cargo', 
+      company: l.company || '',
+      from_pin: l.pickup_pin, 
+      to_pin: l.drop_pin, 
+      weight: l.weight || 0,
+      vehicle: l.vehicle_type || '', 
+      views: l.views || 0,
+      rate: l.rate || 0,
+      interests: (l.interests || []).length, 
+      shares: l.shares || 0,
+      id: l.id, 
+      mobile: l.mobile
+    }));
+    (trucks || []).forEach(t => items.push({
+      type:'TRUCK', 
+      title: t.truck_no || 'Truck',
+      company: user?.company_name || '', 
+      from_pin: t.location_pin,
+      to_pin: null, 
+      vehicle: 'Truck', 
+      views: t.views || 0,
+      rate: t.rate || 0,
+      interests: (t.interested || []).length, 
+      shares: t.share || 0,
+      id: t.id, 
+      mobile: t.mobile
+    }));
+
+    let filtered = items.slice();
+    const radius = parseInt(document.getElementById('radius-select').value) || 50;
+    if (homePinId) { const hl = getLoc(homePinId); if (hl) filtered = filtered.filter(i => { const fl = getLoc(i.from_pin); return fl ? dist(hl.lat, hl.lng, fl.lat, fl.lng) <= radius : false; }); }
+    if (tab === 'LOAD') filtered = filtered.filter(i => i.type === 'LOAD');
+    else if (tab === 'TRUCK') filtered = filtered.filter(i => i.type === 'TRUCK');
+    if (toPinId) { const tl = getLoc(toPinId); if (tl) filtered = filtered.filter(i => { const tl2 = getLoc(i.to_pin); return tl2 ? dist(tl.lat, tl.lng, tl2.lat, tl2.lng) <= radius : false; }); }
+    const v = document.getElementById('filter-vehicle')?.value;
+    if (v && v !== 'ALL') filtered = filtered.filter(i => i.vehicle && i.vehicle.toLowerCase().includes(v.toLowerCase()));
+
+    document.getElementById('results-count').textContent = 'Showing ' + filtered.length + ' Records within ' + radius + ' KM';
+    if (!filtered.length) { document.getElementById('feed-container').innerHTML = '<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>'; return; }
+    document.getElementById('feed-container').innerHTML = filtered.map(i => {
+      const bc = i.type === 'LOAD' ? 'load' : 'truck';
+      let loc = '', sub = '', stats = '', rateDisplay = '';
+      if (i.type === 'LOAD') {
+        loc = '📍 ' + getLocName(i.from_pin) + ' → ' + getLocName(i.to_pin);
+        sub = '💼 ' + i.company;
+        stats = '⚖️ ' + formatIndianNumber(i.weight || 0) + ' Kg • 🚛 ' + i.vehicle;
+        rateDisplay = '💰 ₹' + formatIndianNumber(i.rate);
+      } else {
+        loc = '📍 ' + getLocName(i.from_pin);
+        sub = '🚛 ' + i.title;
+        stats = '📅 Available Now';
+        rateDisplay = '💰 ₹' + formatIndianNumber(i.rate);
+      }
+      return '<div class="feed-card" onclick="openDetail(\'' + i.type + '\',\'' + i.id + '\')">' +
+        '<div class="header-row"><div class="title">' + i.title + '</div><span class="type-badge ' + bc + '">' + i.type + '</span></div>' +
+        '<div class="company">' + sub + '</div><div class="meta">' + loc + '</div>' +
+        '<div class="meta">' + rateDisplay + '</div>' +
+        '<div class="meta">' + stats + '</div>' +
+        '<div class="stats-row"><span>👁️ <span class="val">' + i.views + '</span></span><span>🤝 <span class="val">' + i.interests + '</span></span><span>📨 <span class="val">' + i.shares + '</span></span></div></div>';
+    }).join('');
+  } catch(e) { document.getElementById('feed-container').innerHTML = '<div style="padding:30px 0;color:#ef4444;text-align:center">Error loading feed</div>'; }
+}
+
+function applyFilters() { renderFeed(); }
+function setTab(t) { tab = t; document.querySelectorAll('.type-tabs button').forEach(b => b.className = 'inactive'); const map = {'ALL':'tab-all','LOAD':'tab-loads','TRUCK':'tab-trucks','AGENT':'tab-agents'}; const el = document.getElementById(map[t]); if (el) el.className = 'active'; renderFeed(); }
+function toggleFilters() { filterOpen = !filterOpen; document.getElementById('filter-container').classList.toggle('open', filterOpen); document.getElementById('filter-toggle-label').textContent = filterOpen ? '🔍 Hide Filters' : '🔍 Show Filters'; }
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function goHome() {
+  ['home-page','profile-page','postload-page','posttruck-page','detail-page','edit-profile-page'].forEach(i => { const el = document.getElementById(i); if (el) el.classList.toggle('hidden-page', i !== 'home-page'); });
+  document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+  document.querySelectorAll('.nav-fixed .nav-item')[0].classList.add('active');
+  setTimeout(() => { renderFeed(); }, 50);
+}
+
+function switchPage(id) {
+  ['home-page','profile-page','edit-profile-page','postload-page','posttruck-page','detail-page'].forEach(i => { const el = document.getElementById(i); if (el) el.classList.toggle('hidden-page', i !== id); });
+}
+
+function goPostLoad() { if (guest || !user) { showLogin(); return; } switchPage('postload-page'); }
+function goPostTruck() { if (guest || !user) { showLogin(); return; } switchPage('posttruck-page'); }
+function goToProfile() { if (guest || !user) { showLogin(); return; } switchPage('profile-page'); loadProfile(); }
+function cancelPost() { goHome(); }
+function closeDetail() { detail = null; goHome(); }
+
+// ============================================================
+// DETAIL
+// ============================================================
+function openDetail(type, id) {
+  const table = type === 'LOAD' ? 'active_loads' : 'active_trucks';
+  sb.from(table).select('*').eq('id', id).single().then(r => {
+    if (r.data) { detail = r.data; switchPage('detail-page'); document.getElementById('detail-title').textContent = type === 'LOAD' ? r.data.material || 'Details' : r.data.truck_no || 'Details'; document.getElementById('detail-company').textContent = type === 'LOAD' ? r.data.company || 'N/A' : 'Truck Owner'; }
   });
 }
+function makeCall() { if (detail) { const num = detail.mobile; if (num) window.location.href = 'tel:' + num; } }
+function expressInterest() {}
+function contactUser() {}
+function handleShareClick() { if (navigator.share) navigator.share({title: 'ReturnTruck', text: 'Check out this listing on ReturnTruck!', url: window.location.href}); }
+
+// ============================================================
+// AUTO LOCATE
+// ============================================================
+function autoLocate() {
+  const inp = document.getElementById('search-home');
+  if (!inp) return;
+  const saved = localStorage.getItem('rt_home_location');
+  if (saved) {
+    try { const l = JSON.parse(saved); const loc = getLoc(l.pinId); if (loc) { inp.value = l.displayName; homePinId = l.pinId; applyFilters(); return; } } catch(e) {}
+  }
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      p => {
+        const lat = p.coords.latitude, lng = p.coords.longitude;
+        let near = null, minD = Infinity;
+        LOCATIONS.forEach(l => { const d = dist(lat, lng, l.lat, l.lng); if (d < minD) { minD = d; near = l; } });
+        if (near && minD < 100) { const dn = getLocDisplayName(near); inp.value = dn; homePinId = near.pin_id; localStorage.setItem('rt_home_location', JSON.stringify({pinId: near.pin_id, displayName: dn})); applyFilters(); }
+      },
+      () => {
+        fetch('https://ipapi.co/json/').then(r => r.json()).then(d => {
+          const city = d.city || '';
+          LOCATIONS.forEach(l => { if (l.name.toLowerCase() === city.toLowerCase() || l.district.toLowerCase() === city.toLowerCase()) { const dn = getLocDisplayName(l); inp.value = dn; homePinId = l.pin_id; localStorage.setItem('rt_home_location', JSON.stringify({pinId: l.pin_id, displayName: dn})); applyFilters(); } });
+        }).catch(() => {});
+      }
+    );
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('edit-details')?.addEventListener('input', function() {
+    updateCharCount('edit-details', 'edit-details-count');
+  });
+  document.getElementById('pl-instructions')?.addEventListener('input', function() {
+    updateCharCount('pl-instructions', 'pl-instructions-count');
+  });
+  document.getElementById('pt-other-details')?.addEventListener('input', function() {
+    updateCharCount('pt-other-details', 'pt-other-details-count');
+  });
+
+  const saved = localStorage.getItem('rt_user');
+  if (saved) {
+    const sd = JSON.parse(saved);
+    if (sd.guest) { guest = true; user = null; }
+    else if (sd.user) { user = sd.user; guest = false; }
+    showHome();
+  } else {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('home-page').classList.add('hidden-page');
+  }
+  setTimeout(() => { autoLocate(); }, 500);
+});
 </script>
 </body>
 </html>
