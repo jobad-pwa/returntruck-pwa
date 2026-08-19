@@ -897,6 +897,58 @@ function dist(lat1,lng1,lat2,lng2) {
 }
 
 // ============================================================
+// ROAD DISTANCE CALCULATION USING OSRM (Free, No API Key)
+// ============================================================
+const distanceCache = {};
+
+async function getRoadDistance(lat1, lng1, lat2, lng2) {
+    try {
+        // Check cache first
+        const key = `${Math.round(lat1*1000)},${Math.round(lng1*1000)}-${Math.round(lat2*1000)},${Math.round(lng2*1000)}`;
+        if (distanceCache[key]) {
+            return distanceCache[key];
+        }
+        
+        const url = `https://router.project-osrm.org/route/v1/driving/${lng1},${lat1};${lng2},${lat2}?overview=false`;
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.routes && data.routes.length > 0) {
+            const distanceMeters = data.routes[0].distance;
+            const distanceKM = Math.round(distanceMeters / 1000);
+            const durationSeconds = data.routes[0].duration;
+            const durationHours = Math.round(durationSeconds / 3600);
+            
+            const result = {
+                distance: distanceKM,
+                duration: durationHours,
+                source: 'OSRM'
+            };
+            
+            // Cache the result
+            distanceCache[key] = result;
+            try {
+                localStorage.setItem('rt_distance_cache', JSON.stringify(distanceCache));
+            } catch(e) {}
+            
+            return result;
+        }
+        return null;
+    } catch (error) {
+        console.error('OSRM API error:', error);
+        return null;
+    }
+}
+
+// Load cached distances on startup
+try {
+    const cached = localStorage.getItem('rt_distance_cache');
+    if (cached) {
+        Object.assign(distanceCache, JSON.parse(cached));
+    }
+} catch(e) {}
+
+// ============================================================
 // UTILITY
 // ============================================================
 function $(id) { return document.getElementById(id); }
@@ -2369,11 +2421,39 @@ function renderLoadDetail(load) {
     const user = load.user || {};
     const fromLoc = getLoc(load.pickup_pin);
     const toLoc = getLoc(load.drop_pin);
-    const distance = fromLoc && toLoc ? Math.round(dist(fromLoc.lat, fromLoc.lng, toLoc.lat, toLoc.lng)) : 'N/A';
+    const aerialDistance = fromLoc && toLoc ? Math.round(dist(fromLoc.lat, fromLoc.lng, toLoc.lat, toLoc.lng)) : 'N/A';
     const dimensions = load.dimensions ? load.dimensions.join(' x ') + ' ft' : 'N/A';
     const interests = load.interests || [];
     const website = user.company_web ? `<a href="${user.company_web.startsWith('http') ? user.company_web : 'https://' + user.company_web}" target="_blank" class="website-link" onclick="event.stopPropagation();">${user.company_web} ↗</a>` : '';
     const isVerified = (user.pan && user.gst) ? '✅ Verified' : '🔒 Unverified';
+    
+    // Generate unique IDs for distance elements
+    const distId = 'dist-' + load.id + '-' + Date.now();
+    const durId = 'dur-' + load.id + '-' + Date.now();
+    const srcId = 'src-' + load.id + '-' + Date.now();
+    
+    // Fetch road distance asynchronously
+    if (fromLoc && toLoc) {
+        getRoadDistance(fromLoc.lat, fromLoc.lng, toLoc.lat, toLoc.lng)
+            .then(roadData => {
+                const distEl = document.getElementById(distId);
+                const durEl = document.getElementById(durId);
+                const srcEl = document.getElementById(srcId);
+                if (roadData) {
+                    if (distEl) distEl.textContent = roadData.distance + ' KM';
+                    if (durEl) durEl.textContent = '~' + roadData.duration + ' hours';
+                    if (srcEl) srcEl.textContent = '🛣️ Road distance (OSRM)';
+                } else {
+                    if (distEl) distEl.textContent = aerialDistance + ' KM (aerial)';
+                    if (durEl) durEl.textContent = '--';
+                    if (srcEl) srcEl.textContent = '🛩️ Aerial distance (fallback)';
+                }
+            })
+            .catch(() => {
+                const distEl = document.getElementById(distId);
+                if (distEl) distEl.textContent = aerialDistance + ' KM (aerial)';
+            });
+    }
     
     return `
         <div style="margin-bottom:12px;">
@@ -2406,7 +2486,13 @@ function renderLoadDetail(load) {
                 <div>🔵 <strong>From:</strong> ${fromLoc ? getLocDisplayName(fromLoc) : 'N/A'}</div>
                 <div style="text-align:center;font-size:16px;padding:4px 0;">⬇️</div>
                 <div>🔴 <strong>To:</strong> ${toLoc ? getLocDisplayName(toLoc) : 'N/A'}</div>
-                <div style="margin-top:4px;font-size:12px;color:#94a3b8;">📏 Estimated Distance: <strong>${distance} KM</strong></div>
+                <div style="margin-top:4px;font-size:12px;color:#94a3b8;">
+                    📏 Estimated Distance: <strong id="${distId}">⏳ Calculating...</strong>
+                    <br>
+                    ⏱️ Estimated Travel Time: <strong id="${durId}">--</strong>
+                    <br>
+                    <span id="${srcId}" style="font-size:10px;">🔄 Loading road data...</span>
+                </div>
                 <div style="margin-top:4px;font-size:12px;color:#94a3b8;">📅 Pickup: <strong>${load.pickup_date ? new Date(load.pickup_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'Flexible'}</strong></div>
             </div>
         </div>
