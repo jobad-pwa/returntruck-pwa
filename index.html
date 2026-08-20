@@ -108,10 +108,10 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .form-label{font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .grid-2-vehicle{display:grid;grid-template-columns:2fr 1fr;gap:12px}
-.detail-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:12px}
-.detail-actions button{width:100%;padding:12px 4px;border-radius:10px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:11px;cursor:pointer;transition:all .2s}
+.detail-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px}
+.detail-actions button{width:100%;padding:12px 4px;border-radius:10px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:12px;cursor:pointer;transition:all .2s}
 .detail-actions button:active{transform:scale(0.95)}
-.detail-actions button .icon-text{font-size:20px;display:block;margin-bottom:2px}
+.detail-actions button .icon-text{font-size:22px;display:block;margin-bottom:2px}
 .btn-call{background:#16a34a}.btn-endorse{background:#8b5cf6}.btn-flag{background:#ef4444}.btn-share{background:#25D366}
 .back-btn{background:transparent;border:none;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;padding:4px 8px}.back-btn:hover{color:#2563eb}
 .otp-input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff}
@@ -135,6 +135,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .list-item .actions .edit:hover{background:#bfdbfe}
 .list-item .actions .delete{background:#fef2f2;color:#991b1b}
 .list-item .actions .delete:hover{background:#fee2e2}
+.list-item .actions .interests{background:#fef3c7;color:#92400e;font-size:10px}
+.list-item .actions .interests:hover{background:#fde68a}
 .status-badge{font-size:10px;padding:2px 10px;border-radius:10px;font-weight:600;display:inline-block}
 .status-badge.active{background:#dcfce7;color:#166534}
 .status-badge.draft{background:#fef3c7;color:#92400e}
@@ -907,12 +909,9 @@ async function getRoadDistance(lat1, lng1, lat2, lng2) {
         if (data.routes && data.routes.length > 0) {
             const distanceMeters = data.routes[0].distance;
             const distanceKM = Math.round(distanceMeters / 1000);
-            const durationSeconds = data.routes[0].duration;
-            const durationHours = Math.round(durationSeconds / 3600);
             
             const result = {
                 distance: distanceKM,
-                duration: durationHours,
                 source: 'OSRM'
             };
             
@@ -2064,13 +2063,22 @@ function loadMyLoads() {
       const count = document.getElementById('my-loads-count');
       if (!loads.length) { container.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:8px">No loads posted</div>'; count.textContent = '0'; return; }
       count.textContent = loads.length;
-      container.innerHTML = loads.map(l =>
-        '<div class="list-item">' +
-        '<div class="title">' + l.material + ' • ' + getLocName(l.pickup_pin) + ' → ' + getLocName(l.drop_pin) + '</div>' +
-        '<div class="sub"> ₹' + formatIndianNumber(l.rate || 0) + ' • ⚖️ ' + formatIndianNumber(l.weight || 0) + ' Kg • 🚛 ' + (l.vehicle_type || 'Any') + '</div>' +
-        '<div class="actions"><button class="delete" onclick="deleteLoadItem(\'' + l.id + '\')">🗑️ Delete</button></div>' +
-        '</div>'
-      ).join('');
+      container.innerHTML = loads.map(l => {
+        const interests = l.interests || [];
+        let interestHtml = '';
+        if (interests.length > 0) {
+          interestHtml = '<div style="font-size:11px;color:#64748b;margin-top:4px;">🤝 Interested: ' + interests.join(', ') + '</div>';
+        }
+        return '<div class="list-item">' +
+          '<div class="title">' + l.material + ' • ' + getLocName(l.pickup_pin) + ' → ' + getLocName(l.drop_pin) + '</div>' +
+          '<div class="sub"> ₹' + formatIndianNumber(l.rate || 0) + ' • ⚖️ ' + formatIndianNumber(l.weight || 0) + ' Kg • 🚛 ' + (l.vehicle_type || 'Any') + '</div>' +
+          interestHtml +
+          '<div class="actions">' +
+            '<button class="interests">🤝 ' + interests.length + ' Interested</button>' +
+            '<button class="delete" onclick="deleteLoadItem(\'' + l.id + '\')">🗑️ Delete</button>' +
+          '</div>' +
+          '</div>';
+      }).join('');
     });
 }
 
@@ -2083,13 +2091,22 @@ function loadMyTrucks() {
       const count = document.getElementById('my-trucks-count');
       if (!trucks.length) { container.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:8px">No trucks listed</div>'; count.textContent = '0'; return; }
       count.textContent = trucks.length;
-      container.innerHTML = trucks.map(t =>
-        '<div class="list-item">' +
-        '<div class="title">' + t.truck_no + ' • 📍 ' + getLocName(t.location_pin) + '</div>' +
-        '<div class="sub"> ₹' + formatIndianNumber(t.rate || 0) + ' • 📅 ' + (t.available_date ? new Date(t.available_date).toLocaleDateString() : 'Flexible') + '</div>' +
-        '<div class="actions"><button class="delete" onclick="deleteTruckItem(\'' + t.id + '\')">🗑️ Delete</button></div>' +
-        '</div>'
-      ).join('');
+      container.innerHTML = trucks.map(t => {
+        const interests = t.interested || [];
+        let interestHtml = '';
+        if (interests.length > 0) {
+          interestHtml = '<div style="font-size:11px;color:#64748b;margin-top:4px;">🤝 Interested: ' + interests.join(', ') + '</div>';
+        }
+        return '<div class="list-item">' +
+          '<div class="title">' + t.truck_no + ' • 📍 ' + getLocName(t.location_pin) + '</div>' +
+          '<div class="sub"> ₹' + formatIndianNumber(t.rate || 0) + ' • 📅 ' + (t.available_date ? new Date(t.available_date).toLocaleDateString() : 'Flexible') + '</div>' +
+          interestHtml +
+          '<div class="actions">' +
+            '<button class="interests">🤝 ' + interests.length + ' Interested</button>' +
+            '<button class="delete" onclick="deleteTruckItem(\'' + t.id + '\')">🗑️ Delete</button>' +
+          '</div>' +
+          '</div>';
+      }).join('');
     });
 }
 
@@ -2322,7 +2339,6 @@ async function renderFeed() {
         const ratingInfo = calculateRating(i.endorsements || 0, i.flags || 0);
         stats = '⚖️ ' + formatIndianNumber(i.weight || 0) + ' Kg • 🚛 ' + i.vehicle;
         rateDisplay = ' ₹' + formatIndianNumber(i.rate);
-        // Add rating to stats
         stats += ' • ' + ratingInfo.display;
       } else if (i.type === 'TRUCK') {
         loc = '📍 ' + getLocName(i.from_pin);
@@ -2447,31 +2463,22 @@ function renderLoadDetail(load) {
     const toLoc = getLoc(load.drop_pin);
     const aerialDistance = fromLoc && toLoc ? Math.round(dist(fromLoc.lat, fromLoc.lng, toLoc.lat, toLoc.lng)) : 'N/A';
     const dimensions = load.dimensions ? load.dimensions.join(' x ') + ' ft' : 'N/A';
-    const interests = load.interests || [];
     const website = user.company_web ? `<a href="${user.company_web.startsWith('http') ? user.company_web : 'https://' + user.company_web}" target="_blank" class="website-link" onclick="event.stopPropagation();">${user.company_web} ↗</a>` : '';
     const ratingInfo = calculateRating(load.endorsements || 0, load.flags || 0);
     const isVerified = (user.pan && user.gst) ? '✅ Verified' : '🔒 Unverified';
     
-    // Generate unique IDs for distance elements
+    // Generate unique ID for distance element
     const distId = 'dist-' + load.id + '-' + Date.now();
-    const durId = 'dur-' + load.id + '-' + Date.now();
-    const srcId = 'src-' + load.id + '-' + Date.now();
     
     // Fetch road distance asynchronously
     if (fromLoc && toLoc) {
         getRoadDistance(fromLoc.lat, fromLoc.lng, toLoc.lat, toLoc.lng)
             .then(roadData => {
                 const distEl = document.getElementById(distId);
-                const durEl = document.getElementById(durId);
-                const srcEl = document.getElementById(srcId);
                 if (roadData) {
                     if (distEl) distEl.textContent = roadData.distance + ' KM';
-                    if (durEl) durEl.textContent = '~' + roadData.duration + ' hours';
-                    if (srcEl) srcEl.textContent = '🛣️ Road distance (OSRM)';
                 } else {
                     if (distEl) distEl.textContent = aerialDistance + ' KM (aerial)';
-                    if (durEl) durEl.textContent = '--';
-                    if (srcEl) srcEl.textContent = '🛩️ Aerial distance (fallback)';
                 }
             })
             .catch(() => {
@@ -2513,10 +2520,6 @@ function renderLoadDetail(load) {
                 <div>🔴 <strong>To:</strong> ${toLoc ? getLocDisplayName(toLoc) : 'N/A'}</div>
                 <div style="margin-top:4px;font-size:13px;color:#94a3b8;">
                     📏 Estimated Distance: <strong id="${distId}">⏳ Calculating...</strong>
-                    <br>
-                    ⏱️ Estimated Travel Time: <strong id="${durId}">--</strong>
-                    <br>
-                    <span id="${srcId}" style="font-size:11px;">🔄 Loading road data...</span>
                 </div>
                 <div style="margin-top:4px;font-size:13px;color:#94a3b8;">📅 Pickup: <strong>${load.pickup_date ? new Date(load.pickup_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'Flexible'}</strong></div>
             </div>
@@ -2537,11 +2540,6 @@ function renderLoadDetail(load) {
                 <div><span style="font-size:18px;">⭐</span><br><strong style="font-size:17px;color:#0f172a;">${load.endorsements || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Endorsements</span></div>
                 <div><span style="font-size:18px;">🚩</span><br><strong style="font-size:17px;color:#0f172a;">${load.flags || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Flags</span></div>
             </div>
-            ${interests.length > 0 ? `
-            <div style="margin-top:8px;font-size:13px;color:#64748b;">
-                🤝 Interested Users: ${interests.map(m => m).join(', ')}
-            </div>
-            ` : ''}
         </div>
         
         ${renderActionButtons(load)}
@@ -2551,7 +2549,6 @@ function renderLoadDetail(load) {
 function renderTruckDetail(truck) {
     const user = truck.user || {};
     const loc = getLoc(truck.location_pin);
-    const interests = truck.interested || [];
     const website = user.company_web ? `<a href="${user.company_web.startsWith('http') ? user.company_web : 'https://' + user.company_web}" target="_blank" class="website-link" onclick="event.stopPropagation();">${user.company_web} ↗</a>` : '';
     const ratingInfo = calculateRating(truck.endorsements || 0, truck.flags || 0);
     const isVerified = (user.pan && user.gst) ? '✅ Verified' : '🔒 Unverified';
@@ -2633,11 +2630,6 @@ function renderTruckDetail(truck) {
                 <div><span style="font-size:18px;">⭐</span><br><strong style="font-size:17px;color:#0f172a;">${truck.endorsements || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Endorsements</span></div>
                 <div><span style="font-size:18px;">🚩</span><br><strong style="font-size:17px;color:#0f172a;">${truck.flags || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Flags</span></div>
             </div>
-            ${interests.length > 0 ? `
-            <div style="margin-top:8px;font-size:13px;color:#64748b;">
-                🤝 Interested Users: ${interests.map(m => m).join(', ')}
-            </div>
-            ` : ''}
         </div>
         
         ${renderActionButtons(truck)}
@@ -2704,10 +2696,10 @@ function renderActionButtons(item) {
     
     return `
         <div class="detail-actions">
-            <button class="btn-call" onclick="makeCall('${mobileNum}')">📞 <span style="font-size:11px;">Call</span></button>
-            <button class="btn-endorse" onclick="handleEndorse('${itemId}', '${type}')">⭐ <span style="font-size:11px;">Endorse</span></button>
-            <button class="btn-flag" onclick="handleFlag('${itemId}', '${type}')">🚩 <span style="font-size:11px;">Flag</span></button>
-            <button class="btn-share" onclick="handleShareClick()">↗️ <span style="font-size:11px;">Share</span></button>
+            <button class="btn-call" onclick="makeCall('${mobileNum}')">📞 <span style="font-size:12px;">Call</span></button>
+            <button class="btn-endorse" onclick="handleEndorse('${itemId}', '${type}')">⭐ <span style="font-size:12px;">Endorse</span></button>
+            <button class="btn-flag" onclick="handleFlag('${itemId}', '${type}')">🚩 <span style="font-size:12px;">Flag</span></button>
+            <button class="btn-share" onclick="handleShareClick()">↗️ <span style="font-size:12px;">Share</span></button>
         </div>
         ${!isOwner ? `<button class="btn-primary" style="background:#8b5cf6;margin-top:8px;font-size:15px;" onclick="expressInterest('${itemId}', '${type}')">🔒 Express Interest</button>` : ''}
     `;
