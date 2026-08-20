@@ -10,6 +10,13 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-transparent">
 <link rel="apple-touch-icon" href="launchericon-192x192.png">
+<!-- Open Graph Meta Tags for Rich Sharing -->
+<meta property="og:title" content="ReturnTruck - Find Loads & Trucks" />
+<meta property="og:description" content="Connect with load givers, fleet operators, and agents across India." />
+<meta property="og:image" content="https://returntruck.com/og-image.png" />
+<meta property="og:url" content="https://returntruck.com" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
 <style>
 *{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
 body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
@@ -374,13 +381,14 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <label class="form-label">📦 Material Type *</label>
             <select class="form-control" id="pl-material">
                 <option value="">Select material...</option>
-                <option value="Steel Bars, Plates, Angles, Pipes etc">Steel Bars, Plates, Angles, Pipes etc</option>
-                <option value="Machinery or Spares">Machinery or Spares</option>
+                <option value="Steel Pipes">Steel Pipes</option>
                 <option value="Cement">Cement</option>
-                <option value="Sand,Aggregates,Bricks etc">Sand, Aggregates, Bricks etc</option>
-                <option value="Food or Grains">Food Grains</option>
+                <option value="Bricks">Bricks</option>
+                <option value="Sand">Sand</option>
+                <option value="Aggregates">Aggregates</option>
+                <option value="Food Grains">Food Grains</option>
                 <option value="Chemicals">Chemicals</option>
-                <option value="Electronics, parts etc">Electronics</option>
+                <option value="Electronics">Electronics</option>
                 <option value="Furniture">Furniture</option>
                 <option value="Other">Other</option>
             </select>
@@ -797,6 +805,7 @@ let isResetFlow = false, otpPurpose = 'registration';
 let vehicleDataMap = {};
 let editingVehicleNumber = null;
 let mobileCheckTimeout = null;
+let deepLinkProcessed = false;
 
 // ============================================================
 // NUMBER FORMATTING FUNCTIONS
@@ -951,6 +960,120 @@ function calculateRating(endorsements, flags) {
         display: '⭐ ' + stars.toFixed(1) + ' (' + end + '/' + total + ')',
         stars: stars
     };
+}
+
+// ============================================================
+// SHARE FUNCTION - Enhanced with Rich Details
+// ============================================================
+function generateShareMessage(type, data) {
+    let message = '';
+    let title = '';
+    let url = window.location.origin + '?listing=' + type + '_' + data.id;
+    
+    if (type === 'LOAD') {
+        message = '📦 *Load Available on ReturnTruck!*\n\n';
+        message += '📦 Material: ' + (data.material || 'Cargo') + '\n';
+        message += '💲 Rate: ₹' + formatIndianNumber(data.rate || 0) + '\n';
+        message += '⚖️ Weight: ' + formatIndianNumber(data.weight || 0) + ' Kg\n';
+        message += '📍 From: ' + getLocName(data.pickup_pin) + '\n';
+        message += '📍 To: ' + getLocName(data.drop_pin) + '\n';
+        if (data.pickup_date) {
+            message += '📅 Pickup: ' + new Date(data.pickup_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) + '\n';
+        }
+        message += '🚛 Vehicle: ' + (data.vehicle_type || 'Any') + '\n';
+        if (data.company) {
+            message += '🏢 Posted by: ' + data.company + '\n';
+        }
+        title = '📦 Load: ' + data.material;
+    } else if (type === 'TRUCK') {
+        message = '🚛 *Truck Available on ReturnTruck!*\n\n';
+        message += '🚛 Truck: ' + (data.truck_no || 'Truck') + '\n';
+        message += '💲 Rate/KM: ₹' + formatIndianNumber(data.rate || 0) + '\n';
+        message += '📍 Location: ' + getLocName(data.location_pin) + '\n';
+        if (data.available_date) {
+            message += '📅 Available: ' + new Date(data.available_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) + '\n';
+        }
+        if (data.other_details) {
+            message += '📝 ' + data.other_details.substring(0, 100) + (data.other_details.length > 100 ? '...' : '') + '\n';
+        }
+        title = '🚛 Truck: ' + data.truck_no;
+    } else if (type === 'AGENT') {
+        const userData = data.user || {};
+        message = '🤝 *Agent Profile on ReturnTruck!*\n\n';
+        message += '🤝 ' + (userData.company_name || userData.name || 'Agent') + '\n';
+        if (userData.company_web) {
+            message += '🌐 ' + userData.company_web + '\n';
+        }
+        if (userData.preferred_routes && userData.preferred_routes.length > 0) {
+            message += '📍 Service Routes: ' + userData.preferred_routes.map(r => getLocName(r)).join(', ') + '\n';
+        }
+        const ratingInfo = calculateRating(data.endorsements || 0, data.flags || 0);
+        message += '⭐ ' + ratingInfo.display + '\n';
+        title = '🤝 Agent: ' + (userData.company_name || userData.name || 'Agent');
+    }
+    
+    message += '\n🔗 *View Details:* ' + url + '\n\n';
+    message += '_Shared via ReturnTruck - Find Loads & Trucks_';
+    
+    return { message, title, url };
+}
+
+function handleShareClick() {
+    if (!detail) {
+        toast('No details to share');
+        return;
+    }
+    
+    const type = detail.type || 'LOAD';
+    const shareData = generateShareMessage(type, detail);
+    
+    if (navigator.share) {
+        navigator.share({
+            title: shareData.title,
+            text: shareData.message,
+            url: shareData.url
+        }).catch(err => {
+            // If share fails, fallback to WhatsApp
+            window.open('https://wa.me/?text=' + encodeURIComponent(shareData.message), '_blank');
+        });
+    } else {
+        // Fallback for browsers without Web Share API
+        window.open('https://wa.me/?text=' + encodeURIComponent(shareData.message), '_blank');
+    }
+}
+
+// ============================================================
+// DEEP LINK HANDLING
+// ============================================================
+function checkDeepLink() {
+    if (deepLinkProcessed) return;
+    
+    const params = new URLSearchParams(window.location.search);
+    const listing = params.get('listing');
+    
+    if (listing) {
+        const parts = listing.split('_');
+        if (parts.length === 2) {
+            const type = parts[0];
+            const id = parts[1];
+            
+            if (type && id) {
+                deepLinkProcessed = true;
+                // Wait for app to initialize
+                setTimeout(() => {
+                    // If user is logged in or guest, show the detail
+                    if (user || guest) {
+                        openDetail(type, id);
+                    } else {
+                        // Show login first, then open detail
+                        showLogin();
+                        // Store for after login
+                        window._deepLink = { type: type, id: id };
+                    }
+                }, 1000);
+            }
+        }
+    }
 }
 
 // ============================================================
@@ -1197,6 +1320,13 @@ function submitPin() {
       btn.textContent = '🔐 Login';
       btn.disabled = false;
       showHome();
+      // Check for deep link after login
+      if (window._deepLink) {
+        setTimeout(() => {
+          openDetail(window._deepLink.type, window._deepLink.id);
+          window._deepLink = null;
+        }, 500);
+      }
       return;
     }
     if (result.isNewUser === true) {
@@ -1251,6 +1381,12 @@ function registerUser() {
         localStorage.setItem('rt_user', JSON.stringify({mobile: user.mobile, user: user}));
         guest = false;
         showHome();
+        if (window._deepLink) {
+          setTimeout(() => {
+            openDetail(window._deepLink.type, window._deepLink.id);
+            window._deepLink = null;
+          }, 500);
+        }
       }
       btn.textContent = '🔄 Reset PIN';
       btn.disabled = false;
@@ -1269,6 +1405,12 @@ function registerUser() {
       localStorage.setItem('rt_user', JSON.stringify({mobile: user.mobile, user: user}));
       guest = false;
       showHome();
+      if (window._deepLink) {
+        setTimeout(() => {
+          openDetail(window._deepLink.type, window._deepLink.id);
+          window._deepLink = null;
+        }, 500);
+      }
       return;
     }
     btn.textContent = '✅ Create Account';
@@ -1357,6 +1499,13 @@ function continueAsGuest() {
   guest = true; user = null;
   localStorage.setItem('rt_user', JSON.stringify({guest: true}));
   showHome();
+  // Check for deep link after guest login
+  if (window._deepLink) {
+    setTimeout(() => {
+      openDetail(window._deepLink.type, window._deepLink.id);
+      window._deepLink = null;
+    }, 500);
+  }
 }
 
 function showLogin() {
@@ -2066,7 +2215,7 @@ function loadMyLoads() {
         const interests = l.interests || [];
         let interestHtml = '';
         if (interests.length > 0) {
-          interestHtml = '<div style="font-size:11px;color:#64748b;margin-top:4px;">🤝 Interested: ' + interests.join(', ') + '</div>';
+          interestHtml = '<div style="font-size:12px;color:#64748b;margin-top:4px;">🤝 Interested: ' + interests.join(', ') + '</div>';
         }
         return '<div class="list-item">' +
           '<div class="title">' + l.material + ' • ' + getLocName(l.pickup_pin) + ' → ' + getLocName(l.drop_pin) + '</div>' +
@@ -2094,7 +2243,7 @@ function loadMyTrucks() {
         const interests = t.interested || [];
         let interestHtml = '';
         if (interests.length > 0) {
-          interestHtml = '<div style="font-size:11px;color:#64748b;margin-top:4px;">🤝 Interested: ' + interests.join(', ') + '</div>';
+          interestHtml = '<div style="font-size:12px;color:#64748b;margin-top:4px;">🤝 Interested: ' + interests.join(', ') + '</div>';
         }
         return '<div class="list-item">' +
           '<div class="title">' + t.truck_no + ' • 📍 ' + getLocName(t.location_pin) + '</div>' +
@@ -2466,10 +2615,8 @@ function renderLoadDetail(load) {
     const ratingInfo = calculateRating(load.endorsements || 0, load.flags || 0);
     const isVerified = (user.pan && user.gst) ? '✅ Verified' : '🔒 Unverified';
     
-    // Generate unique ID for distance element
     const distId = 'dist-' + load.id + '-' + Date.now();
     
-    // Fetch road distance asynchronously
     if (fromLoc && toLoc) {
         getRoadDistance(fromLoc.lat, fromLoc.lng, toLoc.lat, toLoc.lng)
             .then(roadData => {
@@ -2552,7 +2699,6 @@ function renderTruckDetail(truck) {
     const ratingInfo = calculateRating(truck.endorsements || 0, truck.flags || 0);
     const isVerified = (user.pan && user.gst) ? '✅ Verified' : '🔒 Unverified';
     
-    // Get vehicle details
     let vehicleSpecsHtml = '<div style="font-size:14px;color:#94a3b8;">🔄 Loading...</div>';
     sb.from('active_vehicles').select('*').eq('vehicle_number', truck.truck_no).single()
         .then(v => {
@@ -2842,14 +2988,6 @@ function updateStats(item) {
     sb.from(table).update({ views: views }).eq('id', item.id).then(() => {});
 }
 
-function handleShareClick() { 
-    if (navigator.share) {
-        navigator.share({title: 'ReturnTruck', text: 'Check out this listing on ReturnTruck!', url: window.location.href});
-    } else {
-        toast('Share this listing with your contacts');
-    }
-}
-
 // ============================================================
 // AUTO LOCATE
 // ============================================================
@@ -2902,7 +3040,11 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('home-page').classList.add('hidden-page');
   }
-  setTimeout(() => { autoLocate(); }, 500);
+  
+  // Check for deep link after app loads
+  setTimeout(() => {
+    checkDeepLink();
+  }, 1500);
 });
 </script>
 </body>
