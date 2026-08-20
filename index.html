@@ -23,23 +23,23 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .avatar-btn.guest{background:#64748b}
 .profile-dropdown{position:absolute;top:45px;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:160px;z-index:100;display:none}
 .profile-dropdown.show{display:block}
-.dropdown-item{padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:#1e293b;cursor:pointer;border:none;background:transparent;width:100%}
+.dropdown-item{padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500;color:#1e293b;cursor:pointer;border:none;background:transparent;width:100%}
 .dropdown-item:hover{background:#f8fafc}
 .dropdown-divider{height:1px;background:#e2e8f0;margin:4px 12px}
 .nav-fixed{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e2e8f0;background:#fff;position:relative;z-index:10;min-height:65px;width:100%;padding-bottom:5px;margin-top:auto}
-.nav-item{display:flex;flex-direction:column;align-items:center;color:#94a3b8;font-size:9px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px;position:relative;z-index:2}
-.nav-item.active{color:#2563eb}.nav-item .icon{font-size:22px;margin-bottom:2px}.nav-item .label{font-size:9px;text-transform:uppercase;letter-spacing:.05em}
+.nav-item{display:flex;flex-direction:column;align-items:center;color:#94a3b8;font-size:10px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px;position:relative;z-index:2}
+.nav-item.active{color:#2563eb}.nav-item .icon{font-size:24px;margin-bottom:2px}.nav-item .label{font-size:10px;text-transform:uppercase;letter-spacing:.05em}
 .scroll-body{overflow-y:auto;padding:8px 0;-webkit-overflow-scrolling:touch;display:block;width:100%;flex:1}
 .scroll-body::-webkit-scrollbar{width:4px}.scroll-body::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
 #login-screen{display:flex;flex-direction:column;height:100%;width:100%;overflow-y:auto;padding:4px 0}
 .login-icon-container{display:flex;justify-content:center;margin-bottom:0}
 .login-icon-container img{width:240px;height:240px;border-radius:40px;box-shadow:0 4px 20px rgba(37,99,235,0.25);background:#fff;padding:8px;max-width:100%}
-.login-subtitle{font-size:13px;color:#64748b;text-align:center;margin-bottom:12px;margin-top:4px}
+.login-subtitle{font-size:14px;color:#64748b;text-align:center;margin-bottom:12px;margin-top:4px}
 .login-stats-container{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:12px;margin-bottom:12px;border:1px solid #bfdbfe}
 .login-stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
 .login-stat-item{text-align:center}
-.login-stat-item .number{font-size:18px;font-weight:800;color:#1d4ed8;display:block;line-height:1.2}
-.login-stat-item .label{font-size:8px;font-weight:600;color:#475569;display:block;text-transform:uppercase}
+.login-stat-item .number{font-size:20px;font-weight:800;color:#1d4ed8;display:block;line-height:1.2}
+.login-stat-item .label{font-size:9px;font-weight:600;color:#475569;display:block;text-transform:uppercase}
 .login-step-container{flex:1;display:flex;flex-direction:column;justify-content:center}
 .input-field{width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;background:#fff;margin-bottom:12px}
 .input-field:focus{border-color:#2563eb;outline:none}
@@ -52,50 +52,50 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .login-divider{display:flex;align-items:center;gap:12px;margin:16px 0}
 .location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
 .location-row .location-input{flex:2}.location-row .radius-select{flex:1}
-.location-input input,.radius-select select{width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;background:#fff}
+.location-input input,.radius-select select{width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;background:#fff}
 .type-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;background:#e2e8f0;padding:3px;border-radius:10px;margin-bottom:6px}
-.type-tabs button{padding:6px 4px;font-size:11px;font-weight:700;border:none;border-radius:8px;cursor:pointer}
+.type-tabs button{padding:8px 4px;font-size:12px;font-weight:700;border:none;border-radius:8px;cursor:pointer}
 .type-tabs .active{background:#fff;color:#1e293b}.type-tabs .inactive{background:transparent;color:#64748b}
-.filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:10px;font-weight:600;color:#64748b;border-top:1px solid #e2e8f0;margin-top:4px;user-select:none}
+.filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:11px;font-weight:600;color:#64748b;border-top:1px solid #e2e8f0;margin-top:4px;user-select:none}
 .filter-container{overflow:hidden;transition:max-height 0.3s ease;max-height:0}
 .filter-container.open{max-height:400px;overflow:visible}
 .filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;padding-top:6px}
-.filter-row label{font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
-.filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:11px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;outline:none}
+.filter-row label{font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
+.filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;outline:none}
 .search-wrapper{position:relative;width:100%}
 .search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
 .search-wrapper .suggestions.show{display:block}
-.search-wrapper .suggestions .item{padding:10px 16px;font-size:13px;color:#1e293b;cursor:pointer;border-bottom:1px solid #f1f5f9}
+.search-wrapper .suggestions .item{padding:12px 16px;font-size:14px;color:#1e293b;cursor:pointer;border-bottom:1px solid #f1f5f9}
 .search-wrapper .suggestions .item:last-child{border-bottom:none}
 .search-wrapper .suggestions .item:hover{background:#f8fafc}
 .search-wrapper .suggestions .item .highlight{background:#dbeafe;font-weight:600}
-.results-count{display:flex;justify-content:space-between;padding-bottom:4px;margin-bottom:6px;font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
+.results-count{display:flex;justify-content:space-between;padding-bottom:4px;margin-bottom:6px;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
 .feed-container{display:flex;flex-direction:column;gap:10px}
 .feed-card{border:1px solid #e2e8f0;border-radius:12px;padding:12px;cursor:pointer;background:#fff;transition:all .2s}
 .feed-card:hover{border-color:#3b82f6;background:#f8faff}
 .feed-card .header-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
 .feed-card .title{font-weight:700;font-size:15px;color:#0f172a;flex:1}
-.feed-card .type-badge{flex-shrink:0;font-size:8px;padding:2px 8px;border-radius:4px;font-weight:700;text-transform:uppercase}
+.feed-card .type-badge{flex-shrink:0;font-size:10px;padding:3px 10px;border-radius:4px;font-weight:700;text-transform:uppercase}
 .feed-card .type-badge.load{background:#dbeafe;color:#1e40af}
 .feed-card .type-badge.truck{background:#dcfce7;color:#166534}
 .feed-card .type-badge.agent{background:#fef3c7;color:#92400e}
-.feed-card .company{font-size:12px;color:#2563eb;font-weight:600;margin-bottom:2px}
-.feed-card .meta{font-size:11px;color:#475569;margin-top:3px;display:flex;align-items:center;gap:4px}
-.feed-card .stats-row{margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9;display:flex;gap:12px;font-size:10px;color:#94a3b8}
+.feed-card .company{font-size:13px;color:#2563eb;font-weight:600;margin-bottom:2px}
+.feed-card .meta{font-size:12px;color:#475569;margin-top:3px;display:flex;align-items:center;gap:4px}
+.feed-card .stats-row{margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9;display:flex;gap:12px;font-size:11px;color:#94a3b8}
 .feed-card .stats-row span{display:flex;align-items:center;gap:3px}
 .feed-card .stats-row .val{font-weight:600;color:#475569}
 .guest-banner{flex-shrink:0;background:#2563eb;color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .guest-banner.hidden{display:none}
-.guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer}
+.guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px}
 .profile-header-card{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:12px;padding:16px;color:#fff;margin-bottom:12px}
 .profile-section{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px}
 .profile-section .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.profile-section .section-title{font-size:14px;font-weight:700;color:#1e293b}
-.profile-section .section-badge{font-size:9px;padding:2px 10px;border-radius:12px;font-weight:700}
+.profile-section .section-title{font-size:15px;font-weight:700;color:#1e293b}
+.profile-section .section-badge{font-size:10px;padding:2px 12px;border-radius:12px;font-weight:700}
 .section-badge.active{background:#dcfce7;color:#166534}
 .section-badge.required{background:#fef3c7;color:#d97706}
 .section-badge.optional{background:#e2e8f0;color:#64748b}
-.section-btn{padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px}
+.section-btn{padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px}
 .section-btn:hover{background:#1d4ed8}
 .section-btn.secondary{background:#e2e8f0;color:#1e293b}
 .section-btn.secondary:hover{background:#cbd5e1}
@@ -105,74 +105,73 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .section-btn.success:hover{background:#15803d}
 .form-control{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;background:#fff;outline:none}
 .form-control:focus{border-color:#2563eb}
-.form-label{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
+.form-label{font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .grid-2-vehicle{display:grid;grid-template-columns:2fr 1fr;gap:12px}
 .detail-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:12px}
-.detail-actions button{width:100%;padding:10px;border-radius:10px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:10px}
+.detail-actions button{width:100%;padding:12px 4px;border-radius:10px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:11px;cursor:pointer;transition:all .2s}
+.detail-actions button:active{transform:scale(0.95)}
+.detail-actions button .icon-text{font-size:20px;display:block;margin-bottom:2px}
 .btn-call{background:#16a34a}.btn-endorse{background:#8b5cf6}.btn-flag{background:#ef4444}.btn-share{background:#25D366}
 .back-btn{background:transparent;border:none;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;padding:4px 8px}.back-btn:hover{color:#2563eb}
 .otp-input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff}
 .otp-input:focus{border-color:#2563eb;outline:none}
 .otp-input:disabled{background:#f1f5f9;color:#94a3b8}
-.error-text{color:#dc2626;font-size:12px;text-align:center;margin-top:4px;display:none}
-.success-text{color:#16a34a;font-size:12px;text-align:center;margin-top:4px;display:none}
-.resend-btn{background:transparent;border:none;color:#2563eb;font-weight:600;cursor:pointer;font-size:12px;text-decoration:underline}
+.error-text{color:#dc2626;font-size:13px;text-align:center;margin-top:4px;display:none}
+.success-text{color:#16a34a;font-size:13px;text-align:center;margin-top:4px;display:none}
+.resend-btn{background:transparent;border:none;color:#2563eb;font-weight:600;cursor:pointer;font-size:13px;text-decoration:underline}
 .resend-btn:disabled{color:#94a3b8;cursor:not-allowed}
 .stat-cards{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px}
 .stat-card{background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0}
-.stat-card .icon{font-size:20px;display:block;margin-bottom:2px}
+.stat-card .icon{font-size:22px;display:block;margin-bottom:2px}
 .stat-card .number{font-size:20px;font-weight:800;color:#1e293b}
-.stat-card .label{font-size:8px;color:#94a3b8;text-transform:uppercase;font-weight:600}
+.stat-card .label{font-size:9px;color:#94a3b8;text-transform:uppercase;font-weight:600}
 .list-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin-bottom:8px}
-.list-item .title{font-weight:600;font-size:13px;color:#1e293b}
-.list-item .sub{font-size:11px;color:#64748b;margin-top:2px}
+.list-item .title{font-weight:600;font-size:14px;color:#1e293b}
+.list-item .sub{font-size:12px;color:#64748b;margin-top:2px}
 .list-item .actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
-.list-item .actions button{padding:4px 10px;font-size:10px;border:none;border-radius:4px;font-weight:600;cursor:pointer}
+.list-item .actions button{padding:4px 12px;font-size:11px;border:none;border-radius:4px;font-weight:600;cursor:pointer}
 .list-item .actions .edit{background:#dbeafe;color:#1e40af}
 .list-item .actions .edit:hover{background:#bfdbfe}
 .list-item .actions .delete{background:#fef2f2;color:#991b1b}
 .list-item .actions .delete:hover{background:#fee2e2}
-.list-item .actions .interests{background:#fef3c7;color:#92400e}
-.list-item .actions .interests:hover{background:#fde68a}
-.status-badge{font-size:9px;padding:2px 8px;border-radius:10px;font-weight:600;display:inline-block}
+.status-badge{font-size:10px;padding:2px 10px;border-radius:10px;font-weight:600;display:inline-block}
 .status-badge.active{background:#dcfce7;color:#166534}
 .status-badge.draft{background:#fef3c7;color:#92400e}
 .status-badge.expired{background:#fef2f2;color:#991b1b}
-.route-tag{background:#e2e8f0;padding:4px 10px;border-radius:6px;font-size:12px;display:inline-block;margin:2px}
+.route-tag{background:#e2e8f0;padding:5px 12px;border-radius:6px;font-size:13px;display:inline-block;margin:2px}
 .route-tag .remove{color:#dc2626;cursor:pointer;margin-left:6px;font-weight:700}
 .route-tag .remove:hover{color:#b91c1c}
 .user-type-checkbox{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
-.user-type-checkbox label{font-size:13px;display:flex;align-items:center;gap:4px;cursor:pointer}
+.user-type-checkbox label{font-size:14px;display:flex;align-items:center;gap:4px;cursor:pointer}
 .route-input-row{display:flex;gap:6px;margin-bottom:8px}
 .route-input-row input{flex:2}
 .route-input-row button{flex-shrink:0}
 .vehicle-suggest-dropdown{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:8px;margin-top:4px;max-height:150px;overflow-y:auto;z-index:50;display:none}
 .vehicle-suggest-dropdown.show{display:block}
-.vehicle-suggest-dropdown .item{padding:8px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid #f1f5f9}
+.vehicle-suggest-dropdown .item{padding:10px 14px;font-size:14px;cursor:pointer;border-bottom:1px solid #f1f5f9}
 .vehicle-suggest-dropdown .item:hover{background:#f1f5f9}
-.vehicle-suggest-dropdown .item .sub{font-size:10px;color:#94a3b8}
+.vehicle-suggest-dropdown .item .sub{font-size:11px;color:#94a3b8}
 .vehicle-suggest-dropdown .item .add-new{color:#2563eb;font-weight:600}
 .vehicle-number-input{font-family:monospace;letter-spacing:0.5px;text-transform:uppercase}
 .vehicle-item{display:flex;align-items:center;justify-content:space-between;background:#f8fafc;padding:8px 12px;border-radius:6px;margin-bottom:4px;border:1px solid #e2e8f0}
-.vehicle-item .vnumber{font-weight:600;font-size:13px;color:#0f172a;flex:1}
-.vehicle-item .vdetails{font-size:11px;color:#64748b;flex:1}
+.vehicle-item .vnumber{font-weight:600;font-size:14px;color:#0f172a;flex:1}
+.vehicle-item .vdetails{font-size:12px;color:#64748b;flex:1}
 .vehicle-item .actions{display:flex;gap:4px}
-.vehicle-item .actions button{padding:3px 8px;font-size:9px;border:none;border-radius:4px;font-weight:600;cursor:pointer}
+.vehicle-item .actions button{padding:4px 10px;font-size:10px;border:none;border-radius:4px;font-weight:600;cursor:pointer}
 .vehicle-item .actions .edit-btn{background:#dbeafe;color:#1e40af}
 .vehicle-item .actions .edit-btn:hover{background:#bfdbfe}
 .vehicle-item .actions .delete-btn{background:#fef2f2;color:#991b1b}
 .vehicle-item .actions .delete-btn:hover{background:#fee2e2}
-.count-badge{background:#2563eb;color:#fff;font-size:10px;border-radius:10px;padding:1px 8px;margin-left:4px}
+.count-badge{background:#2563eb;color:#fff;font-size:11px;border-radius:10px;padding:1px 8px;margin-left:4px}
 .vehicle-display-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;margin-bottom:6px}
 .vehicle-display-item .vnumber{font-weight:700;font-size:14px;color:#0f172a}
-.vehicle-display-item .vdetails{font-size:12px;color:#64748b;margin-top:2px}
-.nav-install-wrapper{display:none}
+.vehicle-display-item .vdetails{font-size:13px;color:#64748b;margin-top:2px}
 .vehicle-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000}
 .vehicle-modal.show{display:flex}
 .vehicle-modal-content{background:#fff;border-radius:16px;padding:24px;max-width:420px;width:90%;max-height:85vh;overflow-y:auto}
 .vehicle-modal-content .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.vehicle-modal-content .modal-header h3{margin:0;font-size:18px;color:#0f172a}
+.vehicle-modal-content .modal-header h3{margin:0;font-size:19px;color:#0f172a}
 .vehicle-modal-content .modal-close{background:transparent;border:none;font-size:24px;cursor:pointer;color:#94a3b8}
 .vehicle-modal-content .modal-close:hover{color:#dc2626}
 .vehicle-modal-content .form-group{margin-bottom:12px}
@@ -198,28 +197,28 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
     <div class="login-subtitle">Find Loads • Post Trucks • Connect Agents</div>
     <div class="login-stats-container">
         <div class="login-stats-grid" style="margin-bottom:6px">
-            <div class="login-stat-item"><span style="font-size:16px">📦</span><span class="number" id="stat-loadgivers">0</span><span class="label">Load Givers</span></div>
-            <div class="login-stat-item"><span style="font-size:16px">🚛</span><span class="number" id="stat-fleetops">0</span><span class="label">Fleet Ops</span></div>
-            <div class="login-stat-item"><span style="font-size:16px">🤝</span><span class="number" id="stat-agents">0</span><span class="label">Agents</span></div>
-            <div class="login-stat-item"><span style="font-size:16px">👤</span><span class="number" id="stat-users">0</span><span class="label">Users</span></div>
+            <div class="login-stat-item"><span style="font-size:18px">📦</span><span class="number" id="stat-loadgivers">0</span><span class="label">Load Givers</span></div>
+            <div class="login-stat-item"><span style="font-size:18px">🚛</span><span class="number" id="stat-fleetops">0</span><span class="label">Fleet Ops</span></div>
+            <div class="login-stat-item"><span style="font-size:18px">🤝</span><span class="number" id="stat-agents">0</span><span class="label">Agents</span></div>
+            <div class="login-stat-item"><span style="font-size:18px">👤</span><span class="number" id="stat-users">0</span><span class="label">Users</span></div>
         </div>
         <div class="login-stats-grid">
-            <div class="login-stat-item"><span style="font-size:16px">🚚</span><span class="number" id="stat-trucks">0</span><span class="label">Trucks</span></div>
-            <div class="login-stat-item"><span style="font-size:16px">📊</span><span class="number" id="stat-loads">0</span><span class="label">Loads</span></div>
-            <div class="login-stat-item"><span style="font-size:16px">📱</span><span class="number" id="stat-installs">0</span><span class="label">Installs</span></div>
-            <div class="login-stat-item"><span style="font-size:16px">📱</span><span class="number" id="stat-visits">0</span><span class="label">Visits</span></div>
+            <div class="login-stat-item"><span style="font-size:18px">🚚</span><span class="number" id="stat-trucks">0</span><span class="label">Trucks</span></div>
+            <div class="login-stat-item"><span style="font-size:18px">📊</span><span class="number" id="stat-loads">0</span><span class="label">Loads</span></div>
+            <div class="login-stat-item"><span style="font-size:18px">📱</span><span class="number" id="stat-installs">0</span><span class="label">Installs</span></div>
+            <div class="login-stat-item"><span style="font-size:18px">📱</span><span class="number" id="stat-visits">0</span><span class="label">Visits</span></div>
         </div>
     </div>
     <div class="login-step-container">
         <div id="step1">
             <input type="tel" id="mobile" class="input-field" placeholder="Enter Mobile Number" maxlength="10" autofocus>
-            <div id="mobile-status" style="font-size:12px;color:#94a3b8;text-align:center;margin-top:4px"></div>
+            <div id="mobile-status" style="font-size:13px;color:#94a3b8;text-align:center;margin-top:4px"></div>
             <div id="mobile-loading" class="loading-text hidden">
                 <span class="spinner"></span>
                 <span>Checking...</span>
             </div>
-            <div class="login-divider"><div style="flex:1;height:1px;background:#e2e8f0"></div><span style="font-size:10px;color:#94a3b8">or continue as</span><div style="flex:1;height:1px;background:#e2e8f0"></div></div>
-            <button style="width:100%;padding:12px;border:1.5px solid #8b5cf6;border-radius:12px;font-size:14px;font-weight:600;color:#8b5cf6;background:transparent;cursor:pointer" onclick="continueAsGuest()">👤 Guest</button>
+            <div class="login-divider"><div style="flex:1;height:1px;background:#e2e8f0"></div><span style="font-size:11px;color:#94a3b8">or continue as</span><div style="flex:1;height:1px;background:#e2e8f0"></div></div>
+            <button style="width:100%;padding:12px;border:1.5px solid #8b5cf6;border-radius:12px;font-size:15px;font-weight:600;color:#8b5cf6;background:transparent;cursor:pointer" onclick="continueAsGuest()">👤 Guest</button>
         </div>
         <div id="step2" class="hidden">
             <div style="text-align:center;margin-bottom:16px">
@@ -228,14 +227,14 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
             <input type="password" id="pin" class="input-field" style="letter-spacing:4px;" placeholder="Enter 4-digit PIN" maxlength="4">
             <div id="pin-error" class="error-text">❌ Incorrect PIN. Please try again.</div>
-            <div style="font-size:12px;text-align:center;margin-bottom:12px;color:#64748b">Forgot PIN? <span style="color:#2563eb;cursor:pointer;font-weight:600" onclick="showResetOTP()">Reset PIN</span></div>
+            <div style="font-size:13px;text-align:center;margin-bottom:12px;color:#64748b">Forgot PIN? <span style="color:#2563eb;cursor:pointer;font-weight:600" onclick="showResetOTP()">Reset PIN</span></div>
             <button onclick="submitPin()" id="submitBtn" class="btn-primary" style="background:#16a34a">🔐 Login</button>
             <button onclick="resetForm()" class="btn-back">← Change Number</button>
         </div>
         <div id="step3" class="hidden">
             <div style="text-align:center;margin-bottom:12px">
                 <div id="wa-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
-                <div id="otp-purpose" style="font-size:13px;color:#475569">Enter OTP sent via WhatsApp</div>
+                <div id="otp-purpose" style="font-size:14px;color:#475569">Enter OTP sent via WhatsApp</div>
                 <div id="otp-loading" class="loading-text hidden" style="justify-content:center;padding:4px">
                     <span class="spinner"></span>
                     <span>Sending OTP...</span>
@@ -251,8 +250,8 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
             <div id="otp-error" class="error-text">❌ Invalid OTP. Please try again.</div>
             <div id="otp-success" class="success-text">✅ OTP verified successfully!</div>
-            <div style="text-align:center;font-size:13px;color:#64748b;margin-bottom:8px">⏳ <span id="otp-timer">5:00</span></div>
-            <div style="text-align:center;font-size:12px;margin-bottom:12px">
+            <div style="text-align:center;font-size:14px;color:#64748b;margin-bottom:8px">⏳ <span id="otp-timer">5:00</span></div>
+            <div style="text-align:center;font-size:13px;margin-bottom:12px">
                 <button class="resend-btn" id="resend-otp-btn" onclick="resendOTP()">📱 Resend OTP</button>
                 <br><br>
                 <button class="resend-btn" onclick="sendWhatsAppOTP()" style="color:#25D366;font-weight:700">💬 Send OTP via WhatsApp</button>
@@ -262,15 +261,15 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         </div>
         <div id="step4" class="hidden">
             <div style="text-align:center;margin-bottom:16px"><div id="reg-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
-            <div id="step4-purpose" style="font-size:13px;color:#475569">Set your 4-digit PIN for login</div></div>
+            <div id="step4-purpose" style="font-size:14px;color:#475569">Set your 4-digit PIN for login</div></div>
             <input type="password" id="reg-pin" class="input-field" placeholder="New PIN (4 digits)" maxlength="4">
             <input type="password" id="reg-pin-confirm" class="input-field" placeholder="Confirm PIN" maxlength="4">
             <button onclick="registerUser()" id="register-btn" class="btn-primary" style="background:#16a34a">✅ Create Account</button>
             <button onclick="resetForm()" class="btn-back">← Change Number</button>
         </div>
     </div>
-    <div style="flex-shrink:0;background:#fef3c7;border-left:4px solid #f59e0b;border-radius:8px;padding:12px 16px;margin-top:12px;font-size:10px;color:#92400e;line-height:1.5">
-        <div style="font-weight:700;font-size:11px;display:flex;align-items:center;gap:4px">⚠️ Disclaimer</div>
+    <div style="flex-shrink:0;background:#fef3c7;border-left:4px solid #f59e0b;border-radius:8px;padding:12px 16px;margin-top:12px;font-size:11px;color:#92400e;line-height:1.5">
+        <div style="font-weight:700;font-size:12px;display:flex;align-items:center;gap:4px">⚠️ Disclaimer</div>
         ReturnTruck is a FREE connecting platform. No charges from any party. Not responsible for financial or other losses.
     </div>
 </div>
@@ -454,7 +453,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         </div>
         <div class="grid-2">
             <div class="profile-section" style="margin-bottom:0;">
-                <label class="form-label"> Negotiable Price (₹)</label>
+                <label class="form-label">💲 Negotiable Price (₹)</label>
                 <input class="form-control" type="text" id="pl-rate" placeholder="0" oninput="formatInputNumber(this)">
             </div>
             <div class="profile-section" style="margin-bottom:0;">
@@ -465,7 +464,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div class="profile-section">
             <label class="form-label">📝 Instructions</label>
             <textarea class="form-control" id="pl-instructions" rows="2" placeholder="Loading instructions, special requirements..."></textarea>
-            <div style="font-size:10px;color:#94a3b8;text-align:right"><span id="pl-instructions-count">0</span>/200</div>
+            <div style="font-size:11px;color:#94a3b8;text-align:right"><span id="pl-instructions-count">0</span>/200</div>
         </div>
         <button class="btn-primary success" onclick="publishLoad()" style="margin-top:8px">📤 Publish Load</button>
     </div>
@@ -490,7 +489,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <input class="form-control vehicle-number-input" id="pt-vehicle-number" placeholder="Type vehicle number..." oninput="searchVehiclesForTruck(this.value)" autocomplete="off">
                 <div class="vehicle-suggest-dropdown" id="pt-vehicle-suggest-dropdown"></div>
             </div>
-            <div style="font-size:10px;color:#94a3b8;margin-top:4px">Only letters and numbers, 9-12 characters</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:4px">Only letters and numbers, 9-12 characters</div>
         </div>
         <div class="profile-section">
             <label class="form-label">📍 Location PIN *</label>
@@ -506,14 +505,14 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <input class="form-control" type="date" id="pt-available">
             </div>
             <div class="profile-section" style="margin-bottom:0;">
-                <label class="form-label"> Price/KM (₹)</label>
+                <label class="form-label">💰 Price/KM (₹)</label>
                 <input class="form-control" type="text" id="pt-rate" placeholder="0" oninput="formatInputNumber(this)">
             </div>
         </div>
         <div class="profile-section">
             <label class="form-label">📝 Other Details</label>
             <textarea class="form-control" id="pt-other-details" rows="3" placeholder="Vehicle features, GPS tracking, driver details, etc."></textarea>
-            <div style="font-size:10px;color:#94a3b8;text-align:right"><span id="pt-other-details-count">0</span>/300</div>
+            <div style="font-size:11px;color:#94a3b8;text-align:right"><span id="pt-other-details-count">0</span>/300</div>
         </div>
         <button class="btn-primary success" onclick="publishTruck()" style="margin-top:8px">📤 List Truck</button>
     </div>
@@ -544,24 +543,24 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div style="display:flex;justify-content:space-between;align-items:center">
                 <div>
                     <div id="profile-name" style="font-size:20px;font-weight:700">--</div>
-                    <div style="font-size:10px;opacity:.7">⭐ Last active: <span id="profile-last-active">Never</span></div>
+                    <div style="font-size:11px;opacity:.7">⭐ Last active: <span id="profile-last-active">Never</span></div>
                 </div>
                 <div style="text-align:right">
                     <div style="font-size:20px">👤</div>
-                    <div style="font-size:10px;background:rgba(255,255,255,.2);padding:2px 12px;border-radius:12px;display:inline-block">⭐ Member</div>
+                    <div style="font-size:11px;background:rgba(255,255,255,.2);padding:2px 12px;border-radius:12px;display:inline-block">⭐ Member</div>
                 </div>
             </div>
         </div>
         <div class="profile-section">
             <div class="section-header">
                 <span class="section-title">🏢 Company Details</span>
-                <button class="section-btn secondary" style="padding:4px 12px;font-size:10px" onclick="openEditProfile()">✏️ Edit</button>
+                <button class="section-btn secondary" style="padding:4px 12px;font-size:11px" onclick="openEditProfile()">✏️ Edit</button>
             </div>
             <div style="font-weight:600;font-size:15px;color:#1e293b" id="profile-company">Not set</div>
-            <div id="profile-website" style="font-size:12px;color:#2563eb;word-break:break-all"></div>
-            <div style="font-size:11px;color:#64748b;margin-top:4px" id="profile-pan">📛 PAN: --</div>
-            <div style="font-size:11px;color:#64748b;margin-top:2px" id="profile-gst">📛 GST: --</div>
-            <div style="font-size:11px;color:#64748b;margin-top:2px" id="profile-location">📍 Location: Not set</div>
+            <div id="profile-website" style="font-size:13px;color:#2563eb;word-break:break-all"></div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px" id="profile-pan">📛 PAN: --</div>
+            <div style="font-size:12px;color:#64748b;margin-top:2px" id="profile-gst">📛 GST: --</div>
+            <div style="font-size:12px;color:#64748b;margin-top:2px" id="profile-location">📍 Location: Not set</div>
         </div>
         <div class="profile-section">
             <label class="form-label" style="margin-bottom:6px">🎯 User Type</label>
@@ -575,7 +574,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <span class="section-badge active" id="vehicle-count-badge">0 Vehicles</span>
             </div>
             <div id="profile-vehicles-container">
-                <div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>
+                <div style="color:#94a3b8;font-size:13px;text-align:center;padding:8px">No vehicles added</div>
             </div>
         </div>
         <div class="profile-section">
@@ -584,7 +583,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <span class="section-badge optional">Optional</span>
             </div>
             <div id="profile-routes-container" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
-                <span style="color:#94a3b8;font-size:12px">No routes added</span>
+                <span style="color:#94a3b8;font-size:13px">No routes added</span>
             </div>
         </div>
         <div class="profile-section">
@@ -592,15 +591,15 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div id="profile-details-text" style="font-size:14px;color:#475569;padding:4px 0">No details added</div>
         </div>
         <div style="margin-bottom:8px">
-            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px">📦 My Loads <span class="count-badge" id="my-loads-count">0</span></div>
+            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px">📦 My Loads <span class="count-badge" id="my-loads-count">0</span></div>
             <div id="my-loads-container"></div>
         </div>
         <div style="margin-bottom:8px">
-            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px">🚛 My Trucks <span class="count-badge" id="my-trucks-count">0</span></div>
+            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px">🚛 My Trucks <span class="count-badge" id="my-trucks-count">0</span></div>
             <div id="my-trucks-container"></div>
         </div>
         <div style="margin:12px 0 8px">
-            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px">📊 MY STATISTICS</div>
+            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px">📊 MY STATISTICS</div>
             <div class="stat-cards">
                 <div class="stat-card"><span class="icon">📦</span><span class="number" id="stat-loads-count">0</span><span class="label">Loads</span></div>
                 <div class="stat-card"><span class="icon">🚛</span><span class="number" id="stat-trucks-count">0</span><span class="label">Trucks</span></div>
@@ -644,7 +643,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <label><input type="checkbox" id="edit-type-operator" value="2"> 🚛 Operator</label>
                 <label><input type="checkbox" id="edit-type-agent" value="3"> 🤝 Agent</label>
             </div>
-            <div style="font-size:10px;color:#94a3b8;margin-top:4px">Select all that apply</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:4px">Select all that apply</div>
         </div>
         <div class="profile-section">
             <label class="form-label">🚛 My Vehicles</label>
@@ -672,7 +671,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div class="profile-section">
             <label class="form-label">📝 About / Details</label>
             <textarea class="form-control" id="edit-details" rows="3" placeholder="About your business, services, etc." style="resize:vertical"></textarea>
-            <div style="font-size:10px;color:#94a3b8;text-align:right"><span id="edit-details-count">0</span>/300</div>
+            <div style="font-size:11px;color:#94a3b8;text-align:right"><span id="edit-details-count">0</span>/300</div>
         </div>
         <button class="btn-primary success" onclick="saveProfile()" style="margin-top:8px">💾 Save Profile</button>
     </div>
@@ -824,13 +823,6 @@ function parseNumberFromInput(value) {
 // ============================================================
 function isValidVehicleNumber(number) {
     return /^[A-Za-z0-9]{9,12}$/.test(number);
-}
-
-function validateVehicleNumberInput(input) {
-    let cleaned = input.value.replace(/[^A-Za-z0-9]/g, '');
-    if (input.value !== cleaned) input.value = cleaned;
-    input.value = input.value.toUpperCase();
-    if (input.value.length > 12) input.value = input.value.substring(0, 12);
 }
 
 // ============================================================
@@ -1503,7 +1495,7 @@ function searchVehicles(query) {
         const isAlreadyAdded = vehicles.includes(v.vehicle_number);
         html += '<div class="item" onclick="selectVehicleFromSuggestion(\'' + v.id + '\',\'' + v.vehicle_number + '\',\'' + v.vehicle_type + '\',\'' + dims + '\')" style="' + (isAlreadyAdded ? 'opacity:0.5;' : '') + '">' +
           v.vehicle_number + ' <span class="sub">' + v.vehicle_type + ' • ' + dims + 'ft</span>' +
-          (isAlreadyAdded ? ' <span style="color:#16a34a;font-size:10px;">✓ Added</span>' : '') +
+          (isAlreadyAdded ? ' <span style="color:#16a34a;font-size:11px;">✓ Added</span>' : '') +
           '</div>';
       });
       html += '<div class="item add-new" onclick="openVehicleModalForEdit(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
@@ -1711,7 +1703,7 @@ function removeVehicle(v) {
 
 function renderVehicles() {
   const container = document.getElementById('edit-vehicles-list');
-  if (!vehicles.length) { container.innerHTML = '<span style="color:#94a3b8;font-size:12px">No vehicles added</span>'; return; }
+  if (!vehicles.length) { container.innerHTML = '<span style="color:#94a3b8;font-size:13px">No vehicles added</span>'; return; }
   container.innerHTML = vehicles.map(v => {
     const data = vehicleDataMap[v] || { vehicle_type: 'Unknown', dimensions: 'N/A' };
     const dims = data.dimensions || 'N/A';
@@ -1753,7 +1745,7 @@ function removeRoute(r) {
 
 function renderRoutes() {
   const container = document.getElementById('edit-routes-list');
-  if (!routes.length) { container.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>'; return; }
+  if (!routes.length) { container.innerHTML = '<span style="color:#94a3b8;font-size:13px">No routes added</span>'; return; }
   container.innerHTML = routes.map(r => {
     const loc = getLoc(r);
     const display = loc ? getLocDisplayName(loc) : r;
@@ -2015,7 +2007,7 @@ function loadProfile() {
       .then(result => {
         const vdata = result.data || [];
         if (!vdata.length) {
-          container2.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles found</div>';
+          container2.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:8px">No vehicles found</div>';
           badge.textContent = '0 Vehicles';
           return;
         }
@@ -2030,7 +2022,7 @@ function loadProfile() {
         document.getElementById('stat-vehicles-count').textContent = vdata.length;
       });
   } else {
-    container2.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No vehicles added</div>';
+    container2.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:8px">No vehicles added</div>';
     badge.textContent = '0 Vehicles';
     document.getElementById('stat-vehicles-count').textContent = '0';
   }
@@ -2055,7 +2047,7 @@ function loadProfile() {
       return '<span class="route-tag">' + (loc ? getLocDisplayName(loc) : r) + '</span>';
     }).join('');
   } else {
-    rc.innerHTML = '<span style="color:#94a3b8;font-size:12px">No routes added</span>';
+    rc.innerHTML = '<span style="color:#94a3b8;font-size:13px">No routes added</span>';
   }
   
   loadMyLoads();
@@ -2070,7 +2062,7 @@ function loadMyLoads() {
       const loads = res.data || [];
       const container = document.getElementById('my-loads-container');
       const count = document.getElementById('my-loads-count');
-      if (!loads.length) { container.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No loads posted</div>'; count.textContent = '0'; return; }
+      if (!loads.length) { container.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:8px">No loads posted</div>'; count.textContent = '0'; return; }
       count.textContent = loads.length;
       container.innerHTML = loads.map(l =>
         '<div class="list-item">' +
@@ -2089,7 +2081,7 @@ function loadMyTrucks() {
       const trucks = res.data || [];
       const container = document.getElementById('my-trucks-container');
       const count = document.getElementById('my-trucks-count');
-      if (!trucks.length) { container.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:8px">No trucks listed</div>'; count.textContent = '0'; return; }
+      if (!trucks.length) { container.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:8px">No trucks listed</div>'; count.textContent = '0'; return; }
       count.textContent = trucks.length;
       container.innerHTML = trucks.map(t =>
         '<div class="list-item">' +
@@ -2495,7 +2487,7 @@ function renderLoadDetail(load) {
                 ${user.company_name || 'Unknown Company'}
                 ${website ? ` • ${website}` : ''}
             </div>
-            <div style="font-size:12px;color:#64748b;margin-top:2px;">
+            <div style="font-size:13px;color:#64748b;margin-top:2px;">
                 ${ratingInfo.display} • ${isVerified}
                 ${user.pan ? ` • PAN: ${user.pan}` : ''}
                 ${user.gst ? ` • GST: ${user.gst}` : ''}
@@ -2503,8 +2495,8 @@ function renderLoadDetail(load) {
         </div>
         
         <div class="profile-section">
-            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px;">📋 LOAD SPECS</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:13px;color:#475569;">
+            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px;">📋 LOAD SPECS</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:14px;color:#475569;">
                 <div>⚖️ Weight: <strong>${formatIndianNumber(load.weight || 0)} Kg</strong></div>
                 <div>📐 Dimensions: <strong>${dimensions}</strong></div>
                 <div>🚛 Vehicle: <strong>${load.vehicle_type || 'Any'}</strong></div>
@@ -2514,39 +2506,39 @@ function renderLoadDetail(load) {
         </div>
         
         <div class="profile-section">
-            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px;">📍 ROUTE</div>
-            <div style="font-size:13px;color:#475569;">
+            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px;">📍 ROUTE</div>
+            <div style="font-size:14px;color:#475569;">
                 <div>🔵 <strong>From:</strong> ${fromLoc ? getLocDisplayName(fromLoc) : 'N/A'}</div>
-                <div style="text-align:center;font-size:16px;padding:4px 0;">⬇️</div>
+                <div style="text-align:center;font-size:18px;padding:4px 0;">⬇️</div>
                 <div>🔴 <strong>To:</strong> ${toLoc ? getLocDisplayName(toLoc) : 'N/A'}</div>
-                <div style="margin-top:4px;font-size:12px;color:#94a3b8;">
+                <div style="margin-top:4px;font-size:13px;color:#94a3b8;">
                     📏 Estimated Distance: <strong id="${distId}">⏳ Calculating...</strong>
                     <br>
                     ⏱️ Estimated Travel Time: <strong id="${durId}">--</strong>
                     <br>
-                    <span id="${srcId}" style="font-size:10px;">🔄 Loading road data...</span>
+                    <span id="${srcId}" style="font-size:11px;">🔄 Loading road data...</span>
                 </div>
-                <div style="margin-top:4px;font-size:12px;color:#94a3b8;">📅 Pickup: <strong>${load.pickup_date ? new Date(load.pickup_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'Flexible'}</strong></div>
+                <div style="margin-top:4px;font-size:13px;color:#94a3b8;">📅 Pickup: <strong>${load.pickup_date ? new Date(load.pickup_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'Flexible'}</strong></div>
             </div>
         </div>
         
         ${load.instructions ? `
         <div class="profile-section">
-            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:4px;">📝 Instructions</div>
-            <div style="font-size:13px;color:#475569;">${load.instructions}</div>
+            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:4px;">📝 Instructions</div>
+            <div style="font-size:14px;color:#475569;">${load.instructions}</div>
         </div>
         ` : ''}
         
         <div class="profile-section">
-            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px;">📊 STATS</div>
+            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px;">📊 STATS</div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;text-align:center;">
-                <div><span style="font-size:16px;">👁️</span><br><strong style="font-size:16px;color:#0f172a;">${load.views || 0}</strong><br><span style="font-size:9px;color:#94a3b8;">Views</span></div>
-                <div><span style="font-size:16px;">📞</span><br><strong style="font-size:16px;color:#0f172a;">${load.calls || 0}</strong><br><span style="font-size:9px;color:#94a3b8;">Calls</span></div>
-                <div><span style="font-size:16px;">⭐</span><br><strong style="font-size:16px;color:#0f172a;">${load.endorsements || 0}</strong><br><span style="font-size:9px;color:#94a3b8;">Endorsements</span></div>
-                <div><span style="font-size:16px;">🚩</span><br><strong style="font-size:16px;color:#0f172a;">${load.flags || 0}</strong><br><span style="font-size:9px;color:#94a3b8;">Flags</span></div>
+                <div><span style="font-size:18px;">👁️</span><br><strong style="font-size:17px;color:#0f172a;">${load.views || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Views</span></div>
+                <div><span style="font-size:18px;">📞</span><br><strong style="font-size:17px;color:#0f172a;">${load.calls || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Calls</span></div>
+                <div><span style="font-size:18px;">⭐</span><br><strong style="font-size:17px;color:#0f172a;">${load.endorsements || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Endorsements</span></div>
+                <div><span style="font-size:18px;">🚩</span><br><strong style="font-size:17px;color:#0f172a;">${load.flags || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Flags</span></div>
             </div>
             ${interests.length > 0 ? `
-            <div style="margin-top:8px;font-size:11px;color:#64748b;">
+            <div style="margin-top:8px;font-size:13px;color:#64748b;">
                 🤝 Interested Users: ${interests.map(m => m).join(', ')}
             </div>
             ` : ''}
@@ -2565,7 +2557,7 @@ function renderTruckDetail(truck) {
     const isVerified = (user.pan && user.gst) ? '✅ Verified' : '🔒 Unverified';
     
     // Get vehicle details
-    let vehicleSpecsHtml = '<div>🔄 Loading...</div>';
+    let vehicleSpecsHtml = '<div style="font-size:14px;color:#94a3b8;">🔄 Loading...</div>';
     sb.from('active_vehicles').select('*').eq('vehicle_number', truck.truck_no).single()
         .then(v => {
             if (v.data) {
@@ -2589,7 +2581,7 @@ function renderTruckDetail(truck) {
                 ${user.company_name || 'Unknown Company'}
                 ${website ? ` • ${website}` : ''}
             </div>
-            <div style="font-size:12px;color:#64748b;margin-top:2px;">
+            <div style="font-size:13px;color:#64748b;margin-top:2px;">
                 ${ratingInfo.display} • ${isVerified}
                 ${user.pan ? ` • PAN: ${user.pan}` : ''}
                 ${user.gst ? ` • GST: ${user.gst}` : ''}
@@ -2597,26 +2589,26 @@ function renderTruckDetail(truck) {
         </div>
         
         <div class="profile-section">
-            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px;">📋 VEHICLE SPECS</div>
-            <div id="vehicle-detail-specs" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:13px;color:#475569;">
+            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px;">📋 VEHICLE SPECS</div>
+            <div id="vehicle-detail-specs" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:14px;color:#475569;">
                 ${vehicleSpecsHtml}
             </div>
-            <div style="margin-top:6px;font-size:13px;color:#475569;">
+            <div style="margin-top:6px;font-size:14px;color:#475569;">
                 💲 Rate/KM: <strong>₹${formatIndianNumber(truck.rate || 0)}</strong>
             </div>
         </div>
         
         <div class="profile-section">
-            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px;">📍 CURRENT LOCATION</div>
-            <div style="font-size:13px;color:#475569;">
+            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px;">📍 CURRENT LOCATION</div>
+            <div style="font-size:14px;color:#475569;">
                 <div>📌 ${loc ? getLocDisplayName(loc) : 'N/A'}</div>
-                <div style="margin-top:4px;font-size:12px;color:#94a3b8;">📅 Available: <strong>${truck.available_date ? new Date(truck.available_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'Now'}</strong></div>
+                <div style="margin-top:4px;font-size:13px;color:#94a3b8;">📅 Available: <strong>${truck.available_date ? new Date(truck.available_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'Now'}</strong></div>
             </div>
         </div>
         
         ${user.preferred_routes && user.preferred_routes.length > 0 ? `
         <div class="profile-section">
-            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:4px;">🗺️ Preferred Routes</div>
+            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:4px;">🗺️ Preferred Routes</div>
             <div style="display:flex;flex-wrap:wrap;gap:4px;">
                 ${user.preferred_routes.map(r => {
                     const loc2 = getLoc(r);
@@ -2628,21 +2620,21 @@ function renderTruckDetail(truck) {
         
         ${truck.other_details ? `
         <div class="profile-section">
-            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:4px;">📝 Other Details</div>
-            <div style="font-size:13px;color:#475569;">${truck.other_details}</div>
+            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:4px;">📝 Other Details</div>
+            <div style="font-size:14px;color:#475569;">${truck.other_details}</div>
         </div>
         ` : ''}
         
         <div class="profile-section">
-            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px;">📊 STATS</div>
+            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px;">📊 STATS</div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;text-align:center;">
-                <div><span style="font-size:16px;">👁️</span><br><strong style="font-size:16px;color:#0f172a;">${truck.views || 0}</strong><br><span style="font-size:9px;color:#94a3b8;">Views</span></div>
-                <div><span style="font-size:16px;">📞</span><br><strong style="font-size:16px;color:#0f172a;">${truck.calls || 0}</strong><br><span style="font-size:9px;color:#94a3b8;">Calls</span></div>
-                <div><span style="font-size:16px;">⭐</span><br><strong style="font-size:16px;color:#0f172a;">${truck.endorsements || 0}</strong><br><span style="font-size:9px;color:#94a3b8;">Endorsements</span></div>
-                <div><span style="font-size:16px;">🚩</span><br><strong style="font-size:16px;color:#0f172a;">${truck.flags || 0}</strong><br><span style="font-size:9px;color:#94a3b8;">Flags</span></div>
+                <div><span style="font-size:18px;">👁️</span><br><strong style="font-size:17px;color:#0f172a;">${truck.views || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Views</span></div>
+                <div><span style="font-size:18px;">📞</span><br><strong style="font-size:17px;color:#0f172a;">${truck.calls || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Calls</span></div>
+                <div><span style="font-size:18px;">⭐</span><br><strong style="font-size:17px;color:#0f172a;">${truck.endorsements || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Endorsements</span></div>
+                <div><span style="font-size:18px;">🚩</span><br><strong style="font-size:17px;color:#0f172a;">${truck.flags || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Flags</span></div>
             </div>
             ${interests.length > 0 ? `
-            <div style="margin-top:8px;font-size:11px;color:#64748b;">
+            <div style="margin-top:8px;font-size:13px;color:#64748b;">
                 🤝 Interested Users: ${interests.map(m => m).join(', ')}
             </div>
             ` : ''}
@@ -2664,7 +2656,7 @@ function renderAgentDetail(agent) {
             <div style="font-size:14px;color:#2563eb;font-weight:600;margin-top:2px;">
                 ${website ? website : ''}
             </div>
-            <div style="font-size:12px;color:#64748b;margin-top:2px;">
+            <div style="font-size:13px;color:#64748b;margin-top:2px;">
                 ${ratingInfo.display} • ${isVerified}
                 ${user.pan ? ` • PAN: ${user.pan}` : ''}
                 ${user.gst ? ` • GST: ${user.gst}` : ''}
@@ -2673,7 +2665,7 @@ function renderAgentDetail(agent) {
         
         ${user.preferred_routes && user.preferred_routes.length > 0 ? `
         <div class="profile-section">
-            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px;">📍 Service Routes</div>
+            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px;">📍 Service Routes</div>
             <div style="display:flex;flex-wrap:wrap;gap:4px;">
                 ${user.preferred_routes.map(r => {
                     const loc = getLoc(r);
@@ -2685,18 +2677,18 @@ function renderAgentDetail(agent) {
         
         ${user.details ? `
         <div class="profile-section">
-            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:4px;">📝 Details</div>
-            <div style="font-size:13px;color:#475569;">${user.details}</div>
+            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:4px;">📝 Details</div>
+            <div style="font-size:14px;color:#475569;">${user.details}</div>
         </div>
         ` : ''}
         
         <div class="profile-section">
-            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:8px;">📊 STATS</div>
+            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px;">📊 STATS</div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;text-align:center;">
-                <div><span style="font-size:16px;">📦</span><br><strong style="font-size:16px;color:#0f172a;">${agent.loads_count || 0}</strong><br><span style="font-size:9px;color:#94a3b8;">Loads</span></div>
-                <div><span style="font-size:16px;">🚛</span><br><strong style="font-size:16px;color:#0f172a;">${agent.trucks_count || 0}</strong><br><span style="font-size:9px;color:#94a3b8;">Trucks</span></div>
-                <div><span style="font-size:16px;">⭐</span><br><strong style="font-size:16px;color:#0f172a;">${agent.endorsements || 0}</strong><br><span style="font-size:9px;color:#94a3b8;">Endorsements</span></div>
-                <div><span style="font-size:16px;">🚩</span><br><strong style="font-size:16px;color:#0f172a;">${agent.flags || 0}</strong><br><span style="font-size:9px;color:#94a3b8;">Flags</span></div>
+                <div><span style="font-size:18px;">📦</span><br><strong style="font-size:17px;color:#0f172a;">${agent.loads_count || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Loads</span></div>
+                <div><span style="font-size:18px;">🚛</span><br><strong style="font-size:17px;color:#0f172a;">${agent.trucks_count || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Trucks</span></div>
+                <div><span style="font-size:18px;">⭐</span><br><strong style="font-size:17px;color:#0f172a;">${agent.endorsements || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Endorsements</span></div>
+                <div><span style="font-size:18px;">🚩</span><br><strong style="font-size:17px;color:#0f172a;">${agent.flags || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Flags</span></div>
             </div>
         </div>
         
@@ -2712,12 +2704,12 @@ function renderActionButtons(item) {
     
     return `
         <div class="detail-actions">
-            <button class="btn-call" onclick="makeCall('${mobileNum}')">📞 <span style="font-size:8px;">Call</span></button>
-            <button class="btn-endorse" onclick="handleEndorse('${itemId}', '${type}')">⭐ <span style="font-size:8px;">Endorse</span></button>
-            <button class="btn-flag" onclick="handleFlag('${itemId}', '${type}')">🚩 <span style="font-size:8px;">Flag</span></button>
-            <button class="btn-share" onclick="handleShareClick()">↗️ <span style="font-size:8px;">Share</span></button>
+            <button class="btn-call" onclick="makeCall('${mobileNum}')">📞 <span style="font-size:11px;">Call</span></button>
+            <button class="btn-endorse" onclick="handleEndorse('${itemId}', '${type}')">⭐ <span style="font-size:11px;">Endorse</span></button>
+            <button class="btn-flag" onclick="handleFlag('${itemId}', '${type}')">🚩 <span style="font-size:11px;">Flag</span></button>
+            <button class="btn-share" onclick="handleShareClick()">↗️ <span style="font-size:11px;">Share</span></button>
         </div>
-        ${!isOwner ? `<button class="btn-primary" style="background:#8b5cf6;margin-top:8px;" onclick="expressInterest('${itemId}', '${type}')">🔒 Express Interest</button>` : ''}
+        ${!isOwner ? `<button class="btn-primary" style="background:#8b5cf6;margin-top:8px;font-size:15px;" onclick="expressInterest('${itemId}', '${type}')">🔒 Express Interest</button>` : ''}
     `;
 }
 
@@ -2747,7 +2739,6 @@ function handleEndorse(id, type) {
     const table = type === 'LOAD' ? 'active_loads' : (type === 'TRUCK' ? 'active_trucks' : 'active_users');
     const isAgent = type === 'AGENT';
     
-    // For agents, we need to update the user record
     if (isAgent) {
         sb.from('active_users').select('endorsements').eq('mobile', parseInt(id)).single()
             .then(r => {
@@ -2763,7 +2754,6 @@ function handleEndorse(id, type) {
         return;
     }
     
-    // For loads and trucks, update the item
     sb.from(table).select('endorsements').eq('id', id).single()
         .then(r => {
             if (r.data) {
