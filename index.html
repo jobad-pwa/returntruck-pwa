@@ -971,49 +971,89 @@ function generateShareMessage(type, data) {
     let url = window.location.origin + '?listing=' + type + '_' + data.id;
     
     if (type === 'LOAD') {
-        message = '📦 *Load Available on ReturnTruck!*\n\n';
-        message += '📦 Material: ' + (data.material || 'Cargo') + '\n';
-        message += '💲 Rate: ₹' + formatIndianNumber(data.rate || 0) + '\n';
-        message += '⚖️ Weight: ' + formatIndianNumber(data.weight || 0) + ' Kg\n';
-        message += '📍 From: ' + getLocName(data.pickup_pin) + '\n';
-        message += '📍 To: ' + getLocName(data.drop_pin) + '\n';
+        const fromLoc = getLoc(data.pickup_pin);
+        const toLoc = getLoc(data.drop_pin);
+        const fromName = fromLoc ? getLocDisplayName(fromLoc) : 'N/A';
+        const toName = toLoc ? getLocDisplayName(toLoc) : 'N/A';
+        const dims = data.dimensions ? data.dimensions.join(' x ') + ' ft' : 'N/A';
+        
+        message = '🚛 *LOAD AVAILABLE*\n';
+        message += '─────────────────\n';
+        message += '💰 *₹' + formatIndianNumber(data.rate || 0) + '* (Negotiable)\n';
         if (data.pickup_date) {
             message += '📅 Pickup: ' + new Date(data.pickup_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) + '\n';
         }
-        message += '🚛 Vehicle: ' + (data.vehicle_type || 'Any') + '\n';
+        message += '─────────────────\n';
+        message += '📦 *Material:* ' + (data.material || 'Cargo') + '\n';
+        message += '⚖️ *Weight:* ' + formatIndianNumber(data.weight || 0) + ' Kg\n';
+        message += '📐 *Dimensions:* ' + dims + '\n';
+        message += '🚛 *Vehicle:* ' + (data.vehicle_type || 'Any') + '\n';
+        message += '─────────────────\n';
+        message += '📍 *From:* ' + fromName + '\n';
+        message += '📍 *To:* ' + toName + '\n';
+        message += '─────────────────\n';
         if (data.company) {
             message += '🏢 Posted by: ' + data.company + '\n';
         }
-        title = '📦 Load: ' + data.material;
+        const ratingInfo = calculateRating(data.endorsements || 0, data.flags || 0);
+        message += '⭐ ' + ratingInfo.display + '\n';
+        message += '─────────────────\n';
+        message += '🔗 *View Details:*\n';
+        message += url + '\n';
+        message += '─────────────────\n';
+        message += '📱 ReturnTruck - Find Loads & Trucks';
+        title = '📦 Load Available: ' + data.material;
     } else if (type === 'TRUCK') {
-        message = '🚛 *Truck Available on ReturnTruck!*\n\n';
-        message += '🚛 Truck: ' + (data.truck_no || 'Truck') + '\n';
-        message += '💲 Rate/KM: ₹' + formatIndianNumber(data.rate || 0) + '\n';
-        message += '📍 Location: ' + getLocName(data.location_pin) + '\n';
+        const loc = getLoc(data.location_pin);
+        const locName = loc ? getLocDisplayName(loc) : 'N/A';
+        
+        message = '🚛 *TRUCK AVAILABLE*\n';
+        message += '─────────────────\n';
+        message += '🚛 *Truck:* ' + (data.truck_no || 'Truck') + '\n';
+        message += '💰 *₹' + formatIndianNumber(data.rate || 0) + '* (Negotiable)\n';
         if (data.available_date) {
             message += '📅 Available: ' + new Date(data.available_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) + '\n';
         }
+        message += '─────────────────\n';
+        message += '📍 *Location:* ' + locName + '\n';
+        message += '─────────────────\n';
         if (data.other_details) {
             message += '📝 ' + data.other_details.substring(0, 100) + (data.other_details.length > 100 ? '...' : '') + '\n';
         }
-        title = '🚛 Truck: ' + data.truck_no;
-    } else if (type === 'AGENT') {
-        const userData = data.user || {};
-        message = '🤝 *Agent Profile on ReturnTruck!*\n\n';
-        message += '🤝 ' + (userData.company_name || userData.name || 'Agent') + '\n';
-        if (userData.company_web) {
-            message += '🌐 ' + userData.company_web + '\n';
-        }
-        if (userData.preferred_routes && userData.preferred_routes.length > 0) {
-            message += '📍 Service Routes: ' + userData.preferred_routes.map(r => getLocName(r)).join(', ') + '\n';
-        }
         const ratingInfo = calculateRating(data.endorsements || 0, data.flags || 0);
         message += '⭐ ' + ratingInfo.display + '\n';
-        title = '🤝 Agent: ' + (userData.company_name || userData.name || 'Agent');
+        message += '─────────────────\n';
+        message += '🔗 *View Details:*\n';
+        message += url + '\n';
+        message += '─────────────────\n';
+        message += '📱 ReturnTruck - Find Loads & Trucks';
+        title = '🚛 Truck Available: ' + data.truck_no;
+    } else if (type === 'AGENT') {
+        const userData = data.user || {};
+        message = '🤝 *AGENT PROFILE*\n';
+        message += '─────────────────\n';
+        message += '🤝 *Name:* ' + (userData.company_name || userData.name || 'Agent') + '\n';
+        if (userData.company_web) {
+            message += '🌐 *Website:* ' + userData.company_web + '\n';
+        }
+        message += '─────────────────\n';
+        if (userData.preferred_routes && userData.preferred_routes.length > 0) {
+            message += '📍 *Service Routes:*\n';
+            userData.preferred_routes.forEach(r => {
+                const loc = getLoc(r);
+                message += '• ' + (loc ? getLocDisplayName(loc) : r) + '\n';
+            });
+        }
+        message += '─────────────────\n';
+        const ratingInfo = calculateRating(data.endorsements || 0, data.flags || 0);
+        message += '⭐ ' + ratingInfo.display + '\n';
+        message += '─────────────────\n';
+        message += '🔗 *View Profile:*\n';
+        message += url + '\n';
+        message += '─────────────────\n';
+        message += '📱 ReturnTruck - Find Loads & Trucks';
+        title = '🤝 Agent Profile: ' + (userData.company_name || userData.name || 'Agent');
     }
-    
-    message += '\n🔗 *View Details:* ' + url + '\n\n';
-    message += '_Shared via ReturnTruck - Find Loads & Trucks_';
     
     return { message, title, url };
 }
@@ -1033,11 +1073,9 @@ function handleShareClick() {
             text: shareData.message,
             url: shareData.url
         }).catch(err => {
-            // If share fails, fallback to WhatsApp
             window.open('https://wa.me/?text=' + encodeURIComponent(shareData.message), '_blank');
         });
     } else {
-        // Fallback for browsers without Web Share API
         window.open('https://wa.me/?text=' + encodeURIComponent(shareData.message), '_blank');
     }
 }
@@ -1059,15 +1097,11 @@ function checkDeepLink() {
             
             if (type && id) {
                 deepLinkProcessed = true;
-                // Wait for app to initialize
                 setTimeout(() => {
-                    // If user is logged in or guest, show the detail
                     if (user || guest) {
                         openDetail(type, id);
                     } else {
-                        // Show login first, then open detail
                         showLogin();
-                        // Store for after login
                         window._deepLink = { type: type, id: id };
                     }
                 }, 1000);
@@ -1320,7 +1354,6 @@ function submitPin() {
       btn.textContent = '🔐 Login';
       btn.disabled = false;
       showHome();
-      // Check for deep link after login
       if (window._deepLink) {
         setTimeout(() => {
           openDetail(window._deepLink.type, window._deepLink.id);
@@ -1499,7 +1532,6 @@ function continueAsGuest() {
   guest = true; user = null;
   localStorage.setItem('rt_user', JSON.stringify({guest: true}));
   showHome();
-  // Check for deep link after guest login
   if (window._deepLink) {
     setTimeout(() => {
       openDetail(window._deepLink.type, window._deepLink.id);
@@ -3041,7 +3073,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('home-page').classList.add('hidden-page');
   }
   
-  // Check for deep link after app loads
   setTimeout(() => {
     checkDeepLink();
   }, 1500);
