@@ -36,9 +36,9 @@ body{background:#f0f2f5;margin:0;padding:16px;display:flex;justify-content:cente
 .nav-fixed{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #2d2d3d;background:#1a1a2e;position:relative;z-index:10;min-height:65px;width:100%;padding-bottom:5px;margin-top:auto}
 .nav-item{display:flex;flex-direction:column;align-items:center;color:#64748b;font-size:10px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px;position:relative;z-index:2}
 .nav-item.active{color:#2563eb}.nav-item .icon{font-size:24px;margin-bottom:2px}.nav-item .label{font-size:10px;text-transform:uppercase;letter-spacing:.05em}
-.scroll-body{overflow-y:auto;padding:8px 0;-webkit-overflow-scrolling:touch;display:block;width:100%;flex:1}
+.scroll-body{overflow-y:auto;padding:8px 16px;-webkit-overflow-scrolling:touch;display:block;width:100%;flex:1}
 .scroll-body::-webkit-scrollbar{width:4px}.scroll-body::-webkit-scrollbar-thumb{background:#2d2d3d;border-radius:10px}
-#login-screen{display:flex;flex-direction:column;height:100%;width:100%;overflow-y:auto;padding:4px 0}
+#login-screen{display:flex;flex-direction:column;height:100%;width:100%;overflow-y:auto;padding:16px}
 .login-icon-container{display:flex;justify-content:center;margin-bottom:0}
 .login-icon-container img{width:200px;height:200px;border-radius:40px;box-shadow:0 4px 20px rgba(37,99,235,0.3);background:#1a1a2e;padding:8px;max-width:100%}
 .login-subtitle{font-size:14px;color:#94a3b8;text-align:center;margin-bottom:12px;margin-top:4px}
@@ -84,9 +84,6 @@ body{background:#f0f2f5;margin:0;padding:16px;display:flex;justify-content:cente
 .search-wrapper .suggestions .item:hover{background:#2d2d3d}
 .search-wrapper .suggestions .item .highlight{background:#2563eb;color:#fff;font-weight:600;padding:0 4px;border-radius:4px}
 .results-count{display:flex;justify-content:space-between;padding-bottom:4px;margin-bottom:6px;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em}
-/* ============================================================
-   HOME FEED - Dark Background with White Cards
-   ============================================================ */
 .feed-container{display:flex;flex-direction:column;gap:10px}
 .feed-card{background:#ffffff;border-radius:14px;padding:14px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.2);transition:all .2s;border:1px solid rgba(255,255,255,.05)}
 .feed-card:hover{border-color:#2563eb;transform:translateY(-1px);box-shadow:0 4px 20px rgba(37,99,235,.15)}
@@ -102,9 +99,6 @@ body{background:#f0f2f5;margin:0;padding:16px;display:flex;justify-content:cente
 .feed-card .stats-row{margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9;display:flex;gap:12px;font-size:11px;color:#94a3b8}
 .feed-card .stats-row span{display:flex;align-items:center;gap:3px}
 .feed-card .stats-row .val{font-weight:600;color:#475569}
-/* ============================================================
-   DETAIL VIEW - Dark Background with White Cards
-   ============================================================ */
 .detail-header-card{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid #bfdbfe}
 .detail-header-card .main-title{font-size:20px;font-weight:700;color:#0f172a}
 .detail-header-card .company-name{font-size:14px;color:#2563eb;font-weight:600}
@@ -142,11 +136,10 @@ body{background:#f0f2f5;margin:0;padding:16px;display:flex;justify-content:cente
 .btn-share{background:#25D366}.btn-share:hover{background:#1da851}
 .express-interest-btn{width:100%;padding:12px;background:#8b5cf6;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;box-shadow:0 2px 8px rgba(139,92,246,.3);transition:all .2s}
 .express-interest-btn:active{transform:scale(0.97)}
-/* End of detail styles */
 .guest-banner{flex-shrink:0;background:#2563eb;color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .guest-banner.hidden{display:none}
 .guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px}
-.profile-header-card{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:12px;padding:16px;color:#fff;margin-bottom:12px}
+.profile-header-card{background:linear-gradient(135deg,#0f0f1a,#0a0a0a);border-radius:12px;padding:16px;color:#fff;margin-bottom:12px;border:1px solid #2d2d3d}
 .profile-section{background:#ffffff;border:1px solid #e8ecf0;border-radius:12px;padding:16px;margin-bottom:12px}
 .profile-section .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .profile-section .section-title{font-size:15px;font-weight:700;color:#0f172a}
@@ -248,15 +241,6 @@ body{background:#f0f2f5;margin:0;padding:16px;display:flex;justify-content:cente
 .website-link:hover{color:#1d4ed8}
 select.form-control{background:#0f0f1a;color:#fff;border:1px solid #2d2d3d}
 select.form-control option{background:#1a1a2e;color:#fff}
-/* ============================================================
-   PROFILE PAGE - White Cards on Dark Background
-   ============================================================ */
-.profile-header-card{background:linear-gradient(135deg,#0f0f1a,#0a0a0a);border-radius:12px;padding:16px;color:#fff;margin-bottom:12px;border:1px solid #2d2d3d}
-.profile-section{background:#ffffff;border:1px solid #e8ecf0;border-radius:12px;padding:16px;margin-bottom:12px}
-.profile-section .section-title{color:#0f172a}
-.profile-section .form-control{background:#f5f7fa;color:#0f172a;border:1px solid #e8ecf0}
-.profile-section .form-control:focus{border-color:#2563eb}
-.profile-section .form-control::placeholder{color:#94a3b8}
 </style>
 </head>
 <body>
@@ -645,7 +629,7 @@ select.form-control option{background:#1a1a2e;color:#fff}
                 <span class="section-badge active" id="vehicle-count-badge">0 Vehicles</span>
             </div>
             <div id="profile-vehicles-container">
-                <div style="color:#94a3b8;font-size:13px;text-align:center;padding:8px">No vehicles added</div>
+                <div style="color:#64748b;font-size:13px;text-align:center;padding:8px">No vehicles added</div>
             </div>
         </div>
         <div class="profile-section">
@@ -654,23 +638,23 @@ select.form-control option{background:#1a1a2e;color:#fff}
                 <span class="section-badge optional">Optional</span>
             </div>
             <div id="profile-routes-container" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
-                <span style="color:#94a3b8;font-size:13px">No routes added</span>
+                <span style="color:#64748b;font-size:13px">No routes added</span>
             </div>
         </div>
         <div class="profile-section">
             <label class="form-label">📝 About / Details</label>
             <div id="profile-details-text" style="font-size:14px;color:#475569;padding:4px 0">No details added</div>
         </div>
-        <div style="margin-bottom:8px">
-            <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:8px">📦 My Loads <span class="count-badge" id="my-loads-count">0</span></div>
+        <div style="margin-bottom:12px">
+            <div style="font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:8px">📦 My Loads <span class="count-badge" id="my-loads-count">0</span></div>
             <div id="my-loads-container"></div>
         </div>
-        <div style="margin-bottom:8px">
-            <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:8px">🚛 My Trucks <span class="count-badge" id="my-trucks-count">0</span></div>
+        <div style="margin-bottom:12px">
+            <div style="font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:8px">🚛 My Trucks <span class="count-badge" id="my-trucks-count">0</span></div>
             <div id="my-trucks-container"></div>
         </div>
         <div style="margin:12px 0 8px">
-            <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:8px">📊 MY STATISTICS</div>
+            <div style="font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:8px">📊 MY STATISTICS</div>
             <div class="stat-cards">
                 <div class="stat-card"><span class="icon">📦</span><span class="number" id="stat-loads-count">0</span><span class="label">Loads</span></div>
                 <div class="stat-card"><span class="icon">🚛</span><span class="number" id="stat-trucks-count">0</span><span class="label">Trucks</span></div>
@@ -1041,18 +1025,20 @@ function generateShareMessage(type, data) {
         
         message = '🚛 *LOAD AVAILABLE*\n';
         message += '─────────────────\n';
-        message += '💰 *₹' + formatIndianNumber(data.rate || 0) + '* (Negotiable)\n';
+        message += '📦 *' + (data.material || 'Cargo').toUpperCase() + '*\n';
+        message += '─────────────────\n';
+        message += '📍 *FROM:* ' + fromName + '\n';
+        message += '     ⬇️\n';
+        message += '📍 *TO:* ' + toName + '\n';
+        message += '─────────────────\n';
+        message += '🚛 *Vehicle:* ' + (data.vehicle_type || 'Any') + '\n';
+        message += '📐 *Dimensions:* ' + dims + '\n';
+        message += '⚖️ *Weight:* ' + formatIndianNumber(data.weight || 0) + ' Kg\n';
+        message += '─────────────────\n';
+        message += '💰 ₹' + formatIndianNumber(data.rate || 0) + ' (Negotiable)\n';
         if (data.pickup_date) {
             message += '📅 Pickup: ' + new Date(data.pickup_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) + '\n';
         }
-        message += '─────────────────\n';
-        message += '📦 *Material:* ' + (data.material || 'Cargo') + '\n';
-        message += '⚖️ *Weight:* ' + formatIndianNumber(data.weight || 0) + ' Kg\n';
-        message += '📐 *Dimensions:* ' + dims + '\n';
-        message += '🚛 *Vehicle:* ' + (data.vehicle_type || 'Any') + '\n';
-        message += '─────────────────\n';
-        message += '📍 *From:* ' + fromName + '\n';
-        message += '📍 *To:* ' + toName + '\n';
         message += '─────────────────\n';
         if (data.company) {
             message += '🏢 Posted by: ' + data.company + '\n';
@@ -1071,16 +1057,21 @@ function generateShareMessage(type, data) {
         
         message = '🚛 *TRUCK AVAILABLE*\n';
         message += '─────────────────\n';
-        message += '🚛 *Truck:* ' + (data.truck_no || 'Truck') + '\n';
-        message += '💰 *₹' + formatIndianNumber(data.rate || 0) + '* (Negotiable)\n';
+        message += '🚛 *' + (data.truck_no || 'Truck') + '*\n';
+        message += '─────────────────\n';
+        message += '📍 *LOCATION:* ' + locName + '\n';
+        message += '─────────────────\n';
+        message += '🚛 *Type:* ' + (data.vehicle_type || 'Any') + '\n';
+        message += '📐 *Dimensions:* ' + (data.dimensions || 'N/A') + '\n';
+        message += '⚖️ *Weight:* ' + formatIndianNumber(data.weight || 0) + ' Kg\n';
+        message += '─────────────────\n';
+        message += '💰 ₹' + formatIndianNumber(data.rate || 0) + '/KM (Negotiable)\n';
         if (data.available_date) {
             message += '📅 Available: ' + new Date(data.available_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) + '\n';
         }
         message += '─────────────────\n';
-        message += '📍 *Location:* ' + locName + '\n';
-        message += '─────────────────\n';
-        if (data.other_details) {
-            message += '📝 ' + data.other_details.substring(0, 100) + (data.other_details.length > 100 ? '...' : '') + '\n';
+        if (data.company) {
+            message += '🏢 Posted by: ' + data.company + '\n';
         }
         const ratingInfo = calculateRating(data.endorsements || 0, data.flags || 0);
         message += '⭐ ' + ratingInfo.display + '\n';
@@ -1094,19 +1085,22 @@ function generateShareMessage(type, data) {
         const userData = data.user || {};
         message = '🤝 *AGENT PROFILE*\n';
         message += '─────────────────\n';
-        message += '🤝 *Name:* ' + (userData.company_name || userData.name || 'Agent') + '\n';
-        if (userData.company_web) {
-            message += '🌐 *Website:* ' + userData.company_web + '\n';
-        }
+        message += '🤝 *' + (userData.company_name || userData.name || 'Agent') + '*\n';
         message += '─────────────────\n';
         if (userData.preferred_routes && userData.preferred_routes.length > 0) {
             message += '📍 *Service Routes:*\n';
-            userData.preferred_routes.forEach(r => {
+            userData.preferred_routes.slice(0, 4).forEach(r => {
                 const loc = getLoc(r);
                 message += '• ' + (loc ? getLocDisplayName(loc) : r) + '\n';
             });
+            if (userData.preferred_routes.length > 4) {
+                message += '• +' + (userData.preferred_routes.length - 4) + ' more\n';
+            }
         }
         message += '─────────────────\n';
+        if (userData.company_web) {
+            message += '🌐 ' + userData.company_web + '\n';
+        }
         const ratingInfo = calculateRating(data.endorsements || 0, data.flags || 0);
         message += '⭐ ' + ratingInfo.display + '\n';
         message += '─────────────────\n';
