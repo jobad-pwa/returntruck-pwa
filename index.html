@@ -10,6 +10,13 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-transparent">
 <link rel="apple-touch-icon" href="launchericon-192x192.png">
+<!-- Open Graph Meta Tags for Rich Sharing -->
+<meta property="og:title" content="ReturnTruck - Find Loads & Trucks" />
+<meta property="og:description" content="Connect with load givers, fleet operators, and agents across India." />
+<meta property="og:image" content="https://returntruck.com/og-image.png" />
+<meta property="og:url" content="https://returntruck.com" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
 <style>
 *{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
 body{background:#f0f2f5;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
@@ -31,50 +38,6 @@ body{background:#f0f2f5;margin:0;padding:16px;display:flex;justify-content:cente
 .nav-item.active{color:#2563eb}.nav-item .icon{font-size:24px;margin-bottom:2px}.nav-item .label{font-size:10px;text-transform:uppercase;letter-spacing:.05em}
 .scroll-body{overflow-y:auto;padding:8px 16px;-webkit-overflow-scrolling:touch;display:block;width:100%;flex:1}
 .scroll-body::-webkit-scrollbar{width:4px}.scroll-body::-webkit-scrollbar-thumb{background:#2d2d3d;border-radius:10px}
-/* ============================================================
-   FORM STYLES - Fixed
-   ============================================================ */
-.profile-section{background:#0f0f1a;border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1px solid #2d2d3d}
-.profile-section .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.profile-section .section-title{font-size:14px;font-weight:700;color:#e2e8f0}
-.profile-section .section-badge{font-size:10px;padding:2px 12px;border-radius:12px;font-weight:700}
-.section-badge.active{background:#166534;color:#4ade80}
-.section-badge.required{background:#92400e;color:#fbbf24}
-.section-badge.optional{background:#2d2d3d;color:#94a3b8}
-.section-btn{padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px}
-.section-btn:hover{background:#1d4ed8}
-.section-btn.secondary{background:#2d2d3d;color:#e2e8f0}
-.section-btn.secondary:hover{background:#3d3d4d}
-.section-btn.danger{background:#dc2626;color:#fff}
-.section-btn.danger:hover{background:#b91c1c}
-.section-btn.success{background:#16a34a;color:#fff}
-.section-btn.success:hover{background:#15803d}
-.form-control{width:100%;padding:12px 14px;border:1px solid #2d2d3d;border-radius:10px;font-size:14px;background:#1a1a2e;color:#fff;outline:none;transition:border-color .2s}
-.form-control:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.2)}
-.form-control::placeholder{color:#64748b}
-.form-control option{background:#1a1a2e;color:#fff}
-.form-label{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:5px;letter-spacing:.05em}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.grid-2-vehicle{display:grid;grid-template-columns:2fr 1fr;gap:12px}
-.dim-input{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:2px}
-.dim-input .dim-group{background:#1a1a2e;border-radius:10px;padding:8px 12px 10px;border:1px solid #2d2d3d;text-align:center}
-.dim-input .dim-group label{font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;display:block;margin-bottom:2px}
-.dim-input .dim-group input{width:100%;border:none;background:transparent;text-align:center;font-size:16px;font-weight:600;color:#fff;padding:2px 0;outline:none}
-.dim-input .dim-group input:focus{color:#2563eb}
-/* End form styles */
-.back-btn{background:transparent;border:none;font-size:14px;font-weight:600;color:#94a3b8;cursor:pointer;padding:4px 8px}.back-btn:hover{color:#fff}
-.otp-input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #2d2d3d;background:#1a1a2e;color:#fff}
-.otp-input:focus{border-color:#2563eb;outline:none}
-.otp-input:disabled{background:#0a0a0a;color:#64748b}
-.error-text{color:#f87171;font-size:13px;text-align:center;margin-top:4px;display:none}
-.success-text{color:#4ade80;font-size:13px;text-align:center;margin-top:4px;display:none}
-.resend-btn{background:transparent;border:none;color:#2563eb;font-weight:600;cursor:pointer;font-size:13px;text-decoration:underline}
-.resend-btn:disabled{color:#64748b;cursor:not-allowed}
-.btn-primary{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px}
-.btn-primary:hover{background:#1d4ed8}
-.btn-primary:disabled{opacity:0.6;cursor:not-allowed}
-.btn-primary.success{background:#16a34a}.btn-primary.success:hover{background:#15803d}
-/* Login screen styles */
 #login-screen{display:flex;flex-direction:column;height:100%;width:100%;overflow-y:auto;padding:16px}
 .login-icon-container{display:flex;justify-content:center;margin-bottom:0}
 .login-icon-container img{width:200px;height:200px;border-radius:40px;box-shadow:0 4px 20px rgba(37,99,235,0.3);background:#1a1a2e;padding:8px;max-width:100%}
@@ -85,14 +48,42 @@ body{background:#f0f2f5;margin:0;padding:16px;display:flex;justify-content:cente
 .login-stat-item .number{font-size:20px;font-weight:800;color:#2563eb;display:block;line-height:1.2}
 .login-stat-item .label{font-size:9px;font-weight:600;color:#94a3b8;display:block;text-transform:uppercase}
 .login-step-container{flex:1;display:flex;flex-direction:column;justify-content:center}
-.input-field{width:100%;padding:14px;border:2px solid #2d2d3d;border-radius:12px;font-size:16px;text-align:center;background:#1a1a2e;color:#fff;margin-bottom:12px}
+.input-field{width:100%;padding:14px;border:2px solid #2d2d3d;border-radius:12px;font-size:16px;text-align:center;background:#0f0f1a;color:#fff;margin-bottom:12px}
 .input-field:focus{border-color:#2563eb;outline:none}
 .input-field:disabled{background:#0a0a0a;color:#64748b}
 .input-field::placeholder{color:#64748b}
+.btn-primary{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px}
+.btn-primary:hover{background:#1d4ed8}
+.btn-primary:disabled{opacity:0.6;cursor:not-allowed}
+.btn-primary.success{background:#16a34a}.btn-primary.success:hover{background:#15803d}
+.btn-back{width:100%;padding:14px;background:#2d2d3d;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer}
 .login-divider{display:flex;align-items:center;gap:12px;margin:16px 0}
 .login-divider div{flex:1;height:1px;background:#2d2d3d}
 .login-divider span{font-size:11px;color:#64748b}
-/* Feed styles */
+.location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.location-row .location-input{flex:2}.location-row .radius-select{flex:1}
+.location-input input,.radius-select select{width:100%;padding:8px 12px;border:1px solid #2d2d3d;border-radius:8px;font-size:13px;background:#0f0f1a;color:#fff}
+.location-input input::placeholder{color:#64748b}
+.radius-select select option{background:#1a1a2e;color:#fff}
+.type-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;background:#0f0f1a;padding:3px;border-radius:10px;margin-bottom:6px;border:1px solid #2d2d3d}
+.type-tabs button{padding:8px 4px;font-size:12px;font-weight:700;border:none;border-radius:8px;cursor:pointer}
+.type-tabs .active{background:#2563eb;color:#fff}.type-tabs .inactive{background:transparent;color:#94a3b8}
+.filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:11px;font-weight:600;color:#94a3b8;border-top:1px solid #2d2d3d;margin-top:4px;user-select:none}
+.filter-container{overflow:hidden;transition:max-height 0.3s ease;max-height:0}
+.filter-container.open{max-height:400px;overflow:visible}
+.filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;padding-top:6px}
+.filter-row label{font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;display:block;margin-bottom:4px}
+.filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:12px;background:#0f0f1a;border:1px solid #2d2d3d;border-radius:8px;color:#fff;outline:none}
+.filter-row input::placeholder{color:#64748b}
+.filter-row select option{background:#1a1a2e;color:#fff}
+.search-wrapper{position:relative;width:100%}
+.search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#1a1a2e;border:1px solid #2d2d3d;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.search-wrapper .suggestions.show{display:block}
+.search-wrapper .suggestions .item{padding:12px 16px;font-size:14px;color:#e2e8f0;cursor:pointer;border-bottom:1px solid #2d2d3d}
+.search-wrapper .suggestions .item:last-child{border-bottom:none}
+.search-wrapper .suggestions .item:hover{background:#2d2d3d}
+.search-wrapper .suggestions .item .highlight{background:#2563eb;color:#fff;font-weight:600;padding:0 4px;border-radius:4px}
+.results-count{display:flex;justify-content:space-between;padding-bottom:4px;margin-bottom:6px;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em}
 .feed-container{display:flex;flex-direction:column;gap:10px}
 .feed-card{background:#ffffff;border-radius:14px;padding:14px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.2);transition:all .2s;border:1px solid rgba(255,255,255,.05)}
 .feed-card:hover{border-color:#2563eb;transform:translateY(-1px);box-shadow:0 4px 20px rgba(37,99,235,.15)}
@@ -104,10 +95,10 @@ body{background:#f0f2f5;margin:0;padding:16px;display:flex;justify-content:cente
 .feed-card .type-badge.agent{background:#fef3c7;color:#92400e}
 .feed-card .company{font-size:13px;color:#2563eb;font-weight:600;margin-bottom:2px}
 .feed-card .meta{font-size:12px;color:#475569;margin-top:3px;display:flex;align-items:center;gap:4px}
+.feed-card .meta .highlight{color:#2563eb;font-weight:600}
 .feed-card .stats-row{margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9;display:flex;gap:12px;font-size:11px;color:#94a3b8}
 .feed-card .stats-row span{display:flex;align-items:center;gap:3px}
 .feed-card .stats-row .val{font-weight:600;color:#475569}
-/* Detail styles */
 .detail-header-card{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid #bfdbfe}
 .detail-header-card .main-title{font-size:20px;font-weight:700;color:#0f172a}
 .detail-header-card .company-name{font-size:14px;color:#2563eb;font-weight:600}
@@ -149,18 +140,40 @@ body{background:#f0f2f5;margin:0;padding:16px;display:flex;justify-content:cente
 .guest-banner.hidden{display:none}
 .guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px}
 .profile-header-card{background:linear-gradient(135deg,#0f0f1a,#0a0a0a);border-radius:12px;padding:16px;color:#fff;margin-bottom:12px;border:1px solid #2d2d3d}
-/* Profile page white cards */
-.profile-section-white{background:#ffffff;border:1px solid #e8ecf0;border-radius:12px;padding:16px;margin-bottom:12px}
-.profile-section-white .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.profile-section-white .section-title{font-size:15px;font-weight:700;color:#0f172a}
-.profile-section-white .section-badge{font-size:10px;padding:2px 12px;border-radius:12px;font-weight:700}
+.profile-section{background:#ffffff;border:1px solid #e8ecf0;border-radius:12px;padding:16px;margin-bottom:12px}
+.profile-section .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.profile-section .section-title{font-size:15px;font-weight:700;color:#0f172a}
+.profile-section .section-badge{font-size:10px;padding:2px 12px;border-radius:12px;font-weight:700}
 .section-badge.active{background:#dcfce7;color:#166534}
 .section-badge.required{background:#fef3c7;color:#d97706}
 .section-badge.optional{background:#e8ecf0;color:#64748b}
-.profile-section-white .form-control{background:#f5f7fa;color:#0f172a;border:1px solid #e8ecf0}
-.profile-section-white .form-control:focus{border-color:#2563eb}
-.profile-section-white .form-control::placeholder{color:#94a3b8}
-.profile-section-white .form-label{color:#94a3b8}
+.section-btn{padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px}
+.section-btn:hover{background:#1d4ed8}
+.section-btn.secondary{background:#e8ecf0;color:#0f172a}
+.section-btn.secondary:hover{background:#d1d5db}
+.section-btn.danger{background:#dc2626;color:#fff}
+.section-btn.danger:hover{background:#b91c1c}
+.section-btn.success{background:#16a34a;color:#fff}
+.section-btn.success:hover{background:#15803d}
+.form-control{width:100%;padding:10px 12px;border:1px solid #2d2d3d;border-radius:8px;font-size:14px;background:#0f0f1a;color:#fff;outline:none}
+.form-control:focus{border-color:#2563eb}
+.form-control::placeholder{color:#64748b}
+.form-label{font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid-2-vehicle{display:grid;grid-template-columns:2fr 1fr;gap:12px}
+.back-btn{background:transparent;border:none;font-size:14px;font-weight:600;color:#94a3b8;cursor:pointer;padding:4px 8px}.back-btn:hover{color:#fff}
+.otp-input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #2d2d3d;background:#0f0f1a;color:#fff}
+.otp-input:focus{border-color:#2563eb;outline:none}
+.otp-input:disabled{background:#0a0a0a;color:#64748b}
+.error-text{color:#f87171;font-size:13px;text-align:center;margin-top:4px;display:none}
+.success-text{color:#4ade80;font-size:13px;text-align:center;margin-top:4px;display:none}
+.resend-btn{background:transparent;border:none;color:#2563eb;font-weight:600;cursor:pointer;font-size:13px;text-decoration:underline}
+.resend-btn:disabled{color:#64748b;cursor:not-allowed}
+.stat-cards{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.stat-card{background:#f5f7fa;border-radius:10px;padding:12px;text-align:center;border:1px solid #e8ecf0}
+.stat-card .icon{font-size:22px;display:block;margin-bottom:2px}
+.stat-card .number{font-size:20px;font-weight:800;color:#0f172a}
+.stat-card .label{font-size:9px;color:#94a3b8;text-transform:uppercase;font-weight:600}
 .list-item{background:#f5f7fa;border:1px solid #e8ecf0;border-radius:10px;padding:12px;margin-bottom:8px}
 .list-item .title{font-weight:600;font-size:14px;color:#0f172a}
 .list-item .sub{font-size:12px;color:#64748b;margin-top:2px}
@@ -172,21 +185,15 @@ body{background:#f0f2f5;margin:0;padding:16px;display:flex;justify-content:cente
 .list-item .actions .delete:hover{background:#fee2e2}
 .list-item .actions .interests{background:#fef3c7;color:#92400e;font-size:10px}
 .list-item .actions .interests:hover{background:#fde68a}
-.count-badge{background:#2563eb;color:#fff;font-size:11px;border-radius:10px;padding:1px 8px;margin-left:4px}
-.stat-cards{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px}
-.stat-card{background:#f5f7fa;border-radius:10px;padding:12px;text-align:center;border:1px solid #e8ecf0}
-.stat-card .icon{font-size:22px;display:block;margin-bottom:2px}
-.stat-card .number{font-size:20px;font-weight:800;color:#0f172a}
-.stat-card .label{font-size:9px;color:#94a3b8;text-transform:uppercase;font-weight:600}
-.vehicle-display-item{background:#f5f7fa;border:1px solid #e8ecf0;border-radius:8px;padding:10px 12px;margin-bottom:6px}
-.vehicle-display-item .vnumber{font-weight:700;font-size:14px;color:#0f172a}
-.vehicle-display-item .vdetails{font-size:13px;color:#64748b;margin-top:2px}
+.status-badge{font-size:10px;padding:2px 10px;border-radius:10px;font-weight:600;display:inline-block}
+.status-badge.active{background:#dcfce7;color:#166534}
+.status-badge.draft{background:#fef3c7;color:#d97706}
+.status-badge.expired{background:#fef2f2;color:#991b1b}
 .route-tag{background:#e8ecf0;padding:5px 12px;border-radius:6px;font-size:13px;display:inline-block;margin:2px;color:#0f172a}
 .route-tag .remove{color:#dc2626;cursor:pointer;margin-left:6px;font-weight:700}
 .route-tag .remove:hover{color:#b91c1c}
-.website-link{color:#2563eb;text-decoration:underline;cursor:pointer;word-break:break-all}
-.website-link:hover{color:#1d4ed8}
-/* Other styles */
+.user-type-checkbox{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
+.user-type-checkbox label{font-size:14px;display:flex;align-items:center;gap:4px;cursor:pointer;color:#0f172a}
 .route-input-row{display:flex;gap:6px;margin-bottom:8px}
 .route-input-row input{flex:2}
 .route-input-row button{flex-shrink:0}
@@ -206,6 +213,10 @@ body{background:#f0f2f5;margin:0;padding:16px;display:flex;justify-content:cente
 .vehicle-item .actions .edit-btn:hover{background:#bfdbfe}
 .vehicle-item .actions .delete-btn{background:#fef2f2;color:#991b1b}
 .vehicle-item .actions .delete-btn:hover{background:#fee2e2}
+.count-badge{background:#2563eb;color:#fff;font-size:11px;border-radius:10px;padding:1px 8px;margin-left:4px}
+.vehicle-display-item{background:#f5f7fa;border:1px solid #e8ecf0;border-radius:8px;padding:10px 12px;margin-bottom:6px}
+.vehicle-display-item .vnumber{font-weight:700;font-size:14px;color:#0f172a}
+.vehicle-display-item .vdetails{font-size:13px;color:#64748b;margin-top:2px}
 .vehicle-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:1000}
 .vehicle-modal.show{display:flex}
 .vehicle-modal-content{background:#1a1a2e;border-radius:16px;padding:24px;max-width:420px;width:90%;max-height:85vh;overflow-y:auto;border:1px solid #2d2d3d}
@@ -215,18 +226,21 @@ body{background:#f0f2f5;margin:0;padding:16px;display:flex;justify-content:cente
 .vehicle-modal-content .modal-close:hover{color:#f87171}
 .vehicle-modal-content .form-group{margin-bottom:12px}
 .vehicle-modal-content .form-group .readonly-number{background:#2d2d3d;padding:10px 12px;border-radius:8px;font-weight:700;font-size:16px;color:#fff;border:1px solid #2d2d3d}
-.vehicle-modal-content .form-group .form-control{background:#1a1a2e;color:#fff;border:1px solid #2d2d3d}
+.vehicle-modal-content .form-group .form-control{background:#0f0f1a;color:#fff;border:1px solid #2d2d3d}
 .vehicle-modal-content .form-group .form-control:focus{border-color:#2563eb}
 .vehicle-modal-content .form-group label{color:#94a3b8}
 .spinner{display:inline-block;width:20px;height:20px;border:3px solid #2d2d3d;border-top-color:#2563eb;border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{display:flex;align-items:center;justify-content:center;gap:8px;color:#94a3b8;font-size:14px;padding:8px}
-.user-type-checkbox{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
-.user-type-checkbox label{font-size:14px;display:flex;align-items:center;gap:4px;cursor:pointer;color:#0f172a}
-.select2{background:#1a1a2e;color:#fff;border:1px solid #2d2d3d}
-select.form-control{background:#1a1a2e;color:#fff;border:1px solid #2d2d3d;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
+.dim-input{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px}
+.dim-input .dim-group{background:#0f0f1a;border-radius:8px;padding:8px 12px;border:1px solid #2d2d3d;text-align:center}
+.dim-input .dim-group label{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block}
+.dim-input .dim-group input{width:100%;border:none;background:transparent;text-align:center;font-size:16px;font-weight:600;color:#fff;padding:4px 0;outline:none}
+.dim-input .dim-group input:focus{color:#2563eb}
+.website-link{color:#2563eb;text-decoration:underline;cursor:pointer;word-break:break-all}
+.website-link:hover{color:#1d4ed8}
+select.form-control{background:#0f0f1a;color:#fff;border:1px solid #2d2d3d}
 select.form-control option{background:#1a1a2e;color:#fff}
-textarea.form-control{resize:vertical;min-height:70px}
 </style>
 </head>
 <body>
@@ -592,7 +606,7 @@ textarea.form-control{resize:vertical;min-height:70px}
                 </div>
             </div>
         </div>
-        <div class="profile-section-white">
+        <div class="profile-section">
             <div class="section-header">
                 <span class="section-title">🏢 Company Details</span>
                 <button class="section-btn secondary" style="padding:4px 12px;font-size:11px" onclick="openEditProfile()">✏️ Edit</button>
@@ -603,31 +617,31 @@ textarea.form-control{resize:vertical;min-height:70px}
             <div style="font-size:12px;color:#64748b;margin-top:2px" id="profile-gst">📛 GST: --</div>
             <div style="font-size:12px;color:#64748b;margin-top:2px" id="profile-location">📍 Location: Not set</div>
         </div>
-        <div class="profile-section-white">
+        <div class="profile-section">
             <label class="form-label" style="margin-bottom:6px">🎯 User Type</label>
             <div id="profile-user-types" style="display:flex;gap:8px;flex-wrap:wrap">
                 <span class="section-badge optional">Not set</span>
             </div>
         </div>
-        <div class="profile-section-white">
+        <div class="profile-section">
             <div class="section-header">
                 <span class="section-title">🚛 My Vehicles</span>
                 <span class="section-badge active" id="vehicle-count-badge">0 Vehicles</span>
             </div>
             <div id="profile-vehicles-container">
-                <div style="color:#94a3b8;font-size:13px;text-align:center;padding:8px">No vehicles added</div>
+                <div style="color:#64748b;font-size:13px;text-align:center;padding:8px">No vehicles added</div>
             </div>
         </div>
-        <div class="profile-section-white">
+        <div class="profile-section">
             <div class="section-header">
                 <span class="section-title">🗺️ Preferred Routes</span>
                 <span class="section-badge optional">Optional</span>
             </div>
             <div id="profile-routes-container" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
-                <span style="color:#94a3b8;font-size:13px">No routes added</span>
+                <span style="color:#64748b;font-size:13px">No routes added</span>
             </div>
         </div>
-        <div class="profile-section-white">
+        <div class="profile-section">
             <label class="form-label">📝 About / Details</label>
             <div id="profile-details-text" style="font-size:14px;color:#475569;padding:4px 0">No details added</div>
         </div>
@@ -995,7 +1009,7 @@ function calculateRating(endorsements, flags) {
 }
 
 // ============================================================
-// SHARE FUNCTION
+// SHARE FUNCTION - Enhanced with Rich Details
 // ============================================================
 function generateShareMessage(type, data) {
     let message = '';
@@ -2613,7 +2627,7 @@ function cancelPost() { goHome(); }
 function closeDetail() { detail = null; goHome(); }
 
 // ============================================================
-// DETAIL FUNCTIONS
+// DETAIL FUNCTIONS - Load, Truck, Agent Views
 // ============================================================
 
 function openDetail(type, id) {
@@ -2622,12 +2636,14 @@ function openDetail(type, id) {
             .then(async r => {
                 if (r.data) {
                     detail = { type: 'AGENT', id: id, user: r.data, mobile: parseInt(id) };
+                    // Count loads and trucks for this agent
                     const [loads, trucks] = await Promise.all([
                         sb.from('active_loads').select('*', {count:'exact'}).eq('mobile', parseInt(id)).eq('status', 1),
                         sb.from('active_trucks').select('*', {count:'exact'}).eq('mobile', parseInt(id)).eq('status', 1)
                     ]);
                     detail.loads_count = loads.count || 0;
                     detail.trucks_count = trucks.count || 0;
+                    // Get endorsements and flags from user
                     detail.endorsements = r.data.endorsements || 0;
                     detail.flags = r.data.flags || 0;
                     switchPage('detail-page');
@@ -2643,12 +2659,15 @@ function openDetail(type, id) {
             if (r.data) {
                 detail = r.data;
                 detail.type = type;
+                
                 const { data: userData } = await sb
                     .from('active_users')
                     .select('*')
                     .eq('mobile', r.data.mobile)
                     .single();
+                
                 detail.user = userData;
+                // Get endorsements and flags from user
                 detail.endorsements = userData?.endorsements || 0;
                 detail.flags = userData?.flags || 0;
                 switchPage('detail-page');
@@ -2662,6 +2681,7 @@ function openDetail(type, id) {
 
 function renderDetailView(data) {
     const container = document.getElementById('detail-content');
+    
     if (data.type === 'LOAD') {
         container.innerHTML = renderLoadDetail(data);
     } else if (data.type === 'TRUCK') {
@@ -2669,6 +2689,7 @@ function renderDetailView(data) {
     } else if (data.type === 'AGENT') {
         container.innerHTML = renderAgentDetail(data);
     }
+    
     updateStats(data);
 }
 
@@ -2699,6 +2720,7 @@ function renderLoadDetail(load) {
             });
     }
     
+    // Build badges
     let badges = '';
     badges += `<span class="detail-badge rating">${ratingInfo.display}</span>`;
     badges += isVerified ? `<span class="detail-badge verified">✅ Verified</span>` : `<span class="detail-badge unverified">🔒 Unverified</span>`;
@@ -2711,6 +2733,7 @@ function renderLoadDetail(load) {
             <div class="company-name">${user.company_name || 'Unknown Company'} ${website ? `• ${website}` : ''}</div>
             <div class="meta-row">${badges}</div>
         </div>
+        
         <div class="detail-card">
             <div class="section-title">📋 LOAD SPECS</div>
             <div class="spec-grid">
@@ -2721,6 +2744,7 @@ function renderLoadDetail(load) {
                 ${load.odc_allowed !== undefined ? `<div><span class="label">🚛 ODC</span><br><span class="value">${load.odc_allowed ? '✅ Yes' : '❌ No'}</span></div>` : ''}
             </div>
         </div>
+        
         <div class="detail-card">
             <div class="section-title">📍 ROUTE</div>
             <div class="route-display">
@@ -2731,12 +2755,14 @@ function renderLoadDetail(load) {
                 <div class="route-meta">📅 Pickup: <strong>${load.pickup_date ? new Date(load.pickup_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'Flexible'}</strong></div>
             </div>
         </div>
+        
         ${load.instructions ? `
         <div class="detail-card">
             <div class="section-title">📝 Instructions</div>
             <div class="instructions-text">${load.instructions}</div>
         </div>
         ` : ''}
+        
         <div class="detail-card">
             <div class="section-title">📊 STATS</div>
             <div class="stats-grid">
@@ -2746,6 +2772,7 @@ function renderLoadDetail(load) {
                 <div class="stat-item"><span class="stat-icon">🚩</span><span class="stat-number">${load.flags || 0}</span><span class="stat-label">Flags</span></div>
             </div>
         </div>
+        
         ${renderActionButtons(load)}
     `;
 }
@@ -2774,6 +2801,7 @@ function renderTruckDetail(truck) {
             }
         });
     
+    // Build badges
     let badges = '';
     badges += `<span class="detail-badge rating">${ratingInfo.display}</span>`;
     badges += isVerified ? `<span class="detail-badge verified">✅ Verified</span>` : `<span class="detail-badge unverified">🔒 Unverified</span>`;
@@ -2786,6 +2814,7 @@ function renderTruckDetail(truck) {
             <div class="company-name">${user.company_name || 'Unknown Company'} ${website ? `• ${website}` : ''}</div>
             <div class="meta-row">${badges}</div>
         </div>
+        
         <div class="detail-card">
             <div class="section-title">📋 VEHICLE SPECS</div>
             <div id="vehicle-detail-specs" class="spec-grid">
@@ -2796,6 +2825,7 @@ function renderTruckDetail(truck) {
                 <span class="value">₹${formatIndianNumber(truck.rate || 0)}</span>
             </div>
         </div>
+        
         <div class="detail-card">
             <div class="section-title">📍 CURRENT LOCATION</div>
             <div class="route-display">
@@ -2803,6 +2833,7 @@ function renderTruckDetail(truck) {
                 <div class="route-meta">📅 Available: <strong>${truck.available_date ? new Date(truck.available_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'Now'}</strong></div>
             </div>
         </div>
+        
         ${user.preferred_routes && user.preferred_routes.length > 0 ? `
         <div class="detail-card">
             <div class="section-title">🗺️ Preferred Routes</div>
@@ -2814,12 +2845,14 @@ function renderTruckDetail(truck) {
             </div>
         </div>
         ` : ''}
+        
         ${truck.other_details ? `
         <div class="detail-card">
             <div class="section-title">📝 Other Details</div>
             <div class="instructions-text">${truck.other_details}</div>
         </div>
         ` : ''}
+        
         <div class="detail-card">
             <div class="section-title">📊 STATS</div>
             <div class="stats-grid">
@@ -2829,6 +2862,7 @@ function renderTruckDetail(truck) {
                 <div class="stat-item"><span class="stat-icon">🚩</span><span class="stat-number">${truck.flags || 0}</span><span class="stat-label">Flags</span></div>
             </div>
         </div>
+        
         ${renderActionButtons(truck)}
     `;
 }
@@ -2851,6 +2885,7 @@ function renderAgentDetail(agent) {
             <div class="company-name">${website ? website : ''}</div>
             <div class="meta-row">${badges}</div>
         </div>
+        
         ${user.preferred_routes && user.preferred_routes.length > 0 ? `
         <div class="detail-card">
             <div class="section-title">📍 Service Routes</div>
@@ -2862,12 +2897,14 @@ function renderAgentDetail(agent) {
             </div>
         </div>
         ` : ''}
+        
         ${user.details ? `
         <div class="detail-card">
             <div class="section-title">📝 Details</div>
             <div class="instructions-text">${user.details}</div>
         </div>
         ` : ''}
+        
         <div class="detail-card">
             <div class="section-title">📊 STATS</div>
             <div class="stats-grid">
@@ -2877,6 +2914,7 @@ function renderAgentDetail(agent) {
                 <div class="stat-item"><span class="stat-icon">🚩</span><span class="stat-number">${agent.flags || 0}</span><span class="stat-label">Flags</span></div>
             </div>
         </div>
+        
         ${renderActionButtons(agent)}
     `;
 }
@@ -2901,6 +2939,7 @@ function renderActionButtons(item) {
 // ============================================================
 // DETAIL ACTION FUNCTIONS
 // ============================================================
+
 function makeCall(mobile) {
     if (mobile) {
         window.location.href = 'tel:' + mobile;
@@ -2914,12 +2953,15 @@ function handleEndorse(id, type) {
         toast('Please login first to endorse');
         return;
     }
+    
     if (id === 'undefined' || !id) {
         toast('Cannot endorse this item');
         return;
     }
+    
     const table = type === 'LOAD' ? 'active_loads' : (type === 'TRUCK' ? 'active_trucks' : 'active_users');
     const isAgent = type === 'AGENT';
+    
     if (isAgent) {
         sb.from('active_users').select('endorsements').eq('mobile', parseInt(id)).single()
             .then(r => {
@@ -2934,6 +2976,7 @@ function handleEndorse(id, type) {
             });
         return;
     }
+    
     sb.from(table).select('endorsements').eq('id', id).single()
         .then(r => {
             if (r.data) {
@@ -2952,15 +2995,19 @@ function handleFlag(id, type) {
         toast('Please login first to flag');
         return;
     }
+    
     if (id === 'undefined' || !id) {
         toast('Cannot flag this item');
         return;
     }
+    
     if (!confirm('Are you sure you want to flag this item as inappropriate?')) {
         return;
     }
+    
     const table = type === 'LOAD' ? 'active_loads' : (type === 'TRUCK' ? 'active_trucks' : 'active_users');
     const isAgent = type === 'AGENT';
+    
     if (isAgent) {
         sb.from('active_users').select('flags').eq('mobile', parseInt(id)).single()
             .then(r => {
@@ -2975,6 +3022,7 @@ function handleFlag(id, type) {
             });
         return;
     }
+    
     sb.from(table).select('flags').eq('id', id).single()
         .then(r => {
             if (r.data) {
@@ -2993,18 +3041,23 @@ function expressInterest(id, type) {
         toast('Please login first to express interest');
         return;
     }
+    
     const table = type === 'LOAD' ? 'active_loads' : (type === 'TRUCK' ? 'active_trucks' : 'active_users');
     const field = type === 'LOAD' ? 'interests' : (type === 'TRUCK' ? 'interested' : 'endorsements');
+    
     sb.from(table).select(field).eq('id', id).single()
         .then(r => {
             if (r.data) {
                 let interests = r.data[field] || [];
                 if (!Array.isArray(interests)) interests = [];
+                
                 if (interests.includes(parseInt(user.mobile))) {
                     toast('You already expressed interest');
                     return;
                 }
+                
                 interests.push(parseInt(user.mobile));
+                
                 sb.from(table).update({ [field]: interests }).eq('id', id)
                     .then(() => {
                         toast('✅ Interest expressed successfully!');
@@ -3073,6 +3126,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('home-page').classList.add('hidden-page');
   }
+  
   setTimeout(() => {
     checkDeepLink();
   }, 1500);
