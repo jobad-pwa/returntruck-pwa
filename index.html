@@ -6,7 +6,7 @@
 <title>ReturnTruck - Find Loads & Trucks</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2563eb">
+<meta name="theme-color" content="#0a0a0a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-transparent">
 <link rel="apple-touch-icon" href="launchericon-192x192.png">
@@ -19,216 +19,235 @@
 <meta name="twitter:card" content="summary_large_image" />
 <style>
 *{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
-body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
-.card{max-width:420px;width:100%;background:#fff;border-radius:24px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.08);display:flex;flex-direction:column;height:95vh;max-height:800px;position:relative;overflow:hidden}
+body{background:#0a0a0a;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
+.card{max-width:420px;width:100%;background:#1a1a2e;border-radius:24px;padding:16px;box-shadow:0 4px 30px rgba(0,0,0,.5);display:flex;flex-direction:column;height:95vh;max-height:800px;position:relative;overflow:hidden}
 .hidden-page{display:none !important}.hidden{display:none !important}
-.header-fixed{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #f1f5f9;background:#fff;z-index:10;width:100%;min-height:50px}
+.header-fixed{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #374151;background:#1a1a2e;z-index:10;width:100%;min-height:50px}
 .logo{font-size:22px;font-weight:900;color:#2563eb;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none}
 .logo-icon{font-size:28px;line-height:1}.logo-text{font-size:22px;font-weight:900;color:#2563eb;letter-spacing:-0.5px}
 .header-right{display:flex;align-items:center;gap:8px;position:relative}
-.avatar-btn{width:36px;height:36px;border-radius:50%;border:2px solid #e2e8f0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;background:#94a3b8;transition:all .2s}
-.avatar-btn.guest{background:#64748b}
-.profile-dropdown{position:absolute;top:45px;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:160px;z-index:100;display:none}
+.avatar-btn{width:36px;height:36px;border-radius:50%;border:2px solid #374151;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;background:#2d2d2d;transition:all .2s}
+.avatar-btn.guest{background:#374151}
+.profile-dropdown{position:absolute;top:45px;right:0;background:#1a1a2e;border:1px solid #374151;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.5);min-width:160px;z-index:100;display:none}
 .profile-dropdown.show{display:block}
-.dropdown-item{padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500;color:#1e293b;cursor:pointer;border:none;background:transparent;width:100%}
-.dropdown-item:hover{background:#f8fafc}
-.dropdown-divider{height:1px;background:#e2e8f0;margin:4px 12px}
-.nav-fixed{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e2e8f0;background:#fff;position:relative;z-index:10;min-height:65px;width:100%;padding-bottom:5px;margin-top:auto}
-.nav-item{display:flex;flex-direction:column;align-items:center;color:#94a3b8;font-size:10px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px;position:relative;z-index:2}
+.dropdown-item{padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500;color:#e2e8f0;cursor:pointer;border:none;background:transparent;width:100%}
+.dropdown-item:hover{background:#2d2d2d}
+.dropdown-divider{height:1px;background:#374151;margin:4px 12px}
+.nav-fixed{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #374151;background:#1a1a2e;position:relative;z-index:10;min-height:65px;width:100%;padding-bottom:5px;margin-top:auto}
+.nav-item{display:flex;flex-direction:column;align-items:center;color:#64748b;font-size:10px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px;position:relative;z-index:2}
 .nav-item.active{color:#2563eb}.nav-item .icon{font-size:24px;margin-bottom:2px}.nav-item .label{font-size:10px;text-transform:uppercase;letter-spacing:.05em}
 .scroll-body{overflow-y:auto;padding:8px 0;-webkit-overflow-scrolling:touch;display:block;width:100%;flex:1}
-.scroll-body::-webkit-scrollbar{width:4px}.scroll-body::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
+.scroll-body::-webkit-scrollbar{width:4px}.scroll-body::-webkit-scrollbar-thumb{background:#374151;border-radius:10px}
 #login-screen{display:flex;flex-direction:column;height:100%;width:100%;overflow-y:auto;padding:4px 0}
 .login-icon-container{display:flex;justify-content:center;margin-bottom:0}
-.login-icon-container img{width:240px;height:240px;border-radius:40px;box-shadow:0 4px 20px rgba(37,99,235,0.25);background:#fff;padding:8px;max-width:100%}
-.login-subtitle{font-size:14px;color:#64748b;text-align:center;margin-bottom:12px;margin-top:4px}
-.login-stats-container{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:12px;margin-bottom:12px;border:1px solid #bfdbfe}
+.login-icon-container img{width:240px;height:240px;border-radius:40px;box-shadow:0 4px 20px rgba(37,99,235,0.3);background:#1a1a2e;padding:8px;max-width:100%}
+.login-subtitle{font-size:14px;color:#94a3b8;text-align:center;margin-bottom:12px;margin-top:4px}
+.login-stats-container{background:linear-gradient(135deg,#1a1a2e,#0a0a0a);border-radius:16px;padding:12px;margin-bottom:12px;border:1px solid #2563eb}
 .login-stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
 .login-stat-item{text-align:center}
-.login-stat-item .number{font-size:20px;font-weight:800;color:#1d4ed8;display:block;line-height:1.2}
-.login-stat-item .label{font-size:9px;font-weight:600;color:#475569;display:block;text-transform:uppercase}
+.login-stat-item .number{font-size:20px;font-weight:800;color:#2563eb;display:block;line-height:1.2}
+.login-stat-item .label{font-size:9px;font-weight:600;color:#94a3b8;display:block;text-transform:uppercase}
 .login-step-container{flex:1;display:flex;flex-direction:column;justify-content:center}
-.input-field{width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;background:#fff;margin-bottom:12px}
+.input-field{width:100%;padding:14px;border:2px solid #374151;border-radius:12px;font-size:16px;text-align:center;background:#2d2d2d;color:#fff;margin-bottom:12px}
 .input-field:focus{border-color:#2563eb;outline:none}
-.input-field:disabled{background:#f1f5f9;color:#94a3b8}
+.input-field:disabled{background:#1a1a2e;color:#64748b}
+.input-field::placeholder{color:#64748b}
 .btn-primary{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px}
 .btn-primary:hover{background:#1d4ed8}
 .btn-primary:disabled{opacity:0.6;cursor:not-allowed}
 .btn-primary.success{background:#16a34a}.btn-primary.success:hover{background:#15803d}
-.btn-back{width:100%;padding:14px;background:#6b7280;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer}
+.btn-back{width:100%;padding:14px;background:#374151;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer}
 .login-divider{display:flex;align-items:center;gap:12px;margin:16px 0}
+.login-divider div{flex:1;height:1px;background:#374151}
+.login-divider span{font-size:11px;color:#64748b}
 .location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
 .location-row .location-input{flex:2}.location-row .radius-select{flex:1}
-.location-input input,.radius-select select{width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;background:#fff}
-.type-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;background:#e2e8f0;padding:3px;border-radius:10px;margin-bottom:6px}
+.location-input input,.radius-select select{width:100%;padding:8px 12px;border:1px solid #374151;border-radius:8px;font-size:13px;background:#2d2d2d;color:#fff}
+.location-input input::placeholder{color:#64748b}
+.radius-select select option{background:#1a1a2e;color:#fff}
+.type-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;background:#2d2d2d;padding:3px;border-radius:10px;margin-bottom:6px}
 .type-tabs button{padding:8px 4px;font-size:12px;font-weight:700;border:none;border-radius:8px;cursor:pointer}
-.type-tabs .active{background:#fff;color:#1e293b}.type-tabs .inactive{background:transparent;color:#64748b}
-.filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:11px;font-weight:600;color:#64748b;border-top:1px solid #e2e8f0;margin-top:4px;user-select:none}
+.type-tabs .active{background:#2563eb;color:#fff}.type-tabs .inactive{background:transparent;color:#94a3b8}
+.filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:11px;font-weight:600;color:#94a3b8;border-top:1px solid #374151;margin-top:4px;user-select:none}
 .filter-container{overflow:hidden;transition:max-height 0.3s ease;max-height:0}
 .filter-container.open{max-height:400px;overflow:visible}
 .filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;padding-top:6px}
-.filter-row label{font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
-.filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;outline:none}
+.filter-row label{font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;display:block;margin-bottom:4px}
+.filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:12px;background:#2d2d2d;border:1px solid #374151;border-radius:8px;color:#fff;outline:none}
+.filter-row input::placeholder{color:#64748b}
+.filter-row select option{background:#1a1a2e;color:#fff}
 .search-wrapper{position:relative;width:100%}
-.search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#1a1a2e;border:1px solid #374151;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.5)}
 .search-wrapper .suggestions.show{display:block}
-.search-wrapper .suggestions .item{padding:12px 16px;font-size:14px;color:#1e293b;cursor:pointer;border-bottom:1px solid #f1f5f9}
+.search-wrapper .suggestions .item{padding:12px 16px;font-size:14px;color:#e2e8f0;cursor:pointer;border-bottom:1px solid #374151}
 .search-wrapper .suggestions .item:last-child{border-bottom:none}
-.search-wrapper .suggestions .item:hover{background:#f8fafc}
-.search-wrapper .suggestions .item .highlight{background:#dbeafe;font-weight:600}
-.results-count{display:flex;justify-content:space-between;padding-bottom:4px;margin-bottom:6px;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
+.search-wrapper .suggestions .item:hover{background:#2d2d2d}
+.search-wrapper .suggestions .item .highlight{background:#2563eb;color:#fff;font-weight:600;padding:0 4px;border-radius:4px}
+.results-count{display:flex;justify-content:space-between;padding-bottom:4px;margin-bottom:6px;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em}
 /* ============================================================
-   HOME FEED - Working Styles
+   HOME FEED - Dark Theme
    ============================================================ */
 .feed-container{display:flex;flex-direction:column;gap:10px}
-.feed-card{border:1px solid #e2e8f0;border-radius:12px;padding:12px;cursor:pointer;background:#fff;transition:all .2s}
-.feed-card:hover{border-color:#3b82f6;background:#f8faff}
+.feed-card{border:1px solid #374151;border-radius:12px;padding:12px;cursor:pointer;background:#2d2d2d;transition:all .2s}
+.feed-card:hover{border-color:#2563eb;background:#1a1a2e}
 .feed-card .header-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
-.feed-card .title{font-weight:700;font-size:15px;color:#0f172a;flex:1}
+.feed-card .title{font-weight:700;font-size:15px;color:#fff;flex:1}
 .feed-card .type-badge{flex-shrink:0;font-size:10px;padding:3px 10px;border-radius:4px;font-weight:700;text-transform:uppercase}
-.feed-card .type-badge.load{background:#dbeafe;color:#1e40af}
-.feed-card .type-badge.truck{background:#dcfce7;color:#166534}
-.feed-card .type-badge.agent{background:#fef3c7;color:#92400e}
-.feed-card .company{font-size:13px;color:#2563eb;font-weight:600;margin-bottom:2px}
-.feed-card .meta{font-size:12px;color:#475569;margin-top:3px;display:flex;align-items:center;gap:4px}
-.feed-card .stats-row{margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9;display:flex;gap:12px;font-size:11px;color:#94a3b8}
+.feed-card .type-badge.load{background:#1e40af;color:#60a5fa}
+.feed-card .type-badge.truck{background:#166534;color:#4ade80}
+.feed-card .type-badge.agent{background:#92400e;color:#fbbf24}
+.feed-card .company{font-size:13px;color:#60a5fa;font-weight:600;margin-bottom:2px}
+.feed-card .meta{font-size:12px;color:#94a3b8;margin-top:3px;display:flex;align-items:center;gap:4px}
+.feed-card .meta .highlight{color:#fcd34d;font-weight:600}
+.feed-card .stats-row{margin-top:8px;padding-top:8px;border-top:1px solid #374151;display:flex;gap:12px;font-size:11px;color:#64748b}
 .feed-card .stats-row span{display:flex;align-items:center;gap:3px}
-.feed-card .stats-row .val{font-weight:600;color:#475569}
+.feed-card .stats-row .val{font-weight:600;color:#94a3b8}
 /* ============================================================
-   DETAIL VIEW - Card Styles
+   DETAIL VIEW - Dark Theme Card Styles
    ============================================================ */
-.detail-header-card{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid #bfdbfe}
-.detail-header-card .main-title{font-size:20px;font-weight:700;color:#0f172a}
-.detail-header-card .company-name{font-size:14px;color:#2563eb;font-weight:600}
-.detail-header-card .meta-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.detail-header-card{background:linear-gradient(135deg,#0a0a0a,#1a1a2e);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid #2563eb}
+.detail-header-card .main-title{font-size:22px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:1px}
+.detail-header-card .company-name{font-size:14px;color:#60a5fa;font-weight:600;margin-top:4px}
+.detail-header-card .meta-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .detail-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600}
-.detail-badge.rating{background:#fef3c7;color:#92400e}
-.detail-badge.verified{background:#dcfce7;color:#166534}
-.detail-badge.unverified{background:#fef2f2;color:#991b1b}
-.detail-badge.pan-gst{background:#e2e8f0;color:#475569;font-size:10px}
-.detail-card{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.06);border:1px solid #f1f5f9}
-.detail-card .section-title{font-size:13px;font-weight:700;color:#2563eb;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.detail-card .spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:13px;color:#475569}
-.detail-card .spec-grid .label{color:#94a3b8;font-weight:500}
-.detail-card .spec-grid .value{font-weight:600;color:#0f172a}
-.detail-card .route-display{font-size:13px;color:#475569}
-.detail-card .route-display .from{color:#2563eb;font-weight:600}
-.detail-card .route-display .to{color:#dc2626;font-weight:600}
-.detail-card .route-arrow{text-align:center;font-size:18px;padding:2px 0;color:#94a3b8}
-.detail-card .route-meta{font-size:12px;color:#94a3b8;margin-top:4px}
-.detail-card .instructions-text{font-size:14px;color:#475569;padding:4px 0}
+.detail-badge.rating{background:#92400e;color:#fbbf24}
+.detail-badge.verified{background:#166534;color:#4ade80}
+.detail-badge.unverified{background:#7f1d1d;color:#f87171}
+.detail-badge.pan-gst{background:#374151;color:#94a3b8;font-size:10px}
+.detail-card{background:#2d2d2d;border-radius:14px;padding:14px 16px;margin-bottom:10px;border:1px solid #374151}
+.detail-card .section-title{font-size:13px;font-weight:700;color:#2563eb;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.detail-card .spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;color:#94a3b8}
+.detail-card .spec-grid .label{color:#64748b;font-weight:500;text-transform:uppercase;font-size:10px}
+.detail-card .spec-grid .value{font-weight:700;color:#fff;font-size:15px}
+.detail-card .spec-grid .value.highlight{color:#fcd34d}
+.detail-card .route-display{font-size:14px;color:#94a3b8}
+.detail-card .route-display .from{color:#60a5fa;font-weight:700}
+.detail-card .route-display .to{color:#f87171;font-weight:700}
+.detail-card .route-arrow{text-align:center;font-size:20px;padding:4px 0;color:#64748b}
+.detail-card .route-meta{font-size:13px;color:#94a3b8;margin-top:6px}
+.detail-card .route-meta strong{color:#fff}
+.detail-card .instructions-text{font-size:14px;color:#e2e8f0;padding:4px 0}
 .stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
-.stat-item{background:#f8fafc;border-radius:10px;padding:10px 4px;text-align:center;border:1px solid #f1f5f9}
-.stat-item .stat-icon{font-size:18px;display:block}
-.stat-item .stat-number{font-size:17px;font-weight:700;color:#0f172a;display:block}
-.stat-item .stat-label{font-size:9px;color:#94a3b8;font-weight:600;text-transform:uppercase}
+.stat-item{background:#1a1a2e;border-radius:10px;padding:10px 4px;text-align:center;border:1px solid #374151}
+.stat-item .stat-icon{font-size:20px;display:block}
+.stat-item .stat-number{font-size:18px;font-weight:700;color:#fff;display:block;margin-top:2px}
+.stat-item .stat-label{font-size:9px;color:#64748b;font-weight:600;text-transform:uppercase;margin-top:2px;display:block}
 .action-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
-.action-grid button{width:100%;padding:12px 4px;border-radius:10px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:12px;cursor:pointer;transition:all .2s;box-shadow:0 2px 4px rgba(0,0,0,.1)}
+.action-grid button{width:100%;padding:12px 4px;border-radius:10px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:12px;cursor:pointer;transition:all .2s}
 .action-grid button:active{transform:scale(0.95)}
 .action-grid button .act-icon{font-size:22px;display:block;margin-bottom:2px}
-.btn-call{background:#16a34a}.btn-endorse{background:#8b5cf6}.btn-flag{background:#ef4444}.btn-share{background:#25D366}
+.btn-call{background:#16a34a}.btn-call:hover{background:#15803d}
+.btn-endorse{background:#8b5cf6}.btn-endorse:hover{background:#7c3aed}
+.btn-flag{background:#ef4444}.btn-flag:hover{background:#dc2626}
+.btn-share{background:#25D366}.btn-share:hover{background:#1da851}
 .express-interest-btn{width:100%;padding:14px;background:#8b5cf6;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;box-shadow:0 2px 8px rgba(139,92,246,.3);transition:all .2s}
 .express-interest-btn:active{transform:scale(0.97)}
 /* End of detail styles */
 .guest-banner{flex-shrink:0;background:#2563eb;color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .guest-banner.hidden{display:none}
 .guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px}
-.profile-header-card{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:12px;padding:16px;color:#fff;margin-bottom:12px}
-.profile-section{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px}
+.profile-header-card{background:linear-gradient(135deg,#0a0a0a,#1a1a2e);border-radius:12px;padding:16px;color:#fff;margin-bottom:12px;border:1px solid #2563eb}
+.profile-section{background:#2d2d2d;border:1px solid #374151;border-radius:12px;padding:16px;margin-bottom:12px}
 .profile-section .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.profile-section .section-title{font-size:15px;font-weight:700;color:#1e293b}
+.profile-section .section-title{font-size:15px;font-weight:700;color:#e2e8f0}
 .profile-section .section-badge{font-size:10px;padding:2px 12px;border-radius:12px;font-weight:700}
-.section-badge.active{background:#dcfce7;color:#166534}
-.section-badge.required{background:#fef3c7;color:#d97706}
-.section-badge.optional{background:#e2e8f0;color:#64748b}
+.section-badge.active{background:#166534;color:#4ade80}
+.section-badge.required{background:#92400e;color:#fbbf24}
+.section-badge.optional{background:#374151;color:#94a3b8}
 .section-btn{padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px}
 .section-btn:hover{background:#1d4ed8}
-.section-btn.secondary{background:#e2e8f0;color:#1e293b}
-.section-btn.secondary:hover{background:#cbd5e1}
+.section-btn.secondary{background:#374151;color:#e2e8f0}
+.section-btn.secondary:hover{background:#4b5563}
 .section-btn.danger{background:#dc2626;color:#fff}
 .section-btn.danger:hover{background:#b91c1c}
 .section-btn.success{background:#16a34a;color:#fff}
 .section-btn.success:hover{background:#15803d}
-.form-control{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;background:#fff;outline:none}
+.form-control{width:100%;padding:10px 12px;border:1px solid #374151;border-radius:8px;font-size:14px;background:#2d2d2d;color:#fff;outline:none}
 .form-control:focus{border-color:#2563eb}
+.form-control::placeholder{color:#64748b}
 .form-label{font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .grid-2-vehicle{display:grid;grid-template-columns:2fr 1fr;gap:12px}
-.back-btn{background:transparent;border:none;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;padding:4px 8px}.back-btn:hover{color:#2563eb}
-.otp-input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff}
+.back-btn{background:transparent;border:none;font-size:14px;font-weight:600;color:#94a3b8;cursor:pointer;padding:4px 8px}.back-btn:hover{color:#fff}
+.otp-input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #374151;background:#2d2d2d;color:#fff}
 .otp-input:focus{border-color:#2563eb;outline:none}
-.otp-input:disabled{background:#f1f5f9;color:#94a3b8}
-.error-text{color:#dc2626;font-size:13px;text-align:center;margin-top:4px;display:none}
-.success-text{color:#16a34a;font-size:13px;text-align:center;margin-top:4px;display:none}
+.otp-input:disabled{background:#1a1a2e;color:#64748b}
+.error-text{color:#f87171;font-size:13px;text-align:center;margin-top:4px;display:none}
+.success-text{color:#4ade80;font-size:13px;text-align:center;margin-top:4px;display:none}
 .resend-btn{background:transparent;border:none;color:#2563eb;font-weight:600;cursor:pointer;font-size:13px;text-decoration:underline}
-.resend-btn:disabled{color:#94a3b8;cursor:not-allowed}
+.resend-btn:disabled{color:#64748b;cursor:not-allowed}
 .stat-cards{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px}
-.stat-card{background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0}
+.stat-card{background:#2d2d2d;border-radius:10px;padding:12px;text-align:center;border:1px solid #374151}
 .stat-card .icon{font-size:22px;display:block;margin-bottom:2px}
-.stat-card .number{font-size:20px;font-weight:800;color:#1e293b}
+.stat-card .number{font-size:20px;font-weight:800;color:#fff}
 .stat-card .label{font-size:9px;color:#94a3b8;text-transform:uppercase;font-weight:600}
-.list-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin-bottom:8px}
-.list-item .title{font-weight:600;font-size:14px;color:#1e293b}
-.list-item .sub{font-size:12px;color:#64748b;margin-top:2px}
+.list-item{background:#2d2d2d;border:1px solid #374151;border-radius:10px;padding:12px;margin-bottom:8px}
+.list-item .title{font-weight:600;font-size:14px;color:#fff}
+.list-item .sub{font-size:12px;color:#94a3b8;margin-top:2px}
 .list-item .actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
 .list-item .actions button{padding:4px 12px;font-size:11px;border:none;border-radius:4px;font-weight:600;cursor:pointer}
-.list-item .actions .edit{background:#dbeafe;color:#1e40af}
-.list-item .actions .edit:hover{background:#bfdbfe}
-.list-item .actions .delete{background:#fef2f2;color:#991b1b}
-.list-item .actions .delete:hover{background:#fee2e2}
-.list-item .actions .interests{background:#fef3c7;color:#92400e;font-size:10px}
-.list-item .actions .interests:hover{background:#fde68a}
+.list-item .actions .edit{background:#1e40af;color:#60a5fa}
+.list-item .actions .edit:hover{background:#1d4ed8}
+.list-item .actions .delete{background:#7f1d1d;color:#f87171}
+.list-item .actions .delete:hover{background:#dc2626}
+.list-item .actions .interests{background:#92400e;color:#fbbf24;font-size:10px}
+.list-item .actions .interests:hover{background:#b45309}
 .status-badge{font-size:10px;padding:2px 10px;border-radius:10px;font-weight:600;display:inline-block}
-.status-badge.active{background:#dcfce7;color:#166534}
-.status-badge.draft{background:#fef3c7;color:#92400e}
-.status-badge.expired{background:#fef2f2;color:#991b1b}
-.route-tag{background:#e2e8f0;padding:5px 12px;border-radius:6px;font-size:13px;display:inline-block;margin:2px}
-.route-tag .remove{color:#dc2626;cursor:pointer;margin-left:6px;font-weight:700}
-.route-tag .remove:hover{color:#b91c1c}
+.status-badge.active{background:#166534;color:#4ade80}
+.status-badge.draft{background:#92400e;color:#fbbf24}
+.status-badge.expired{background:#7f1d1d;color:#f87171}
+.route-tag{background:#374151;padding:5px 12px;border-radius:6px;font-size:13px;display:inline-block;margin:2px;color:#e2e8f0}
+.route-tag .remove{color:#f87171;cursor:pointer;margin-left:6px;font-weight:700}
+.route-tag .remove:hover{color:#dc2626}
 .user-type-checkbox{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
-.user-type-checkbox label{font-size:14px;display:flex;align-items:center;gap:4px;cursor:pointer}
+.user-type-checkbox label{font-size:14px;display:flex;align-items:center;gap:4px;cursor:pointer;color:#e2e8f0}
 .route-input-row{display:flex;gap:6px;margin-bottom:8px}
 .route-input-row input{flex:2}
 .route-input-row button{flex-shrink:0}
-.vehicle-suggest-dropdown{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:8px;margin-top:4px;max-height:150px;overflow-y:auto;z-index:50;display:none}
+.vehicle-suggest-dropdown{position:absolute;top:100%;left:0;right:0;background:#1a1a2e;border:1px solid #374151;border-radius:8px;margin-top:4px;max-height:150px;overflow-y:auto;z-index:50;display:none}
 .vehicle-suggest-dropdown.show{display:block}
-.vehicle-suggest-dropdown .item{padding:10px 14px;font-size:14px;cursor:pointer;border-bottom:1px solid #f1f5f9}
-.vehicle-suggest-dropdown .item:hover{background:#f1f5f9}
+.vehicle-suggest-dropdown .item{padding:10px 14px;font-size:14px;cursor:pointer;border-bottom:1px solid #374151;color:#e2e8f0}
+.vehicle-suggest-dropdown .item:hover{background:#2d2d2d}
 .vehicle-suggest-dropdown .item .sub{font-size:11px;color:#94a3b8}
 .vehicle-suggest-dropdown .item .add-new{color:#2563eb;font-weight:600}
-.vehicle-number-input{font-family:monospace;letter-spacing:0.5px;text-transform:uppercase}
-.vehicle-item{display:flex;align-items:center;justify-content:space-between;background:#f8fafc;padding:8px 12px;border-radius:6px;margin-bottom:4px;border:1px solid #e2e8f0}
-.vehicle-item .vnumber{font-weight:600;font-size:14px;color:#0f172a;flex:1}
-.vehicle-item .vdetails{font-size:12px;color:#64748b;flex:1}
+.vehicle-number-input{font-family:monospace;letter-spacing:0.5px;text-transform:uppercase;color:#fff}
+.vehicle-item{display:flex;align-items:center;justify-content:space-between;background:#2d2d2d;padding:8px 12px;border-radius:6px;margin-bottom:4px;border:1px solid #374151}
+.vehicle-item .vnumber{font-weight:600;font-size:14px;color:#fff;flex:1}
+.vehicle-item .vdetails{font-size:12px;color:#94a3b8;flex:1}
 .vehicle-item .actions{display:flex;gap:4px}
 .vehicle-item .actions button{padding:4px 10px;font-size:10px;border:none;border-radius:4px;font-weight:600;cursor:pointer}
-.vehicle-item .actions .edit-btn{background:#dbeafe;color:#1e40af}
-.vehicle-item .actions .edit-btn:hover{background:#bfdbfe}
-.vehicle-item .actions .delete-btn{background:#fef2f2;color:#991b1b}
-.vehicle-item .actions .delete-btn:hover{background:#fee2e2}
+.vehicle-item .actions .edit-btn{background:#1e40af;color:#60a5fa}
+.vehicle-item .actions .edit-btn:hover{background:#1d4ed8}
+.vehicle-item .actions .delete-btn{background:#7f1d1d;color:#f87171}
+.vehicle-item .actions .delete-btn:hover{background:#dc2626}
 .count-badge{background:#2563eb;color:#fff;font-size:11px;border-radius:10px;padding:1px 8px;margin-left:4px}
-.vehicle-display-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;margin-bottom:6px}
-.vehicle-display-item .vnumber{font-weight:700;font-size:14px;color:#0f172a}
-.vehicle-display-item .vdetails{font-size:13px;color:#64748b;margin-top:2px}
-.vehicle-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000}
+.vehicle-display-item{background:#2d2d2d;border:1px solid #374151;border-radius:8px;padding:10px 12px;margin-bottom:6px}
+.vehicle-display-item .vnumber{font-weight:700;font-size:14px;color:#fff}
+.vehicle-display-item .vdetails{font-size:13px;color:#94a3b8;margin-top:2px}
+.vehicle-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:1000}
 .vehicle-modal.show{display:flex}
-.vehicle-modal-content{background:#fff;border-radius:16px;padding:24px;max-width:420px;width:90%;max-height:85vh;overflow-y:auto}
+.vehicle-modal-content{background:#1a1a2e;border-radius:16px;padding:24px;max-width:420px;width:90%;max-height:85vh;overflow-y:auto;border:1px solid #374151}
 .vehicle-modal-content .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.vehicle-modal-content .modal-header h3{margin:0;font-size:19px;color:#0f172a}
+.vehicle-modal-content .modal-header h3{margin:0;font-size:19px;color:#fff}
 .vehicle-modal-content .modal-close{background:transparent;border:none;font-size:24px;cursor:pointer;color:#94a3b8}
-.vehicle-modal-content .modal-close:hover{color:#dc2626}
+.vehicle-modal-content .modal-close:hover{color:#f87171}
 .vehicle-modal-content .form-group{margin-bottom:12px}
-.vehicle-modal-content .form-group .readonly-number{background:#f1f5f9;padding:10px 12px;border-radius:8px;font-weight:700;font-size:16px;color:#0f172a;border:1px solid #e2e8f0}
-.spinner{display:inline-block;width:20px;height:20px;border:3px solid #e2e8f0;border-top-color:#2563eb;border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:8px}
+.vehicle-modal-content .form-group .readonly-number{background:#2d2d2d;padding:10px 12px;border-radius:8px;font-weight:700;font-size:16px;color:#fff;border:1px solid #374151}
+.vehicle-modal-content .form-group .form-control{background:#2d2d2d;color:#fff;border:1px solid #374151}
+.vehicle-modal-content .form-group .form-control:focus{border-color:#2563eb}
+.vehicle-modal-content .form-group label{color:#94a3b8}
+.spinner{display:inline-block;width:20px;height:20px;border:3px solid #374151;border-top-color:#2563eb;border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading-text{display:flex;align-items:center;justify-content:center;gap:8px;color:#64748b;font-size:14px;padding:8px}
+.loading-text{display:flex;align-items:center;justify-content:center;gap:8px;color:#94a3b8;font-size:14px;padding:8px}
 .dim-input{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px}
-.dim-input .dim-group{background:#f8fafc;border-radius:8px;padding:8px 12px;border:1px solid #e2e8f0;text-align:center}
+.dim-input .dim-group{background:#2d2d2d;border-radius:8px;padding:8px 12px;border:1px solid #374151;text-align:center}
 .dim-input .dim-group label{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block}
-.dim-input .dim-group input{width:100%;border:none;background:transparent;text-align:center;font-size:16px;font-weight:600;color:#0f172a;padding:4px 0;outline:none}
+.dim-input .dim-group input{width:100%;border:none;background:transparent;text-align:center;font-size:16px;font-weight:600;color:#fff;padding:4px 0;outline:none}
 .dim-input .dim-group input:focus{color:#2563eb}
-.website-link{color:#2563eb;text-decoration:underline;cursor:pointer;word-break:break-all}
-.website-link:hover{color:#1d4ed8}
+.website-link{color:#60a5fa;text-decoration:underline;cursor:pointer;word-break:break-all}
+.website-link:hover{color:#93c5fd}
+select.form-control{background:#2d2d2d;color:#fff;border:1px solid #374151}
+select.form-control option{background:#1a1a2e;color:#fff}
 </style>
 </head>
 <body>
@@ -260,24 +279,24 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <span class="spinner"></span>
                 <span>Checking...</span>
             </div>
-            <div class="login-divider"><div style="flex:1;height:1px;background:#e2e8f0"></div><span style="font-size:11px;color:#94a3b8">or continue as</span><div style="flex:1;height:1px;background:#e2e8f0"></div></div>
+            <div class="login-divider"><div></div><span>or continue as</span><div></div></div>
             <button style="width:100%;padding:12px;border:1.5px solid #8b5cf6;border-radius:12px;font-size:15px;font-weight:600;color:#8b5cf6;background:transparent;cursor:pointer" onclick="continueAsGuest()">👤 Guest</button>
         </div>
         <div id="step2" class="hidden">
             <div style="text-align:center;margin-bottom:16px">
-                <div id="display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
-                <div style="font-size:14px;font-weight:500;color:#475569">Enter your 4-digit PIN</div>
+                <div id="display-mobile" style="font-size:22px;font-weight:700;color:#fff">--</div>
+                <div style="font-size:14px;font-weight:500;color:#94a3b8">Enter your 4-digit PIN</div>
             </div>
             <input type="password" id="pin" class="input-field" style="letter-spacing:4px;" placeholder="Enter 4-digit PIN" maxlength="4">
             <div id="pin-error" class="error-text">❌ Incorrect PIN. Please try again.</div>
-            <div style="font-size:13px;text-align:center;margin-bottom:12px;color:#64748b">Forgot PIN? <span style="color:#2563eb;cursor:pointer;font-weight:600" onclick="showResetOTP()">Reset PIN</span></div>
-            <button onclick="submitPin()" id="submitBtn" class="btn-primary" style="background:#16a34a">🔐 Login</button>
+            <div style="font-size:13px;text-align:center;margin-bottom:12px;color:#94a3b8">Forgot PIN? <span style="color:#2563eb;cursor:pointer;font-weight:600" onclick="showResetOTP()">Reset PIN</span></div>
+            <button onclick="submitPin()" id="submitBtn" class="btn-primary success">🔐 Login</button>
             <button onclick="resetForm()" class="btn-back">← Change Number</button>
         </div>
         <div id="step3" class="hidden">
             <div style="text-align:center;margin-bottom:12px">
-                <div id="wa-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
-                <div id="otp-purpose" style="font-size:14px;color:#475569">Enter OTP sent via WhatsApp</div>
+                <div id="wa-display-mobile" style="font-size:22px;font-weight:700;color:#fff">--</div>
+                <div id="otp-purpose" style="font-size:14px;color:#94a3b8">Enter OTP sent via WhatsApp</div>
                 <div id="otp-loading" class="loading-text hidden" style="justify-content:center;padding:4px">
                     <span class="spinner"></span>
                     <span>Sending OTP...</span>
@@ -293,25 +312,25 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
             <div id="otp-error" class="error-text">❌ Invalid OTP. Please try again.</div>
             <div id="otp-success" class="success-text">✅ OTP verified successfully!</div>
-            <div style="text-align:center;font-size:14px;color:#64748b;margin-bottom:8px">⏳ <span id="otp-timer">5:00</span></div>
+            <div style="text-align:center;font-size:14px;color:#94a3b8;margin-bottom:8px">⏳ <span id="otp-timer">5:00</span></div>
             <div style="text-align:center;font-size:13px;margin-bottom:12px">
                 <button class="resend-btn" id="resend-otp-btn" onclick="resendOTP()">📱 Resend OTP</button>
                 <br><br>
                 <button class="resend-btn" onclick="sendWhatsAppOTP()" style="color:#25D366;font-weight:700">💬 Send OTP via WhatsApp</button>
             </div>
-            <button onclick="verifyOTP()" id="verify-btn" class="btn-primary" style="background:#16a34a">✅ Verify</button>
+            <button onclick="verifyOTP()" id="verify-btn" class="btn-primary success">✅ Verify</button>
             <button onclick="resetForm()" class="btn-back">← Change Number</button>
         </div>
         <div id="step4" class="hidden">
-            <div style="text-align:center;margin-bottom:16px"><div id="reg-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
-            <div id="step4-purpose" style="font-size:14px;color:#475569">Set your 4-digit PIN for login</div></div>
+            <div style="text-align:center;margin-bottom:16px"><div id="reg-display-mobile" style="font-size:22px;font-weight:700;color:#fff">--</div>
+            <div id="step4-purpose" style="font-size:14px;color:#94a3b8">Set your 4-digit PIN for login</div></div>
             <input type="password" id="reg-pin" class="input-field" placeholder="New PIN (4 digits)" maxlength="4">
             <input type="password" id="reg-pin-confirm" class="input-field" placeholder="Confirm PIN" maxlength="4">
-            <button onclick="registerUser()" id="register-btn" class="btn-primary" style="background:#16a34a">✅ Create Account</button>
+            <button onclick="registerUser()" id="register-btn" class="btn-primary success">✅ Create Account</button>
             <button onclick="resetForm()" class="btn-back">← Change Number</button>
         </div>
     </div>
-    <div style="flex-shrink:0;background:#fef3c7;border-left:4px solid #f59e0b;border-radius:8px;padding:12px 16px;margin-top:12px;font-size:11px;color:#92400e;line-height:1.5">
+    <div style="flex-shrink:0;background:#7f1d1d;border-left:4px solid #f87171;border-radius:8px;padding:12px 16px;margin-top:12px;font-size:11px;color:#fca5a5;line-height:1.5">
         <div style="font-weight:700;font-size:12px;display:flex;align-items:center;gap:4px">⚠️ Disclaimer</div>
         ReturnTruck is a FREE connecting platform. No charges from any party. Not responsible for financial or other losses.
     </div>
@@ -327,7 +346,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <button class="dropdown-item" onclick="closeDropdown();goToProfile()">👤 View Profile</button>
                 <button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button>
                 <div class="dropdown-divider"></div>
-                <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button>
+                <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#f87171">🚪 Logout</button>
             </div>
         </div>
     </div>
@@ -393,7 +412,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
         </div>
         <div class="results-count"><span id="results-count">Showing 0 Records</span></div>
-        <div style="width:100%;height:1px;background:#f1f5f9;margin-top:2px;margin-bottom:4px;flex-shrink:0"></div>
+        <div style="width:100%;height:1px;background:#374151;margin-top:2px;margin-bottom:4px;flex-shrink:0"></div>
     </div>
     <div class="scroll-body" id="home-scroll-body"><div id="feed-container" class="feed-container"></div></div>
     <div class="nav-fixed" id="bottom-nav">
@@ -507,7 +526,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div class="profile-section">
             <label class="form-label">📝 Instructions</label>
             <textarea class="form-control" id="pl-instructions" rows="2" placeholder="Loading instructions, special requirements..."></textarea>
-            <div style="font-size:11px;color:#94a3b8;text-align:right"><span id="pl-instructions-count">0</span>/200</div>
+            <div style="font-size:11px;color:#64748b;text-align:right"><span id="pl-instructions-count">0</span>/200</div>
         </div>
         <button class="btn-primary success" onclick="publishLoad()" style="margin-top:8px">📤 Publish Load</button>
     </div>
@@ -532,7 +551,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <input class="form-control vehicle-number-input" id="pt-vehicle-number" placeholder="Type vehicle number..." oninput="searchVehiclesForTruck(this.value)" autocomplete="off">
                 <div class="vehicle-suggest-dropdown" id="pt-vehicle-suggest-dropdown"></div>
             </div>
-            <div style="font-size:11px;color:#94a3b8;margin-top:4px">Only letters and numbers, 9-12 characters</div>
+            <div style="font-size:11px;color:#64748b;margin-top:4px">Only letters and numbers, 9-12 characters</div>
         </div>
         <div class="profile-section">
             <label class="form-label">📍 Location PIN *</label>
@@ -555,7 +574,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div class="profile-section">
             <label class="form-label">📝 Other Details</label>
             <textarea class="form-control" id="pt-other-details" rows="3" placeholder="Vehicle features, GPS tracking, driver details, etc."></textarea>
-            <div style="font-size:11px;color:#94a3b8;text-align:right"><span id="pt-other-details-count">0</span>/300</div>
+            <div style="font-size:11px;color:#64748b;text-align:right"><span id="pt-other-details-count">0</span>/300</div>
         </div>
         <button class="btn-primary success" onclick="publishTruck()" style="margin-top:8px">📤 List Truck</button>
     </div>
@@ -577,7 +596,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button>
                 <button class="dropdown-item" onclick="closeDropdown();openEditProfile()">✏️ Edit Profile</button>
                 <div class="dropdown-divider"></div>
-                <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#dc2626">🚪 Logout</button>
+                <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#f87171">🚪 Logout</button>
             </div>
         </div>
     </div>
@@ -590,7 +609,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 </div>
                 <div style="text-align:right">
                     <div style="font-size:20px">👤</div>
-                    <div style="font-size:11px;background:rgba(255,255,255,.2);padding:2px 12px;border-radius:12px;display:inline-block">⭐ Member</div>
+                    <div style="font-size:11px;background:rgba(255,255,255,.1);padding:2px 12px;border-radius:12px;display:inline-block">⭐ Member</div>
                 </div>
             </div>
         </div>
@@ -599,11 +618,11 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <span class="section-title">🏢 Company Details</span>
                 <button class="section-btn secondary" style="padding:4px 12px;font-size:11px" onclick="openEditProfile()">✏️ Edit</button>
             </div>
-            <div style="font-weight:600;font-size:15px;color:#1e293b" id="profile-company">Not set</div>
-            <div id="profile-website" style="font-size:13px;color:#2563eb;word-break:break-all"></div>
-            <div style="font-size:12px;color:#64748b;margin-top:4px" id="profile-pan">📛 PAN: --</div>
-            <div style="font-size:12px;color:#64748b;margin-top:2px" id="profile-gst">📛 GST: --</div>
-            <div style="font-size:12px;color:#64748b;margin-top:2px" id="profile-location">📍 Location: Not set</div>
+            <div style="font-weight:600;font-size:15px;color:#fff" id="profile-company">Not set</div>
+            <div id="profile-website" style="font-size:13px;color:#60a5fa;word-break:break-all"></div>
+            <div style="font-size:12px;color:#94a3b8;margin-top:4px" id="profile-pan">📛 PAN: --</div>
+            <div style="font-size:12px;color:#94a3b8;margin-top:2px" id="profile-gst">📛 GST: --</div>
+            <div style="font-size:12px;color:#94a3b8;margin-top:2px" id="profile-location">📍 Location: Not set</div>
         </div>
         <div class="profile-section">
             <label class="form-label" style="margin-bottom:6px">🎯 User Type</label>
@@ -617,7 +636,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <span class="section-badge active" id="vehicle-count-badge">0 Vehicles</span>
             </div>
             <div id="profile-vehicles-container">
-                <div style="color:#94a3b8;font-size:13px;text-align:center;padding:8px">No vehicles added</div>
+                <div style="color:#64748b;font-size:13px;text-align:center;padding:8px">No vehicles added</div>
             </div>
         </div>
         <div class="profile-section">
@@ -626,23 +645,23 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <span class="section-badge optional">Optional</span>
             </div>
             <div id="profile-routes-container" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
-                <span style="color:#94a3b8;font-size:13px">No routes added</span>
+                <span style="color:#64748b;font-size:13px">No routes added</span>
             </div>
         </div>
         <div class="profile-section">
             <label class="form-label">📝 About / Details</label>
-            <div id="profile-details-text" style="font-size:14px;color:#475569;padding:4px 0">No details added</div>
+            <div id="profile-details-text" style="font-size:14px;color:#e2e8f0;padding:4px 0">No details added</div>
         </div>
         <div style="margin-bottom:8px">
-            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px">📦 My Loads <span class="count-badge" id="my-loads-count">0</span></div>
+            <div style="font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:8px">📦 My Loads <span class="count-badge" id="my-loads-count">0</span></div>
             <div id="my-loads-container"></div>
         </div>
         <div style="margin-bottom:8px">
-            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px">🚛 My Trucks <span class="count-badge" id="my-trucks-count">0</span></div>
+            <div style="font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:8px">🚛 My Trucks <span class="count-badge" id="my-trucks-count">0</span></div>
             <div id="my-trucks-container"></div>
         </div>
         <div style="margin:12px 0 8px">
-            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px">📊 MY STATISTICS</div>
+            <div style="font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:8px">📊 MY STATISTICS</div>
             <div class="stat-cards">
                 <div class="stat-card"><span class="icon">📦</span><span class="number" id="stat-loads-count">0</span><span class="label">Loads</span></div>
                 <div class="stat-card"><span class="icon">🚛</span><span class="number" id="stat-trucks-count">0</span><span class="label">Trucks</span></div>
@@ -686,7 +705,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <label><input type="checkbox" id="edit-type-operator" value="2"> 🚛 Operator</label>
                 <label><input type="checkbox" id="edit-type-agent" value="3"> 🤝 Agent</label>
             </div>
-            <div style="font-size:11px;color:#94a3b8;margin-top:4px">Select all that apply</div>
+            <div style="font-size:11px;color:#64748b;margin-top:4px">Select all that apply</div>
         </div>
         <div class="profile-section">
             <label class="form-label">🚛 My Vehicles</label>
@@ -714,7 +733,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
         <div class="profile-section">
             <label class="form-label">📝 About / Details</label>
             <textarea class="form-control" id="edit-details" rows="3" placeholder="About your business, services, etc." style="resize:vertical"></textarea>
-            <div style="font-size:11px;color:#94a3b8;text-align:right"><span id="edit-details-count">0</span>/300</div>
+            <div style="font-size:11px;color:#64748b;text-align:right"><span id="edit-details-count">0</span>/300</div>
         </div>
         <button class="btn-primary success" onclick="saveProfile()" style="margin-top:8px">💾 Save Profile</button>
     </div>
@@ -997,7 +1016,7 @@ function calculateRating(endorsements, flags) {
 }
 
 // ============================================================
-// SHARE FUNCTION - Enhanced with Rich Details
+// SHARE FUNCTION - Enhanced with Rich Details & Dark Theme
 // ============================================================
 function generateShareMessage(type, data) {
     let message = '';
@@ -1010,82 +1029,96 @@ function generateShareMessage(type, data) {
         const fromName = fromLoc ? getLocDisplayName(fromLoc) : 'N/A';
         const toName = toLoc ? getLocDisplayName(toLoc) : 'N/A';
         const dims = data.dimensions ? data.dimensions.join(' x ') + ' ft' : 'N/A';
+        const material = (data.material || 'Cargo').toUpperCase();
         
-        message = '🚛 *LOAD AVAILABLE*\n';
-        message += '─────────────────\n';
-        message += '💰 *₹' + formatIndianNumber(data.rate || 0) + '* (Negotiable)\n';
+        message = '╔═══════════════════════════════════════════╗\n';
+        message += '║  🚛 LOAD AVAILABLE                       ║\n';
+        message += '║  ───────────────────────────────────────── ║\n';
+        message += '║  📦 ' + material + '\n';
+        message += '║  ════════════════════════════════════════ ║\n';
+        message += '║  📍 FROM: ' + fromName + '                 ║\n';
+        message += '║     ⬇️                                    ║\n';
+        message += '║  📍 TO: ' + toName + '                     ║\n';
+        message += '║  ════════════════════════════════════════ ║\n';
+        message += '║  🚛 Vehicle: ' + (data.vehicle_type || 'Any') + '\n';
+        message += '║  📐 Dimensions: ' + dims + '\n';
+        message += '║  ⚖️ Weight: ' + formatIndianNumber(data.weight || 0) + ' Kg\n';
+        message += '║  ════════════════════════════════════════ ║\n';
+        message += '║  💰 ₹' + formatIndianNumber(data.rate || 0) + ' (Negotiable)\n';
         if (data.pickup_date) {
-            message += '📅 Pickup: ' + new Date(data.pickup_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) + '\n';
+            message += '║  📅 Pickup: ' + new Date(data.pickup_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) + '\n';
         }
-        message += '─────────────────\n';
-        message += '📦 *Material:* ' + (data.material || 'Cargo') + '\n';
-        message += '⚖️ *Weight:* ' + formatIndianNumber(data.weight || 0) + ' Kg\n';
-        message += '📐 *Dimensions:* ' + dims + '\n';
-        message += '🚛 *Vehicle:* ' + (data.vehicle_type || 'Any') + '\n';
-        message += '─────────────────\n';
-        message += '📍 *From:* ' + fromName + '\n';
-        message += '📍 *To:* ' + toName + '\n';
-        message += '─────────────────\n';
+        message += '║  ════════════════════════════════════════ ║\n';
         if (data.company) {
-            message += '🏢 Posted by: ' + data.company + '\n';
+            message += '║  🏢 ' + data.company + '\n';
         }
         const ratingInfo = calculateRating(data.endorsements || 0, data.flags || 0);
-        message += '⭐ ' + ratingInfo.display + '\n';
-        message += '─────────────────\n';
-        message += '🔗 *View Details:*\n';
-        message += url + '\n';
-        message += '─────────────────\n';
-        message += '📱 ReturnTruck - Find Loads & Trucks';
+        message += '║  ' + ratingInfo.display + '\n';
+        message += '║  ════════════════════════════════════════ ║\n';
+        message += '║  🔗 ' + url + '\n';
+        message += '║  ───────────────────────────────────────── ║\n';
+        message += '║  📱 ReturnTruck - Find Loads & Trucks    ║\n';
+        message += '╚═══════════════════════════════════════════╝';
         title = '📦 Load Available: ' + data.material;
     } else if (type === 'TRUCK') {
         const loc = getLoc(data.location_pin);
         const locName = loc ? getLocDisplayName(loc) : 'N/A';
         
-        message = '🚛 *TRUCK AVAILABLE*\n';
-        message += '─────────────────\n';
-        message += '🚛 *Truck:* ' + (data.truck_no || 'Truck') + '\n';
-        message += '💰 *₹' + formatIndianNumber(data.rate || 0) + '* (Negotiable)\n';
+        message = '╔═══════════════════════════════════════════╗\n';
+        message += '║  🚛 TRUCK AVAILABLE                      ║\n';
+        message += '║  ───────────────────────────────────────── ║\n';
+        message += '║  🚛 ' + (data.truck_no || 'TRUCK') + '\n';
+        message += '║  ════════════════════════════════════════ ║\n';
+        message += '║  📍 LOCATION: ' + locName + '              ║\n';
+        message += '║  ════════════════════════════════════════ ║\n';
+        message += '║  🚛 Type: ' + (data.vehicle_type || 'Any') + '\n';
+        message += '║  📐 Dimensions: ' + (data.dimensions || 'N/A') + '\n';
+        message += '║  ⚖️ Weight: ' + formatIndianNumber(data.weight || 0) + ' Kg\n';
+        message += '║  ════════════════════════════════════════ ║\n';
+        message += '║  💰 ₹' + formatIndianNumber(data.rate || 0) + '/KM (Negotiable)\n';
         if (data.available_date) {
-            message += '📅 Available: ' + new Date(data.available_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) + '\n';
+            message += '║  📅 Available: ' + new Date(data.available_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) + '\n';
         }
-        message += '─────────────────\n';
-        message += '📍 *Location:* ' + locName + '\n';
-        message += '─────────────────\n';
-        if (data.other_details) {
-            message += '📝 ' + data.other_details.substring(0, 100) + (data.other_details.length > 100 ? '...' : '') + '\n';
+        message += '║  ════════════════════════════════════════ ║\n';
+        if (data.company) {
+            message += '║  🏢 ' + data.company + '\n';
         }
         const ratingInfo = calculateRating(data.endorsements || 0, data.flags || 0);
-        message += '⭐ ' + ratingInfo.display + '\n';
-        message += '─────────────────\n';
-        message += '🔗 *View Details:*\n';
-        message += url + '\n';
-        message += '─────────────────\n';
-        message += '📱 ReturnTruck - Find Loads & Trucks';
+        message += '║  ' + ratingInfo.display + '\n';
+        message += '║  ════════════════════════════════════════ ║\n';
+        message += '║  🔗 ' + url + '\n';
+        message += '║  ───────────────────────────────────────── ║\n';
+        message += '║  📱 ReturnTruck - Find Loads & Trucks    ║\n';
+        message += '╚═══════════════════════════════════════════╝';
         title = '🚛 Truck Available: ' + data.truck_no;
     } else if (type === 'AGENT') {
         const userData = data.user || {};
-        message = '🤝 *AGENT PROFILE*\n';
-        message += '─────────────────\n';
-        message += '🤝 *Name:* ' + (userData.company_name || userData.name || 'Agent') + '\n';
-        if (userData.company_web) {
-            message += '🌐 *Website:* ' + userData.company_web + '\n';
-        }
-        message += '─────────────────\n';
+        message = '╔═══════════════════════════════════════════╗\n';
+        message += '║  🤝 AGENT PROFILE                        ║\n';
+        message += '║  ───────────────────────────────────────── ║\n';
+        message += '║  🤝 ' + (userData.company_name || userData.name || 'Agent').toUpperCase() + '\n';
+        message += '║  ════════════════════════════════════════ ║\n';
         if (userData.preferred_routes && userData.preferred_routes.length > 0) {
-            message += '📍 *Service Routes:*\n';
-            userData.preferred_routes.forEach(r => {
+            message += '║  📍 SERVICE ROUTES:                     ║\n';
+            userData.preferred_routes.slice(0, 4).forEach(r => {
                 const loc = getLoc(r);
-                message += '• ' + (loc ? getLocDisplayName(loc) : r) + '\n';
+                message += '║  • ' + (loc ? getLocDisplayName(loc) : r) + '\n';
             });
+            if (userData.preferred_routes.length > 4) {
+                message += '║  • +' + (userData.preferred_routes.length - 4) + ' more\n';
+            }
         }
-        message += '─────────────────\n';
+        message += '║  ════════════════════════════════════════ ║\n';
+        if (userData.company_web) {
+            message += '║  🌐 ' + userData.company_web + '\n';
+        }
         const ratingInfo = calculateRating(data.endorsements || 0, data.flags || 0);
-        message += '⭐ ' + ratingInfo.display + '\n';
-        message += '─────────────────\n';
-        message += '🔗 *View Profile:*\n';
-        message += url + '\n';
-        message += '─────────────────\n';
-        message += '📱 ReturnTruck - Find Loads & Trucks';
+        message += '║  ' + ratingInfo.display + '\n';
+        message += '║  ════════════════════════════════════════ ║\n';
+        message += '║  🔗 ' + url + '\n';
+        message += '║  ───────────────────────────────────────── ║\n';
+        message += '║  📱 ReturnTruck - Find Loads & Trucks    ║\n';
+        message += '╚═══════════════════════════════════════════╝';
         title = '🤝 Agent Profile: ' + (userData.company_name || userData.name || 'Agent');
     }
     
@@ -1303,7 +1336,7 @@ async function checkUserAndShowStep(mobileNum) {
             document.getElementById('display-mobile').textContent = mobileNum;
             const status = document.getElementById('mobile-status');
             status.textContent = '✅ Existing user - Enter your PIN';
-            status.style.color = '#16a34a';
+            status.style.color = '#4ade80';
             document.getElementById('pin').value = '';
             document.getElementById('pin').focus();
             document.getElementById('pin-error').style.display = 'none';
@@ -1326,7 +1359,7 @@ async function checkUserAndShowStep(mobileNum) {
         showMobileLoading(false);
         const status = document.getElementById('mobile-status');
         status.textContent = '❌ Error connecting to server. Please try again.';
-        status.style.color = '#dc2626';
+        status.style.color = '#f87171';
         document.getElementById('step1').classList.add('hidden');
         document.getElementById('step2').classList.remove('hidden');
         document.getElementById('display-mobile').textContent = mobileNum;
@@ -1624,7 +1657,7 @@ function searchVehiclesForTruck(query) {
         .then(result => {
             if (result.error) {
                 console.error('Error searching vehicles:', result.error);
-                dropdown.innerHTML = '<div class="item" style="color:#dc2626;">Error loading vehicles</div>';
+                dropdown.innerHTML = '<div class="item" style="color:#f87171;">Error loading vehicles</div>';
                 return;
             }
             const vlist = result.data || [];
@@ -1645,7 +1678,7 @@ function searchVehiclesForTruck(query) {
             dropdown.classList.add('show');
         }).catch(err => {
             console.error('Error:', err);
-            dropdown.innerHTML = '<div class="item" style="color:#dc2626;">Error loading vehicles</div>';
+            dropdown.innerHTML = '<div class="item" style="color:#f87171;">Error loading vehicles</div>';
         });
 }
 
@@ -1693,7 +1726,7 @@ function searchVehicles(query) {
     .then(result => {
       if (result.error) {
         console.error('Error searching vehicles:', result.error);
-        dropdown.innerHTML = '<div class="item" style="color:#dc2626;">Error loading vehicles</div>';
+        dropdown.innerHTML = '<div class="item" style="color:#f87171;">Error loading vehicles</div>';
         return;
       }
       const vlist = result.data || [];
@@ -1708,7 +1741,7 @@ function searchVehicles(query) {
         const isAlreadyAdded = vehicles.includes(v.vehicle_number);
         html += '<div class="item" onclick="selectVehicleFromSuggestion(\'' + v.id + '\',\'' + v.vehicle_number + '\',\'' + v.vehicle_type + '\',\'' + dims + '\')" style="' + (isAlreadyAdded ? 'opacity:0.5;' : '') + '">' +
           v.vehicle_number + ' <span class="sub">' + v.vehicle_type + ' • ' + dims + 'ft</span>' +
-          (isAlreadyAdded ? ' <span style="color:#16a34a;font-size:11px;">✓ Added</span>' : '') +
+          (isAlreadyAdded ? ' <span style="color:#4ade80;font-size:11px;">✓ Added</span>' : '') +
           '</div>';
       });
       html += '<div class="item add-new" onclick="openVehicleModalForEdit(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
@@ -1716,7 +1749,7 @@ function searchVehicles(query) {
       dropdown.classList.add('show');
     }).catch(err => {
       console.error('Error:', err);
-      dropdown.innerHTML = '<div class="item" style="color:#dc2626;">Error loading vehicles</div>';
+      dropdown.innerHTML = '<div class="item" style="color:#f87171;">Error loading vehicles</div>';
     });
 }
 
@@ -1916,7 +1949,7 @@ function removeVehicle(v) {
 
 function renderVehicles() {
   const container = document.getElementById('edit-vehicles-list');
-  if (!vehicles.length) { container.innerHTML = '<span style="color:#94a3b8;font-size:13px">No vehicles added</span>'; return; }
+  if (!vehicles.length) { container.innerHTML = '<span style="color:#64748b;font-size:13px">No vehicles added</span>'; return; }
   container.innerHTML = vehicles.map(v => {
     const data = vehicleDataMap[v] || { vehicle_type: 'Unknown', dimensions: 'N/A' };
     const dims = data.dimensions || 'N/A';
@@ -1958,7 +1991,7 @@ function removeRoute(r) {
 
 function renderRoutes() {
   const container = document.getElementById('edit-routes-list');
-  if (!routes.length) { container.innerHTML = '<span style="color:#94a3b8;font-size:13px">No routes added</span>'; return; }
+  if (!routes.length) { container.innerHTML = '<span style="color:#64748b;font-size:13px">No routes added</span>'; return; }
   container.innerHTML = routes.map(r => {
     const loc = getLoc(r);
     const display = loc ? getLocDisplayName(loc) : r;
@@ -2220,7 +2253,7 @@ function loadProfile() {
       .then(result => {
         const vdata = result.data || [];
         if (!vdata.length) {
-          container2.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:8px">No vehicles found</div>';
+          container2.innerHTML = '<div style="color:#64748b;font-size:13px;text-align:center;padding:8px">No vehicles found</div>';
           badge.textContent = '0 Vehicles';
           return;
         }
@@ -2235,7 +2268,7 @@ function loadProfile() {
         document.getElementById('stat-vehicles-count').textContent = vdata.length;
       });
   } else {
-    container2.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:8px">No vehicles added</div>';
+    container2.innerHTML = '<div style="color:#64748b;font-size:13px;text-align:center;padding:8px">No vehicles added</div>';
     badge.textContent = '0 Vehicles';
     document.getElementById('stat-vehicles-count').textContent = '0';
   }
@@ -2260,7 +2293,7 @@ function loadProfile() {
       return '<span class="route-tag">' + (loc ? getLocDisplayName(loc) : r) + '</span>';
     }).join('');
   } else {
-    rc.innerHTML = '<span style="color:#94a3b8;font-size:13px">No routes added</span>';
+    rc.innerHTML = '<span style="color:#64748b;font-size:13px">No routes added</span>';
   }
   
   loadMyLoads();
@@ -2275,13 +2308,13 @@ function loadMyLoads() {
       const loads = res.data || [];
       const container = document.getElementById('my-loads-container');
       const count = document.getElementById('my-loads-count');
-      if (!loads.length) { container.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:8px">No loads posted</div>'; count.textContent = '0'; return; }
+      if (!loads.length) { container.innerHTML = '<div style="color:#64748b;font-size:13px;text-align:center;padding:8px">No loads posted</div>'; count.textContent = '0'; return; }
       count.textContent = loads.length;
       container.innerHTML = loads.map(l => {
         const interests = l.interests || [];
         let interestHtml = '';
         if (interests.length > 0) {
-          interestHtml = '<div style="font-size:12px;color:#64748b;margin-top:4px;">🤝 Interested: ' + interests.join(', ') + '</div>';
+          interestHtml = '<div style="font-size:12px;color:#94a3b8;margin-top:4px;">🤝 Interested: ' + interests.join(', ') + '</div>';
         }
         return '<div class="list-item">' +
           '<div class="title">' + l.material + ' • ' + getLocName(l.pickup_pin) + ' → ' + getLocName(l.drop_pin) + '</div>' +
@@ -2303,13 +2336,13 @@ function loadMyTrucks() {
       const trucks = res.data || [];
       const container = document.getElementById('my-trucks-container');
       const count = document.getElementById('my-trucks-count');
-      if (!trucks.length) { container.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:8px">No trucks listed</div>'; count.textContent = '0'; return; }
+      if (!trucks.length) { container.innerHTML = '<div style="color:#64748b;font-size:13px;text-align:center;padding:8px">No trucks listed</div>'; count.textContent = '0'; return; }
       count.textContent = trucks.length;
       container.innerHTML = trucks.map(t => {
         const interests = t.interested || [];
         let interestHtml = '';
         if (interests.length > 0) {
-          interestHtml = '<div style="font-size:12px;color:#64748b;margin-top:4px;">🤝 Interested: ' + interests.join(', ') + '</div>';
+          interestHtml = '<div style="font-size:12px;color:#94a3b8;margin-top:4px;">🤝 Interested: ' + interests.join(', ') + '</div>';
         }
         return '<div class="list-item">' +
           '<div class="title">' + t.truck_no + ' • 📍 ' + getLocName(t.location_pin) + '</div>' +
@@ -2543,7 +2576,7 @@ async function renderFeed() {
     if (v && v !== 'ALL') filtered = filtered.filter(i => i.vehicle && i.vehicle.toLowerCase().includes(v.toLowerCase()));
 
     document.getElementById('results-count').textContent = 'Showing ' + filtered.length + ' Records within ' + radius + ' KM';
-    if (!filtered.length) { document.getElementById('feed-container').innerHTML = '<div style="padding:30px 0;color:#94a3b8;text-align:center">No records found</div>'; return; }
+    if (!filtered.length) { document.getElementById('feed-container').innerHTML = '<div style="padding:30px 0;color:#64748b;text-align:center">No records found</div>'; return; }
     document.getElementById('feed-container').innerHTML = filtered.map(i => {
       let bc = i.type === 'LOAD' ? 'load' : (i.type === 'TRUCK' ? 'truck' : 'agent');
       let loc = '', sub = '', stats = '', rateDisplay = '';
@@ -2576,7 +2609,7 @@ async function renderFeed() {
     }).join('');
   } catch(e) { 
     console.error('Render feed error:', e);
-    document.getElementById('feed-container').innerHTML = '<div style="padding:30px 0;color:#ef4444;text-align:center">Error loading feed</div>'; 
+    document.getElementById('feed-container').innerHTML = '<div style="padding:30px 0;color:#f87171;text-align:center">Error loading feed</div>'; 
   }
 }
 
@@ -2707,7 +2740,7 @@ function renderLoadDetail(load) {
     
     return `
         <div class="detail-header-card">
-            <div class="main-title">📦 ${load.material || 'Cargo'}</div>
+            <div class="main-title">📦 ${(load.material || 'Cargo').toUpperCase()}</div>
             <div class="company-name">${user.company_name || 'Unknown Company'} ${website ? `• ${website}` : ''}</div>
             <div class="meta-row">${badges}</div>
         </div>
@@ -2716,9 +2749,9 @@ function renderLoadDetail(load) {
             <div class="section-title">📋 LOAD SPECS</div>
             <div class="spec-grid">
                 <div><span class="label">⚖️ Weight</span><br><span class="value">${formatIndianNumber(load.weight || 0)} Kg</span></div>
-                <div><span class="label">📐 Dimensions</span><br><span class="value">${dimensions}</span></div>
-                <div><span class="label">🚛 Vehicle</span><br><span class="value">${load.vehicle_type || 'Any'}</span></div>
-                <div><span class="label">💲 Rate</span><br><span class="value" style="color:#2563eb;font-size:15px;">₹${formatIndianNumber(load.rate || 0)}</span></div>
+                <div><span class="label">📐 Dimensions</span><br><span class="value highlight">${dimensions}</span></div>
+                <div><span class="label">🚛 Vehicle</span><br><span class="value highlight">${load.vehicle_type || 'Any'}</span></div>
+                <div><span class="label">💲 Rate</span><br><span class="value" style="color:#94a3b8;">₹${formatIndianNumber(load.rate || 0)}</span></div>
                 ${load.odc_allowed !== undefined ? `<div><span class="label">🚛 ODC</span><br><span class="value">${load.odc_allowed ? '✅ Yes' : '❌ No'}</span></div>` : ''}
             </div>
         </div>
@@ -2762,7 +2795,7 @@ function renderTruckDetail(truck) {
     const ratingInfo = calculateRating(truck.endorsements || 0, truck.flags || 0);
     const isVerified = (user.pan && user.gst);
     
-    let vehicleSpecsHtml = '<div style="font-size:14px;color:#94a3b8;">🔄 Loading...</div>';
+    let vehicleSpecsHtml = '<div style="font-size:14px;color:#64748b;">🔄 Loading...</div>';
     sb.from('active_vehicles').select('*').eq('vehicle_number', truck.truck_no).single()
         .then(v => {
             if (v.data) {
@@ -2770,8 +2803,8 @@ function renderTruckDetail(truck) {
                 const vehDetail = document.getElementById('vehicle-detail-specs');
                 if (vehDetail) {
                     vehDetail.innerHTML = `
-                        <div><span class="label">🚛 Type</span><br><span class="value">${v.data.vehicle_type || 'N/A'}</span></div>
-                        <div><span class="label">📐 Dimensions</span><br><span class="value">${dims}</span></div>
+                        <div><span class="label">🚛 Type</span><br><span class="value highlight">${v.data.vehicle_type || 'N/A'}</span></div>
+                        <div><span class="label">📐 Dimensions</span><br><span class="value highlight">${dims}</span></div>
                         <div><span class="label">⚖️ Max Weight</span><br><span class="value">${formatIndianNumber(v.data.max_weight || 0)} Kg</span></div>
                         <div><span class="label">🚛 ODC</span><br><span class="value">${v.data.odc_allowed ? '✅ Yes' : '❌ No'}</span></div>
                     `;
@@ -2788,7 +2821,7 @@ function renderTruckDetail(truck) {
     
     return `
         <div class="detail-header-card">
-            <div class="main-title">🚛 ${truck.truck_no || 'Truck'}</div>
+            <div class="main-title">🚛 ${(truck.truck_no || 'TRUCK').toUpperCase()}</div>
             <div class="company-name">${user.company_name || 'Unknown Company'} ${website ? `• ${website}` : ''}</div>
             <div class="meta-row">${badges}</div>
         </div>
@@ -2798,9 +2831,9 @@ function renderTruckDetail(truck) {
             <div id="vehicle-detail-specs" class="spec-grid">
                 ${vehicleSpecsHtml}
             </div>
-            <div style="margin-top:8px;font-size:13px;color:#475569;">
+            <div style="margin-top:8px;font-size:13px;color:#94a3b8;">
                 <span class="label">💲 Rate/KM</span><br>
-                <span class="value" style="color:#2563eb;font-size:15px;">₹${formatIndianNumber(truck.rate || 0)}</span>
+                <span class="value" style="color:#94a3b8;">₹${formatIndianNumber(truck.rate || 0)}</span>
             </div>
         </div>
         
@@ -2859,7 +2892,7 @@ function renderAgentDetail(agent) {
     
     return `
         <div class="detail-header-card">
-            <div class="main-title">🤝 ${user.company_name || agent.name || 'Agent'}</div>
+            <div class="main-title">🤝 ${(user.company_name || agent.name || 'Agent').toUpperCase()}</div>
             <div class="company-name">${website ? website : ''}</div>
             <div class="meta-row">${badges}</div>
         </div>
