@@ -19,28 +19,28 @@
 <meta name="twitter:card" content="summary_large_image" />
 <style>
 *{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
-body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
-.card{max-width:420px;width:100%;background:#fff;border-radius:24px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);display:flex;flex-direction:column;height:95vh;max-height:800px;position:relative;overflow:hidden}
+body{background:#f5f7fa;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
+.card{max-width:420px;width:100%;background:#ffffff;border-radius:24px;padding:16px;box-shadow:0 4px 24px rgba(0,0,0,.08);display:flex;flex-direction:column;height:95vh;max-height:800px;position:relative;overflow:hidden}
 .hidden-page{display:none !important}.hidden{display:none !important}
-.header-fixed{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #f1f5f9;background:#fff;z-index:10;width:100%;min-height:50px}
+.header-fixed{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #e8ecf0;background:#ffffff;z-index:10;width:100%;min-height:50px}
 .logo{font-size:22px;font-weight:900;color:#2563eb;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none}
 .logo-icon{font-size:28px;line-height:1}.logo-text{font-size:22px;font-weight:900;color:#2563eb;letter-spacing:-0.5px}
 .header-right{display:flex;align-items:center;gap:8px;position:relative}
-.avatar-btn{width:36px;height:36px;border-radius:50%;border:2px solid #e2e8f0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;background:#94a3b8;transition:all .2s}
+.avatar-btn{width:36px;height:36px;border-radius:50%;border:2px solid #e8ecf0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;background:#94a3b8;transition:all .2s}
 .avatar-btn.guest{background:#64748b}
-.profile-dropdown{position:absolute;top:45px;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:160px;z-index:100;display:none}
+.profile-dropdown{position:absolute;top:45px;right:0;background:#ffffff;border:1px solid #e8ecf0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:160px;z-index:100;display:none}
 .profile-dropdown.show{display:block}
-.dropdown-item{padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500;color:#1e293b;cursor:pointer;border:none;background:transparent;width:100%}
-.dropdown-item:hover{background:#f8fafc}
-.dropdown-divider{height:1px;background:#e2e8f0;margin:4px 12px}
-.nav-fixed{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e2e8f0;background:#fff;position:relative;z-index:10;min-height:65px;width:100%;padding-bottom:5px;margin-top:auto}
+.dropdown-item{padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500;color:#0f172a;cursor:pointer;border:none;background:transparent;width:100%}
+.dropdown-item:hover{background:#f5f7fa}
+.dropdown-divider{height:1px;background:#e8ecf0;margin:4px 12px}
+.nav-fixed{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e8ecf0;background:#ffffff;position:relative;z-index:10;min-height:65px;width:100%;padding-bottom:5px;margin-top:auto}
 .nav-item{display:flex;flex-direction:column;align-items:center;color:#94a3b8;font-size:10px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px;position:relative;z-index:2}
 .nav-item.active{color:#2563eb}.nav-item .icon{font-size:24px;margin-bottom:2px}.nav-item .label{font-size:10px;text-transform:uppercase;letter-spacing:.05em}
 .scroll-body{overflow-y:auto;padding:8px 0;-webkit-overflow-scrolling:touch;display:block;width:100%;flex:1}
 .scroll-body::-webkit-scrollbar{width:4px}.scroll-body::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
 #login-screen{display:flex;flex-direction:column;height:100%;width:100%;overflow-y:auto;padding:4px 0}
 .login-icon-container{display:flex;justify-content:center;margin-bottom:0}
-.login-icon-container img{width:240px;height:240px;border-radius:40px;box-shadow:0 4px 20px rgba(37,99,235,0.25);background:#fff;padding:8px;max-width:100%}
+.login-icon-container img{width:240px;height:240px;border-radius:40px;box-shadow:0 4px 20px rgba(37,99,235,0.15);background:#ffffff;padding:8px;max-width:100%}
 .login-subtitle{font-size:14px;color:#64748b;text-align:center;margin-bottom:12px;margin-top:4px}
 .login-stats-container{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:12px;margin-bottom:12px;border:1px solid #bfdbfe}
 .login-stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
@@ -48,38 +48,48 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .login-stat-item .number{font-size:20px;font-weight:800;color:#1d4ed8;display:block;line-height:1.2}
 .login-stat-item .label{font-size:9px;font-weight:600;color:#475569;display:block;text-transform:uppercase}
 .login-step-container{flex:1;display:flex;flex-direction:column;justify-content:center}
-.input-field{width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;background:#fff;margin-bottom:12px}
+.input-field{width:100%;padding:14px;border:2px solid #e8ecf0;border-radius:12px;font-size:16px;text-align:center;background:#ffffff;color:#0f172a;margin-bottom:12px}
 .input-field:focus{border-color:#2563eb;outline:none}
-.input-field:disabled{background:#f1f5f9;color:#94a3b8}
+.input-field:disabled{background:#f5f7fa;color:#94a3b8}
+.input-field::placeholder{color:#94a3b8}
 .btn-primary{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px}
 .btn-primary:hover{background:#1d4ed8}
 .btn-primary:disabled{opacity:0.6;cursor:not-allowed}
 .btn-primary.success{background:#16a34a}.btn-primary.success:hover{background:#15803d}
 .btn-back{width:100%;padding:14px;background:#6b7280;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer}
 .login-divider{display:flex;align-items:center;gap:12px;margin:16px 0}
+.login-divider div{flex:1;height:1px;background:#e8ecf0}
+.login-divider span{font-size:11px;color:#94a3b8}
 .location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
 .location-row .location-input{flex:2}.location-row .radius-select{flex:1}
-.location-input input,.radius-select select{width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;background:#fff}
-.type-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;background:#e2e8f0;padding:3px;border-radius:10px;margin-bottom:6px}
+.location-input input,.radius-select select{width:100%;padding:8px 12px;border:1px solid #e8ecf0;border-radius:8px;font-size:13px;background:#ffffff;color:#0f172a}
+.location-input input::placeholder{color:#94a3b8}
+.radius-select select option{background:#ffffff;color:#0f172a}
+.type-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;background:#e8ecf0;padding:3px;border-radius:10px;margin-bottom:6px}
 .type-tabs button{padding:8px 4px;font-size:12px;font-weight:700;border:none;border-radius:8px;cursor:pointer}
-.type-tabs .active{background:#fff;color:#1e293b}.type-tabs .inactive{background:transparent;color:#64748b}
-.filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:11px;font-weight:600;color:#64748b;border-top:1px solid #e2e8f0;margin-top:4px;user-select:none}
+.type-tabs .active{background:#ffffff;color:#0f172a}.type-tabs .inactive{background:transparent;color:#64748b}
+.filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:11px;font-weight:600;color:#64748b;border-top:1px solid #e8ecf0;margin-top:4px;user-select:none}
 .filter-container{overflow:hidden;transition:max-height 0.3s ease;max-height:0}
 .filter-container.open{max-height:400px;overflow:visible}
 .filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;padding-top:6px}
 .filter-row label{font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
-.filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;outline:none}
+.filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:12px;background:#ffffff;border:1px solid #e8ecf0;border-radius:8px;color:#0f172a;outline:none}
+.filter-row input::placeholder{color:#94a3b8}
+.filter-row select option{background:#ffffff;color:#0f172a}
 .search-wrapper{position:relative;width:100%}
-.search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#ffffff;border:1px solid #e8ecf0;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
 .search-wrapper .suggestions.show{display:block}
-.search-wrapper .suggestions .item{padding:12px 16px;font-size:14px;color:#1e293b;cursor:pointer;border-bottom:1px solid #f1f5f9}
+.search-wrapper .suggestions .item{padding:12px 16px;font-size:14px;color:#0f172a;cursor:pointer;border-bottom:1px solid #f1f5f9}
 .search-wrapper .suggestions .item:last-child{border-bottom:none}
-.search-wrapper .suggestions .item:hover{background:#f8fafc}
+.search-wrapper .suggestions .item:hover{background:#f5f7fa}
 .search-wrapper .suggestions .item .highlight{background:#dbeafe;font-weight:600}
 .results-count{display:flex;justify-content:space-between;padding-bottom:4px;margin-bottom:6px;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
+/* ============================================================
+   HOME FEED - Light Theme
+   ============================================================ */
 .feed-container{display:flex;flex-direction:column;gap:10px}
-.feed-card{border:1px solid #e2e8f0;border-radius:12px;padding:12px;cursor:pointer;background:#fff;transition:all .2s}
-.feed-card:hover{border-color:#3b82f6;background:#f8faff}
+.feed-card{border:1px solid #e8ecf0;border-radius:12px;padding:12px;cursor:pointer;background:#ffffff;transition:all .2s}
+.feed-card:hover{border-color:#2563eb;background:#f8faff}
 .feed-card .header-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
 .feed-card .title{font-weight:700;font-size:15px;color:#0f172a;flex:1}
 .feed-card .type-badge{flex-shrink:0;font-size:10px;padding:3px 10px;border-radius:4px;font-weight:700;text-transform:uppercase}
@@ -88,53 +98,91 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .feed-card .type-badge.agent{background:#fef3c7;color:#92400e}
 .feed-card .company{font-size:13px;color:#2563eb;font-weight:600;margin-bottom:2px}
 .feed-card .meta{font-size:12px;color:#475569;margin-top:3px;display:flex;align-items:center;gap:4px}
+.feed-card .meta .highlight{color:#2563eb;font-weight:600}
 .feed-card .stats-row{margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9;display:flex;gap:12px;font-size:11px;color:#94a3b8}
 .feed-card .stats-row span{display:flex;align-items:center;gap:3px}
 .feed-card .stats-row .val{font-weight:600;color:#475569}
+/* ============================================================
+   DETAIL VIEW - Card Styles
+   ============================================================ */
+.detail-header-card{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid #bfdbfe}
+.detail-header-card .main-title{font-size:20px;font-weight:700;color:#0f172a}
+.detail-header-card .company-name{font-size:14px;color:#2563eb;font-weight:600}
+.detail-header-card .meta-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.detail-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.detail-badge.rating{background:#fef3c7;color:#92400e}
+.detail-badge.verified{background:#dcfce7;color:#166534}
+.detail-badge.unverified{background:#fef2f2;color:#991b1b}
+.detail-badge.pan-gst{background:#e8ecf0;color:#475569;font-size:10px}
+.detail-card{background:#ffffff;border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.06);border:1px solid #e8ecf0}
+.detail-card .section-title{font-size:13px;font-weight:700;color:#2563eb;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.detail-card .spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;color:#475569}
+.detail-card .spec-grid .label{color:#94a3b8;font-weight:500;text-transform:uppercase;font-size:10px}
+.detail-card .spec-grid .value{font-weight:700;color:#0f172a;font-size:15px}
+.detail-card .spec-grid .value.highlight{color:#2563eb}
+.detail-card .route-display{font-size:14px;color:#475569}
+.detail-card .route-display .from{color:#2563eb;font-weight:700}
+.detail-card .route-display .to{color:#dc2626;font-weight:700}
+.detail-card .route-arrow{text-align:center;font-size:20px;padding:4px 0;color:#94a3b8}
+.detail-card .route-meta{font-size:13px;color:#94a3b8;margin-top:6px}
+.detail-card .route-meta strong{color:#0f172a}
+.detail-card .instructions-text{font-size:14px;color:#475569;padding:4px 0}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
+.stat-item{background:#f5f7fa;border-radius:10px;padding:10px 4px;text-align:center;border:1px solid #e8ecf0}
+.stat-item .stat-icon{font-size:20px;display:block}
+.stat-item .stat-number{font-size:18px;font-weight:700;color:#0f172a;display:block;margin-top:2px}
+.stat-item .stat-label{font-size:9px;color:#94a3b8;font-weight:600;text-transform:uppercase;margin-top:2px;display:block}
+.action-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.action-grid button{width:100%;padding:12px 4px;border-radius:10px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:12px;cursor:pointer;transition:all .2s;box-shadow:0 2px 4px rgba(0,0,0,.1)}
+.action-grid button:active{transform:scale(0.95)}
+.action-grid button .act-icon{font-size:22px;display:block;margin-bottom:2px}
+.btn-call{background:#16a34a}.btn-call:hover{background:#15803d}
+.btn-endorse{background:#8b5cf6}.btn-endorse:hover{background:#7c3aed}
+.btn-flag{background:#ef4444}.btn-flag:hover{background:#dc2626}
+.btn-share{background:#25D366}.btn-share:hover{background:#1da851}
+.express-interest-btn{width:100%;padding:14px;background:#8b5cf6;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;box-shadow:0 2px 8px rgba(139,92,246,.3);transition:all .2s}
+.express-interest-btn:active{transform:scale(0.97)}
+/* End of detail styles */
 .guest-banner{flex-shrink:0;background:#2563eb;color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .guest-banner.hidden{display:none}
 .guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px}
 .profile-header-card{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:12px;padding:16px;color:#fff;margin-bottom:12px}
-.profile-section{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px}
+.profile-section{background:#ffffff;border:1px solid #e8ecf0;border-radius:12px;padding:16px;margin-bottom:12px}
 .profile-section .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.profile-section .section-title{font-size:15px;font-weight:700;color:#1e293b}
+.profile-section .section-title{font-size:15px;font-weight:700;color:#0f172a}
 .profile-section .section-badge{font-size:10px;padding:2px 12px;border-radius:12px;font-weight:700}
 .section-badge.active{background:#dcfce7;color:#166534}
 .section-badge.required{background:#fef3c7;color:#d97706}
-.section-badge.optional{background:#e2e8f0;color:#64748b}
+.section-badge.optional{background:#e8ecf0;color:#64748b}
 .section-btn{padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px}
 .section-btn:hover{background:#1d4ed8}
-.section-btn.secondary{background:#e2e8f0;color:#1e293b}
-.section-btn.secondary:hover{background:#cbd5e1}
+.section-btn.secondary{background:#e8ecf0;color:#0f172a}
+.section-btn.secondary:hover{background:#d1d5db}
 .section-btn.danger{background:#dc2626;color:#fff}
 .section-btn.danger:hover{background:#b91c1c}
 .section-btn.success{background:#16a34a;color:#fff}
 .section-btn.success:hover{background:#15803d}
-.form-control{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;background:#fff;outline:none}
+.form-control{width:100%;padding:10px 12px;border:1px solid #e8ecf0;border-radius:8px;font-size:14px;background:#ffffff;color:#0f172a;outline:none}
 .form-control:focus{border-color:#2563eb}
+.form-control::placeholder{color:#94a3b8}
 .form-label{font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .grid-2-vehicle{display:grid;grid-template-columns:2fr 1fr;gap:12px}
-.detail-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px}
-.detail-actions button{width:100%;padding:12px 4px;border-radius:10px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:12px;cursor:pointer;transition:all .2s}
-.detail-actions button:active{transform:scale(0.95)}
-.detail-actions button .icon-text{font-size:22px;display:block;margin-bottom:2px}
-.btn-call{background:#16a34a}.btn-endorse{background:#8b5cf6}.btn-flag{background:#ef4444}.btn-share{background:#25D366}
 .back-btn{background:transparent;border:none;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;padding:4px 8px}.back-btn:hover{color:#2563eb}
-.otp-input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e2e8f0;background:#fff}
+.otp-input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #e8ecf0;background:#ffffff;color:#0f172a}
 .otp-input:focus{border-color:#2563eb;outline:none}
-.otp-input:disabled{background:#f1f5f9;color:#94a3b8}
+.otp-input:disabled{background:#f5f7fa;color:#94a3b8}
 .error-text{color:#dc2626;font-size:13px;text-align:center;margin-top:4px;display:none}
 .success-text{color:#16a34a;font-size:13px;text-align:center;margin-top:4px;display:none}
 .resend-btn{background:transparent;border:none;color:#2563eb;font-weight:600;cursor:pointer;font-size:13px;text-decoration:underline}
 .resend-btn:disabled{color:#94a3b8;cursor:not-allowed}
 .stat-cards{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px}
-.stat-card{background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0}
+.stat-card{background:#f5f7fa;border-radius:10px;padding:12px;text-align:center;border:1px solid #e8ecf0}
 .stat-card .icon{font-size:22px;display:block;margin-bottom:2px}
-.stat-card .number{font-size:20px;font-weight:800;color:#1e293b}
+.stat-card .number{font-size:20px;font-weight:800;color:#0f172a}
 .stat-card .label{font-size:9px;color:#94a3b8;text-transform:uppercase;font-weight:600}
-.list-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin-bottom:8px}
-.list-item .title{font-weight:600;font-size:14px;color:#1e293b}
+.list-item{background:#f5f7fa;border:1px solid #e8ecf0;border-radius:10px;padding:12px;margin-bottom:8px}
+.list-item .title{font-weight:600;font-size:14px;color:#0f172a}
 .list-item .sub{font-size:12px;color:#64748b;margin-top:2px}
 .list-item .actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
 .list-item .actions button{padding:4px 12px;font-size:11px;border:none;border-radius:4px;font-weight:600;cursor:pointer}
@@ -146,24 +194,24 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .list-item .actions .interests:hover{background:#fde68a}
 .status-badge{font-size:10px;padding:2px 10px;border-radius:10px;font-weight:600;display:inline-block}
 .status-badge.active{background:#dcfce7;color:#166534}
-.status-badge.draft{background:#fef3c7;color:#92400e}
+.status-badge.draft{background:#fef3c7;color:#d97706}
 .status-badge.expired{background:#fef2f2;color:#991b1b}
-.route-tag{background:#e2e8f0;padding:5px 12px;border-radius:6px;font-size:13px;display:inline-block;margin:2px}
+.route-tag{background:#e8ecf0;padding:5px 12px;border-radius:6px;font-size:13px;display:inline-block;margin:2px;color:#0f172a}
 .route-tag .remove{color:#dc2626;cursor:pointer;margin-left:6px;font-weight:700}
 .route-tag .remove:hover{color:#b91c1c}
 .user-type-checkbox{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
-.user-type-checkbox label{font-size:14px;display:flex;align-items:center;gap:4px;cursor:pointer}
+.user-type-checkbox label{font-size:14px;display:flex;align-items:center;gap:4px;cursor:pointer;color:#0f172a}
 .route-input-row{display:flex;gap:6px;margin-bottom:8px}
 .route-input-row input{flex:2}
 .route-input-row button{flex-shrink:0}
-.vehicle-suggest-dropdown{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:8px;margin-top:4px;max-height:150px;overflow-y:auto;z-index:50;display:none}
+.vehicle-suggest-dropdown{position:absolute;top:100%;left:0;right:0;background:#ffffff;border:1px solid #e8ecf0;border-radius:8px;margin-top:4px;max-height:150px;overflow-y:auto;z-index:50;display:none}
 .vehicle-suggest-dropdown.show{display:block}
-.vehicle-suggest-dropdown .item{padding:10px 14px;font-size:14px;cursor:pointer;border-bottom:1px solid #f1f5f9}
-.vehicle-suggest-dropdown .item:hover{background:#f1f5f9}
+.vehicle-suggest-dropdown .item{padding:10px 14px;font-size:14px;cursor:pointer;border-bottom:1px solid #f1f5f9;color:#0f172a}
+.vehicle-suggest-dropdown .item:hover{background:#f5f7fa}
 .vehicle-suggest-dropdown .item .sub{font-size:11px;color:#94a3b8}
 .vehicle-suggest-dropdown .item .add-new{color:#2563eb;font-weight:600}
-.vehicle-number-input{font-family:monospace;letter-spacing:0.5px;text-transform:uppercase}
-.vehicle-item{display:flex;align-items:center;justify-content:space-between;background:#f8fafc;padding:8px 12px;border-radius:6px;margin-bottom:4px;border:1px solid #e2e8f0}
+.vehicle-number-input{font-family:monospace;letter-spacing:0.5px;text-transform:uppercase;color:#0f172a}
+.vehicle-item{display:flex;align-items:center;justify-content:space-between;background:#f5f7fa;padding:8px 12px;border-radius:6px;margin-bottom:4px;border:1px solid #e8ecf0}
 .vehicle-item .vnumber{font-weight:600;font-size:14px;color:#0f172a;flex:1}
 .vehicle-item .vdetails{font-size:12px;color:#64748b;flex:1}
 .vehicle-item .actions{display:flex;gap:4px}
@@ -173,28 +221,33 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
 .vehicle-item .actions .delete-btn{background:#fef2f2;color:#991b1b}
 .vehicle-item .actions .delete-btn:hover{background:#fee2e2}
 .count-badge{background:#2563eb;color:#fff;font-size:11px;border-radius:10px;padding:1px 8px;margin-left:4px}
-.vehicle-display-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;margin-bottom:6px}
+.vehicle-display-item{background:#f5f7fa;border:1px solid #e8ecf0;border-radius:8px;padding:10px 12px;margin-bottom:6px}
 .vehicle-display-item .vnumber{font-weight:700;font-size:14px;color:#0f172a}
 .vehicle-display-item .vdetails{font-size:13px;color:#64748b;margin-top:2px}
 .vehicle-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000}
 .vehicle-modal.show{display:flex}
-.vehicle-modal-content{background:#fff;border-radius:16px;padding:24px;max-width:420px;width:90%;max-height:85vh;overflow-y:auto}
+.vehicle-modal-content{background:#ffffff;border-radius:16px;padding:24px;max-width:420px;width:90%;max-height:85vh;overflow-y:auto}
 .vehicle-modal-content .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .vehicle-modal-content .modal-header h3{margin:0;font-size:19px;color:#0f172a}
 .vehicle-modal-content .modal-close{background:transparent;border:none;font-size:24px;cursor:pointer;color:#94a3b8}
 .vehicle-modal-content .modal-close:hover{color:#dc2626}
 .vehicle-modal-content .form-group{margin-bottom:12px}
-.vehicle-modal-content .form-group .readonly-number{background:#f1f5f9;padding:10px 12px;border-radius:8px;font-weight:700;font-size:16px;color:#0f172a;border:1px solid #e2e8f0}
-.spinner{display:inline-block;width:20px;height:20px;border:3px solid #e2e8f0;border-top-color:#2563eb;border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:8px}
+.vehicle-modal-content .form-group .readonly-number{background:#f5f7fa;padding:10px 12px;border-radius:8px;font-weight:700;font-size:16px;color:#0f172a;border:1px solid #e8ecf0}
+.vehicle-modal-content .form-group .form-control{background:#ffffff;color:#0f172a;border:1px solid #e8ecf0}
+.vehicle-modal-content .form-group .form-control:focus{border-color:#2563eb}
+.vehicle-modal-content .form-group label{color:#94a3b8}
+.spinner{display:inline-block;width:20px;height:20px;border:3px solid #e8ecf0;border-top-color:#2563eb;border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{display:flex;align-items:center;justify-content:center;gap:8px;color:#64748b;font-size:14px;padding:8px}
 .dim-input{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px}
-.dim-input .dim-group{background:#f8fafc;border-radius:8px;padding:8px 12px;border:1px solid #e2e8f0;text-align:center}
+.dim-input .dim-group{background:#f5f7fa;border-radius:8px;padding:8px 12px;border:1px solid #e8ecf0;text-align:center}
 .dim-input .dim-group label{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block}
 .dim-input .dim-group input{width:100%;border:none;background:transparent;text-align:center;font-size:16px;font-weight:600;color:#0f172a;padding:4px 0;outline:none}
 .dim-input .dim-group input:focus{color:#2563eb}
 .website-link{color:#2563eb;text-decoration:underline;cursor:pointer;word-break:break-all}
 .website-link:hover{color:#1d4ed8}
+select.form-control{background:#ffffff;color:#0f172a;border:1px solid #e8ecf0}
+select.form-control option{background:#ffffff;color:#0f172a}
 </style>
 </head>
 <body>
@@ -226,23 +279,23 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <span class="spinner"></span>
                 <span>Checking...</span>
             </div>
-            <div class="login-divider"><div style="flex:1;height:1px;background:#e2e8f0"></div><span style="font-size:11px;color:#94a3b8">or continue as</span><div style="flex:1;height:1px;background:#e2e8f0"></div></div>
+            <div class="login-divider"><div></div><span>or continue as</span><div></div></div>
             <button style="width:100%;padding:12px;border:1.5px solid #8b5cf6;border-radius:12px;font-size:15px;font-weight:600;color:#8b5cf6;background:transparent;cursor:pointer" onclick="continueAsGuest()">👤 Guest</button>
         </div>
         <div id="step2" class="hidden">
             <div style="text-align:center;margin-bottom:16px">
-                <div id="display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
+                <div id="display-mobile" style="font-size:22px;font-weight:700;color:#0f172a">--</div>
                 <div style="font-size:14px;font-weight:500;color:#475569">Enter your 4-digit PIN</div>
             </div>
             <input type="password" id="pin" class="input-field" style="letter-spacing:4px;" placeholder="Enter 4-digit PIN" maxlength="4">
             <div id="pin-error" class="error-text">❌ Incorrect PIN. Please try again.</div>
             <div style="font-size:13px;text-align:center;margin-bottom:12px;color:#64748b">Forgot PIN? <span style="color:#2563eb;cursor:pointer;font-weight:600" onclick="showResetOTP()">Reset PIN</span></div>
-            <button onclick="submitPin()" id="submitBtn" class="btn-primary" style="background:#16a34a">🔐 Login</button>
+            <button onclick="submitPin()" id="submitBtn" class="btn-primary success">🔐 Login</button>
             <button onclick="resetForm()" class="btn-back">← Change Number</button>
         </div>
         <div id="step3" class="hidden">
             <div style="text-align:center;margin-bottom:12px">
-                <div id="wa-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
+                <div id="wa-display-mobile" style="font-size:22px;font-weight:700;color:#0f172a">--</div>
                 <div id="otp-purpose" style="font-size:14px;color:#475569">Enter OTP sent via WhatsApp</div>
                 <div id="otp-loading" class="loading-text hidden" style="justify-content:center;padding:4px">
                     <span class="spinner"></span>
@@ -265,15 +318,15 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <br><br>
                 <button class="resend-btn" onclick="sendWhatsAppOTP()" style="color:#25D366;font-weight:700">💬 Send OTP via WhatsApp</button>
             </div>
-            <button onclick="verifyOTP()" id="verify-btn" class="btn-primary" style="background:#16a34a">✅ Verify</button>
+            <button onclick="verifyOTP()" id="verify-btn" class="btn-primary success">✅ Verify</button>
             <button onclick="resetForm()" class="btn-back">← Change Number</button>
         </div>
         <div id="step4" class="hidden">
-            <div style="text-align:center;margin-bottom:16px"><div id="reg-display-mobile" style="font-size:22px;font-weight:700;color:#1e293b">--</div>
+            <div style="text-align:center;margin-bottom:16px"><div id="reg-display-mobile" style="font-size:22px;font-weight:700;color:#0f172a">--</div>
             <div id="step4-purpose" style="font-size:14px;color:#475569">Set your 4-digit PIN for login</div></div>
             <input type="password" id="reg-pin" class="input-field" placeholder="New PIN (4 digits)" maxlength="4">
             <input type="password" id="reg-pin-confirm" class="input-field" placeholder="Confirm PIN" maxlength="4">
-            <button onclick="registerUser()" id="register-btn" class="btn-primary" style="background:#16a34a">✅ Create Account</button>
+            <button onclick="registerUser()" id="register-btn" class="btn-primary success">✅ Create Account</button>
             <button onclick="resetForm()" class="btn-back">← Change Number</button>
         </div>
     </div>
@@ -359,7 +412,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             </div>
         </div>
         <div class="results-count"><span id="results-count">Showing 0 Records</span></div>
-        <div style="width:100%;height:1px;background:#f1f5f9;margin-top:2px;margin-bottom:4px;flex-shrink:0"></div>
+        <div style="width:100%;height:1px;background:#e8ecf0;margin-top:2px;margin-bottom:4px;flex-shrink:0"></div>
     </div>
     <div class="scroll-body" id="home-scroll-body"><div id="feed-container" class="feed-container"></div></div>
     <div class="nav-fixed" id="bottom-nav">
@@ -565,7 +618,7 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
                 <span class="section-title">🏢 Company Details</span>
                 <button class="section-btn secondary" style="padding:4px 12px;font-size:11px" onclick="openEditProfile()">✏️ Edit</button>
             </div>
-            <div style="font-weight:600;font-size:15px;color:#1e293b" id="profile-company">Not set</div>
+            <div style="font-weight:600;font-size:15px;color:#0f172a" id="profile-company">Not set</div>
             <div id="profile-website" style="font-size:13px;color:#2563eb;word-break:break-all"></div>
             <div style="font-size:12px;color:#64748b;margin-top:4px" id="profile-pan">📛 PAN: --</div>
             <div style="font-size:12px;color:#64748b;margin-top:2px" id="profile-gst">📛 GST: --</div>
@@ -600,15 +653,15 @@ body{background:#f3f4f6;margin:0;padding:16px;display:flex;justify-content:cente
             <div id="profile-details-text" style="font-size:14px;color:#475569;padding:4px 0">No details added</div>
         </div>
         <div style="margin-bottom:8px">
-            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px">📦 My Loads <span class="count-badge" id="my-loads-count">0</span></div>
+            <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:8px">📦 My Loads <span class="count-badge" id="my-loads-count">0</span></div>
             <div id="my-loads-container"></div>
         </div>
         <div style="margin-bottom:8px">
-            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px">🚛 My Trucks <span class="count-badge" id="my-trucks-count">0</span></div>
+            <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:8px">🚛 My Trucks <span class="count-badge" id="my-trucks-count">0</span></div>
             <div id="my-trucks-container"></div>
         </div>
         <div style="margin:12px 0 8px">
-            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px">📊 MY STATISTICS</div>
+            <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:8px">📊 MY STATISTICS</div>
             <div class="stat-cards">
                 <div class="stat-card"><span class="icon">📦</span><span class="number" id="stat-loads-count">0</span><span class="label">Loads</span></div>
                 <div class="stat-card"><span class="icon">🚛</span><span class="number" id="stat-trucks-count">0</span><span class="label">Trucks</span></div>
@@ -2645,8 +2698,7 @@ function renderLoadDetail(load) {
     const dimensions = load.dimensions ? load.dimensions.join(' x ') + ' ft' : 'N/A';
     const website = user.company_web ? `<a href="${user.company_web.startsWith('http') ? user.company_web : 'https://' + user.company_web}" target="_blank" class="website-link" onclick="event.stopPropagation();">${user.company_web} ↗</a>` : '';
     const ratingInfo = calculateRating(load.endorsements || 0, load.flags || 0);
-    const isVerified = (user.pan && user.gst) ? '✅ Verified' : '🔒 Unverified';
-    
+    const isVerified = (user.pan && user.gst);
     const distId = 'dist-' + load.id + '-' + Date.now();
     
     if (fromLoc && toLoc) {
@@ -2665,58 +2717,56 @@ function renderLoadDetail(load) {
             });
     }
     
+    // Build badges
+    let badges = '';
+    badges += `<span class="detail-badge rating">${ratingInfo.display}</span>`;
+    badges += isVerified ? `<span class="detail-badge verified">✅ Verified</span>` : `<span class="detail-badge unverified">🔒 Unverified</span>`;
+    if (user.pan) badges += `<span class="detail-badge pan-gst">📛 ${user.pan}</span>`;
+    if (user.gst) badges += `<span class="detail-badge pan-gst">📛 ${user.gst}</span>`;
+    
     return `
-        <div style="margin-bottom:12px;">
-            <div style="font-size:20px;font-weight:700;color:#0f172a;">📦 ${load.material || 'Cargo'}</div>
-            <div style="font-size:14px;color:#2563eb;font-weight:600;margin-top:2px;">
-                ${user.company_name || 'Unknown Company'}
-                ${website ? ` • ${website}` : ''}
-            </div>
-            <div style="font-size:13px;color:#64748b;margin-top:2px;">
-                ${ratingInfo.display} • ${isVerified}
-                ${user.pan ? ` • PAN: ${user.pan}` : ''}
-                ${user.gst ? ` • GST: ${user.gst}` : ''}
+        <div class="detail-header-card">
+            <div class="main-title">📦 ${load.material || 'Cargo'}</div>
+            <div class="company-name">${user.company_name || 'Unknown Company'} ${website ? `• ${website}` : ''}</div>
+            <div class="meta-row">${badges}</div>
+        </div>
+        
+        <div class="detail-card">
+            <div class="section-title">📋 LOAD SPECS</div>
+            <div class="spec-grid">
+                <div><span class="label">⚖️ Weight</span><br><span class="value">${formatIndianNumber(load.weight || 0)} Kg</span></div>
+                <div><span class="label">📐 Dimensions</span><br><span class="value highlight">${dimensions}</span></div>
+                <div><span class="label">🚛 Vehicle</span><br><span class="value highlight">${load.vehicle_type || 'Any'}</span></div>
+                <div><span class="label">💲 Rate</span><br><span class="value">₹${formatIndianNumber(load.rate || 0)}</span></div>
+                ${load.odc_allowed !== undefined ? `<div><span class="label">🚛 ODC</span><br><span class="value">${load.odc_allowed ? '✅ Yes' : '❌ No'}</span></div>` : ''}
             </div>
         </div>
         
-        <div class="profile-section">
-            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px;">📋 LOAD SPECS</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:14px;color:#475569;">
-                <div>⚖️ Weight: <strong>${formatIndianNumber(load.weight || 0)} Kg</strong></div>
-                <div>📐 Dimensions: <strong>${dimensions}</strong></div>
-                <div>🚛 Vehicle: <strong>${load.vehicle_type || 'Any'}</strong></div>
-                <div>💲 Rate: <strong>₹${formatIndianNumber(load.rate || 0)}</strong></div>
-                ${load.odc_allowed !== undefined ? `<div>🚛 ODC: <strong>${load.odc_allowed ? '✅ Yes' : '❌ No'}</strong></div>` : ''}
-            </div>
-        </div>
-        
-        <div class="profile-section">
-            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px;">📍 ROUTE</div>
-            <div style="font-size:14px;color:#475569;">
-                <div>🔵 <strong>From:</strong> ${fromLoc ? getLocDisplayName(fromLoc) : 'N/A'}</div>
-                <div style="text-align:center;font-size:18px;padding:4px 0;">⬇️</div>
-                <div>🔴 <strong>To:</strong> ${toLoc ? getLocDisplayName(toLoc) : 'N/A'}</div>
-                <div style="margin-top:4px;font-size:13px;color:#94a3b8;">
-                    📏 Estimated Distance: <strong id="${distId}">⏳ Calculating...</strong>
-                </div>
-                <div style="margin-top:4px;font-size:13px;color:#94a3b8;">📅 Pickup: <strong>${load.pickup_date ? new Date(load.pickup_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'Flexible'}</strong></div>
+        <div class="detail-card">
+            <div class="section-title">📍 ROUTE</div>
+            <div class="route-display">
+                <div><span class="from">🔵 From:</span> ${fromLoc ? getLocDisplayName(fromLoc) : 'N/A'}</div>
+                <div class="route-arrow">⬇️</div>
+                <div><span class="to">🔴 To:</span> ${toLoc ? getLocDisplayName(toLoc) : 'N/A'}</div>
+                <div class="route-meta">📏 Estimated Distance: <strong id="${distId}">⏳ Calculating...</strong></div>
+                <div class="route-meta">📅 Pickup: <strong>${load.pickup_date ? new Date(load.pickup_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'Flexible'}</strong></div>
             </div>
         </div>
         
         ${load.instructions ? `
-        <div class="profile-section">
-            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:4px;">📝 Instructions</div>
-            <div style="font-size:14px;color:#475569;">${load.instructions}</div>
+        <div class="detail-card">
+            <div class="section-title">📝 Instructions</div>
+            <div class="instructions-text">${load.instructions}</div>
         </div>
         ` : ''}
         
-        <div class="profile-section">
-            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px;">📊 STATS</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;text-align:center;">
-                <div><span style="font-size:18px;">👁️</span><br><strong style="font-size:17px;color:#0f172a;">${load.views || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Views</span></div>
-                <div><span style="font-size:18px;">📞</span><br><strong style="font-size:17px;color:#0f172a;">${load.calls || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Calls</span></div>
-                <div><span style="font-size:18px;">⭐</span><br><strong style="font-size:17px;color:#0f172a;">${load.endorsements || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Endorsements</span></div>
-                <div><span style="font-size:18px;">🚩</span><br><strong style="font-size:17px;color:#0f172a;">${load.flags || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Flags</span></div>
+        <div class="detail-card">
+            <div class="section-title">📊 STATS</div>
+            <div class="stats-grid">
+                <div class="stat-item"><span class="stat-icon">👁️</span><span class="stat-number">${load.views || 0}</span><span class="stat-label">Views</span></div>
+                <div class="stat-item"><span class="stat-icon">📞</span><span class="stat-number">${load.calls || 0}</span><span class="stat-label">Calls</span></div>
+                <div class="stat-item"><span class="stat-icon">⭐</span><span class="stat-number">${load.endorsements || 0}</span><span class="stat-label">Endorsements</span></div>
+                <div class="stat-item"><span class="stat-icon">🚩</span><span class="stat-number">${load.flags || 0}</span><span class="stat-label">Flags</span></div>
             </div>
         </div>
         
@@ -2729,7 +2779,7 @@ function renderTruckDetail(truck) {
     const loc = getLoc(truck.location_pin);
     const website = user.company_web ? `<a href="${user.company_web.startsWith('http') ? user.company_web : 'https://' + user.company_web}" target="_blank" class="website-link" onclick="event.stopPropagation();">${user.company_web} ↗</a>` : '';
     const ratingInfo = calculateRating(truck.endorsements || 0, truck.flags || 0);
-    const isVerified = (user.pan && user.gst) ? '✅ Verified' : '🔒 Unverified';
+    const isVerified = (user.pan && user.gst);
     
     let vehicleSpecsHtml = '<div style="font-size:14px;color:#94a3b8;">🔄 Loading...</div>';
     sb.from('active_vehicles').select('*').eq('vehicle_number', truck.truck_no).single()
@@ -2739,50 +2789,51 @@ function renderTruckDetail(truck) {
                 const vehDetail = document.getElementById('vehicle-detail-specs');
                 if (vehDetail) {
                     vehDetail.innerHTML = `
-                        <div>🚛 Type: <strong>${v.data.vehicle_type || 'N/A'}</strong></div>
-                        <div>📐 Dimensions: <strong>${dims}</strong></div>
-                        <div>⚖️ Max Weight: <strong>${formatIndianNumber(v.data.max_weight || 0)} Kg</strong></div>
-                        <div>🚛 ODC: <strong>${v.data.odc_allowed ? '✅ Yes' : '❌ No'}</strong></div>
+                        <div><span class="label">🚛 Type</span><br><span class="value highlight">${v.data.vehicle_type || 'N/A'}</span></div>
+                        <div><span class="label">📐 Dimensions</span><br><span class="value highlight">${dims}</span></div>
+                        <div><span class="label">⚖️ Max Weight</span><br><span class="value">${formatIndianNumber(v.data.max_weight || 0)} Kg</span></div>
+                        <div><span class="label">🚛 ODC</span><br><span class="value">${v.data.odc_allowed ? '✅ Yes' : '❌ No'}</span></div>
                     `;
                 }
             }
         });
     
+    // Build badges
+    let badges = '';
+    badges += `<span class="detail-badge rating">${ratingInfo.display}</span>`;
+    badges += isVerified ? `<span class="detail-badge verified">✅ Verified</span>` : `<span class="detail-badge unverified">🔒 Unverified</span>`;
+    if (user.pan) badges += `<span class="detail-badge pan-gst">📛 ${user.pan}</span>`;
+    if (user.gst) badges += `<span class="detail-badge pan-gst">📛 ${user.gst}</span>`;
+    
     return `
-        <div style="margin-bottom:12px;">
-            <div style="font-size:20px;font-weight:700;color:#0f172a;">🚛 ${truck.truck_no || 'Truck'}</div>
-            <div style="font-size:14px;color:#2563eb;font-weight:600;margin-top:2px;">
-                ${user.company_name || 'Unknown Company'}
-                ${website ? ` • ${website}` : ''}
-            </div>
-            <div style="font-size:13px;color:#64748b;margin-top:2px;">
-                ${ratingInfo.display} • ${isVerified}
-                ${user.pan ? ` • PAN: ${user.pan}` : ''}
-                ${user.gst ? ` • GST: ${user.gst}` : ''}
-            </div>
+        <div class="detail-header-card">
+            <div class="main-title">🚛 ${truck.truck_no || 'Truck'}</div>
+            <div class="company-name">${user.company_name || 'Unknown Company'} ${website ? `• ${website}` : ''}</div>
+            <div class="meta-row">${badges}</div>
         </div>
         
-        <div class="profile-section">
-            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px;">📋 VEHICLE SPECS</div>
-            <div id="vehicle-detail-specs" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:14px;color:#475569;">
+        <div class="detail-card">
+            <div class="section-title">📋 VEHICLE SPECS</div>
+            <div id="vehicle-detail-specs" class="spec-grid">
                 ${vehicleSpecsHtml}
             </div>
-            <div style="margin-top:6px;font-size:14px;color:#475569;">
-                💲 Rate/KM: <strong>₹${formatIndianNumber(truck.rate || 0)}</strong>
+            <div style="margin-top:8px;font-size:13px;color:#475569;">
+                <span class="label">💲 Rate/KM</span><br>
+                <span class="value">₹${formatIndianNumber(truck.rate || 0)}</span>
             </div>
         </div>
         
-        <div class="profile-section">
-            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px;">📍 CURRENT LOCATION</div>
-            <div style="font-size:14px;color:#475569;">
+        <div class="detail-card">
+            <div class="section-title">📍 CURRENT LOCATION</div>
+            <div class="route-display">
                 <div>📌 ${loc ? getLocDisplayName(loc) : 'N/A'}</div>
-                <div style="margin-top:4px;font-size:13px;color:#94a3b8;">📅 Available: <strong>${truck.available_date ? new Date(truck.available_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'Now'}</strong></div>
+                <div class="route-meta">📅 Available: <strong>${truck.available_date ? new Date(truck.available_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'Now'}</strong></div>
             </div>
         </div>
         
         ${user.preferred_routes && user.preferred_routes.length > 0 ? `
-        <div class="profile-section">
-            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:4px;">🗺️ Preferred Routes</div>
+        <div class="detail-card">
+            <div class="section-title">🗺️ Preferred Routes</div>
             <div style="display:flex;flex-wrap:wrap;gap:4px;">
                 ${user.preferred_routes.map(r => {
                     const loc2 = getLoc(r);
@@ -2793,19 +2844,19 @@ function renderTruckDetail(truck) {
         ` : ''}
         
         ${truck.other_details ? `
-        <div class="profile-section">
-            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:4px;">📝 Other Details</div>
-            <div style="font-size:14px;color:#475569;">${truck.other_details}</div>
+        <div class="detail-card">
+            <div class="section-title">📝 Other Details</div>
+            <div class="instructions-text">${truck.other_details}</div>
         </div>
         ` : ''}
         
-        <div class="profile-section">
-            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px;">📊 STATS</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;text-align:center;">
-                <div><span style="font-size:18px;">👁️</span><br><strong style="font-size:17px;color:#0f172a;">${truck.views || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Views</span></div>
-                <div><span style="font-size:18px;">📞</span><br><strong style="font-size:17px;color:#0f172a;">${truck.calls || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Calls</span></div>
-                <div><span style="font-size:18px;">⭐</span><br><strong style="font-size:17px;color:#0f172a;">${truck.endorsements || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Endorsements</span></div>
-                <div><span style="font-size:18px;">🚩</span><br><strong style="font-size:17px;color:#0f172a;">${truck.flags || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Flags</span></div>
+        <div class="detail-card">
+            <div class="section-title">📊 STATS</div>
+            <div class="stats-grid">
+                <div class="stat-item"><span class="stat-icon">👁️</span><span class="stat-number">${truck.views || 0}</span><span class="stat-label">Views</span></div>
+                <div class="stat-item"><span class="stat-icon">📞</span><span class="stat-number">${truck.calls || 0}</span><span class="stat-label">Calls</span></div>
+                <div class="stat-item"><span class="stat-icon">⭐</span><span class="stat-number">${truck.endorsements || 0}</span><span class="stat-label">Endorsements</span></div>
+                <div class="stat-item"><span class="stat-icon">🚩</span><span class="stat-number">${truck.flags || 0}</span><span class="stat-label">Flags</span></div>
             </div>
         </div>
         
@@ -2817,24 +2868,24 @@ function renderAgentDetail(agent) {
     const user = agent.user || {};
     const website = user.company_web ? `<a href="${user.company_web.startsWith('http') ? user.company_web : 'https://' + user.company_web}" target="_blank" class="website-link" onclick="event.stopPropagation();">${user.company_web} ↗</a>` : '';
     const ratingInfo = calculateRating(agent.endorsements || 0, agent.flags || 0);
-    const isVerified = (user.pan && user.gst) ? '✅ Verified Agent' : '🔒 Unverified';
+    const isVerified = (user.pan && user.gst);
+    
+    let badges = '';
+    badges += `<span class="detail-badge rating">${ratingInfo.display}</span>`;
+    badges += isVerified ? `<span class="detail-badge verified">✅ Verified Agent</span>` : `<span class="detail-badge unverified">🔒 Unverified</span>`;
+    if (user.pan) badges += `<span class="detail-badge pan-gst">📛 ${user.pan}</span>`;
+    if (user.gst) badges += `<span class="detail-badge pan-gst">📛 ${user.gst}</span>`;
     
     return `
-        <div style="margin-bottom:12px;">
-            <div style="font-size:20px;font-weight:700;color:#0f172a;">🤝 ${user.company_name || agent.name || 'Agent'}</div>
-            <div style="font-size:14px;color:#2563eb;font-weight:600;margin-top:2px;">
-                ${website ? website : ''}
-            </div>
-            <div style="font-size:13px;color:#64748b;margin-top:2px;">
-                ${ratingInfo.display} • ${isVerified}
-                ${user.pan ? ` • PAN: ${user.pan}` : ''}
-                ${user.gst ? ` • GST: ${user.gst}` : ''}
-            </div>
+        <div class="detail-header-card">
+            <div class="main-title">🤝 ${user.company_name || agent.name || 'Agent'}</div>
+            <div class="company-name">${website ? website : ''}</div>
+            <div class="meta-row">${badges}</div>
         </div>
         
         ${user.preferred_routes && user.preferred_routes.length > 0 ? `
-        <div class="profile-section">
-            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px;">📍 Service Routes</div>
+        <div class="detail-card">
+            <div class="section-title">📍 Service Routes</div>
             <div style="display:flex;flex-wrap:wrap;gap:4px;">
                 ${user.preferred_routes.map(r => {
                     const loc = getLoc(r);
@@ -2845,19 +2896,19 @@ function renderAgentDetail(agent) {
         ` : ''}
         
         ${user.details ? `
-        <div class="profile-section">
-            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:4px;">📝 Details</div>
-            <div style="font-size:14px;color:#475569;">${user.details}</div>
+        <div class="detail-card">
+            <div class="section-title">📝 Details</div>
+            <div class="instructions-text">${user.details}</div>
         </div>
         ` : ''}
         
-        <div class="profile-section">
-            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px;">📊 STATS</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;text-align:center;">
-                <div><span style="font-size:18px;">📦</span><br><strong style="font-size:17px;color:#0f172a;">${agent.loads_count || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Loads</span></div>
-                <div><span style="font-size:18px;">🚛</span><br><strong style="font-size:17px;color:#0f172a;">${agent.trucks_count || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Trucks</span></div>
-                <div><span style="font-size:18px;">⭐</span><br><strong style="font-size:17px;color:#0f172a;">${agent.endorsements || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Endorsements</span></div>
-                <div><span style="font-size:18px;">🚩</span><br><strong style="font-size:17px;color:#0f172a;">${agent.flags || 0}</strong><br><span style="font-size:10px;color:#94a3b8;">Flags</span></div>
+        <div class="detail-card">
+            <div class="section-title">📊 STATS</div>
+            <div class="stats-grid">
+                <div class="stat-item"><span class="stat-icon">📦</span><span class="stat-number">${agent.loads_count || 0}</span><span class="stat-label">Loads</span></div>
+                <div class="stat-item"><span class="stat-icon">🚛</span><span class="stat-number">${agent.trucks_count || 0}</span><span class="stat-label">Trucks</span></div>
+                <div class="stat-item"><span class="stat-icon">⭐</span><span class="stat-number">${agent.endorsements || 0}</span><span class="stat-label">Endorsements</span></div>
+                <div class="stat-item"><span class="stat-icon">🚩</span><span class="stat-number">${agent.flags || 0}</span><span class="stat-label">Flags</span></div>
             </div>
         </div>
         
@@ -2872,13 +2923,13 @@ function renderActionButtons(item) {
     const type = item.type || 'LOAD';
     
     return `
-        <div class="detail-actions">
-            <button class="btn-call" onclick="makeCall('${mobileNum}')">📞 <span style="font-size:12px;">Call</span></button>
-            <button class="btn-endorse" onclick="handleEndorse('${itemId}', '${type}')">⭐ <span style="font-size:12px;">Endorse</span></button>
-            <button class="btn-flag" onclick="handleFlag('${itemId}', '${type}')">🚩 <span style="font-size:12px;">Flag</span></button>
-            <button class="btn-share" onclick="handleShareClick()">↗️ <span style="font-size:12px;">Share</span></button>
+        <div class="action-grid">
+            <button class="btn-call" onclick="makeCall('${mobileNum}')"><span class="act-icon">📞</span>Call</button>
+            <button class="btn-endorse" onclick="handleEndorse('${itemId}', '${type}')"><span class="act-icon">⭐</span>Endorse</button>
+            <button class="btn-flag" onclick="handleFlag('${itemId}', '${type}')"><span class="act-icon">🚩</span>Flag</button>
+            <button class="btn-share" onclick="handleShareClick()"><span class="act-icon">↗️</span>Share</button>
         </div>
-        ${!isOwner ? `<button class="btn-primary" style="background:#8b5cf6;margin-top:8px;font-size:15px;" onclick="expressInterest('${itemId}', '${type}')">🔒 Express Interest</button>` : ''}
+        ${!isOwner ? `<button class="express-interest-btn" onclick="expressInterest('${itemId}', '${type}')">🔒 Express Interest</button>` : ''}
     `;
 }
 
