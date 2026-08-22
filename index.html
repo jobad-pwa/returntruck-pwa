@@ -682,52 +682,6 @@ function handleShareClick() {
         window.open('https://wa.me/?text=' + encodeURIComponent(shareData.message), '_blank');
     }
 }
-
-function handleShareClick() {
-    if (!detail) {
-        toast('No details to share');
-        return;
-    }
-    const type = detail.type || 'LOAD';
-    const shareData = generateShareMessage(type, detail);
-    
-    // Copy to clipboard as fallback
-    if (navigator.share) {
-        navigator.share({
-            title: shareData.title,
-            text: shareData.message,
-            url: shareData.url
-        }).catch(() => {
-            // Fallback to WhatsApp
-            window.open('https://wa.me/?text=' + encodeURIComponent(shareData.message), '_blank');
-        });
-    } else {
-        // Direct WhatsApp
-        window.open('https://wa.me/?text=' + encodeURIComponent(shareData.message), '_blank');
-    }
-}
-
-function handleShareClick() {
-    if (!detail) {
-        toast('No details to share');
-        return;
-    }
-    const type = detail.type || 'LOAD';
-    const shareData = generateShareMessage(type, detail);
-    
-    if (navigator.share) {
-        navigator.share({
-            title: shareData.title,
-            text: shareData.message,
-            url: shareData.url
-        }).catch(() => {
-            window.open('https://wa.me/?text=' + encodeURIComponent(shareData.message), '_blank');
-        });
-    } else {
-        window.open('https://wa.me/?text=' + encodeURIComponent(shareData.message), '_blank');
-    }
-}
-
 // ============================================================
 // DEEP LINK - Opens directly to detail page
 // ============================================================
