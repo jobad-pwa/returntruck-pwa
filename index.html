@@ -565,29 +565,29 @@ function generateShareMessage(type, data) {
         const ratingInfo = calculateRating(data.endorsements || 0, data.flags || 0);
         const pickupDate = data.pickup_date ? new Date(data.pickup_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'Flexible';
         
-        // Screenshot 1 style format - SIMPLE & CLEAN
+        // Screenshot 1 style format - SIMPLE & CLEAN with underscores
         message = '📦 LOAD AVAILABLE\n';
-        message += '─────────────────\n';
+        message += '______\n';
         message += (data.material || 'Cargo').toUpperCase() + '\n';
-        message += '─────────────────\n';
+        message += '______\n';
         message += '📍 FROM: ' + fromName + '\n';
         message += '📍 TO: ' + toName + '\n';
-        message += '─────────────────\n';
+        message += '______\n';
         message += '🚛 Vehicle: ' + (data.vehicle_type || 'Any') + '\n';
         message += '📐 Dimensions: ' + dims + '\n';
         message += '⚖️ Weight: ' + formatIndianNumber(data.weight || 0) + ' Kg\n';
-        message += '─────────────────\n';
+        message += '______\n';
         message += '💰 ₹' + formatIndianNumber(data.rate || 0) + ' (Negotiable)\n';
         message += '📅 Pickup: ' + pickupDate + '\n';
-        message += '─────────────────\n';
+        message += '______\n';
         if (data.company) {
             message += '🏢 Posted by: ' + data.company + '\n';
         }
         message += '⭐ ' + ratingInfo.display + '\n';
-        message += '─────────────────\n';
+        message += '______\n';
         message += '🔗 View Details:\n';
         message += url + '\n';
-        message += '─────────────────\n';
+        message += '______\n';
         message += '📱 ReturnTruck - Find Loads & Trucks\n';
         message += url;
         title = '📦 Load Available: ' + data.material;
@@ -599,26 +599,26 @@ function generateShareMessage(type, data) {
         const availableDate = data.available_date ? new Date(data.available_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'Now';
         
         message = '🚛 TRUCK AVAILABLE\n';
-        message += '─────────────────\n';
+        message += '______\n';
         message += (data.truck_no || 'Truck') + '\n';
-        message += '─────────────────\n';
+        message += '______\n';
         message += '📍 LOCATION: ' + locName + '\n';
-        message += '─────────────────\n';
+        message += '______\n';
         message += '🚛 Type: ' + (data.vehicle_type || 'Any') + '\n';
         message += '📐 Dimensions: ' + (data.dimensions || 'N/A') + '\n';
         message += '⚖️ Weight: ' + formatIndianNumber(data.weight || 0) + ' Kg\n';
-        message += '─────────────────\n';
+        message += '______\n';
         message += '💰 ₹' + formatIndianNumber(data.rate || 0) + '/KM (Negotiable)\n';
         message += '📅 Available: ' + availableDate + '\n';
-        message += '─────────────────\n';
+        message += '______\n';
         if (data.company) {
             message += '🏢 Posted by: ' + data.company + '\n';
         }
         message += '⭐ ' + ratingInfo.display + '\n';
-        message += '─────────────────\n';
+        message += '______\n';
         message += '🔗 View Details:\n';
         message += url + '\n';
-        message += '─────────────────\n';
+        message += '______\n';
         message += '📱 ReturnTruck - Find Loads & Trucks\n';
         message += url;
         title = '🚛 Truck Available: ' + data.truck_no;
@@ -628,9 +628,9 @@ function generateShareMessage(type, data) {
         const ratingInfo = calculateRating(data.endorsements || 0, data.flags || 0);
         
         message = '🤝 AGENT PROFILE\n';
-        message += '─────────────────\n';
+        message += '______\n';
         message += (userData.company_name || userData.name || 'Agent') + '\n';
-        message += '─────────────────\n';
+        message += '______\n';
         if (userData.preferred_routes && userData.preferred_routes.length > 0) {
             message += '📍 Service Routes:\n';
             userData.preferred_routes.slice(0, 4).forEach(r => {
@@ -640,7 +640,7 @@ function generateShareMessage(type, data) {
             if (userData.preferred_routes.length > 4) {
                 message += '• +' + (userData.preferred_routes.length - 4) + ' more\n';
             }
-            message += '─────────────────\n';
+            message += '______\n';
         }
         if (userData.company_web) {
             message += '🌐 ' + userData.company_web + '\n';
@@ -649,16 +649,38 @@ function generateShareMessage(type, data) {
             message += '📝 ' + userData.details + '\n';
         }
         message += '⭐ ' + ratingInfo.display + '\n';
-        message += '─────────────────\n';
+        message += '______\n';
         message += '🔗 View Profile:\n';
         message += url + '\n';
-        message += '─────────────────\n';
+        message += '______\n';
         message += '📱 ReturnTruck - Find Loads & Trucks\n';
         message += url;
         title = '🤝 Agent Profile: ' + (userData.company_name || userData.name || 'Agent');
     }
     
     return { message, title, url };
+}
+
+// SINGLE handleShareClick function - REMOVED THE DUPLICATE
+function handleShareClick() {
+    if (!detail) {
+        toast('No details to share');
+        return;
+    }
+    const type = detail.type || 'LOAD';
+    const shareData = generateShareMessage(type, detail);
+    
+    if (navigator.share) {
+        navigator.share({
+            title: shareData.title,
+            text: shareData.message,
+            url: shareData.url
+        }).catch(() => {
+            window.open('https://wa.me/?text=' + encodeURIComponent(shareData.message), '_blank');
+        });
+    } else {
+        window.open('https://wa.me/?text=' + encodeURIComponent(shareData.message), '_blank');
+    }
 }
 
 function handleShareClick() {
