@@ -48,7 +48,7 @@ body{background:#f0f2f5;margin:0;padding:16px;display:flex;justify-content:cente
 .login-stat-item .label{font-size:9px;font-weight:600;color:#94a3b8;display:block;text-transform:uppercase}
 .login-step-container{flex:1;display:flex;flex-direction:column;justify-content:center}
 .input-field{width:100%;padding:14px;border:2px solid #2d2d3d;border-radius:12px;font-size:16px;text-align:center;background:#0f0f1a;color:#fff;margin-bottom:12px}
-.input-field:focus{border-color:#2563eb;outline:none}
+.input-field:focus{border-color:#2563eb;outline:none;background:#14142e}
 .input-field:disabled{background:#0a0a0a;color:#64748b}
 .input-field::placeholder{color:#64748b}
 .btn-primary{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px}
@@ -62,6 +62,7 @@ body{background:#f0f2f5;margin:0;padding:16px;display:flex;justify-content:cente
 .location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
 .location-row .location-input{flex:2}.location-row .radius-select{flex:1}
 .location-input input,.radius-select select{width:100%;padding:8px 12px;border:1px solid #2d2d3d;border-radius:8px;font-size:13px;background:#0f0f1a;color:#fff}
+.location-input input:focus,.radius-select select:focus{border-color:#2563eb;background:#14142e;outline:none}
 .location-input input::placeholder{color:#64748b}
 .radius-select select option{background:#1a1a2e;color:#fff}
 .type-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;background:#0f0f1a;padding:3px;border-radius:10px;margin-bottom:6px;border:1px solid #2d2d3d}
@@ -73,6 +74,7 @@ body{background:#f0f2f5;margin:0;padding:16px;display:flex;justify-content:cente
 .filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;padding-top:6px}
 .filter-row label{font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;display:block;margin-bottom:4px}
 .filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:12px;background:#0f0f1a;border:1px solid #2d2d3d;border-radius:8px;color:#fff;outline:none}
+.filter-row input:focus,.filter-row select:focus{border-color:#2563eb;background:#14142e}
 .filter-row input::placeholder{color:#64748b}
 .filter-row select option{background:#1a1a2e;color:#fff}
 .search-wrapper{position:relative;width:100%}
@@ -154,15 +156,22 @@ body{background:#f0f2f5;margin:0;padding:16px;display:flex;justify-content:cente
 .section-btn.danger:hover{background:#b91c1c}
 .section-btn.success{background:#16a34a;color:#fff}
 .section-btn.success:hover{background:#15803d}
-.form-control{width:100%;padding:10px 12px;border:1px solid #2d2d3d;border-radius:8px;font-size:14px;background:#0f0f1a;color:#fff;outline:none}
-.form-control:focus{border-color:#2563eb}
-.form-control::placeholder{color:#64748b}
-.form-label{font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
+/* IMPROVED FORM ELEMENTS - LIGHTER BACKGROUND FOR BETTER CONTRAST */
+.form-control{width:100%;padding:12px 14px;border:2px solid #2d2d3d;border-radius:10px;font-size:14px;background:#252540;color:#fff;outline:none;transition:all .2s}
+.form-control:focus{border-color:#2563eb;background:#2d2d50;box-shadow:0 0 0 3px rgba(37,99,235,0.15);outline:none}
+.form-control::placeholder{color:#8a8ab5}
+.form-control:hover{border-color:#3d3d60}
+select.form-control{background:#252540;color:#fff;border:2px solid #2d2d3d;cursor:pointer}
+select.form-control:hover{border-color:#3d3d60}
+select.form-control option{background:#1a1a2e;color:#fff}
+textarea.form-control{resize:vertical;min-height:60px;background:#252540;border:2px solid #2d2d3d}
+textarea.form-control:focus{background:#2d2d50}
+.form-label{font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:6px;letter-spacing:0.5px}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .grid-2-vehicle{display:grid;grid-template-columns:2fr 1fr;gap:12px}
 .back-btn{background:transparent;border:none;font-size:14px;font-weight:600;color:#94a3b8;cursor:pointer;padding:4px 8px}.back-btn:hover{color:#fff}
-.otp-input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #2d2d3d;background:#0f0f1a;color:#fff}
-.otp-input:focus{border-color:#2563eb;outline:none}
+.otp-input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #2d2d3d;background:#252540;color:#fff}
+.otp-input:focus{border-color:#2563eb;outline:none;background:#2d2d50}
 .otp-input:disabled{background:#0a0a0a;color:#64748b}
 .error-text{color:#f87171;font-size:13px;text-align:center;margin-top:4px;display:none}
 .success-text{color:#4ade80;font-size:13px;text-align:center;margin-top:4px;display:none}
@@ -224,22 +233,28 @@ body{background:#f0f2f5;margin:0;padding:16px;display:flex;justify-content:cente
 .vehicle-modal-content .modal-close:hover{color:#f87171}
 .vehicle-modal-content .form-group{margin-bottom:12px}
 .vehicle-modal-content .form-group .readonly-number{background:#2d2d3d;padding:10px 12px;border-radius:8px;font-weight:700;font-size:16px;color:#fff;border:1px solid #2d2d3d}
-.vehicle-modal-content .form-group .form-control{background:#0f0f1a;color:#fff;border:1px solid #2d2d3d}
-.vehicle-modal-content .form-group .form-control:focus{border-color:#2563eb}
+.vehicle-modal-content .form-group .form-control{background:#252540;color:#fff;border:2px solid #2d2d3d}
+.vehicle-modal-content .form-group .form-control:focus{border-color:#2563eb;background:#2d2d50}
 .vehicle-modal-content .form-group label{color:#94a3b8}
 .spinner{display:inline-block;width:20px;height:20px;border:3px solid #2d2d3d;border-top-color:#2563eb;border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{display:flex;align-items:center;justify-content:center;gap:8px;color:#94a3b8;font-size:14px;padding:8px}
 .dim-input{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px}
-.dim-input .dim-group{background:#0f0f1a;border-radius:8px;padding:8px 12px;border:1px solid #2d2d3d;text-align:center}
-.dim-input .dim-group label{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block}
+.dim-input .dim-group{background:#252540;border-radius:8px;padding:8px 12px;border:2px solid #2d2d3d;text-align:center;transition:all .2s}
+.dim-input .dim-group:focus-within{border-color:#2563eb;background:#2d2d50;box-shadow:0 0 0 3px rgba(37,99,235,0.15)}
+.dim-input .dim-group label{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:2px}
 .dim-input .dim-group input{width:100%;border:none;background:transparent;text-align:center;font-size:16px;font-weight:600;color:#fff;padding:4px 0;outline:none}
 .dim-input .dim-group input:focus{color:#2563eb}
+.dim-input .dim-group input::-webkit-inner-spin-button{-webkit-appearance:none}
+.dim-input .dim-group input[type=number]{-moz-appearance:textfield}
 .website-link{color:#2563eb;text-decoration:underline;cursor:pointer;word-break:break-all}
 .website-link:hover{color:#1d4ed8}
-select.form-control{background:#0f0f1a;color:#fff;border:1px solid #2d2d3d}
+select.form-control{background:#252540;color:#fff;border:2px solid #2d2d3d}
+select.form-control:focus{background:#2d2d50}
 select.form-control option{background:#1a1a2e;color:#fff}
 .weight-input{font-family:monospace}
+/* Section container styling */
+.section-container{background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #e8ecf0}
 </style>
 </head>
 <body>
@@ -330,17 +345,19 @@ select.form-control option{background:#1a1a2e;color:#fff}
 <div id="postload-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
 <div class="header-fixed"><span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span><button class="back-btn" onclick="cancelPost()">Cancel</button></div>
 <div class="scroll-body" id="postload-scroll">
-<div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #e8ecf0">
+<div class="section-container">
 <label class="form-label">📦 Material Type *</label>
 <select class="form-control" id="pl-material"><option value="">Select material...</option><option value="Steel Pipes">Steel Pipes</option><option value="Cement">Cement</option><option value="Bricks">Bricks</option><option value="Sand">Sand</option><option value="Aggregates">Aggregates</option><option value="Food Grains">Food Grains</option><option value="Chemicals">Chemicals</option><option value="Electronics">Electronics</option><option value="Furniture">Furniture</option><option value="Other">Other</option></select>
 </div>
-<div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #e8ecf0">
+
+<div class="section-container">
 <div class="grid-2-vehicle">
 <div><label class="form-label">🚛 Vehicle Type *</label><select class="form-control" id="pl-vehicle-type"><option value="">Select type...</option><option value="3-Wheeler / Tempo">3-Wheeler / Tempo</option><option value="Mini Truck">Mini Truck</option><option value="LCV Open Body Truck">LCV Open Body Truck</option><option value="LCV - Container">LCV - Container</option><option value="LCV - Flat bed">LCV - Flat bed</option><option value="Open Body Truck">Open Body Truck</option><option value="Box Body Truck">Box Body Truck</option><option value="Flat bed Truck">Flat bed Truck</option><option value="Trailer - Open Body">Trailer - Open Body</option><option value="Trailer - Box Body">Trailer - Box Body</option><option value="Trailer - High Bed">Trailer - High Bed</option><option value="Trailer - Semi Low Bed">Trailer - Semi Low Bed</option><option value="Trailer - Low Bed">Trailer - Low Bed</option><option value="Trailer - Automobile Carrier">Trailer - Automobile Carrier</option><option value="Tipper / Dumper">Tipper / Dumper</option><option value="Tanker">Tanker</option><option value="Cement Bulker">Cement Bulker</option><option value="Refrigerated / Reefer">Refrigerated / Reefer</option><option value="Explosive / Hazardous Vehicle">Explosive / Hazardous Vehicle</option><option value="Over-Dimensional Cargo (ODC)">Over-Dimensional Cargo (ODC)</option></select></div>
 <div><label class="form-label">⚖️ Weight (Kg)</label><input class="form-control weight-input" type="text" id="pl-weight" placeholder="0" oninput="formatInputNumber(this)"></div>
 </div>
 </div>
-<div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #e8ecf0">
+
+<div class="section-container">
 <label class="form-label">📐 Dimensions (ft)</label>
 <div class="dim-input">
 <div class="dim-group"><label>Length</label><input type="number" id="pl-length" value="40" step="0.1"></div>
@@ -348,23 +365,27 @@ select.form-control option{background:#1a1a2e;color:#fff}
 <div class="dim-group"><label>Height</label><input type="number" id="pl-height" value="8" step="0.1"></div>
 </div>
 </div>
-<div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #e8ecf0">
+
+<div class="section-container">
 <div class="grid-2">
 <div><label class="form-label">📍 Pickup PIN *</label><div style="position:relative;width:100%"><input type="text" id="search-pl-pickup" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('pl-pickup')" autocomplete="off" class="form-control"><div class="search-wrapper"><div class="suggestions" id="suggestions-pl-pickup"></div></div><input type="hidden" id="pl-pickup-hidden"></div></div>
 <div><label class="form-label">📍 Drop PIN *</label><div style="position:relative;width:100%"><input type="text" id="search-pl-drop" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('pl-drop')" autocomplete="off" class="form-control"><div class="search-wrapper"><div class="suggestions" id="suggestions-pl-drop"></div></div><input type="hidden" id="pl-drop-hidden"></div></div>
 </div>
 </div>
-<div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #e8ecf0">
+
+<div class="section-container">
 <div class="grid-2">
 <div><label class="form-label">💲 Negotiable Price (₹)</label><input class="form-control" type="text" id="pl-rate" placeholder="0" oninput="formatInputNumber(this)"></div>
 <div><label class="form-label">📅 Pickup Date</label><input class="form-control" type="date" id="pl-date"></div>
 </div>
 </div>
-<div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #e8ecf0">
+
+<div class="section-container">
 <label class="form-label">📝 Instructions</label>
 <textarea class="form-control" id="pl-instructions" rows="2" placeholder="Loading instructions, special requirements..."></textarea>
-<div style="font-size:11px;color:#64748b;text-align:right"><span id="pl-instructions-count">0</span>/200</div>
+<div style="font-size:11px;color:#64748b;text-align:right;margin-top:4px"><span id="pl-instructions-count">0</span>/200</div>
 </div>
+
 <button class="btn-primary success" onclick="publishLoad()" style="margin-top:4px">📤 Publish Load</button>
 </div>
 <div class="nav-fixed" id="bottom-nav2"><button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button><button class="nav-item active" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button><button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button><button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button></div>
@@ -374,26 +395,30 @@ select.form-control option{background:#1a1a2e;color:#fff}
 <div id="posttruck-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
 <div class="header-fixed"><span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span><button class="back-btn" onclick="cancelPost()">Cancel</button></div>
 <div class="scroll-body" id="posttruck-scroll">
-<div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #e8ecf0">
+<div class="section-container">
 <label class="form-label">🚛 Vehicle Number *</label>
 <div style="position:relative;width:100%"><input class="form-control vehicle-number-input" id="pt-vehicle-number" placeholder="Type vehicle number..." oninput="searchVehiclesForTruck(this.value)" autocomplete="off"><div class="vehicle-suggest-dropdown" id="pt-vehicle-suggest-dropdown"></div></div>
 <div style="font-size:11px;color:#64748b;margin-top:4px">Only letters and numbers, 9-12 characters</div>
 </div>
-<div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #e8ecf0">
+
+<div class="section-container">
 <label class="form-label">📍 Location PIN *</label>
 <div style="position:relative;width:100%"><input type="text" id="search-pt-location" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('pt-location')" autocomplete="off" class="form-control"><div class="search-wrapper"><div class="suggestions" id="suggestions-pt-location"></div></div><input type="hidden" id="pt-location-hidden"></div>
 </div>
-<div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #e8ecf0">
+
+<div class="section-container">
 <div class="grid-2">
 <div><label class="form-label">📅 Available From</label><input class="form-control" type="date" id="pt-available"></div>
 <div><label class="form-label">💰 Price/KM (₹)</label><input class="form-control" type="text" id="pt-rate" placeholder="0" oninput="formatInputNumber(this)"></div>
 </div>
 </div>
-<div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #e8ecf0">
+
+<div class="section-container">
 <label class="form-label">📝 Other Details</label>
 <textarea class="form-control" id="pt-other-details" rows="3" placeholder="Vehicle features, GPS tracking, driver details, etc."></textarea>
-<div style="font-size:11px;color:#64748b;text-align:right"><span id="pt-other-details-count">0</span>/300</div>
+<div style="font-size:11px;color:#64748b;text-align:right;margin-top:4px"><span id="pt-other-details-count">0</span>/300</div>
 </div>
+
 <button class="btn-primary success" onclick="publishTruck()" style="margin-top:4px">📤 List Truck</button>
 </div>
 <div class="nav-fixed" id="bottom-nav3"><button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button><button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button><button class="nav-item active" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button><button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button></div>
@@ -420,16 +445,16 @@ select.form-control option{background:#1a1a2e;color:#fff}
 <div id="edit-profile-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
 <div class="header-fixed"><span class="logo"><span class="logo-icon">✏️</span><span class="logo-text">Edit Profile</span></span><button class="back-btn" onclick="closeEditProfile()">✕</button></div>
 <div class="scroll-body" id="edit-profile-scroll">
-<div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8ecf0"><label class="form-label">👤 Full Name</label><input class="form-control" id="edit-name" placeholder="Rajesh Kumar"></div>
-<div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8ecf0"><label class="form-label">🏢 Company Name</label><input class="form-control" id="edit-company" placeholder="ABC Steel Traders"></div>
-<div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8ecf0"><label class="form-label">🌐 Company Website</label><input class="form-control" id="edit-website" placeholder="https://www.abcsteel.com"></div>
-<div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8ecf0"><label class="form-label">📛 PAN Number</label><input class="form-control" id="edit-pan" placeholder="AABCP1234D"></div>
-<div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8ecf0"><label class="form-label">📛 GST Number</label><input class="form-control" id="edit-gst" placeholder="22AABC1234D1ZP"></div>
-<div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8ecf0"><label class="form-label">📍 Location PIN</label><div style="position:relative;width:100%"><input type="text" id="search-edit-location" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('edit-location')" autocomplete="off" class="form-control"><div class="search-wrapper"><div class="suggestions" id="suggestions-edit-location"></div></div><input type="hidden" id="edit-location-hidden"></div></div>
-<div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8ecf0"><label class="form-label">🎯 User Type</label><div class="user-type-checkbox"><label><input type="checkbox" id="edit-type-loadgiver" value="1"> 📦 Load Giver</label><label><input type="checkbox" id="edit-type-operator" value="2"> 🚛 Operator</label><label><input type="checkbox" id="edit-type-agent" value="3"> 🤝 Agent</label></div><div style="font-size:11px;color:#64748b;margin-top:4px">Select all that apply</div></div>
-<div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8ecf0"><label class="form-label">🚛 My Vehicles</label><div class="route-input-row"><div style="flex:2;position:relative"><input class="form-control vehicle-number-input" id="edit-vehicle-input" placeholder="Type vehicle number..." oninput="searchVehicles(this.value)" autocomplete="off"><div class="vehicle-suggest-dropdown" id="vehicle-suggest-dropdown"></div></div><button class="section-btn success" onclick="addSelectedVehicle()">➕ Add</button></div><div id="edit-vehicles-list" style="margin-top:8px"></div></div>
-<div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8ecf0"><label class="form-label">🗺️ Preferred Routes</label><div class="route-input-row"><div style="flex:2;position:relative"><input class="form-control" id="search-edit-route" placeholder="Search location/pin..." onclick="selectInputText(this)" oninput="searchLocation('edit-route')" autocomplete="off"><div class="search-wrapper"><div class="suggestions" id="suggestions-edit-route"></div></div><input type="hidden" id="edit-route-hidden"></div><button class="section-btn" onclick="addRoute()">Add</button></div><div id="edit-routes-list" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"></div></div>
-<div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8ecf0"><label class="form-label">📝 About / Details</label><textarea class="form-control" id="edit-details" rows="3" placeholder="About your business, services, etc." style="resize:vertical"></textarea><div style="font-size:11px;color:#64748b;text-align:right"><span id="edit-details-count">0</span>/300</div></div>
+<div class="section-container"><label class="form-label">👤 Full Name</label><input class="form-control" id="edit-name" placeholder="Rajesh Kumar"></div>
+<div class="section-container"><label class="form-label">🏢 Company Name</label><input class="form-control" id="edit-company" placeholder="ABC Steel Traders"></div>
+<div class="section-container"><label class="form-label">🌐 Company Website</label><input class="form-control" id="edit-website" placeholder="https://www.abcsteel.com"></div>
+<div class="section-container"><label class="form-label">📛 PAN Number</label><input class="form-control" id="edit-pan" placeholder="AABCP1234D"></div>
+<div class="section-container"><label class="form-label">📛 GST Number</label><input class="form-control" id="edit-gst" placeholder="22AABC1234D1ZP"></div>
+<div class="section-container"><label class="form-label">📍 Location PIN</label><div style="position:relative;width:100%"><input type="text" id="search-edit-location" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('edit-location')" autocomplete="off" class="form-control"><div class="search-wrapper"><div class="suggestions" id="suggestions-edit-location"></div></div><input type="hidden" id="edit-location-hidden"></div></div>
+<div class="section-container"><label class="form-label">🎯 User Type</label><div class="user-type-checkbox"><label><input type="checkbox" id="edit-type-loadgiver" value="1"> 📦 Load Giver</label><label><input type="checkbox" id="edit-type-operator" value="2"> 🚛 Operator</label><label><input type="checkbox" id="edit-type-agent" value="3"> 🤝 Agent</label></div><div style="font-size:11px;color:#64748b;margin-top:4px">Select all that apply</div></div>
+<div class="section-container"><label class="form-label">🚛 My Vehicles</label><div class="route-input-row"><div style="flex:2;position:relative"><input class="form-control vehicle-number-input" id="edit-vehicle-input" placeholder="Type vehicle number..." oninput="searchVehicles(this.value)" autocomplete="off"><div class="vehicle-suggest-dropdown" id="vehicle-suggest-dropdown"></div></div><button class="section-btn success" onclick="addSelectedVehicle()">➕ Add</button></div><div id="edit-vehicles-list" style="margin-top:8px"></div></div>
+<div class="section-container"><label class="form-label">🗺️ Preferred Routes</label><div class="route-input-row"><div style="flex:2;position:relative"><input class="form-control" id="search-edit-route" placeholder="Search location/pin..." onclick="selectInputText(this)" oninput="searchLocation('edit-route')" autocomplete="off"><div class="search-wrapper"><div class="suggestions" id="suggestions-edit-route"></div></div><input type="hidden" id="edit-route-hidden"></div><button class="section-btn" onclick="addRoute()">Add</button></div><div id="edit-routes-list" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"></div></div>
+<div class="section-container"><label class="form-label">📝 About / Details</label><textarea class="form-control" id="edit-details" rows="3" placeholder="About your business, services, etc." style="resize:vertical"></textarea><div style="font-size:11px;color:#64748b;text-align:right;margin-top:4px"><span id="edit-details-count">0</span>/300</div></div>
 <button class="btn-primary success" onclick="saveProfile()" style="margin-top:4px">💾 Save Profile</button>
 </div>
 <div class="nav-fixed" id="bottom-nav-edit"><button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button><button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button><button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button><button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button></div>
