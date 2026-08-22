@@ -17,7 +17,229 @@
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
 <style>
-*{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}body{background:#f0f2f5;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}.card{max-width:420px;width:100%;background:#1a1a2e;border-radius:28px;padding:0;box-shadow:0 8px 40px rgba(0,0,0,.25);display:flex;flex-direction:column;height:95vh;max-height:820px;position:relative;overflow:hidden}.hidden-page{display:none !important}.hidden{display:none !important}.header-fixed{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #2d2d3d;background:#1a1a2e;z-index:10;width:100%;min-height:50px}.logo{font-size:22px;font-weight:900;color:#2563eb;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none}.logo-icon{font-size:28px;line-height:1}.logo-text{font-size:22px;font-weight:900;color:#2563eb;letter-spacing:-0.5px}.header-right{display:flex;align-items:center;gap:8px;position:relative}.avatar-btn{width:36px;height:36px;border-radius:50%;border:2px solid #2d2d3d;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;background:#2d2d3d;transition:all .2s}.avatar-btn.guest{background:#2d2d3d}.profile-dropdown{position:absolute;top:45px;right:0;background:#1a1a2e;border:1px solid #2d2d3d;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.5);min-width:160px;z-index:100;display:none}.profile-dropdown.show{display:block}.dropdown-item{padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500;color:#e2e8f0;cursor:pointer;border:none;background:transparent;width:100%}.dropdown-item:hover{background:#2d2d3d}.dropdown-divider{height:1px;background:#2d2d3d;margin:4px 12px}.nav-fixed{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #2d2d3d;background:#1a1a2e;position:relative;z-index:10;min-height:65px;width:100%;padding-bottom:5px;margin-top:auto}.nav-item{display:flex;flex-direction:column;align-items:center;color:#64748b;font-size:10px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px;position:relative;z-index:2}.nav-item.active{color:#2563eb}.nav-item .icon{font-size:24px;margin-bottom:2px}.nav-item .label{font-size:10px;text-transform:uppercase;letter-spacing:.05em}.scroll-body{overflow-y:auto;padding:8px 16px;-webkit-overflow-scrolling:touch;display:block;width:100%;flex:1}.scroll-body::-webkit-scrollbar{width:4px}.scroll-body::-webkit-scrollbar-thumb{background:#2d2d3d;border-radius:10px}#login-screen{display:flex;flex-direction:column;height:100%;width:100%;overflow-y:auto;padding:16px}.login-icon-container{display:flex;justify-content:center;margin-bottom:0}.login-icon-container img{width:200px;height:200px;border-radius:40px;box-shadow:0 4px 20px rgba(37,99,235,0.3);background:#1a1a2e;padding:8px;max-width:100%}.login-subtitle{font-size:14px;color:#94a3b8;text-align:center;margin-bottom:12px;margin-top:4px}.login-stats-container{background:#0f0f1a;border-radius:16px;padding:12px;margin-bottom:12px;border:1px solid #2d2d3d}.login-stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}.login-stat-item{text-align:center}.login-stat-item .number{font-size:20px;font-weight:800;color:#2563eb;display:block;line-height:1.2}.login-stat-item .label{font-size:9px;font-weight:600;color:#94a3b8;display:block;text-transform:uppercase}.login-step-container{flex:1;display:flex;flex-direction:column;justify-content:center}.input-field{width:100%;padding:14px;border:2px solid #2d2d3d;border-radius:12px;font-size:16px;text-align:center;background:#0f0f1a;color:#fff;margin-bottom:12px}.input-field:focus{border-color:#2563eb;outline:none}.input-field:disabled{background:#0a0a0a;color:#64748b}.input-field::placeholder{color:#64748b}.btn-primary{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px}.btn-primary:hover{background:#1d4ed8}.btn-primary:disabled{opacity:0.6;cursor:not-allowed}.btn-primary.success{background:#16a34a}.btn-primary.success:hover{background:#15803d}.btn-back{width:100%;padding:14px;background:#2d2d3d;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer}.login-divider{display:flex;align-items:center;gap:12px;margin:16px 0}.login-divider div{flex:1;height:1px;background:#2d2d3d}.login-divider span{font-size:11px;color:#64748b}.location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}.location-row .location-input{flex:2}.location-row .radius-select{flex:1}.location-input input,.radius-select select{width:100%;padding:8px 12px;border:1px solid #2d2d3d;border-radius:8px;font-size:13px;background:#0f0f1a;color:#fff}.location-input input::placeholder{color:#64748b}.radius-select select option{background:#1a1a2e;color:#fff}.type-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;background:#0f0f1a;padding:3px;border-radius:10px;margin-bottom:6px;border:1px solid #2d2d3d}.type-tabs button{padding:8px 4px;font-size:12px;font-weight:700;border:none;border-radius:8px;cursor:pointer}.type-tabs .active{background:#2563eb;color:#fff}.type-tabs .inactive{background:transparent;color:#94a3b8}.filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:11px;font-weight:600;color:#94a3b8;border-top:1px solid #2d2d3d;margin-top:4px;user-select:none}.filter-container{overflow:hidden;transition:max-height 0.3s ease;max-height:0}.filter-container.open{max-height:400px;overflow:visible}.filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;padding-top:6px}.filter-row label{font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;display:block;margin-bottom:4px}.filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:12px;background:#0f0f1a;border:1px solid #2d2d3d;border-radius:8px;color:#fff;outline:none}.filter-row input::placeholder{color:#64748b}.filter-row select option{background:#1a1a2e;color:#fff}.search-wrapper{position:relative;width:100%}.search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#1a1a2e;border:1px solid #2d2d3d;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.5)}.search-wrapper .suggestions.show{display:block}.search-wrapper .suggestions .item{padding:12px 16px;font-size:14px;color:#e2e8f0;cursor:pointer;border-bottom:1px solid #2d2d3d}.search-wrapper .suggestions .item:last-child{border-bottom:none}.search-wrapper .suggestions .item:hover{background:#2d2d3d}.search-wrapper .suggestions .item .highlight{background:#2563eb;color:#fff;font-weight:600;padding:0 4px;border-radius:4px}.results-count{display:flex;justify-content:space-between;padding-bottom:4px;margin-bottom:6px;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em}.feed-container{display:flex;flex-direction:column;gap:10px}.feed-card{background:#ffffff;border-radius:14px;padding:14px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.2);transition:all .2s;border:1px solid rgba(255,255,255,.05)}.feed-card:hover{border-color:#2563eb;transform:translateY(-1px);box-shadow:0 4px 20px rgba(37,99,235,.15)}.feed-card .header-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}.feed-card .title{font-weight:700;font-size:15px;color:#0f172a;flex:1}.feed-card .type-badge{flex-shrink:0;font-size:10px;padding:3px 10px;border-radius:4px;font-weight:700;text-transform:uppercase}.feed-card .type-badge.load{background:#dbeafe;color:#1e40af}.feed-card .type-badge.truck{background:#dcfce7;color:#166534}.feed-card .type-badge.agent{background:#fef3c7;color:#92400e}.feed-card .company{font-size:13px;color:#2563eb;font-weight:600;margin-bottom:2px}.feed-card .meta{font-size:12px;color:#475569;margin-top:3px;display:flex;align-items:center;gap:4px}.feed-card .meta .highlight{color:#2563eb;font-weight:600}.feed-card .stats-row{margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9;display:flex;gap:12px;font-size:11px;color:#94a3b8}.feed-card .stats-row span{display:flex;align-items:center;gap:3px}.feed-card .stats-row .val{font-weight:600;color:#475569}.detail-header-card{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid #bfdbfe}.detail-header-card .main-title{font-size:20px;font-weight:700;color:#0f172a}.detail-header-card .company-name{font-size:14px;color:#2563eb;font-weight:600}.detail-header-card .meta-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.detail-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600}.detail-badge.rating{background:#fef3c7;color:#92400e}.detail-badge.verified{background:#dcfce7;color:#166534}.detail-badge.unverified{background:#fef2f2;color:#991b1b}.detail-badge.pan-gst{background:#e8ecf0;color:#475569;font-size:10px}.detail-card{background:#ffffff;border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 12px rgba(0,0,0,.15);border:1px solid rgba(255,255,255,.05)}.detail-card .section-title{font-size:13px;font-weight:700;color:#2563eb;margin-bottom:10px;display:flex;align-items:center;gap:6px}.detail-card .spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;color:#475569}.detail-card .spec-grid .label{color:#94a3b8;font-weight:500;text-transform:uppercase;font-size:10px}.detail-card .spec-grid .value{font-weight:700;color:#0f172a;font-size:15px}.detail-card .spec-grid .value.highlight{color:#2563eb}.detail-card .route-display{font-size:14px;color:#475569}.detail-card .route-display .from{color:#2563eb;font-weight:700}.detail-card .route-display .to{color:#dc2626;font-weight:700}.detail-card .route-arrow{text-align:center;font-size:20px;padding:4px 0;color:#94a3b8}.detail-card .route-meta{font-size:13px;color:#94a3b8;margin-top:6px}.detail-card .route-meta strong{color:#0f172a}.detail-card .instructions-text{font-size:14px;color:#475569;padding:4px 0}.stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}.stat-item{background:#f5f7fa;border-radius:10px;padding:8px 4px;text-align:center;border:1px solid #e8ecf0}.stat-item .stat-icon{font-size:18px;display:block}.stat-item .stat-number{font-size:16px;font-weight:700;color:#0f172a;display:block;margin-top:2px}.stat-item .stat-label{font-size:8px;color:#94a3b8;font-weight:600;text-transform:uppercase;margin-top:2px;display:block}.action-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}.action-grid button{width:100%;padding:8px 4px;border-radius:8px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:10px;cursor:pointer;transition:all .2s;box-shadow:0 2px 4px rgba(0,0,0,.1)}.action-grid button:active{transform:scale(0.95)}.action-grid button .act-icon{font-size:18px;display:block;margin-bottom:1px}.btn-call{background:#16a34a}.btn-call:hover{background:#15803d}.btn-endorse{background:#8b5cf6}.btn-endorse:hover{background:#7c3aed}.btn-flag{background:#ef4444}.btn-flag:hover{background:#dc2626}.btn-share{background:#25D366}.btn-share:hover{background:#1da851}.express-interest-btn{width:100%;padding:12px;background:#8b5cf6;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;box-shadow:0 2px 8px rgba(139,92,246,.3);transition:all .2s}.express-interest-btn:active{transform:scale(0.97)}.guest-banner{flex-shrink:0;background:#2563eb;color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.guest-banner.hidden{display:none}.guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px}.profile-header-card{background:linear-gradient(135deg,#0f0f1a,#0a0a0a);border-radius:12px;padding:16px;color:#fff;margin-bottom:12px;border:1px solid #2d2d3d}.profile-section{background:#ffffff;border:1px solid #e8ecf0;border-radius:12px;padding:16px;margin-bottom:12px}.profile-section .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.profile-section .section-title{font-size:15px;font-weight:700;color:#0f172a}.profile-section .section-badge{font-size:10px;padding:2px 12px;border-radius:12px;font-weight:700}.section-badge.active{background:#dcfce7;color:#166534}.section-badge.required{background:#fef3c7;color:#d97706}.section-badge.optional{background:#e8ecf0;color:#64748b}.section-btn{padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px}.section-btn:hover{background:#1d4ed8}.section-btn.secondary{background:#e8ecf0;color:#0f172a}.section-btn.secondary:hover{background:#d1d5db}.section-btn.danger{background:#dc2626;color:#fff}.section-btn.danger:hover{background:#b91c1c}.section-btn.success{background:#16a34a;color:#fff}.section-btn.success:hover{background:#15803d}.form-control{width:100%;padding:10px 12px;border:1px solid #2d2d3d;border-radius:8px;font-size:14px;background:#0f0f1a;color:#fff;outline:none}.form-control:focus{border-color:#2563eb}.form-control::placeholder{color:#64748b}.form-label{font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid-2-vehicle{display:grid;grid-template-columns:2fr 1fr;gap:12px}.back-btn{background:transparent;border:none;font-size:14px;font-weight:600;color:#94a3b8;cursor:pointer;padding:4px 8px}.back-btn:hover{color:#fff}.otp-input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #2d2d3d;background:#0f0f1a;color:#fff}.otp-input:focus{border-color:#2563eb;outline:none}.otp-input:disabled{background:#0a0a0a;color:#64748b}.error-text{color:#f87171;font-size:13px;text-align:center;margin-top:4px;display:none}.success-text{color:#4ade80;font-size:13px;text-align:center;margin-top:4px;display:none}.resend-btn{background:transparent;border:none;color:#2563eb;font-weight:600;cursor:pointer;font-size:13px;text-decoration:underline}.resend-btn:disabled{color:#64748b;cursor:not-allowed}.stat-cards{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px}.stat-card{background:#f5f7fa;border-radius:10px;padding:12px;text-align:center;border:1px solid #e8ecf0}.stat-card .icon{font-size:22px;display:block;margin-bottom:2px}.stat-card .number{font-size:20px;font-weight:800;color:#0f172a}.stat-card .label{font-size:9px;color:#94a3b8;text-transform:uppercase;font-weight:600}.list-item{background:#f5f7fa;border:1px solid #e8ecf0;border-radius:10px;padding:12px;margin-bottom:8px}.list-item .title{font-weight:600;font-size:14px;color:#0f172a}.list-item .sub{font-size:12px;color:#64748b;margin-top:2px}.list-item .actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}.list-item .actions button{padding:4px 12px;font-size:11px;border:none;border-radius:4px;font-weight:600;cursor:pointer}.list-item .actions .edit{background:#dbeafe;color:#1e40af}.list-item .actions .edit:hover{background:#bfdbfe}.list-item .actions .delete{background:#fef2f2;color:#991b1b}.list-item .actions .delete:hover{background:#fee2e2}.list-item .actions .interests{background:#fef3c7;color:#92400e;font-size:10px}.list-item .actions .interests:hover{background:#fde68a}.status-badge{font-size:10px;padding:2px 10px;border-radius:10px;font-weight:600;display:inline-block}.status-badge.active{background:#dcfce7;color:#166534}.status-badge.draft{background:#fef3c7;color:#d97706}.status-badge.expired{background:#fef2f2;color:#991b1b}.route-tag{background:#e8ecf0;padding:5px 12px;border-radius:6px;font-size:13px;display:inline-block;margin:2px;color:#0f172a}.route-tag .remove{color:#dc2626;cursor:pointer;margin-left:6px;font-weight:700}.route-tag .remove:hover{color:#b91c1c}.user-type-checkbox{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}.user-type-checkbox label{font-size:14px;display:flex;align-items:center;gap:4px;cursor:pointer;color:#0f172a}.route-input-row{display:flex;gap:6px;margin-bottom:8px}.route-input-row input{flex:2}.route-input-row button{flex-shrink:0}.vehicle-suggest-dropdown{position:absolute;top:100%;left:0;right:0;background:#1a1a2e;border:1px solid #2d2d3d;border-radius:8px;margin-top:4px;max-height:150px;overflow-y:auto;z-index:50;display:none}.vehicle-suggest-dropdown.show{display:block}.vehicle-suggest-dropdown .item{padding:10px 14px;font-size:14px;cursor:pointer;border-bottom:1px solid #2d2d3d;color:#e2e8f0}.vehicle-suggest-dropdown .item:hover{background:#2d2d3d}.vehicle-suggest-dropdown .item .sub{font-size:11px;color:#94a3b8}.vehicle-suggest-dropdown .item .add-new{color:#2563eb;font-weight:600}.vehicle-number-input{font-family:monospace;letter-spacing:0.5px;text-transform:uppercase;color:#fff}.vehicle-item{display:flex;align-items:center;justify-content:space-between;background:#f5f7fa;padding:8px 12px;border-radius:6px;margin-bottom:4px;border:1px solid #e8ecf0}.vehicle-item .vnumber{font-weight:600;font-size:14px;color:#0f172a;flex:1}.vehicle-item .vdetails{font-size:12px;color:#64748b;flex:1}.vehicle-item .actions{display:flex;gap:4px}.vehicle-item .actions button{padding:4px 10px;font-size:10px;border:none;border-radius:4px;font-weight:600;cursor:pointer}.vehicle-item .actions .edit-btn{background:#dbeafe;color:#1e40af}.vehicle-item .actions .edit-btn:hover{background:#bfdbfe}.vehicle-item .actions .delete-btn{background:#fef2f2;color:#991b1b}.vehicle-item .actions .delete-btn:hover{background:#fee2e2}.count-badge{background:#2563eb;color:#fff;font-size:11px;border-radius:10px;padding:1px 8px;margin-left:4px}.vehicle-display-item{background:#f5f7fa;border:1px solid #e8ecf0;border-radius:8px;padding:10px 12px;margin-bottom:6px}.vehicle-display-item .vnumber{font-weight:700;font-size:14px;color:#0f172a}.vehicle-display-item .vdetails{font-size:13px;color:#64748b;margin-top:2px}.vehicle-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:1000}.vehicle-modal.show{display:flex}.vehicle-modal-content{background:#1a1a2e;border-radius:16px;padding:24px;max-width:420px;width:90%;max-height:85vh;overflow-y:auto;border:1px solid #2d2d3d}.vehicle-modal-content .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.vehicle-modal-content .modal-header h3{margin:0;font-size:19px;color:#fff}.vehicle-modal-content .modal-close{background:transparent;border:none;font-size:24px;cursor:pointer;color:#94a3b8}.vehicle-modal-content .modal-close:hover{color:#f87171}.vehicle-modal-content .form-group{margin-bottom:12px}.vehicle-modal-content .form-group .readonly-number{background:#2d2d3d;padding:10px 12px;border-radius:8px;font-weight:700;font-size:16px;color:#fff;border:1px solid #2d2d3d}.vehicle-modal-content .form-group .form-control{background:#0f0f1a;color:#fff;border:1px solid #2d2d3d}.vehicle-modal-content .form-group .form-control:focus{border-color:#2563eb}.vehicle-modal-content .form-group label{color:#94a3b8}.spinner{display:inline-block;width:20px;height:20px;border:3px solid #2d2d3d;border-top-color:#2563eb;border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:8px}@keyframes spin{to{transform:rotate(360deg)}}.loading-text{display:flex;align-items:center;justify-content:center;gap:8px;color:#94a3b8;font-size:14px;padding:8px}.dim-input{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px}.dim-input .dim-group{background:#0f0f1a;border-radius:8px;padding:8px 12px;border:1px solid #2d2d3d;text-align:center}.dim-input .dim-group label{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block}.dim-input .dim-group input{width:100%;border:none;background:transparent;text-align:center;font-size:16px;font-weight:600;color:#fff;padding:4px 0;outline:none}.dim-input .dim-group input:focus{color:#2563eb}.website-link{color:#2563eb;text-decoration:underline;cursor:pointer;word-break:break-all}.website-link:hover{color:#1d4ed8}select.form-control{background:#0f0f1a;color:#fff;border:1px solid #2d2d3d}select.form-control option{background:#1a1a2e;color:#fff}.weight-input{font-family:monospace}
+*{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
+body{background:#f0f2f5;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
+.card{max-width:420px;width:100%;background:#1a1a2e;border-radius:28px;padding:0;box-shadow:0 8px 40px rgba(0,0,0,.25);display:flex;flex-direction:column;height:95vh;max-height:820px;position:relative;overflow:hidden}
+.hidden-page{display:none !important}.hidden{display:none !important}
+.header-fixed{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #2d2d3d;background:#1a1a2e;z-index:10;width:100%;min-height:50px}
+.logo{font-size:22px;font-weight:900;color:#2563eb;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none}
+.logo-icon{font-size:28px;line-height:1}.logo-text{font-size:22px;font-weight:900;color:#2563eb;letter-spacing:-0.5px}
+.header-right{display:flex;align-items:center;gap:8px;position:relative}
+.avatar-btn{width:36px;height:36px;border-radius:50%;border:2px solid #2d2d3d;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;background:#2d2d3d;transition:all .2s}
+.avatar-btn.guest{background:#2d2d3d}
+.profile-dropdown{position:absolute;top:45px;right:0;background:#1a1a2e;border:1px solid #2d2d3d;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.5);min-width:160px;z-index:100;display:none}
+.profile-dropdown.show{display:block}
+.dropdown-item{padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500;color:#e2e8f0;cursor:pointer;border:none;background:transparent;width:100%}
+.dropdown-item:hover{background:#2d2d3d}
+.dropdown-divider{height:1px;background:#2d2d3d;margin:4px 12px}
+.nav-fixed{flex-shrink:0;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #2d2d3d;background:#1a1a2e;position:relative;z-index:10;min-height:65px;width:100%;padding-bottom:5px;margin-top:auto}
+.nav-item{display:flex;flex-direction:column;align-items:center;color:#64748b;font-size:10px;font-weight:600;cursor:pointer;border:none;background:transparent;padding:6px 12px;position:relative;z-index:2}
+.nav-item.active{color:#2563eb}.nav-item .icon{font-size:24px;margin-bottom:2px}.nav-item .label{font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+.scroll-body{overflow-y:auto;padding:8px 16px;-webkit-overflow-scrolling:touch;display:block;width:100%;flex:1}
+.scroll-body::-webkit-scrollbar{width:4px}.scroll-body::-webkit-scrollbar-thumb{background:#2d2d3d;border-radius:10px}
+#login-screen{display:flex;flex-direction:column;height:100%;width:100%;overflow-y:auto;padding:16px}
+.login-icon-container{display:flex;justify-content:center;margin-bottom:0}
+.login-icon-container img{width:200px;height:200px;border-radius:40px;box-shadow:0 4px 20px rgba(37,99,235,0.3);background:#1a1a2e;padding:8px;max-width:100%}
+.login-subtitle{font-size:14px;color:#94a3b8;text-align:center;margin-bottom:12px;margin-top:4px}
+.login-stats-container{background:#0f0f1a;border-radius:16px;padding:12px;margin-bottom:12px;border:1px solid #2d2d3d}
+.login-stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
+.login-stat-item{text-align:center}
+.login-stat-item .number{font-size:20px;font-weight:800;color:#2563eb;display:block;line-height:1.2}
+.login-stat-item .label{font-size:9px;font-weight:600;color:#94a3b8;display:block;text-transform:uppercase}
+.login-step-container{flex:1;display:flex;flex-direction:column;justify-content:center}
+.input-field{width:100%;padding:14px;border:2px solid #2d2d3d;border-radius:12px;font-size:16px;text-align:center;background:#0f0f1a;color:#fff;margin-bottom:12px}
+.input-field:focus{border-color:#2563eb;outline:none}
+.input-field:disabled{background:#0a0a0a;color:#64748b}
+.input-field::placeholder{color:#64748b}
+.btn-primary{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px}
+.btn-primary:hover{background:#1d4ed8}
+.btn-primary:disabled{opacity:0.6;cursor:not-allowed}
+.btn-primary.success{background:#16a34a}.btn-primary.success:hover{background:#15803d}
+.btn-back{width:100%;padding:14px;background:#2d2d3d;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer}
+.login-divider{display:flex;align-items:center;gap:12px;margin:16px 0}
+.login-divider div{flex:1;height:1px;background:#2d2d3d}
+.login-divider span{font-size:11px;color:#64748b}
+.location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.location-row .location-input{flex:2}.location-row .radius-select{flex:1}
+.location-input input,.radius-select select{width:100%;padding:8px 12px;border:1px solid #2d2d3d;border-radius:8px;font-size:13px;background:#0f0f1a;color:#fff}
+.location-input input::placeholder{color:#64748b}
+.radius-select select option{background:#1a1a2e;color:#fff}
+.type-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;background:#0f0f1a;padding:3px;border-radius:10px;margin-bottom:6px;border:1px solid #2d2d3d}
+.type-tabs button{padding:8px 4px;font-size:12px;font-weight:700;border:none;border-radius:8px;cursor:pointer}
+.type-tabs .active{background:#2563eb;color:#fff}.type-tabs .inactive{background:transparent;color:#94a3b8}
+.filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:11px;font-weight:600;color:#94a3b8;border-top:1px solid #2d2d3d;margin-top:4px;user-select:none}
+.filter-container{overflow:hidden;transition:max-height 0.3s ease;max-height:0}
+.filter-container.open{max-height:400px;overflow:visible}
+.filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;padding-top:6px}
+.filter-row label{font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;display:block;margin-bottom:4px}
+.filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:12px;background:#0f0f1a;border:1px solid #2d2d3d;border-radius:8px;color:#fff;outline:none}
+.filter-row input::placeholder{color:#64748b}
+.filter-row select option{background:#1a1a2e;color:#fff}
+.search-wrapper{position:relative;width:100%}
+.search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#1a1a2e;border:1px solid #2d2d3d;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.search-wrapper .suggestions.show{display:block}
+.search-wrapper .suggestions .item{padding:12px 16px;font-size:14px;color:#e2e8f0;cursor:pointer;border-bottom:1px solid #2d2d3d}
+.search-wrapper .suggestions .item:last-child{border-bottom:none}
+.search-wrapper .suggestions .item:hover{background:#2d2d3d}
+.search-wrapper .suggestions .item .highlight{background:#2563eb;color:#fff;font-weight:600;padding:0 4px;border-radius:4px}
+.results-count{display:flex;justify-content:space-between;padding-bottom:4px;margin-bottom:6px;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em}
+.feed-container{display:flex;flex-direction:column;gap:10px}
+.feed-card{background:#ffffff;border-radius:14px;padding:14px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.2);transition:all .2s;border:1px solid rgba(255,255,255,.05)}
+.feed-card:hover{border-color:#2563eb;transform:translateY(-1px);box-shadow:0 4px 20px rgba(37,99,235,.15)}
+.feed-card .header-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+.feed-card .title{font-weight:700;font-size:15px;color:#0f172a;flex:1}
+.feed-card .type-badge{flex-shrink:0;font-size:10px;padding:3px 10px;border-radius:4px;font-weight:700;text-transform:uppercase}
+.feed-card .type-badge.load{background:#dbeafe;color:#1e40af}
+.feed-card .type-badge.truck{background:#dcfce7;color:#166534}
+.feed-card .type-badge.agent{background:#fef3c7;color:#92400e}
+.feed-card .company{font-size:13px;color:#2563eb;font-weight:600;margin-bottom:2px}
+.feed-card .meta{font-size:12px;color:#475569;margin-top:3px;display:flex;align-items:center;gap:4px}
+.feed-card .meta .highlight{color:#2563eb;font-weight:600}
+.feed-card .stats-row{margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9;display:flex;gap:12px;font-size:11px;color:#94a3b8}
+.feed-card .stats-row span{display:flex;align-items:center;gap:3px}
+.feed-card .stats-row .val{font-weight:600;color:#475569}
+.detail-header-card{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid #bfdbfe}
+.detail-header-card .main-title{font-size:20px;font-weight:700;color:#0f172a}
+.detail-header-card .company-name{font-size:14px;color:#2563eb;font-weight:600}
+.detail-header-card .meta-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.detail-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.detail-badge.rating{background:#fef3c7;color:#92400e}
+.detail-badge.verified{background:#dcfce7;color:#166534}
+.detail-badge.unverified{background:#fef2f2;color:#991b1b}
+.detail-badge.pan-gst{background:#e8ecf0;color:#475569;font-size:10px}
+.detail-card{background:#ffffff;border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 12px rgba(0,0,0,.15);border:1px solid rgba(255,255,255,.05)}
+.detail-card .section-title{font-size:13px;font-weight:700;color:#2563eb;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.detail-card .spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;color:#475569}
+.detail-card .spec-grid .label{color:#94a3b8;font-weight:500;text-transform:uppercase;font-size:10px}
+.detail-card .spec-grid .value{font-weight:700;color:#0f172a;font-size:15px}
+.detail-card .spec-grid .value.highlight{color:#2563eb}
+.detail-card .route-display{font-size:14px;color:#475569}
+.detail-card .route-display .from{color:#2563eb;font-weight:700}
+.detail-card .route-display .to{color:#dc2626;font-weight:700}
+.detail-card .route-arrow{text-align:center;font-size:20px;padding:4px 0;color:#94a3b8}
+.detail-card .route-meta{font-size:13px;color:#94a3b8;margin-top:6px}
+.detail-card .route-meta strong{color:#0f172a}
+.detail-card .instructions-text{font-size:14px;color:#475569;padding:4px 0}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
+.stat-item{background:#f5f7fa;border-radius:10px;padding:8px 4px;text-align:center;border:1px solid #e8ecf0}
+.stat-item .stat-icon{font-size:18px;display:block}
+.stat-item .stat-number{font-size:16px;font-weight:700;color:#0f172a;display:block;margin-top:2px}
+.stat-item .stat-label{font-size:8px;color:#94a3b8;font-weight:600;text-transform:uppercase;margin-top:2px;display:block}
+.action-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.action-grid button{width:100%;padding:8px 4px;border-radius:8px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:10px;cursor:pointer;transition:all .2s;box-shadow:0 2px 4px rgba(0,0,0,.1)}
+.action-grid button:active{transform:scale(0.95)}
+.action-grid button .act-icon{font-size:18px;display:block;margin-bottom:1px}
+.btn-call{background:#16a34a}.btn-call:hover{background:#15803d}
+.btn-endorse{background:#8b5cf6}.btn-endorse:hover{background:#7c3aed}
+.btn-flag{background:#ef4444}.btn-flag:hover{background:#dc2626}
+.btn-share{background:#25D366}.btn-share:hover{background:#1da851}
+.express-interest-btn{width:100%;padding:12px;background:#8b5cf6;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;box-shadow:0 2px 8px rgba(139,92,246,.3);transition:all .2s}
+.express-interest-btn:active{transform:scale(0.97)}
+.guest-banner{flex-shrink:0;background:#2563eb;color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.guest-banner.hidden{display:none}
+.guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px}
+.profile-header-card{background:linear-gradient(135deg,#0f0f1a,#0a0a0a);border-radius:12px;padding:16px;color:#fff;margin-bottom:12px;border:1px solid #2d2d3d}
+.profile-section{background:#ffffff;border:1px solid #e8ecf0;border-radius:12px;padding:16px;margin-bottom:12px}
+.profile-section .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.profile-section .section-title{font-size:15px;font-weight:700;color:#0f172a}
+.profile-section .section-badge{font-size:10px;padding:2px 12px;border-radius:12px;font-weight:700}
+.section-badge.active{background:#dcfce7;color:#166534}
+.section-badge.required{background:#fef3c7;color:#d97706}
+.section-badge.optional{background:#e8ecf0;color:#64748b}
+.section-btn{padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px}
+.section-btn:hover{background:#1d4ed8}
+.section-btn.secondary{background:#e8ecf0;color:#0f172a}
+.section-btn.secondary:hover{background:#d1d5db}
+.section-btn.danger{background:#dc2626;color:#fff}
+.section-btn.danger:hover{background:#b91c1c}
+.section-btn.success{background:#16a34a;color:#fff}
+.section-btn.success:hover{background:#15803d}
+.form-control{width:100%;padding:10px 12px;border:1px solid #2d2d3d;border-radius:8px;font-size:14px;background:#0f0f1a;color:#fff;outline:none}
+.form-control:focus{border-color:#2563eb}
+.form-control::placeholder{color:#64748b}
+.form-label{font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid-2-vehicle{display:grid;grid-template-columns:2fr 1fr;gap:12px}
+.back-btn{background:transparent;border:none;font-size:14px;font-weight:600;color:#94a3b8;cursor:pointer;padding:4px 8px}.back-btn:hover{color:#fff}
+.otp-input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #2d2d3d;background:#0f0f1a;color:#fff}
+.otp-input:focus{border-color:#2563eb;outline:none}
+.otp-input:disabled{background:#0a0a0a;color:#64748b}
+.error-text{color:#f87171;font-size:13px;text-align:center;margin-top:4px;display:none}
+.success-text{color:#4ade80;font-size:13px;text-align:center;margin-top:4px;display:none}
+.resend-btn{background:transparent;border:none;color:#2563eb;font-weight:600;cursor:pointer;font-size:13px;text-decoration:underline}
+.resend-btn:disabled{color:#64748b;cursor:not-allowed}
+.stat-cards{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.stat-card{background:#f5f7fa;border-radius:10px;padding:12px;text-align:center;border:1px solid #e8ecf0}
+.stat-card .icon{font-size:22px;display:block;margin-bottom:2px}
+.stat-card .number{font-size:20px;font-weight:800;color:#0f172a}
+.stat-card .label{font-size:9px;color:#94a3b8;text-transform:uppercase;font-weight:600}
+.list-item{background:#f5f7fa;border:1px solid #e8ecf0;border-radius:10px;padding:12px;margin-bottom:8px}
+.list-item .title{font-weight:600;font-size:14px;color:#0f172a}
+.list-item .sub{font-size:12px;color:#64748b;margin-top:2px}
+.list-item .actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.list-item .actions button{padding:4px 12px;font-size:11px;border:none;border-radius:4px;font-weight:600;cursor:pointer}
+.list-item .actions .edit{background:#dbeafe;color:#1e40af}
+.list-item .actions .edit:hover{background:#bfdbfe}
+.list-item .actions .delete{background:#fef2f2;color:#991b1b}
+.list-item .actions .delete:hover{background:#fee2e2}
+.list-item .actions .interests{background:#fef3c7;color:#92400e;font-size:10px}
+.list-item .actions .interests:hover{background:#fde68a}
+.status-badge{font-size:10px;padding:2px 10px;border-radius:10px;font-weight:600;display:inline-block}
+.status-badge.active{background:#dcfce7;color:#166534}
+.status-badge.draft{background:#fef3c7;color:#d97706}
+.status-badge.expired{background:#fef2f2;color:#991b1b}
+.route-tag{background:#e8ecf0;padding:5px 12px;border-radius:6px;font-size:13px;display:inline-block;margin:2px;color:#0f172a}
+.route-tag .remove{color:#dc2626;cursor:pointer;margin-left:6px;font-weight:700}
+.route-tag .remove:hover{color:#b91c1c}
+.user-type-checkbox{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
+.user-type-checkbox label{font-size:14px;display:flex;align-items:center;gap:4px;cursor:pointer;color:#0f172a}
+.route-input-row{display:flex;gap:6px;margin-bottom:8px}
+.route-input-row input{flex:2}.route-input-row button{flex-shrink:0}
+.vehicle-suggest-dropdown{position:absolute;top:100%;left:0;right:0;background:#1a1a2e;border:1px solid #2d2d3d;border-radius:8px;margin-top:4px;max-height:150px;overflow-y:auto;z-index:50;display:none}
+.vehicle-suggest-dropdown.show{display:block}
+.vehicle-suggest-dropdown .item{padding:10px 14px;font-size:14px;cursor:pointer;border-bottom:1px solid #2d2d3d;color:#e2e8f0}
+.vehicle-suggest-dropdown .item:hover{background:#2d2d3d}
+.vehicle-suggest-dropdown .item .sub{font-size:11px;color:#94a3b8}
+.vehicle-suggest-dropdown .item .add-new{color:#2563eb;font-weight:600}
+.vehicle-number-input{font-family:monospace;letter-spacing:0.5px;text-transform:uppercase;color:#fff}
+.vehicle-item{display:flex;align-items:center;justify-content:space-between;background:#f5f7fa;padding:8px 12px;border-radius:6px;margin-bottom:4px;border:1px solid #e8ecf0}
+.vehicle-item .vnumber{font-weight:600;font-size:14px;color:#0f172a;flex:1}
+.vehicle-item .vdetails{font-size:12px;color:#64748b;flex:1}
+.vehicle-item .actions{display:flex;gap:4px}
+.vehicle-item .actions button{padding:4px 10px;font-size:10px;border:none;border-radius:4px;font-weight:600;cursor:pointer}
+.vehicle-item .actions .edit-btn{background:#dbeafe;color:#1e40af}
+.vehicle-item .actions .edit-btn:hover{background:#bfdbfe}
+.vehicle-item .actions .delete-btn{background:#fef2f2;color:#991b1b}
+.vehicle-item .actions .delete-btn:hover{background:#fee2e2}
+.count-badge{background:#2563eb;color:#fff;font-size:11px;border-radius:10px;padding:1px 8px;margin-left:4px}
+.vehicle-display-item{background:#f5f7fa;border:1px solid #e8ecf0;border-radius:8px;padding:10px 12px;margin-bottom:6px}
+.vehicle-display-item .vnumber{font-weight:700;font-size:14px;color:#0f172a}
+.vehicle-display-item .vdetails{font-size:13px;color:#64748b;margin-top:2px}
+.vehicle-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:1000}
+.vehicle-modal.show{display:flex}
+.vehicle-modal-content{background:#1a1a2e;border-radius:16px;padding:24px;max-width:420px;width:90%;max-height:85vh;overflow-y:auto;border:1px solid #2d2d3d}
+.vehicle-modal-content .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.vehicle-modal-content .modal-header h3{margin:0;font-size:19px;color:#fff}
+.vehicle-modal-content .modal-close{background:transparent;border:none;font-size:24px;cursor:pointer;color:#94a3b8}
+.vehicle-modal-content .modal-close:hover{color:#f87171}
+.vehicle-modal-content .form-group{margin-bottom:12px}
+.vehicle-modal-content .form-group .readonly-number{background:#2d2d3d;padding:10px 12px;border-radius:8px;font-weight:700;font-size:16px;color:#fff;border:1px solid #2d2d3d}
+.vehicle-modal-content .form-group .form-control{background:#0f0f1a;color:#fff;border:1px solid #2d2d3d}
+.vehicle-modal-content .form-group .form-control:focus{border-color:#2563eb}
+.vehicle-modal-content .form-group label{color:#94a3b8}
+.spinner{display:inline-block;width:20px;height:20px;border:3px solid #2d2d3d;border-top-color:#2563eb;border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{display:flex;align-items:center;justify-content:center;gap:8px;color:#94a3b8;font-size:14px;padding:8px}
+.dim-input{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px}
+.dim-input .dim-group{background:#0f0f1a;border-radius:8px;padding:8px 12px;border:1px solid #2d2d3d;text-align:center}
+.dim-input .dim-group label{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block}
+.dim-input .dim-group input{width:100%;border:none;background:transparent;text-align:center;font-size:16px;font-weight:600;color:#fff;padding:4px 0;outline:none}
+.dim-input .dim-group input:focus{color:#2563eb}
+.website-link{color:#2563eb;text-decoration:underline;cursor:pointer;word-break:break-all}
+.website-link:hover{color:#1d4ed8}
+select.form-control{background:#0f0f1a;color:#fff;border:1px solid #2d2d3d}
+select.form-control option{background:#1a1a2e;color:#fff}
+.weight-input{font-family:monospace}
 </style>
 </head>
 <body>
@@ -108,13 +330,42 @@
 <div id="postload-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
 <div class="header-fixed"><span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span><button class="back-btn" onclick="cancelPost()">Cancel</button></div>
 <div class="scroll-body" id="postload-scroll">
-<div class="profile-section"><label class="form-label">📦 Material Type *</label><select class="form-control" id="pl-material"><option value="">Select material...</option><option value="Steel Pipes">Steel Pipes</option><option value="Cement">Cement</option><option value="Bricks">Bricks</option><option value="Sand">Sand</option><option value="Aggregates">Aggregates</option><option value="Food Grains">Food Grains</option><option value="Chemicals">Chemicals</option><option value="Electronics">Electronics</option><option value="Furniture">Furniture</option><option value="Other">Other</option></select></div>
-<div class="grid-2-vehicle"><div class="profile-section" style="margin-bottom:0;"><label class="form-label">🚛 Vehicle Type *</label><select class="form-control" id="pl-vehicle-type"><option value="">Select type...</option><option value="3-Wheeler / Tempo">3-Wheeler / Tempo</option><option value="Mini Truck">Mini Truck</option><option value="LCV Open Body Truck">LCV Open Body Truck</option><option value="LCV - Container">LCV - Container</option><option value="LCV - Flat bed">LCV - Flat bed</option><option value="Open Body Truck">Open Body Truck</option><option value="Box Body Truck">Box Body Truck</option><option value="Flat bed Truck">Flat bed Truck</option><option value="Trailer - Open Body">Trailer - Open Body</option><option value="Trailer - Box Body">Trailer - Box Body</option><option value="Trailer - High Bed">Trailer - High Bed</option><option value="Trailer - Semi Low Bed">Trailer - Semi Low Bed</option><option value="Trailer - Low Bed">Trailer - Low Bed</option><option value="Trailer - Automobile Carrier">Trailer - Automobile Carrier</option><option value="Tipper / Dumper">Tipper / Dumper</option><option value="Tanker">Tanker</option><option value="Cement Bulker">Cement Bulker</option><option value="Refrigerated / Reefer">Refrigerated / Reefer</option><option value="Explosive / Hazardous Vehicle">Explosive / Hazardous Vehicle</option><option value="Over-Dimensional Cargo (ODC)">Over-Dimensional Cargo (ODC)</option></select></div><div class="profile-section" style="margin-bottom:0;"><label class="form-label">⚖️ Weight (Kg)</label><input class="form-control weight-input" type="text" id="pl-weight" placeholder="0" oninput="formatInputNumber(this)"></div></div>
-<div class="profile-section"><label class="form-label">📐 Dimensions (ft)</label><div class="dim-input"><div class="dim-group"><label>Length</label><input type="number" id="pl-length" value="40" step="0.1"></div><div class="dim-group"><label>Width</label><input type="number" id="pl-width" value="8.2" step="0.1"></div><div class="dim-group"><label>Height</label><input type="number" id="pl-height" value="8" step="0.1"></div></div></div>
-<div class="grid-2"><div class="profile-section" style="margin-bottom:0;"><label class="form-label">📍 Pickup PIN *</label><div style="position:relative;width:100%"><input type="text" id="search-pl-pickup" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('pl-pickup')" autocomplete="off" class="form-control"><div class="search-wrapper"><div class="suggestions" id="suggestions-pl-pickup"></div></div><input type="hidden" id="pl-pickup-hidden"></div></div><div class="profile-section" style="margin-bottom:0;"><label class="form-label">📍 Drop PIN *</label><div style="position:relative;width:100%"><input type="text" id="search-pl-drop" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('pl-drop')" autocomplete="off" class="form-control"><div class="search-wrapper"><div class="suggestions" id="suggestions-pl-drop"></div></div><input type="hidden" id="pl-drop-hidden"></div></div></div>
-<div class="grid-2"><div class="profile-section" style="margin-bottom:0;"><label class="form-label">💲 Negotiable Price (₹)</label><input class="form-control" type="text" id="pl-rate" placeholder="0" oninput="formatInputNumber(this)"></div><div class="profile-section" style="margin-bottom:0;"><label class="form-label">📅 Pickup Date</label><input class="form-control" type="date" id="pl-date"></div></div>
-<div class="profile-section"><label class="form-label">📝 Instructions</label><textarea class="form-control" id="pl-instructions" rows="2" placeholder="Loading instructions, special requirements..."></textarea><div style="font-size:11px;color:#64748b;text-align:right"><span id="pl-instructions-count">0</span>/200</div></div>
-<button class="btn-primary success" onclick="publishLoad()" style="margin-top:8px">📤 Publish Load</button>
+<div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #e8ecf0">
+<label class="form-label">📦 Material Type *</label>
+<select class="form-control" id="pl-material"><option value="">Select material...</option><option value="Steel Pipes">Steel Pipes</option><option value="Cement">Cement</option><option value="Bricks">Bricks</option><option value="Sand">Sand</option><option value="Aggregates">Aggregates</option><option value="Food Grains">Food Grains</option><option value="Chemicals">Chemicals</option><option value="Electronics">Electronics</option><option value="Furniture">Furniture</option><option value="Other">Other</option></select>
+</div>
+<div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #e8ecf0">
+<div class="grid-2-vehicle">
+<div><label class="form-label">🚛 Vehicle Type *</label><select class="form-control" id="pl-vehicle-type"><option value="">Select type...</option><option value="3-Wheeler / Tempo">3-Wheeler / Tempo</option><option value="Mini Truck">Mini Truck</option><option value="LCV Open Body Truck">LCV Open Body Truck</option><option value="LCV - Container">LCV - Container</option><option value="LCV - Flat bed">LCV - Flat bed</option><option value="Open Body Truck">Open Body Truck</option><option value="Box Body Truck">Box Body Truck</option><option value="Flat bed Truck">Flat bed Truck</option><option value="Trailer - Open Body">Trailer - Open Body</option><option value="Trailer - Box Body">Trailer - Box Body</option><option value="Trailer - High Bed">Trailer - High Bed</option><option value="Trailer - Semi Low Bed">Trailer - Semi Low Bed</option><option value="Trailer - Low Bed">Trailer - Low Bed</option><option value="Trailer - Automobile Carrier">Trailer - Automobile Carrier</option><option value="Tipper / Dumper">Tipper / Dumper</option><option value="Tanker">Tanker</option><option value="Cement Bulker">Cement Bulker</option><option value="Refrigerated / Reefer">Refrigerated / Reefer</option><option value="Explosive / Hazardous Vehicle">Explosive / Hazardous Vehicle</option><option value="Over-Dimensional Cargo (ODC)">Over-Dimensional Cargo (ODC)</option></select></div>
+<div><label class="form-label">⚖️ Weight (Kg)</label><input class="form-control weight-input" type="text" id="pl-weight" placeholder="0" oninput="formatInputNumber(this)"></div>
+</div>
+</div>
+<div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #e8ecf0">
+<label class="form-label">📐 Dimensions (ft)</label>
+<div class="dim-input">
+<div class="dim-group"><label>Length</label><input type="number" id="pl-length" value="40" step="0.1"></div>
+<div class="dim-group"><label>Width</label><input type="number" id="pl-width" value="8.2" step="0.1"></div>
+<div class="dim-group"><label>Height</label><input type="number" id="pl-height" value="8" step="0.1"></div>
+</div>
+</div>
+<div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #e8ecf0">
+<div class="grid-2">
+<div><label class="form-label">📍 Pickup PIN *</label><div style="position:relative;width:100%"><input type="text" id="search-pl-pickup" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('pl-pickup')" autocomplete="off" class="form-control"><div class="search-wrapper"><div class="suggestions" id="suggestions-pl-pickup"></div></div><input type="hidden" id="pl-pickup-hidden"></div></div>
+<div><label class="form-label">📍 Drop PIN *</label><div style="position:relative;width:100%"><input type="text" id="search-pl-drop" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('pl-drop')" autocomplete="off" class="form-control"><div class="search-wrapper"><div class="suggestions" id="suggestions-pl-drop"></div></div><input type="hidden" id="pl-drop-hidden"></div></div>
+</div>
+</div>
+<div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #e8ecf0">
+<div class="grid-2">
+<div><label class="form-label">💲 Negotiable Price (₹)</label><input class="form-control" type="text" id="pl-rate" placeholder="0" oninput="formatInputNumber(this)"></div>
+<div><label class="form-label">📅 Pickup Date</label><input class="form-control" type="date" id="pl-date"></div>
+</div>
+</div>
+<div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #e8ecf0">
+<label class="form-label">📝 Instructions</label>
+<textarea class="form-control" id="pl-instructions" rows="2" placeholder="Loading instructions, special requirements..."></textarea>
+<div style="font-size:11px;color:#64748b;text-align:right"><span id="pl-instructions-count">0</span>/200</div>
+</div>
+<button class="btn-primary success" onclick="publishLoad()" style="margin-top:4px">📤 Publish Load</button>
 </div>
 <div class="nav-fixed" id="bottom-nav2"><button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button><button class="nav-item active" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button><button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button><button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button></div>
 </div>
@@ -123,11 +374,27 @@
 <div id="posttruck-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
 <div class="header-fixed"><span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span><button class="back-btn" onclick="cancelPost()">Cancel</button></div>
 <div class="scroll-body" id="posttruck-scroll">
-<div class="profile-section"><label class="form-label">🚛 Vehicle Number *</label><div style="position:relative;width:100%"><input class="form-control vehicle-number-input" id="pt-vehicle-number" placeholder="Type vehicle number..." oninput="searchVehiclesForTruck(this.value)" autocomplete="off"><div class="vehicle-suggest-dropdown" id="pt-vehicle-suggest-dropdown"></div></div><div style="font-size:11px;color:#64748b;margin-top:4px">Only letters and numbers, 9-12 characters</div></div>
-<div class="profile-section"><label class="form-label">📍 Location PIN *</label><div style="position:relative;width:100%"><input type="text" id="search-pt-location" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('pt-location')" autocomplete="off" class="form-control"><div class="search-wrapper"><div class="suggestions" id="suggestions-pt-location"></div></div><input type="hidden" id="pt-location-hidden"></div></div>
-<div class="grid-2"><div class="profile-section" style="margin-bottom:0;"><label class="form-label">📅 Available From</label><input class="form-control" type="date" id="pt-available"></div><div class="profile-section" style="margin-bottom:0;"><label class="form-label">💰 Price/KM (₹)</label><input class="form-control" type="text" id="pt-rate" placeholder="0" oninput="formatInputNumber(this)"></div></div>
-<div class="profile-section"><label class="form-label">📝 Other Details</label><textarea class="form-control" id="pt-other-details" rows="3" placeholder="Vehicle features, GPS tracking, driver details, etc."></textarea><div style="font-size:11px;color:#64748b;text-align:right"><span id="pt-other-details-count">0</span>/300</div></div>
-<button class="btn-primary success" onclick="publishTruck()" style="margin-top:8px">📤 List Truck</button>
+<div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #e8ecf0">
+<label class="form-label">🚛 Vehicle Number *</label>
+<div style="position:relative;width:100%"><input class="form-control vehicle-number-input" id="pt-vehicle-number" placeholder="Type vehicle number..." oninput="searchVehiclesForTruck(this.value)" autocomplete="off"><div class="vehicle-suggest-dropdown" id="pt-vehicle-suggest-dropdown"></div></div>
+<div style="font-size:11px;color:#64748b;margin-top:4px">Only letters and numbers, 9-12 characters</div>
+</div>
+<div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #e8ecf0">
+<label class="form-label">📍 Location PIN *</label>
+<div style="position:relative;width:100%"><input type="text" id="search-pt-location" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('pt-location')" autocomplete="off" class="form-control"><div class="search-wrapper"><div class="suggestions" id="suggestions-pt-location"></div></div><input type="hidden" id="pt-location-hidden"></div>
+</div>
+<div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #e8ecf0">
+<div class="grid-2">
+<div><label class="form-label">📅 Available From</label><input class="form-control" type="date" id="pt-available"></div>
+<div><label class="form-label">💰 Price/KM (₹)</label><input class="form-control" type="text" id="pt-rate" placeholder="0" oninput="formatInputNumber(this)"></div>
+</div>
+</div>
+<div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #e8ecf0">
+<label class="form-label">📝 Other Details</label>
+<textarea class="form-control" id="pt-other-details" rows="3" placeholder="Vehicle features, GPS tracking, driver details, etc."></textarea>
+<div style="font-size:11px;color:#64748b;text-align:right"><span id="pt-other-details-count">0</span>/300</div>
+</div>
+<button class="btn-primary success" onclick="publishTruck()" style="margin-top:4px">📤 List Truck</button>
 </div>
 <div class="nav-fixed" id="bottom-nav3"><button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button><button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button><button class="nav-item active" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button><button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button></div>
 </div>
@@ -153,17 +420,17 @@
 <div id="edit-profile-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
 <div class="header-fixed"><span class="logo"><span class="logo-icon">✏️</span><span class="logo-text">Edit Profile</span></span><button class="back-btn" onclick="closeEditProfile()">✕</button></div>
 <div class="scroll-body" id="edit-profile-scroll">
-<div class="profile-section"><label class="form-label">👤 Full Name</label><input class="form-control" id="edit-name" placeholder="Rajesh Kumar"></div>
-<div class="profile-section"><label class="form-label">🏢 Company Name</label><input class="form-control" id="edit-company" placeholder="ABC Steel Traders"></div>
-<div class="profile-section"><label class="form-label">🌐 Company Website</label><input class="form-control" id="edit-website" placeholder="https://www.abcsteel.com"></div>
-<div class="profile-section"><label class="form-label">📛 PAN Number</label><input class="form-control" id="edit-pan" placeholder="AABCP1234D"></div>
-<div class="profile-section"><label class="form-label">📛 GST Number</label><input class="form-control" id="edit-gst" placeholder="22AABC1234D1ZP"></div>
-<div class="profile-section"><label class="form-label">📍 Location PIN</label><div style="position:relative;width:100%"><input type="text" id="search-edit-location" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('edit-location')" autocomplete="off" class="form-control"><div class="search-wrapper"><div class="suggestions" id="suggestions-edit-location"></div></div><input type="hidden" id="edit-location-hidden"></div></div>
-<div class="profile-section"><label class="form-label">🎯 User Type</label><div class="user-type-checkbox"><label><input type="checkbox" id="edit-type-loadgiver" value="1"> 📦 Load Giver</label><label><input type="checkbox" id="edit-type-operator" value="2"> 🚛 Operator</label><label><input type="checkbox" id="edit-type-agent" value="3"> 🤝 Agent</label></div><div style="font-size:11px;color:#64748b;margin-top:4px">Select all that apply</div></div>
-<div class="profile-section"><label class="form-label">🚛 My Vehicles</label><div class="route-input-row"><div style="flex:2;position:relative"><input class="form-control vehicle-number-input" id="edit-vehicle-input" placeholder="Type vehicle number..." oninput="searchVehicles(this.value)" autocomplete="off"><div class="vehicle-suggest-dropdown" id="vehicle-suggest-dropdown"></div></div><button class="section-btn success" onclick="addSelectedVehicle()">➕ Add</button></div><div id="edit-vehicles-list" style="margin-top:8px"></div></div>
-<div class="profile-section"><label class="form-label">🗺️ Preferred Routes</label><div class="route-input-row"><div style="flex:2;position:relative"><input class="form-control" id="search-edit-route" placeholder="Search location/pin..." onclick="selectInputText(this)" oninput="searchLocation('edit-route')" autocomplete="off"><div class="search-wrapper"><div class="suggestions" id="suggestions-edit-route"></div></div><input type="hidden" id="edit-route-hidden"></div><button class="section-btn" onclick="addRoute()">Add</button></div><div id="edit-routes-list" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"></div></div>
-<div class="profile-section"><label class="form-label">📝 About / Details</label><textarea class="form-control" id="edit-details" rows="3" placeholder="About your business, services, etc." style="resize:vertical"></textarea><div style="font-size:11px;color:#64748b;text-align:right"><span id="edit-details-count">0</span>/300</div></div>
-<button class="btn-primary success" onclick="saveProfile()" style="margin-top:8px">💾 Save Profile</button>
+<div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8ecf0"><label class="form-label">👤 Full Name</label><input class="form-control" id="edit-name" placeholder="Rajesh Kumar"></div>
+<div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8ecf0"><label class="form-label">🏢 Company Name</label><input class="form-control" id="edit-company" placeholder="ABC Steel Traders"></div>
+<div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8ecf0"><label class="form-label">🌐 Company Website</label><input class="form-control" id="edit-website" placeholder="https://www.abcsteel.com"></div>
+<div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8ecf0"><label class="form-label">📛 PAN Number</label><input class="form-control" id="edit-pan" placeholder="AABCP1234D"></div>
+<div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8ecf0"><label class="form-label">📛 GST Number</label><input class="form-control" id="edit-gst" placeholder="22AABC1234D1ZP"></div>
+<div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8ecf0"><label class="form-label">📍 Location PIN</label><div style="position:relative;width:100%"><input type="text" id="search-edit-location" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('edit-location')" autocomplete="off" class="form-control"><div class="search-wrapper"><div class="suggestions" id="suggestions-edit-location"></div></div><input type="hidden" id="edit-location-hidden"></div></div>
+<div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8ecf0"><label class="form-label">🎯 User Type</label><div class="user-type-checkbox"><label><input type="checkbox" id="edit-type-loadgiver" value="1"> 📦 Load Giver</label><label><input type="checkbox" id="edit-type-operator" value="2"> 🚛 Operator</label><label><input type="checkbox" id="edit-type-agent" value="3"> 🤝 Agent</label></div><div style="font-size:11px;color:#64748b;margin-top:4px">Select all that apply</div></div>
+<div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8ecf0"><label class="form-label">🚛 My Vehicles</label><div class="route-input-row"><div style="flex:2;position:relative"><input class="form-control vehicle-number-input" id="edit-vehicle-input" placeholder="Type vehicle number..." oninput="searchVehicles(this.value)" autocomplete="off"><div class="vehicle-suggest-dropdown" id="vehicle-suggest-dropdown"></div></div><button class="section-btn success" onclick="addSelectedVehicle()">➕ Add</button></div><div id="edit-vehicles-list" style="margin-top:8px"></div></div>
+<div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8ecf0"><label class="form-label">🗺️ Preferred Routes</label><div class="route-input-row"><div style="flex:2;position:relative"><input class="form-control" id="search-edit-route" placeholder="Search location/pin..." onclick="selectInputText(this)" oninput="searchLocation('edit-route')" autocomplete="off"><div class="search-wrapper"><div class="suggestions" id="suggestions-edit-route"></div></div><input type="hidden" id="edit-route-hidden"></div><button class="section-btn" onclick="addRoute()">Add</button></div><div id="edit-routes-list" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"></div></div>
+<div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8ecf0"><label class="form-label">📝 About / Details</label><textarea class="form-control" id="edit-details" rows="3" placeholder="About your business, services, etc." style="resize:vertical"></textarea><div style="font-size:11px;color:#64748b;text-align:right"><span id="edit-details-count">0</span>/300</div></div>
+<button class="btn-primary success" onclick="saveProfile()" style="margin-top:4px">💾 Save Profile</button>
 </div>
 <div class="nav-fixed" id="bottom-nav-edit"><button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button><button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button><button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button><button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button></div>
 </div>
