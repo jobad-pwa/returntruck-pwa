@@ -559,6 +559,26 @@ function generateShareMessage(type, data) {
             dims = data.dimensions + ' ft';
         }
         
+        const pickupDate = data.pickup_date ? new Date(data.pickup_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'Flexible';
+        
+        // Clean section-style format - matches your screenshot
+        message = '📦 LOAD AVAILABLE\n';
+        message += '─────────────────\n';
+        message += (data.material || 'Cargo').toUpperCase() + '\n';
+        message += '─────────────────\n';
+        message += '📍 FROM: ' + fromName + '\n';
+        message += '📍 TO: ' + toName + '\n';
+        message += '─────────────────\n';
+        message += '🚛 Vehicle: ' + (data.vehicle_type || 'Any') + '\n';
+        message += '📐 Dimensions: ' + dims + '\n';
+        message += '⚖️ Weight: ' + formatIndianNumber(data.weight || 0) + ' Kg\n';
+        message += '─────────────────\n';
+        message += '💰 ₹' + formatIndianNumber(data.rate || 0) + ' (Negotiable)\n';
+        message += '📅 Pickup: ' + pickupDate + '\n';
+        message += '─────────────────\n';
+        if (data.company) {
+            message += '🏢 Posted by: ' + data.company + '\n';
+        }
         const end = data.endorsements || 0;
         const fl = data.flags || 0;
         const total = end + fl;
@@ -567,48 +587,17 @@ function generateShareMessage(type, data) {
             const stars = Math.round((end / total * 5) * 10) / 10;
             ratingDisplay = '⭐ ' + stars.toFixed(1) + ' (' + end + '/' + total + ')';
         }
-        
-        const pickupDate = data.pickup_date ? new Date(data.pickup_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'Flexible';
-        
-        // Clean WhatsApp format - exactly like screenshot
-        message = '📦 LOAD AVAILABLE\n';
-        message += '______\n';
-        message += (data.material || 'Cargo').toUpperCase() + '\n';
-        message += '______\n';
-        message += '📍 FROM: ' + fromName + '\n';
-        message += '📍 TO: ' + toName + '\n';
-        message += '______\n';
-        message += '🚛 Vehicle: ' + (data.vehicle_type || 'Any') + '\n';
-        message += '📐 Dimensions: ' + dims + '\n';
-        message += '⚖️ Weight: ' + formatIndianNumber(data.weight || 0) + ' Kg\n';
-        message += '______\n';
-        message += '💰 ₹' + formatIndianNumber(data.rate || 0) + ' (Negotiable)\n';
-        message += '📅 Pickup: ' + pickupDate + '\n';
-        message += '______\n';
-        if (data.company) {
-            message += '🏢 Posted by: ' + data.company + '\n';
-        }
         message += ratingDisplay + '\n';
-        message += '______\n';
+        message += '─────────────────\n';
         message += '🔗 View Details:\n';
         message += url + '\n';
-        message += '______\n';
+        message += '─────────────────\n';
         message += '📱 ReturnTruck - Find Loads & Trucks\n';
         message += url;
         
     } else if (type === 'TRUCK') {
         const loc = getLoc(data.location_pin);
         const locName = loc ? getLocDisplayName(loc) : 'N/A';
-        
-        const end = data.endorsements || 0;
-        const fl = data.flags || 0;
-        const total = end + fl;
-        let ratingDisplay = '⭐ New';
-        if (total > 0) {
-            const stars = Math.round((end / total * 5) * 10) / 10;
-            ratingDisplay = '⭐ ' + stars.toFixed(1) + ' (' + end + '/' + total + ')';
-        }
-        
         const availableDate = data.available_date ? new Date(data.available_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'Now';
         
         let dims = 'N/A';
@@ -619,31 +608,21 @@ function generateShareMessage(type, data) {
         }
         
         message = '🚛 TRUCK AVAILABLE\n';
-        message += '______\n';
+        message += '─────────────────\n';
         message += (data.truck_no || 'Truck') + '\n';
-        message += '______\n';
+        message += '─────────────────\n';
         message += '📍 LOCATION: ' + locName + '\n';
-        message += '______\n';
+        message += '─────────────────\n';
         message += '🚛 Type: ' + (data.vehicle_type || 'Any') + '\n';
         message += '📐 Dimensions: ' + dims + '\n';
         message += '⚖️ Weight: ' + formatIndianNumber(data.weight || 0) + ' Kg\n';
-        message += '______\n';
+        message += '─────────────────\n';
         message += '💰 ₹' + formatIndianNumber(data.rate || 0) + '/KM (Negotiable)\n';
         message += '📅 Available: ' + availableDate + '\n';
-        message += '______\n';
+        message += '─────────────────\n';
         if (data.company) {
             message += '🏢 Posted by: ' + data.company + '\n';
         }
-        message += ratingDisplay + '\n';
-        message += '______\n';
-        message += '🔗 View Details:\n';
-        message += url + '\n';
-        message += '______\n';
-        message += '📱 ReturnTruck - Find Loads & Trucks\n';
-        message += url;
-        
-    } else if (type === 'AGENT') {
-        const userData = data.user || {};
         const end = data.endorsements || 0;
         const fl = data.flags || 0;
         const total = end + fl;
@@ -652,11 +631,21 @@ function generateShareMessage(type, data) {
             const stars = Math.round((end / total * 5) * 10) / 10;
             ratingDisplay = '⭐ ' + stars.toFixed(1) + ' (' + end + '/' + total + ')';
         }
+        message += ratingDisplay + '\n';
+        message += '─────────────────\n';
+        message += '🔗 View Details:\n';
+        message += url + '\n';
+        message += '─────────────────\n';
+        message += '📱 ReturnTruck - Find Loads & Trucks\n';
+        message += url;
+        
+    } else if (type === 'AGENT') {
+        const userData = data.user || {};
         
         message = '🤝 AGENT PROFILE\n';
-        message += '______\n';
+        message += '─────────────────\n';
         message += (userData.company_name || userData.name || 'Agent') + '\n';
-        message += '______\n';
+        message += '─────────────────\n';
         if (userData.preferred_routes && userData.preferred_routes.length > 0) {
             message += '📍 Service Routes:\n';
             userData.preferred_routes.slice(0, 4).forEach(r => {
@@ -666,7 +655,7 @@ function generateShareMessage(type, data) {
             if (userData.preferred_routes.length > 4) {
                 message += '• +' + (userData.preferred_routes.length - 4) + ' more\n';
             }
-            message += '______\n';
+            message += '─────────────────\n';
         }
         if (userData.company_web) {
             message += '🌐 ' + userData.company_web + '\n';
@@ -674,11 +663,19 @@ function generateShareMessage(type, data) {
         if (userData.details) {
             message += '📝 ' + userData.details + '\n';
         }
+        const end = data.endorsements || 0;
+        const fl = data.flags || 0;
+        const total = end + fl;
+        let ratingDisplay = '⭐ New';
+        if (total > 0) {
+            const stars = Math.round((end / total * 5) * 10) / 10;
+            ratingDisplay = '⭐ ' + stars.toFixed(1) + ' (' + end + '/' + total + ')';
+        }
         message += ratingDisplay + '\n';
-        message += '______\n';
+        message += '─────────────────\n';
         message += '🔗 View Profile:\n';
         message += url + '\n';
-        message += '______\n';
+        message += '─────────────────\n';
         message += '📱 ReturnTruck - Find Loads & Trucks\n';
         message += url;
     }
@@ -697,12 +694,9 @@ function handleShareClick() {
     
     const type = detail.type || 'LOAD';
     const shareData = generateShareMessage(type, detail);
-    
-    // Encode the message for WhatsApp
     const encodedMessage = encodeURIComponent(shareData.message);
     const whatsappUrl = 'https://wa.me/?text=' + encodedMessage;
     
-    // Try native share first, fallback to WhatsApp
     if (navigator.share) {
         navigator.share({
             title: 'ReturnTruck - ' + (detail.material || detail.truck_no || 'Share'),
@@ -715,7 +709,6 @@ function handleShareClick() {
         window.open(whatsappUrl, '_blank');
     }
 }
-
 // ============================================================
 // DEEP LINK - Opens directly to detail page
 // ============================================================
