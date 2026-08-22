@@ -156,7 +156,6 @@ body{background:#f0f2f5;margin:0;padding:16px;display:flex;justify-content:cente
 .section-btn.danger:hover{background:#b91c1c}
 .section-btn.success{background:#16a34a;color:#fff}
 .section-btn.success:hover{background:#15803d}
-/* IMPROVED FORM ELEMENTS - BETTER CONTRAST WITH #2a2a3e */
 .form-control{width:100%;padding:12px 14px;border:2px solid #2d2d3d;border-radius:10px;font-size:14px;background:#2a2a3e;color:#fff;outline:none;transition:all .2s}
 .form-control:focus{border-color:#2563eb;background:#32324e;box-shadow:0 0 0 3px rgba(37,99,235,0.15);outline:none}
 .form-control::placeholder{color:#8a8ab5}
@@ -551,15 +550,164 @@ try{const cached=localStorage.getItem('rt_distance_cache');if(cached)Object.assi
 function calculateRating(endorsements,flags){const end=endorsements||0,fl=flags||0;const total=end+fl;if(total===0)return{rating:0,display:'⭐ New',stars:0};const stars=Math.round((end/total*5)*10)/10;return{rating:stars,display:'⭐ '+stars.toFixed(1)+' ('+end+'/'+total+')',stars:stars};}
 
 // ============================================================
-// SHARE
+// UPDATED SHARE FUNCTION - WhatsApp Format (Screenshot 1 Style)
 // ============================================================
-function generateShareMessage(type,data){let message='',title='',url=window.location.origin+'?listing='+type+'_'+data.id;if(type==='LOAD'){const fromLoc=getLoc(data.pickup_pin),toLoc=getLoc(data.drop_pin);const fromName=fromLoc?getLocDisplayName(fromLoc):'N/A',toName=toLoc?getLocDisplayName(toLoc):'N/A';const dims=data.dimensions?data.dimensions.join(' x ')+' ft':'N/A';message='🚛 *LOAD AVAILABLE*\n─────────────────\n📦 *'+(data.material||'Cargo').toUpperCase()+'*\n─────────────────\n📍 *FROM:* '+fromName+'\n     ⬇️\n📍 *TO:* '+toName+'\n─────────────────\n🚛 *Vehicle:* '+(data.vehicle_type||'Any')+'\n📐 *Dimensions:* '+dims+'\n⚖️ *Weight:* '+formatIndianNumber(data.weight||0)+' Kg\n─────────────────\n💰 ₹'+formatIndianNumber(data.rate||0)+' (Negotiable)\n';if(data.pickup_date)message+='📅 Pickup: '+new Date(data.pickup_date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})+'\n';message+='─────────────────\n';if(data.company)message+='🏢 Posted by: '+data.company+'\n';const ratingInfo=calculateRating(data.endorsements||0,data.flags||0);message+='⭐ '+ratingInfo.display+'\n─────────────────\n🔗 *View Details:*\n'+url+'\n─────────────────\n📱 ReturnTruck - Find Loads & Trucks';title='📦 Load Available: '+data.material;}else if(type==='TRUCK'){const loc=getLoc(data.location_pin),locName=loc?getLocDisplayName(loc):'N/A';message='🚛 *TRUCK AVAILABLE*\n─────────────────\n🚛 *'+(data.truck_no||'Truck')+ '*\n─────────────────\n📍 *LOCATION:* '+locName+'\n─────────────────\n🚛 *Type:* '+(data.vehicle_type||'Any')+'\n📐 *Dimensions:* '+(data.dimensions||'N/A')+'\n⚖️ *Weight:* '+formatIndianNumber(data.weight||0)+' Kg\n─────────────────\n💰 ₹'+formatIndianNumber(data.rate||0)+'/KM (Negotiable)\n';if(data.available_date)message+='📅 Available: '+new Date(data.available_date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})+'\n';message+='─────────────────\n';if(data.company)message+='🏢 Posted by: '+data.company+'\n';const ratingInfo=calculateRating(data.endorsements||0,data.flags||0);message+='⭐ '+ratingInfo.display+'\n─────────────────\n🔗 *View Details:*\n'+url+'\n─────────────────\n📱 ReturnTruck - Find Loads & Trucks';title='🚛 Truck Available: '+data.truck_no;}else if(type==='AGENT'){const userData=data.user||{};message='🤝 *AGENT PROFILE*\n─────────────────\n🤝 *'+(userData.company_name||userData.name||'Agent')+'*\n─────────────────\n';if(userData.preferred_routes&&userData.preferred_routes.length>0){message+='📍 *Service Routes:*\n';userData.preferred_routes.slice(0,4).forEach(r=>{const loc=getLoc(r);message+='• '+(loc?getLocDisplayName(loc):r)+'\n';});if(userData.preferred_routes.length>4)message+='• +'+(userData.preferred_routes.length-4)+' more\n';}message+='─────────────────\n';if(userData.company_web)message+='🌐 '+userData.company_web+'\n';const ratingInfo=calculateRating(data.endorsements||0,data.flags||0);message+='⭐ '+ratingInfo.display+'\n─────────────────\n🔗 *View Profile:*\n'+url+'\n─────────────────\n📱 ReturnTruck - Find Loads & Trucks';title='🤝 Agent Profile: '+(userData.company_name||userData.name||'Agent');}return{message,title,url};}
-function handleShareClick(){if(!detail){toast('No details to share');return;}const type=detail.type||'LOAD';const shareData=generateShareMessage(type,detail);if(navigator.share){navigator.share({title:shareData.title,text:shareData.message,url:shareData.url}).catch(()=>{window.open('https://wa.me/?text='+encodeURIComponent(shareData.message),'_blank');});}else{window.open('https://wa.me/?text='+encodeURIComponent(shareData.message),'_blank');}}
+function generateShareMessage(type, data) {
+    let message = '', title = '';
+    const url = window.location.origin + '?listing=' + type + '_' + data.id;
+    
+    if (type === 'LOAD') {
+        const fromLoc = getLoc(data.pickup_pin);
+        const toLoc = getLoc(data.drop_pin);
+        const fromName = fromLoc ? getLocDisplayName(fromLoc) : 'N/A';
+        const toName = toLoc ? getLocDisplayName(toLoc) : 'N/A';
+        const dims = data.dimensions ? data.dimensions.join(' x ') + ' ft' : 'N/A';
+        const ratingInfo = calculateRating(data.endorsements || 0, data.flags || 0);
+        const pickupDate = data.pickup_date ? new Date(data.pickup_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'Flexible';
+        
+        // Screenshot 1 style format
+        message = '📦 *LOAD AVAILABLE*\n';
+        message += '─────────────────\n';
+        message += '*『' + (data.material || 'Cargo').toUpperCase() + '』*\n';
+        message += '─────────────────\n';
+        message += '📍 *FROM:* ' + fromName + '\n';
+        message += '📍 *TO:* ' + toName + '\n';
+        message += '─────────────────\n';
+        message += '🚛 *Vehicle:* ' + (data.vehicle_type || 'Any') + '\n';
+        message += '📐 *Dimensions:* ' + dims + '\n';
+        message += '⚖️ *Weight:* ' + formatIndianNumber(data.weight || 0) + ' Kg\n';
+        message += '─────────────────\n';
+        message += '💰 ₹' + formatIndianNumber(data.rate || 0) + ' (Negotiable)\n';
+        if (data.pickup_date) {
+            message += '📅 Pickup: ' + pickupDate + '\n';
+        }
+        message += '─────────────────\n';
+        if (data.company) {
+            message += '🏢 Posted by: ' + data.company + '\n';
+        }
+        message += '⭐ ' + ratingInfo.display + '\n';
+        message += '─────────────────\n';
+        message += '🔗 *View Details:*\n';
+        message += url + '\n';
+        message += '─────────────────\n';
+        message += '📱 ReturnTruck - Find Loads & Trucks';
+        title = '📦 Load Available: ' + data.material;
+        
+    } else if (type === 'TRUCK') {
+        const loc = getLoc(data.location_pin);
+        const locName = loc ? getLocDisplayName(loc) : 'N/A';
+        const ratingInfo = calculateRating(data.endorsements || 0, data.flags || 0);
+        const availableDate = data.available_date ? new Date(data.available_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'Now';
+        
+        message = '🚛 *TRUCK AVAILABLE*\n';
+        message += '─────────────────\n';
+        message += '*『' + (data.truck_no || 'Truck') + '』*\n';
+        message += '─────────────────\n';
+        message += '📍 *LOCATION:* ' + locName + '\n';
+        message += '─────────────────\n';
+        message += '🚛 *Type:* ' + (data.vehicle_type || 'Any') + '\n';
+        message += '📐 *Dimensions:* ' + (data.dimensions || 'N/A') + '\n';
+        message += '⚖️ *Weight:* ' + formatIndianNumber(data.weight || 0) + ' Kg\n';
+        message += '─────────────────\n';
+        message += '💰 ₹' + formatIndianNumber(data.rate || 0) + '/KM (Negotiable)\n';
+        message += '📅 Available: ' + availableDate + '\n';
+        message += '─────────────────\n';
+        if (data.company) {
+            message += '🏢 Posted by: ' + data.company + '\n';
+        }
+        message += '⭐ ' + ratingInfo.display + '\n';
+        message += '─────────────────\n';
+        message += '🔗 *View Details:*\n';
+        message += url + '\n';
+        message += '─────────────────\n';
+        message += '📱 ReturnTruck - Find Loads & Trucks';
+        title = '🚛 Truck Available: ' + data.truck_no;
+        
+    } else if (type === 'AGENT') {
+        const userData = data.user || {};
+        const ratingInfo = calculateRating(data.endorsements || 0, data.flags || 0);
+        
+        message = '🤝 *AGENT PROFILE*\n';
+        message += '─────────────────\n';
+        message += '*『' + (userData.company_name || userData.name || 'Agent') + '』*\n';
+        message += '─────────────────\n';
+        if (userData.preferred_routes && userData.preferred_routes.length > 0) {
+            message += '📍 *Service Routes:*\n';
+            userData.preferred_routes.slice(0, 4).forEach(r => {
+                const loc = getLoc(r);
+                message += '• ' + (loc ? getLocDisplayName(loc) : r) + '\n';
+            });
+            if (userData.preferred_routes.length > 4) {
+                message += '• +' + (userData.preferred_routes.length - 4) + ' more\n';
+            }
+            message += '─────────────────\n';
+        }
+        if (userData.company_web) {
+            message += '🌐 ' + userData.company_web + '\n';
+        }
+        if (userData.details) {
+            message += '📝 ' + userData.details + '\n';
+        }
+        message += '⭐ ' + ratingInfo.display + '\n';
+        message += '─────────────────\n';
+        message += '🔗 *View Profile:*\n';
+        message += url + '\n';
+        message += '─────────────────\n';
+        message += '📱 ReturnTruck - Find Loads & Trucks';
+        title = '🤝 Agent Profile: ' + (userData.company_name || userData.name || 'Agent');
+    }
+    
+    return { message, title, url };
+}
+
+function handleShareClick() {
+    if (!detail) {
+        toast('No details to share');
+        return;
+    }
+    const type = detail.type || 'LOAD';
+    const shareData = generateShareMessage(type, detail);
+    
+    if (navigator.share) {
+        navigator.share({
+            title: shareData.title,
+            text: shareData.message,
+            url: shareData.url
+        }).catch(() => {
+            window.open('https://wa.me/?text=' + encodeURIComponent(shareData.message), '_blank');
+        });
+    } else {
+        window.open('https://wa.me/?text=' + encodeURIComponent(shareData.message), '_blank');
+    }
+}
 
 // ============================================================
-// DEEP LINK
+// DEEP LINK - Opens directly to detail page
 // ============================================================
-function checkDeepLink(){if(deepLinkProcessed)return;const params=new URLSearchParams(window.location.search);const listing=params.get('listing');if(listing){const parts=listing.split('_');if(parts.length===2){const type=parts[0],id=parts[1];if(type&&id){deepLinkProcessed=true;setTimeout(()=>{if(user||guest)openDetail(type,id);else{showLogin();window._deepLink={type,id};}},1000);}}}}
+function checkDeepLink() {
+    if (deepLinkProcessed) return;
+    const params = new URLSearchParams(window.location.search);
+    const listing = params.get('listing');
+    
+    if (listing) {
+        const parts = listing.split('_');
+        if (parts.length === 2) {
+            const type = parts[0];
+            const id = parts[1];
+            if (type && id) {
+                deepLinkProcessed = true;
+                setTimeout(() => {
+                    if (user || guest) {
+                        openDetail(type, id);
+                    } else {
+                        showLogin();
+                        window._deepLink = { type: type, id: id };
+                    }
+                }, 1000);
+            }
+        }
+    }
+}
 
 // ============================================================
 // UTILITY
@@ -576,7 +724,7 @@ document.addEventListener('click',function(e){const item=e.target.closest('.item
 function selectLoc(ctx,pinId){const l=getLoc(pinId);if(!l)return;const dn=getLocDisplayName(l);const inp=$('search-'+ctx);if(inp){inp.value=dn;setTimeout(()=>{inp.select();inp.classList.add('selected');},100);const sug=$('suggestions-'+ctx);if(sug){sug.classList.remove('show');sug.innerHTML='';}}let hid=null;if(ctx==='home'){homePinId=pinId;localStorage.setItem('rt_home_location',JSON.stringify({pinId,displayName:dn}));applyFilters();return;}if(ctx==='to')hid='filter-to-hidden';else if(ctx==='pl-pickup')hid='pl-pickup-hidden';else if(ctx==='pl-drop')hid='pl-drop-hidden';else if(ctx==='pt-location')hid='pt-location-hidden';else if(ctx==='edit-location')hid='edit-location-hidden';else if(ctx==='edit-route')hid='edit-route-hidden';if(hid&&$(hid))$(hid).value=pinId;const sug=$('suggestions-'+ctx);if(sug){sug.classList.remove('show');sug.innerHTML='';}if(ctx==='to')applyFilters();}
 
 // ============================================================
-// LOGIN
+// LOGIN (unchanged - keep existing code)
 // ============================================================
 function showMobileLoading(show){const loading=document.getElementById('mobile-loading');const status=document.getElementById('mobile-status');const mobileInput=document.getElementById('mobile');if(show){loading.classList.remove('hidden');status.textContent='⏳ Checking user...';status.style.color='#f59e0b';mobileInput.disabled=true;}else{loading.classList.add('hidden');mobileInput.disabled=false;}}
 document.getElementById('mobile').addEventListener('input',function(e){const m=this.value.trim();if(mobileCheckTimeout){clearTimeout(mobileCheckTimeout);mobileCheckTimeout=null;}const status=document.getElementById('mobile-status');status.textContent='';if(m.length===10){mobile=m;showMobileLoading(true);mobileCheckTimeout=setTimeout(function(){checkUserAndShowStep(m);},300);}else showMobileLoading(false);});
