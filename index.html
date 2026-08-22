@@ -561,11 +561,19 @@ function generateShareMessage(type, data) {
         const toLoc = getLoc(data.drop_pin);
         const fromName = fromLoc ? getLocDisplayName(fromLoc) : 'N/A';
         const toName = toLoc ? getLocDisplayName(toLoc) : 'N/A';
-        const dims = data.dimensions ? data.dimensions.join(' x ') + ' ft' : 'N/A';
+        
+        // FIX: dimensions is an array, join it properly
+        let dims = 'N/A';
+        if (data.dimensions && Array.isArray(data.dimensions)) {
+            dims = data.dimensions.join(' x ') + ' ft';
+        } else if (data.dimensions) {
+            dims = data.dimensions + ' ft';
+        }
+        
         const ratingInfo = calculateRating(data.endorsements || 0, data.flags || 0);
         const pickupDate = data.pickup_date ? new Date(data.pickup_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'Flexible';
         
-        // Screenshot 1 style format - SIMPLE & CLEAN with underscores
+        // Screenshot 1 style format - EXACT match
         message = '📦 LOAD AVAILABLE\n';
         message += '______\n';
         message += (data.material || 'Cargo').toUpperCase() + '\n';
@@ -583,7 +591,16 @@ function generateShareMessage(type, data) {
         if (data.company) {
             message += '🏢 Posted by: ' + data.company + '\n';
         }
-        message += '⭐ ' + ratingInfo.display + '\n';
+        // FIX: Proper rating display
+        const end = data.endorsements || 0;
+        const fl = data.flags || 0;
+        const total = end + fl;
+        let ratingDisplay = '⭐ New';
+        if (total > 0) {
+            const stars = Math.round((end / total * 5) * 10) / 10;
+            ratingDisplay = '⭐ ' + stars.toFixed(1) + ' (' + end + '/' + total + ')';
+        }
+        message += ratingDisplay + '\n';
         message += '______\n';
         message += '🔗 View Details:\n';
         message += url + '\n';
@@ -595,8 +612,17 @@ function generateShareMessage(type, data) {
     } else if (type === 'TRUCK') {
         const loc = getLoc(data.location_pin);
         const locName = loc ? getLocDisplayName(loc) : 'N/A';
-        const ratingInfo = calculateRating(data.endorsements || 0, data.flags || 0);
         const availableDate = data.available_date ? new Date(data.available_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : 'Now';
+        
+        // FIX: Proper rating display for trucks
+        const end = data.endorsements || 0;
+        const fl = data.flags || 0;
+        const total = end + fl;
+        let ratingDisplay = '⭐ New';
+        if (total > 0) {
+            const stars = Math.round((end / total * 5) * 10) / 10;
+            ratingDisplay = '⭐ ' + stars.toFixed(1) + ' (' + end + '/' + total + ')';
+        }
         
         message = '🚛 TRUCK AVAILABLE\n';
         message += '______\n';
@@ -605,7 +631,14 @@ function generateShareMessage(type, data) {
         message += '📍 LOCATION: ' + locName + '\n';
         message += '______\n';
         message += '🚛 Type: ' + (data.vehicle_type || 'Any') + '\n';
-        message += '📐 Dimensions: ' + (data.dimensions || 'N/A') + '\n';
+        // FIX: dimensions handling for trucks
+        let dims = 'N/A';
+        if (data.dimensions && Array.isArray(data.dimensions)) {
+            dims = data.dimensions.join(' x ') + ' ft';
+        } else if (data.dimensions) {
+            dims = data.dimensions + ' ft';
+        }
+        message += '📐 Dimensions: ' + dims + '\n';
         message += '⚖️ Weight: ' + formatIndianNumber(data.weight || 0) + ' Kg\n';
         message += '______\n';
         message += '💰 ₹' + formatIndianNumber(data.rate || 0) + '/KM (Negotiable)\n';
@@ -614,7 +647,7 @@ function generateShareMessage(type, data) {
         if (data.company) {
             message += '🏢 Posted by: ' + data.company + '\n';
         }
-        message += '⭐ ' + ratingInfo.display + '\n';
+        message += ratingDisplay + '\n';
         message += '______\n';
         message += '🔗 View Details:\n';
         message += url + '\n';
@@ -625,7 +658,14 @@ function generateShareMessage(type, data) {
         
     } else if (type === 'AGENT') {
         const userData = data.user || {};
-        const ratingInfo = calculateRating(data.endorsements || 0, data.flags || 0);
+        const end = data.endorsements || 0;
+        const fl = data.flags || 0;
+        const total = end + fl;
+        let ratingDisplay = '⭐ New';
+        if (total > 0) {
+            const stars = Math.round((end / total * 5) * 10) / 10;
+            ratingDisplay = '⭐ ' + stars.toFixed(1) + ' (' + end + '/' + total + ')';
+        }
         
         message = '🤝 AGENT PROFILE\n';
         message += '______\n';
@@ -648,7 +688,7 @@ function generateShareMessage(type, data) {
         if (userData.details) {
             message += '📝 ' + userData.details + '\n';
         }
-        message += '⭐ ' + ratingInfo.display + '\n';
+        message += ratingDisplay + '\n';
         message += '______\n';
         message += '🔗 View Profile:\n';
         message += url + '\n';
@@ -661,7 +701,6 @@ function generateShareMessage(type, data) {
     return { message, title, url };
 }
 
-// SINGLE handleShareClick function - REMOVED THE DUPLICATE
 function handleShareClick() {
     if (!detail) {
         toast('No details to share');
