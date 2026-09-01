@@ -502,7 +502,44 @@ const LOCATIONS = [
     { pin_id: 50011201, pincode: "500112", name: "Badangpet", district: "HYDERABAD", state: "TG", lat: 17.30505, lng: 78.525178 }
 ];
 
-function getLoc(pinId) { if (!pinId) return null; const pinNum = parseInt(pinId); if (isNaN(pinNum)) return null; return LOCATIONS.find(l => l.pin_id === pinNum) || null; }
+// ============================================================
+// FIXED: getLocByPincode - matches first 6 digits of pin_id
+// ============================================================
+function getLocByPincode(pinId) {
+    if (!pinId) return null;
+    const pinNum = parseInt(pinId);
+    if (isNaN(pinNum)) return null;
+    const pinStr = String(pinNum);
+    // If less than 6 digits, pad or return null
+    if (pinStr.length < 6) return null;
+    // Get first 6 digits
+    const pincode = pinStr.substring(0, 6);
+    // Find all locations with this pincode
+    const matches = LOCATIONS.filter(l => l.pincode === pincode);
+    if (matches.length === 0) return null;
+    // If exact match exists, return it
+    const exact = matches.find(l => l.pin_id === pinNum);
+    if (exact) return exact;
+    // Otherwise return the first match
+    return matches[0];
+}
+
+function getLoc(pinId) { 
+    if (!pinId) return null; 
+    const pinNum = parseInt(pinId); 
+    if (isNaN(pinNum)) return null; 
+    // First try exact match
+    const exact = LOCATIONS.find(l => l.pin_id === pinNum);
+    if (exact) return exact;
+    // Then try pincode match (first 6 digits)
+    return getLocByPincode(pinNum);
+}
+
+function getLocationsByPincode(pincode) {
+    const pincodeStr = String(pincode).substring(0, 6);
+    return LOCATIONS.filter(l => l.pincode === pincodeStr);
+}
+
 function getLocDisplayName(loc) { if (!loc) return 'Unknown'; return loc.name + ', ' + loc.district + ', ' + loc.state + ' (' + loc.pincode + ')'; }
 function getLocName(pinId) { const l = getLoc(pinId); return l ? getLocDisplayName(l) : pinId || 'Unknown'; }
 function dist(lat1, lng1, lat2, lng2) { const R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLng = (lng2 - lng1) * Math.PI / 180; const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) * Math.sin(dLng / 2); return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); }
@@ -543,7 +580,7 @@ function calculateRating(endorsements, flags) {
 }
 
 // ============================================================
-// AGENT FUNCTIONS - FIXED
+// AGENT FUNCTIONS
 // ============================================================
 function searchAgents(inputId, dropdownId) {
     const input = document.getElementById(inputId);
@@ -2046,7 +2083,7 @@ function updateCharCount(inputId, countId) {
 }
 
 // ============================================================
-// RENDER FEED - FIXED RADIUS FILTER
+// RENDER FEED - FIXED: PINCODE-BASED RADIUS FILTERING
 // ============================================================
 async function renderFeed() {
     try {
@@ -2124,16 +2161,30 @@ async function renderFeed() {
         let filtered = items.slice();
         const radius = parseInt(document.getElementById('radius-select').value) || 50;
 
-        // FIXED: Radius filtering
+        // ============================================================
+        // FIXED: Radius filtering using pincode (first 6 digits)
+        // ============================================================
         if (homePinId) {
             const hl = getLoc(homePinId);
             if (hl) {
+                // Get the 6-digit pincode for the searched location
+                const searchPincode = String(hl.pincode);
+                
                 filtered = filtered.filter(i => {
+                    // Get the item's location
                     const fl = getLoc(i.from_pin);
                     if (!fl) {
-                        // If location not found, include it (or you can exclude)
+                        // If we can't find the location, try to match by pincode
+                        const itemPinStr = String(i.from_pin);
+                        if (itemPinStr.length >= 6) {
+                            const itemPincode = itemPinStr.substring(0, 6);
+                            // If same pincode, include it
+                            if (itemPincode === searchPincode) return true;
+                        }
+                        // If we still can't match, include it (fallback)
                         return true;
                     }
+                    // Calculate distance using coordinates
                     const distance = dist(hl.lat, hl.lng, fl.lat, fl.lng);
                     return distance <= radius;
                 });
@@ -2145,13 +2196,21 @@ async function renderFeed() {
         else if (tab === 'TRUCK') filtered = filtered.filter(i => i.type === 'TRUCK');
         else if (tab === 'AGENT') filtered = filtered.filter(i => i.type === 'AGENT');
 
-        // To Location filter
+        // To Location filter - also using pincode matching
         if (toPinId) {
             const tl = getLoc(toPinId);
             if (tl) {
+                const toPincode = String(tl.pincode);
                 filtered = filtered.filter(i => {
                     const tl2 = getLoc(i.to_pin);
-                    if (!tl2) return true;
+                    if (!tl2) {
+                        const itemPinStr = String(i.to_pin);
+                        if (itemPinStr.length >= 6) {
+                            const itemPincode = itemPinStr.substring(0, 6);
+                            if (itemPincode === toPincode) return true;
+                        }
+                        return true;
+                    }
                     return dist(tl.lat, tl.lng, tl2.lat, tl2.lng) <= radius;
                 });
             }
@@ -2540,7 +2599,7 @@ function updateStats(item) {
 }
 
 // ============================================================
-// AUTO LOCATE - FIXED
+// AUTO LOCATE
 // ============================================================
 function autoLocate() {
     const inp = document.getElementById('search-home');
@@ -2577,7 +2636,6 @@ function autoLocate() {
                     localStorage.setItem('rt_home_location', JSON.stringify({ pinId: near.pin_id, displayName: dn }));
                     applyFilters();
                 } else {
-                    // Fallback to first location
                     if (LOCATIONS.length > 0) {
                         const near = LOCATIONS[0];
                         const dn = getLocDisplayName(near);
@@ -2589,7 +2647,6 @@ function autoLocate() {
                 }
             },
             () => {
-                // If geolocation fails, try IP-based location
                 fetch('https://ipapi.co/json/').then(r => r.json()).then(d => {
                     const city = d.city || '';
                     let found = false;
@@ -2612,7 +2669,6 @@ function autoLocate() {
                         applyFilters();
                     }
                 }).catch(() => {
-                    // Final fallback
                     if (LOCATIONS.length > 0) {
                         const near = LOCATIONS[0];
                         const dn = getLocDisplayName(near);
@@ -2625,7 +2681,6 @@ function autoLocate() {
             }
         );
     } else {
-        // Fallback for browsers without geolocation
         if (LOCATIONS.length > 0) {
             const near = LOCATIONS[0];
             const dn = getLocDisplayName(near);
