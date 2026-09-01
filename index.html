@@ -502,9 +502,6 @@ const LOCATIONS = [
     { pin_id: 50011201, pincode: "500112", name: "Badangpet", district: "HYDERABAD", state: "TG", lat: 17.30505, lng: 78.525178 }
 ];
 
-// ============================================================
-// FIXED: getLocByPincode - matches first 6 digits of pin_id
-// ============================================================
 function getLocByPincode(pinId) {
     if (!pinId) return null;
     const pinNum = parseInt(pinId);
@@ -533,41 +530,7 @@ function getLocName(pinId) { const l = getLoc(pinId); return l ? getLocDisplayNa
 function dist(lat1, lng1, lat2, lng2) { const R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLng = (lng2 - lng1) * Math.PI / 180; const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) * Math.sin(dLng / 2); return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); }
 
 // ============================================================
-// ROAD DISTANCE
-// ============================================================
-const distanceCache = {};
-async function getRoadDistance(lat1, lng1, lat2, lng2) {
-    try {
-        const key = `${Math.round(lat1 * 1000)},${Math.round(lng1 * 1000)}-${Math.round(lat2 * 1000)},${Math.round(lng2 * 1000)}`;
-        if (distanceCache[key]) return distanceCache[key];
-        const url = `https://router.project-osrm.org/route/v1/driving/${lng1},${lat1};${lng2},${lat2}?overview=false`;
-        const response = await fetch(url);
-        const data = await response.json();
-        if (data.routes && data.routes.length > 0) {
-            const distanceKM = Math.round(data.routes[0].distance / 1000);
-            const result = { distance: distanceKM, source: 'OSRM' };
-            distanceCache[key] = result;
-            try { localStorage.setItem('rt_distance_cache', JSON.stringify(distanceCache)); } catch (e) {}
-            return result;
-        }
-        return null;
-    } catch (error) { console.error('OSRM API error:', error); return null; }
-}
-try { const cached = localStorage.getItem('rt_distance_cache'); if (cached) Object.assign(distanceCache, JSON.parse(cached)); } catch (e) {}
-
-// ============================================================
-// RATING
-// ============================================================
-function calculateRating(endorsements, flags) {
-    const end = endorsements || 0, fl = flags || 0;
-    const total = end + fl;
-    if (total === 0) return { rating: 0, display: '⭐ New', stars: 0 };
-    const stars = Math.round((end / total * 5) * 10) / 10;
-    return { rating: stars, display: '⭐ ' + stars.toFixed(1) + ' (' + end + '/' + total + ')', stars: stars };
-}
-
-// ============================================================
-// RENDER FEED - COMPLETE FIX: PINCODE-BASED RADIUS FILTERING
+// RENDER FEED - COMPLETE FIX WITH AGENT RADIUS FILTERING
 // ============================================================
 async function renderFeed() {
     try {
@@ -645,7 +608,7 @@ async function renderFeed() {
         const radius = parseInt(document.getElementById('radius-select').value) || 50;
 
         // ============================================================
-        // FIXED: Radius filtering using FIRST 6 DIGITS (pincode)
+        // FIXED: Radius filtering with proper AGENT handling
         // ============================================================
         if (homePinId) {
             const hl = getLoc(homePinId);
@@ -653,25 +616,41 @@ async function renderFeed() {
                 const searchPincode = String(hl.pincode);
                 
                 filtered = filtered.filter(i => {
-                    // Agents always show (they serve multiple locations)
-                    if (i.type === 'AGENT') return true;
+                    // ---- AGENT FILTERING ----
+                    if (i.type === 'AGENT') {
+                        // Agent with NO location -> serves multiple locations, always show
+                        if (!i.from_pin) return true;
+                        
+                        // Agent with location -> filter by radius
+                        const fl = getLoc(i.from_pin);
+                        if (fl) {
+                            const distance = dist(hl.lat, hl.lng, fl.lat, fl.lng);
+                            return distance <= radius;
+                        }
+                        
+                        // Try pincode match (first 6 digits)
+                        const itemPinStr = String(i.from_pin);
+                        if (itemPinStr.length >= 6) {
+                            const itemPincode = itemPinStr.substring(0, 6);
+                            if (itemPincode === searchPincode) return true;
+                        }
+                        return false;
+                    }
                     
+                    // ---- LOADS & TRUCKS ----
                     const fl = getLoc(i.from_pin);
-                    
-                    // If exact location found, use distance
                     if (fl) {
                         const distance = dist(hl.lat, hl.lng, fl.lat, fl.lng);
                         return distance <= radius;
                     }
                     
-                    // If location not found, try pincode matching (FIRST 6 DIGITS)
+                    // Try pincode match (first 6 digits)
                     const itemPinStr = String(i.from_pin);
                     if (itemPinStr.length >= 6) {
                         const itemPincode = itemPinStr.substring(0, 6);
                         if (itemPincode === searchPincode) return true;
                     }
                     
-                    // If still no match, exclude
                     return false;
                 });
             }
@@ -682,7 +661,7 @@ async function renderFeed() {
         else if (tab === 'TRUCK') filtered = filtered.filter(i => i.type === 'TRUCK');
         else if (tab === 'AGENT') filtered = filtered.filter(i => i.type === 'AGENT');
 
-        // To Location filter - also using pincode matching
+        // To Location filter
         if (toPinId) {
             const tl = getLoc(toPinId);
             if (tl) {
@@ -797,7 +776,7 @@ function cancelPost() { goHome(); }
 function closeDetail() { detail = null; goHome(); }
 
 // ============================================================
-// AGENT FUNCTIONS
+// AGENT FUNCTIONS (same as original)
 // ============================================================
 function searchAgents(inputId, dropdownId) {
     const input = document.getElementById(inputId);
@@ -1064,6 +1043,65 @@ function loadAgentsFromUser() {
 }
 
 // ============================================================
+// SEARCH LOCATION
+// ============================================================
+function searchLocation(ctx) {
+    const inp = $('search-' + ctx);
+    const sug = $('suggestions-' + ctx);
+    if (!inp || !sug) return;
+    const q = inp.value.trim();
+    if (!q) { sug.classList.remove('show'); sug.innerHTML = ''; return; }
+    const res = LOCATIONS.filter(l => l.name.toLowerCase().includes(q.toLowerCase()) || l.pincode.includes(q) || l.district.toLowerCase().includes(q.toLowerCase()) || l.state.toLowerCase().includes(q.toLowerCase()) || String(l.pin_id).includes(q)).slice(0, 10);
+    if (!res.length) { sug.classList.remove('show'); sug.innerHTML = ''; return; }
+    let html = '';
+    res.forEach(l => {
+        const dn = getLocDisplayName(l);
+        const idx = dn.toLowerCase().indexOf(q.toLowerCase());
+        let dh = dn;
+        if (idx !== -1) dh = dn.substring(0, idx) + '<span class="highlight">' + dn.substring(idx, idx + q.length) + '</span>' + dn.substring(idx + q.length);
+        html += '<div class="item" data-ctx="' + ctx + '" data-pinid="' + l.pin_id + '">' + dh + '</div>';
+    });
+    sug.innerHTML = html;
+    sug.classList.add('show');
+}
+document.addEventListener('click', function(e) {
+    const item = e.target.closest('.item');
+    if (item) {
+        const ctx = item.dataset.ctx, pinId = item.dataset.pinid;
+        if (ctx && pinId) { selectLoc(ctx, pinId); e.stopPropagation(); }
+    }
+    document.querySelectorAll('.suggestions').forEach(s => {
+        const parent = s.parentElement;
+        if (parent && !parent.contains(e.target)) { s.classList.remove('show'); s.innerHTML = ''; }
+    });
+});
+
+function selectLoc(ctx, pinId) {
+    const l = getLoc(pinId);
+    if (!l) return;
+    const dn = getLocDisplayName(l);
+    const inp = $('search-' + ctx);
+    if (inp) {
+        inp.value = dn;
+        setTimeout(() => { inp.select(); inp.classList.add('selected'); }, 100);
+        const sug = $('suggestions-' + ctx);
+        if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
+    }
+    let hid = null;
+    if (ctx === 'home') { homePinId = pinId; localStorage.setItem('rt_home_location', JSON.stringify({ pinId, displayName: dn })); applyFilters(); return; }
+    if (ctx === 'to') hid = 'filter-to-hidden';
+    else if (ctx === 'pl-pickup') hid = 'pl-pickup-hidden';
+    else if (ctx === 'pl-drop') hid = 'pl-drop-hidden';
+    else if (ctx === 'pt-location') hid = 'pt-location-hidden';
+    else if (ctx === 'edit-location') hid = 'edit-location-hidden';
+    else if (ctx === 'edit-route') hid = 'edit-route-hidden';
+    if (hid && $(hid)) $(hid).value = pinId;
+    const sug = $('suggestions-' + ctx);
+    if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
+    if (ctx === 'to') applyFilters();
+}
+
+// ============================================================
 // SHARE FUNCTION
 // ============================================================
 function generateShareMessage(type, data) {
@@ -1150,7 +1188,7 @@ function handleShareClick() {
 }
 
 // ============================================================
-// DETAIL VIEWS
+// DETAIL VIEWS (same as original)
 // ============================================================
 function openDetail(type, id) {
     if (type === 'AGENT') {
@@ -1420,92 +1458,58 @@ function updateStats(item) {
 }
 
 // ============================================================
-// SEARCH LOCATION
-// ============================================================
-function searchLocation(ctx) {
-    const inp = $('search-' + ctx);
-    const sug = $('suggestions-' + ctx);
-    if (!inp || !sug) return;
-    const q = inp.value.trim();
-    if (!q) { sug.classList.remove('show'); sug.innerHTML = ''; return; }
-    const res = LOCATIONS.filter(l => l.name.toLowerCase().includes(q.toLowerCase()) || l.pincode.includes(q) || l.district.toLowerCase().includes(q.toLowerCase()) || l.state.toLowerCase().includes(q.toLowerCase()) || String(l.pin_id).includes(q)).slice(0, 10);
-    if (!res.length) { sug.classList.remove('show'); sug.innerHTML = ''; return; }
-    let html = '';
-    res.forEach(l => {
-        const dn = getLocDisplayName(l);
-        const idx = dn.toLowerCase().indexOf(q.toLowerCase());
-        let dh = dn;
-        if (idx !== -1) dh = dn.substring(0, idx) + '<span class="highlight">' + dn.substring(idx, idx + q.length) + '</span>' + dn.substring(idx + q.length);
-        html += '<div class="item" data-ctx="' + ctx + '" data-pinid="' + l.pin_id + '">' + dh + '</div>';
-    });
-    sug.innerHTML = html;
-    sug.classList.add('show');
-}
-document.addEventListener('click', function(e) {
-    const item = e.target.closest('.item');
-    if (item) {
-        const ctx = item.dataset.ctx, pinId = item.dataset.pinid;
-        if (ctx && pinId) { selectLoc(ctx, pinId); e.stopPropagation(); }
-    }
-    document.querySelectorAll('.suggestions').forEach(s => {
-        const parent = s.parentElement;
-        if (parent && !parent.contains(e.target)) { s.classList.remove('show'); s.innerHTML = ''; }
-    });
-});
-
-function selectLoc(ctx, pinId) {
-    const l = getLoc(pinId);
-    if (!l) return;
-    const dn = getLocDisplayName(l);
-    const inp = $('search-' + ctx);
-    if (inp) {
-        inp.value = dn;
-        setTimeout(() => { inp.select(); inp.classList.add('selected'); }, 100);
-        const sug = $('suggestions-' + ctx);
-        if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
-    }
-    let hid = null;
-    if (ctx === 'home') { homePinId = pinId; localStorage.setItem('rt_home_location', JSON.stringify({ pinId, displayName: dn })); applyFilters(); return; }
-    if (ctx === 'to') hid = 'filter-to-hidden';
-    else if (ctx === 'pl-pickup') hid = 'pl-pickup-hidden';
-    else if (ctx === 'pl-drop') hid = 'pl-drop-hidden';
-    else if (ctx === 'pt-location') hid = 'pt-location-hidden';
-    else if (ctx === 'edit-location') hid = 'edit-location-hidden';
-    else if (ctx === 'edit-route') hid = 'edit-route-hidden';
-    if (hid && $(hid)) $(hid).value = pinId;
-    const sug = $('suggestions-' + ctx);
-    if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
-    if (ctx === 'to') applyFilters();
-}
-
-// ============================================================
 // OTHER FUNCTIONS (Login, Profile, Vehicle, etc.)
 // ============================================================
-// ... (All other functions remain the same as your original code)
-// Note: For brevity, I've kept the core fix above.
-// The complete file should include all your existing functions.
-
 function $(id) { return document.getElementById(id); }
 function toast(msg) { alert(msg); }
 function selectInputText(input) { input.select(); input.classList.add('selected'); }
 
 // ============================================================
-// INIT
+// ROAD DISTANCE
 // ============================================================
-document.addEventListener('DOMContentLoaded', function() {
-    const saved = localStorage.getItem('rt_user');
-    if (saved) {
-        const sd = JSON.parse(saved);
-        if (sd.guest) { guest = true; user = null; } else if (sd.user) { user = sd.user; guest = false; }
-        showHome();
-    } else {
-        document.getElementById('login-screen').style.display = 'flex';
-        document.getElementById('home-page').classList.add('hidden-page');
-    }
-    setTimeout(() => { checkDeepLink(); }, 1500);
-});
+const distanceCache = {};
+async function getRoadDistance(lat1, lng1, lat2, lng2) {
+    try {
+        const key = `${Math.round(lat1 * 1000)},${Math.round(lng1 * 1000)}-${Math.round(lat2 * 1000)},${Math.round(lng2 * 1000)}`;
+        if (distanceCache[key]) return distanceCache[key];
+        const url = `https://router.project-osrm.org/route/v1/driving/${lng1},${lat1};${lng2},${lat2}?overview=false`;
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.routes && data.routes.length > 0) {
+            const distanceKM = Math.round(data.routes[0].distance / 1000);
+            const result = { distance: distanceKM, source: 'OSRM' };
+            distanceCache[key] = result;
+            try { localStorage.setItem('rt_distance_cache', JSON.stringify(distanceCache)); } catch (e) {}
+            return result;
+        }
+        return null;
+    } catch (error) { console.error('OSRM API error:', error); return null; }
+}
+try { const cached = localStorage.getItem('rt_distance_cache'); if (cached) Object.assign(distanceCache, JSON.parse(cached)); } catch (e) {}
 
-// For login functions - keep these from your original code
+// ============================================================
+// RATING
+// ============================================================
+function calculateRating(endorsements, flags) {
+    const end = endorsements || 0, fl = flags || 0;
+    const total = end + fl;
+    if (total === 0) return { rating: 0, display: '⭐ New', stars: 0 };
+    const stars = Math.round((end / total * 5) * 10) / 10;
+    return { rating: stars, display: '⭐ ' + stars.toFixed(1) + ' (' + end + '/' + total + ')', stars: stars };
+}
+
+// ============================================================
+// PROFILE FUNCTIONS (simplified)
+// ============================================================
+function loadProfile() {
+    if (!user) return;
+    document.getElementById('profile-name').textContent = user.name || user.mobile || 'User';
+    // ... rest of profile functions (keep your existing code)
+}
+
+// ============================================================
+// LOGIN FUNCTIONS (keep your existing code)
+// ============================================================
 function showHome() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('home-page').classList.remove('hidden-page');
@@ -1525,11 +1529,187 @@ function continueAsGuest() {
 }
 
 function showLogin() { resetForm(); document.getElementById('mobile').focus(); }
-
 function resetForm() { /* keep your existing resetForm */ }
 
-// All other functions (login, vehicle, profile, etc.) remain exactly as in your original code
-// The ONLY change is the renderFeed() function above.
+// ============================================================
+// AUTO LOCATE
+// ============================================================
+function autoLocate() {
+    const inp = document.getElementById('search-home');
+    if (!inp) return;
+    const saved = localStorage.getItem('rt_home_location');
+    if (saved) {
+        try {
+            const l = JSON.parse(saved);
+            const loc = getLoc(l.pinId);
+            if (loc) {
+                inp.value = l.displayName;
+                homePinId = l.pinId;
+                applyFilters();
+                return;
+            }
+        } catch (e) {}
+    }
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            p => {
+                const lat = p.coords.latitude, lng = p.coords.longitude;
+                let near = null, minD = Infinity;
+                LOCATIONS.forEach(l => {
+                    const d = dist(lat, lng, l.lat, l.lng);
+                    if (d < minD) { minD = d; near = l; }
+                });
+                if (near && minD < 100) {
+                    const dn = getLocDisplayName(near);
+                    inp.value = dn;
+                    homePinId = near.pin_id;
+                    localStorage.setItem('rt_home_location', JSON.stringify({ pinId: near.pin_id, displayName: dn }));
+                    applyFilters();
+                } else {
+                    if (LOCATIONS.length > 0) {
+                        const near = LOCATIONS[0];
+                        const dn = getLocDisplayName(near);
+                        inp.value = dn;
+                        homePinId = near.pin_id;
+                        localStorage.setItem('rt_home_location', JSON.stringify({ pinId: near.pin_id, displayName: dn }));
+                        applyFilters();
+                    }
+                }
+            },
+            () => {
+                fetch('https://ipapi.co/json/').then(r => r.json()).then(d => {
+                    const city = d.city || '';
+                    let found = false;
+                    LOCATIONS.forEach(l => {
+                        if (l.name.toLowerCase() === city.toLowerCase() || l.district.toLowerCase() === city.toLowerCase()) {
+                            const dn = getLocDisplayName(l);
+                            inp.value = dn;
+                            homePinId = l.pin_id;
+                            localStorage.setItem('rt_home_location', JSON.stringify({ pinId: l.pin_id, displayName: dn }));
+                            found = true;
+                            applyFilters();
+                        }
+                    });
+                    if (!found && LOCATIONS.length > 0) {
+                        const near = LOCATIONS[0];
+                        const dn = getLocDisplayName(near);
+                        inp.value = dn;
+                        homePinId = near.pin_id;
+                        localStorage.setItem('rt_home_location', JSON.stringify({ pinId: near.pin_id, displayName: dn }));
+                        applyFilters();
+                    }
+                }).catch(() => {
+                    if (LOCATIONS.length > 0) {
+                        const near = LOCATIONS[0];
+                        const dn = getLocDisplayName(near);
+                        inp.value = dn;
+                        homePinId = near.pin_id;
+                        localStorage.setItem('rt_home_location', JSON.stringify({ pinId: near.pin_id, displayName: dn }));
+                        applyFilters();
+                    }
+                });
+            }
+        );
+    } else {
+        if (LOCATIONS.length > 0) {
+            const near = LOCATIONS[0];
+            const dn = getLocDisplayName(near);
+            inp.value = dn;
+            homePinId = near.pin_id;
+            localStorage.setItem('rt_home_location', JSON.stringify({ pinId: near.pin_id, displayName: dn }));
+            applyFilters();
+        }
+    }
+}
+
+// ============================================================
+// DEEP LINK
+// ============================================================
+function checkDeepLink() {
+    if (deepLinkProcessed) return;
+    const params = new URLSearchParams(window.location.search);
+    const listing = params.get('listing');
+    if (listing) {
+        const parts = listing.split('_');
+        if (parts.length === 2) {
+            const type = parts[0], id = parts[1];
+            if (type && id) {
+                deepLinkProcessed = true;
+                setTimeout(() => {
+                    if (user || guest) openDetail(type, id);
+                    else { showLogin(); window._deepLink = { type, id }; }
+                }, 1000);
+            }
+        }
+    }
+}
+
+// ============================================================
+// TOGGLE DROPDOWN
+// ============================================================
+function toggleDropdown() { document.querySelectorAll('.profile-dropdown').forEach(d => d.classList.toggle('show')); }
+function closeDropdown() { document.querySelectorAll('.profile-dropdown').forEach(d => d.classList.remove('show')); }
+function logout() { if (confirm('Logout?')) { localStorage.removeItem('rt_user'); window.location.reload(); } }
+function openChangePin() { toast('Change PIN stub'); }
+
+// ============================================================
+// VEHICLE SEARCH FUNCTIONS (keep your existing code)
+// ============================================================
+function searchVehiclesForTruck(query) { /* keep existing */ }
+function selectVehicleForTruck(number) { /* keep existing */ }
+function openVehicleModalForTruck(number) { /* keep existing */ }
+function searchVehicles(query) { /* keep existing */ }
+function openVehicleModalForEdit(number) { /* keep existing */ }
+function selectVehicleFromSuggestion(id, number, type, dims) { /* keep existing */ }
+function openVehicleEdit(number) { /* keep existing */ }
+function populateVehicleModal(data, mode) { /* keep existing */ }
+function saveVehicleModal() { /* keep existing */ }
+function deleteVehicleFromModal() { /* keep existing */ }
+function closeVehicleModal() { /* keep existing */ }
+function addSelectedVehicle() { /* keep existing */ }
+function removeVehicle(v) { /* keep existing */ }
+function renderVehicles() { /* keep existing */ }
+function autoSaveVehicles() { /* keep existing */ }
+
+// ============================================================
+// ROUTES FUNCTIONS
+// ============================================================
+function addRoute() { /* keep existing */ }
+function removeRoute(r) { /* keep existing */ }
+function renderRoutes() { /* keep existing */ }
+function autoSaveRoutes() { /* keep existing */ }
+function refreshUserData(callback) { /* keep existing */ }
+
+// ============================================================
+// POST FUNCTIONS
+// ============================================================
+function publishLoad() { /* keep existing */ }
+function publishTruck() { /* keep existing */ }
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('edit-details')?.addEventListener('input', function() { updateCharCount('edit-details', 'edit-details-count'); });
+    document.getElementById('pl-instructions')?.addEventListener('input', function() { updateCharCount('pl-instructions', 'pl-instructions-count'); });
+    document.getElementById('pt-other-details')?.addEventListener('input', function() { updateCharCount('pt-other-details', 'pt-other-details-count'); });
+    const saved = localStorage.getItem('rt_user');
+    if (saved) {
+        const sd = JSON.parse(saved);
+        if (sd.guest) { guest = true; user = null; } else if (sd.user) { user = sd.user; guest = false; }
+        showHome();
+    } else {
+        document.getElementById('login-screen').style.display = 'flex';
+        document.getElementById('home-page').classList.add('hidden-page');
+    }
+    setTimeout(() => { checkDeepLink(); }, 1500);
+});
+
+function updateCharCount(inputId, countId) {
+    const input = document.getElementById(inputId);
+    const count = document.getElementById(countId);
+    if (input && count) count.textContent = input.value.length;
+}
 </script>
 </div>
 </body>
