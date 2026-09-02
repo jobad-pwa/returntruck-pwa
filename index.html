@@ -577,7 +577,7 @@ function calculateRating(endorsements, flags) {
 function toast(msg) { alert(msg); }
 
 // ============================================================
-// RENDER FEED - FIXED: First 6 digits matching with radius
+// RENDER FEED - COMPLETE FIX WITH PROPER PINCODE MATCHING
 // ============================================================
 async function renderFeed() {
     try {
@@ -655,7 +655,7 @@ async function renderFeed() {
         const radius = parseInt(document.getElementById('radius-select').value) || 100;
 
         // ============================================================
-        // FIXED: Radius filtering using FIRST 6 DIGITS (pincode)
+        // FIXED: Home Location filtering using FIRST 6 DIGITS (pincode)
         // ============================================================
         if (homePinId) {
             const hl = getLoc(homePinId);
@@ -703,23 +703,49 @@ async function renderFeed() {
         else if (tab === 'TRUCK') filtered = filtered.filter(i => i.type === 'TRUCK');
         else if (tab === 'AGENT') filtered = filtered.filter(i => i.type === 'AGENT');
 
-        // To Location filter
+        // ============================================================
+        // FIXED: To Location filter - PROPER PINCODE MATCHING (first 6 digits)
+        // Only for LOADS, using drop_pin
+        // ============================================================
         if (toPinId) {
             const tl = getLoc(toPinId);
             if (tl) {
                 const toPincode = String(tl.pincode);
                 filtered = filtered.filter(i => {
-                    if (i.type === 'AGENT' || i.type === 'TRUCK') return true;
-                    const tl2 = getLoc(i.to_pin);
-                    if (tl2) {
-                        return dist(tl.lat, tl.lng, tl2.lat, tl2.lng) <= radius;
+                    // TRUCKS and AGENTS don't have a "to" location, keep them
+                    if (i.type === 'TRUCK' || i.type === 'AGENT') {
+                        return true;
                     }
-                    const itemPinStr = String(i.to_pin);
-                    if (itemPinStr.length >= 6) {
-                        const itemPincode = itemPinStr.substring(0, 6);
-                        if (itemPincode === toPincode) return true;
+                    
+                    // Only filter LOADS by drop_pin
+                    if (i.type === 'LOAD') {
+                        // First try exact location match with distance
+                        const tl2 = getLoc(i.to_pin);
+                        if (tl2) {
+                            const distance = dist(tl.lat, tl.lng, tl2.lat, tl2.lng);
+                            return distance <= radius;
+                        }
+                        
+                        // If drop_pin not found in locations, try pincode match (first 6 digits)
+                        const itemPinStr = String(i.to_pin);
+                        if (itemPinStr.length >= 6) {
+                            const itemPincode = itemPinStr.substring(0, 6);
+                            // If same pincode area, include it (same area, no distance check needed)
+                            if (itemPincode === toPincode) {
+                                return true;
+                            }
+                            
+                            // Try to find location by pincode to calculate distance
+                            const locMatch = getLocByPincode(i.to_pin);
+                            if (locMatch) {
+                                const distance = dist(tl.lat, tl.lng, locMatch.lat, locMatch.lng);
+                                return distance <= radius;
+                            }
+                        }
+                        return false;
                     }
-                    return false;
+                    
+                    return true;
                 });
             }
         }
