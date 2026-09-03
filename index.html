@@ -577,7 +577,7 @@ function calculateRating(endorsements, flags) {
 function toast(msg) { alert(msg); }
 
 // ============================================================
-// RENDER FEED - COMPLETE FIX WITH PROPER PINCODE MATCHING
+// RENDER FEED - COMPLETE FIX WITH PROPER TO LOCATION FILTER
 // ============================================================
 async function renderFeed() {
     try {
@@ -1197,7 +1197,7 @@ function updateGuestUI() {
 }
 
 // ============================================================
-// PROFILE FUNCTIONS - FIXED WITH EDIT PROFILE
+// PROFILE FUNCTIONS
 // ============================================================
 function loadProfile() {
     if (!user) {
@@ -2040,7 +2040,7 @@ function updateStats(item) {
 }
 
 // ============================================================
-// VEHICLE FUNCTIONS (Full implementation)
+// VEHICLE FUNCTIONS
 // ============================================================
 function searchVehiclesForTruck(query) {
     const dropdown = document.getElementById('pt-vehicle-suggest-dropdown');
