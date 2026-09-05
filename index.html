@@ -274,6 +274,9 @@ select.form-control option{background:#12121e;color:#fff}
 .bulk-whatsapp-btn{width:100%;padding:12px;background:#25D366;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;box-shadow:0 2px 8px rgba(37,211,102,0.3);transition:all .2s}
 .bulk-whatsapp-btn:active{transform:scale(0.97)}
 .bulk-whatsapp-btn:hover{background:#1da851}
+.install-banner{display:none;position:sticky;bottom:70px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;padding:12px 16px;border-radius:14px;margin:0 8px 8px 8px;box-shadow:0 4px 20px rgba(37,99,235,0.5);z-index:50;text-align:center;font-size:13px;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,0.15);animation:pulse 2s infinite}
+.install-banner .icon{font-size:20px;margin-right:8px}
+@keyframes pulse{0%{box-shadow:0 4px 20px rgba(37,99,235,0.5)}50%{box-shadow:0 4px 30px rgba(37,99,235,0.8)}100%{box-shadow:0 4px 20px rgba(37,99,235,0.5)}}
 </style>
 </head>
 <body>
@@ -348,6 +351,7 @@ select.form-control option{background:#12121e;color:#fff}
 <div id="home-page" class="hidden-page" style="display:flex;flex-direction:column;height:100%">
 <div class="header-fixed"><div class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></div><div class="header-right"><button class="avatar-btn guest" id="avatar-btn" onclick="toggleDropdown()"><span id="avatar-initials">GU</span></button><div class="profile-dropdown" id="profile-dropdown"><button class="dropdown-item" onclick="closeDropdown();goToProfile()">👤 View Profile</button><button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button><div class="dropdown-divider"></div><button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#f87171">🚪 Logout</button></div></div></div>
 <div id="home-top" style="flex-shrink:0;padding-top:0;">
+<!-- GUEST BANNER - FIXED AT TOP, NO CLOSE BUTTON -->
 <div id="guest-banner" class="guest-banner hidden"><span>👋 Welcome, Guest!</span><button class="btn-login" onclick="showLogin()">🔐 Login</button></div>
 <div class="location-row"><div class="location-input"><input type="text" id="search-home" placeholder="📍 Search Location" onclick="selectInputText(this)" oninput="searchLocation('home')" autocomplete="off"><div class="search-wrapper"><div class="suggestions" id="suggestions-home"></div></div></div><div class="radius-select"><select id="radius-select" onchange="applyFilters()"><option value="5">5 KM</option><option value="10">10 KM</option><option value="25">25 KM</option><option value="50">50 KM</option><option value="100" selected>100 KM</option><option value="200">200 KM</option></select></div></div>
 <div class="type-tabs"><button id="tab-all" class="active" onclick="setTab('ALL')">All</button><button id="tab-loads" class="inactive" onclick="setTab('LOAD')">Loads</button><button id="tab-trucks" class="inactive" onclick="setTab('TRUCK')">Trucks</button><button id="tab-agents" class="inactive" onclick="setTab('AGENT')">Agents</button></div>
@@ -356,7 +360,13 @@ select.form-control option{background:#12121e;color:#fff}
 <div class="results-count"><span id="results-count">Showing 0 Records</span></div>
 <div style="width:100%;height:1px;background:#2d2d3d;margin-top:2px;margin-bottom:4px;flex-shrink:0"></div>
 </div>
-<div class="scroll-body" id="home-scroll-body"><div id="feed-container" class="feed-container"></div></div>
+<div class="scroll-body" id="home-scroll-body">
+<div id="feed-container" class="feed-container"></div>
+<!-- INSTALL BANNER - FLOATING AT BOTTOM, NO CLOSE BUTTON -->
+<div class="install-banner" id="install-banner" onclick="installApp()">
+    <span class="icon">📱</span> Install ReturnTruck App for Better Experience
+</div>
+</div>
 <div class="nav-fixed" id="bottom-nav"><button class="nav-item active" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button><button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button><button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button><button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button></div>
 </div>
 
@@ -460,6 +470,7 @@ let editingVehicleNumber = null;
 let mobileCheckTimeout = null;
 let deepLinkProcessed = false;
 let agentDataMap = {};
+let deferredPrompt = null;
 
 // ============================================================
 // NUMBER FORMATTING
@@ -503,7 +514,7 @@ const LOCATIONS = [
 ];
 
 // ============================================================
-// LOCATION FUNCTIONS - FIXED: First 6 digits matching
+// LOCATION FUNCTIONS
 // ============================================================
 function getLocByPincode(pinId) {
     if (!pinId) return null;
@@ -538,29 +549,6 @@ function dist(lat1, lng1, lat2, lng2) {
 }
 
 // ============================================================
-// ROAD DISTANCE
-// ============================================================
-const distanceCache = {};
-async function getRoadDistance(lat1, lng1, lat2, lng2) {
-    try {
-        const key = `${Math.round(lat1 * 1000)},${Math.round(lng1 * 1000)}-${Math.round(lat2 * 1000)},${Math.round(lng2 * 1000)}`;
-        if (distanceCache[key]) return distanceCache[key];
-        const url = `https://router.project-osrm.org/route/v1/driving/${lng1},${lat1};${lng2},${lat2}?overview=false`;
-        const response = await fetch(url);
-        const data = await response.json();
-        if (data.routes && data.routes.length > 0) {
-            const distanceKM = Math.round(data.routes[0].distance / 1000);
-            const result = { distance: distanceKM, source: 'OSRM' };
-            distanceCache[key] = result;
-            try { localStorage.setItem('rt_distance_cache', JSON.stringify(distanceCache)); } catch (e) {}
-            return result;
-        }
-        return null;
-    } catch (error) { console.error('OSRM API error:', error); return null; }
-}
-try { const cached = localStorage.getItem('rt_distance_cache'); if (cached) Object.assign(distanceCache, JSON.parse(cached)); } catch (e) {}
-
-// ============================================================
 // RATING
 // ============================================================
 function calculateRating(endorsements, flags) {
@@ -571,13 +559,38 @@ function calculateRating(endorsements, flags) {
     return { rating: stars, display: '⭐ ' + stars.toFixed(1) + ' (' + end + '/' + total + ')', stars: stars };
 }
 
-// ============================================================
-// TOAST
-// ============================================================
 function toast(msg) { alert(msg); }
 
 // ============================================================
-// RENDER FEED - FIXED WITH PROPER TO LOCATION FILTER
+// INSTALL APP - FLOATING BANNER AT BOTTOM
+// ============================================================
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById('install-banner').style.display = 'block';
+});
+
+function installApp() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the install prompt');
+                document.getElementById('install-banner').style.display = 'none';
+            } else {
+                console.log('User dismissed the install prompt');
+                // Banner stays visible - no close button
+            }
+            deferredPrompt = null;
+        });
+    } else {
+        // Fallback - guide user to install manually
+        toast('📱 Tap the share icon and select "Add to Home Screen" to install');
+    }
+}
+
+// ============================================================
+// RENDER FEED - WITH TO LOCATION FILTER FIX
 // ============================================================
 async function renderFeed() {
     try {
@@ -654,12 +667,11 @@ async function renderFeed() {
         let filtered = items.slice();
         const radius = parseInt(document.getElementById('radius-select').value) || 100;
 
-        // Home Location filtering using FIRST 6 DIGITS (pincode)
+        // Home Location filtering
         if (homePinId) {
             const hl = getLoc(homePinId);
             if (hl) {
                 const searchPincode = String(hl.pincode);
-                
                 filtered = filtered.filter(i => {
                     if (i.type === 'AGENT') {
                         if (!i.from_pin) return true;
@@ -675,19 +687,16 @@ async function renderFeed() {
                         }
                         return false;
                     }
-                    
                     const fl = getLoc(i.from_pin);
                     if (fl) {
                         const distance = dist(hl.lat, hl.lng, fl.lat, fl.lng);
                         return distance <= radius;
                     }
-                    
                     const itemPinStr = String(i.from_pin);
                     if (itemPinStr.length >= 6) {
                         const itemPincode = itemPinStr.substring(0, 6);
                         if (itemPincode === searchPincode) return true;
                     }
-                    
                     return false;
                 });
             }
@@ -704,28 +713,19 @@ async function renderFeed() {
         if (toPinId) {
             const tl = getLoc(toPinId);
             if (tl) {
-                // Get the FIRST 6 DIGITS of the To Location pincode
                 const toPincode = String(tl.pincode).substring(0, 6);
-                
                 filtered = filtered.filter(i => {
-                    // TRUCKS and AGENTS don't have a "to" location, keep them
                     if (i.type === 'TRUCK' || i.type === 'AGENT') {
                         return true;
                     }
-                    
-                    // Only filter LOADS by drop_pin
                     if (i.type === 'LOAD') {
-                        // Get the FIRST 6 DIGITS of the drop_pin
                         const dropPinStr = String(i.to_pin);
                         if (dropPinStr.length >= 6) {
                             const dropPincode = dropPinStr.substring(0, 6);
-                            // Compare first 6 digits
                             if (dropPincode === toPincode) {
-                                return true; // MATCH! Same pincode area
+                                return true;
                             }
                         }
-                        
-                        // Also try distance-based matching if location exists
                         const tl2 = getLoc(i.to_pin);
                         if (tl2 && tl) {
                             const distance = dist(tl.lat, tl.lng, tl2.lat, tl2.lng);
@@ -733,10 +733,8 @@ async function renderFeed() {
                                 return true;
                             }
                         }
-                        
-                        return false; // FILTER OUT
+                        return false;
                     }
-                    
                     return true;
                 });
             }
@@ -836,7 +834,7 @@ function cancelPost() { goHome(); }
 function closeDetail() { detail = null; goHome(); }
 
 // ============================================================
-// SEARCH LOCATION - FIXED: Properly sets toPinId
+// SEARCH LOCATION
 // ============================================================
 function searchLocation(ctx) {
     const inp = $('search-' + ctx);
@@ -846,7 +844,6 @@ function searchLocation(ctx) {
     if (!q) { 
         sug.classList.remove('show'); 
         sug.innerHTML = ''; 
-        // If this is the 'to' context, clear the filter
         if (ctx === 'to') {
             toPinId = null;
             document.getElementById('filter-to-hidden').value = '';
@@ -881,7 +878,7 @@ document.addEventListener('click', function(e) {
 });
 
 // ============================================================
-// SELECT LOCATION - FIXED: Properly sets toPinId for 'to' context
+// SELECT LOCATION - FIXED: Properly sets toPinId
 // ============================================================
 function selectLoc(ctx, pinId) {
     const l = getLoc(pinId);
@@ -902,10 +899,10 @@ function selectLoc(ctx, pinId) {
         return; 
     }
     if (ctx === 'to') {
-        toPinId = pinId;  // CRITICAL: Set the toPinId
+        toPinId = pinId;
         hid = 'filter-to-hidden';
         if (hid && $(hid)) $(hid).value = pinId;
-        applyFilters();  // CRITICAL: Re-render with the new filter
+        applyFilters();
         return;
     }
     if (ctx === 'pl-pickup') hid = 'pl-pickup-hidden';
@@ -1209,7 +1206,15 @@ function showHome() {
 
 function updateGuestUI() {
     const b = document.getElementById('guest-banner');
-    if (b) { b.style.display = guest ? 'flex' : 'none'; if (guest) b.classList.remove('hidden'); else b.classList.add('hidden'); }
+    if (b) { 
+        if (guest) {
+            b.style.display = 'flex';
+            b.classList.remove('hidden');
+        } else {
+            b.style.display = 'none';
+            b.classList.add('hidden');
+        }
+    }
 }
 
 // ============================================================
