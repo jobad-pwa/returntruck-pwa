@@ -274,9 +274,11 @@ select.form-control option{background:#12121e;color:#fff}
 .bulk-whatsapp-btn{width:100%;padding:12px;background:#25D366;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;box-shadow:0 2px 8px rgba(37,211,102,0.3);transition:all .2s}
 .bulk-whatsapp-btn:active{transform:scale(0.97)}
 .bulk-whatsapp-btn:hover{background:#1da851}
-.install-banner{display:none;position:sticky;bottom:72px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;padding:6px 12px;border-radius:10px;margin:0 8px 4px 8px;box-shadow:0 2px 12px rgba(37,99,235,0.4);z-index:50;text-align:center;font-size:12px;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,0.12);animation:pulse 2s infinite;width:fit-content;margin-left:auto;margin-right:auto}
-.install-banner .icon{font-size:14px;margin-right:4px}
-@keyframes pulse{0%{box-shadow:0 2px 12px rgba(37,99,235,0.4)}50%{box-shadow:0 2px 20px rgba(37,99,235,0.7)}100%{box-shadow:0 2px 12px rgba(37,99,235,0.4)}}
+.install-banner{display:none;position:sticky;bottom:76px;background:linear-gradient(135deg,#2563eb,#7c3aed);background-size:200% 200%;animation:gradientMove 3s ease infinite;color:#fff;padding:10px 24px;border-radius:16px;margin:0 auto 4px auto;box-shadow:0 4px 28px rgba(37,99,235,0.5);z-index:50;text-align:center;font-size:15px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,0.15);max-width:50%;min-width:140px;transition:transform 0.2s}
+.install-banner:hover{transform:scale(1.03)}
+.install-banner .icon{font-size:18px;margin-right:8px}
+.install-banner .sub{font-size:11px;opacity:0.85;font-weight:400;display:block;margin-top:2px}
+@keyframes gradientMove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 </style>
 </head>
 <body>
@@ -362,9 +364,10 @@ select.form-control option{background:#12121e;color:#fff}
 </div>
 <div class="scroll-body" id="home-scroll-body">
 <div id="feed-container" class="feed-container"></div>
-<!-- INSTALL BANNER - FLOATING AT BOTTOM, SMALL, NO CLOSE BUTTON -->
+<!-- INSTALL BANNER - FLOATING AT BOTTOM, MAX 50% WIDTH, CENTERED, MOBILE ONLY, NO CLOSE BUTTON -->
 <div class="install-banner" id="install-banner" onclick="installApp()">
     <span class="icon">📱</span> Install
+    <span class="sub">⚡ Faster · 📱 Offline Ready</span>
 </div>
 </div>
 <div class="nav-fixed" id="bottom-nav"><button class="nav-item active" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button><button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button><button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button><button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button></div>
@@ -562,12 +565,23 @@ function calculateRating(endorsements, flags) {
 function toast(msg) { alert(msg); }
 
 // ============================================================
-// INSTALL APP - FLOATING BANNER AT BOTTOM
+// IS MOBILE DETECTION
+// ============================================================
+function isMobile() {
+    return /Android|iPhone|iPad|iPod|BlackBerry|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent) 
+           || window.innerWidth <= 768;
+}
+
+// ============================================================
+// INSTALL APP - FLOATING BANNER AT BOTTOM, MOBILE ONLY
 // ============================================================
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    document.getElementById('install-banner').style.display = 'block';
+    // Only show on mobile devices
+    if (isMobile()) {
+        document.getElementById('install-banner').style.display = 'block';
+    }
 });
 
 function installApp() {
@@ -579,10 +593,12 @@ function installApp() {
                 document.getElementById('install-banner').style.display = 'none';
             } else {
                 console.log('User dismissed the install prompt');
+                // Banner stays visible - no close button
             }
             deferredPrompt = null;
         });
     } else {
+        // Fallback - guide user to install manually
         toast('📱 Tap the share icon and select "Add to Home Screen" to install');
     }
 }
