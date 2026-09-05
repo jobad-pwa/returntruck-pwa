@@ -1,607 +1,321 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>To Location Filter Debug</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body {
-            font-family: system-ui, sans-serif;
-            background: #0a0a12;
-            color: #e2e8f0;
-            padding: 20px;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        .card {
-            background: #1a1a2e;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 16px;
-            border: 1px solid #2d2d3d;
-        }
-        .card h3 {
-            color: #2563eb;
-            margin-top: 0;
-        }
-        .flex {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        button {
-            background: #2563eb;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        button:hover {
-            background: #1d4ed8;
-        }
-        button.secondary {
-            background: #2d2d3d;
-        }
-        button.secondary:hover {
-            background: #3d3d60;
-        }
-        button.green {
-            background: #16a34a;
-        }
-        button.green:hover {
-            background: #15803d;
-        }
-        select,
-        input {
-            background: #2a2a3e;
-            color: #fff;
-            border: 1px solid #2d2d3d;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-            margin-top: 10px;
-        }
-        th {
-            text-align: left;
-            color: #94a3b8;
-            border-bottom: 1px solid #2d2d3d;
-            padding: 6px 8px;
-        }
-        td {
-            padding: 6px 8px;
-            border-bottom: 1px solid #1a1a2e;
-        }
-        .highlight {
-            background: #2563eb33;
-        }
-        .success {
-            color: #4ade80;
-        }
-        .error {
-            color: #f87171;
-        }
-        .info {
-            color: #94a3b8;
-        }
-        .badge {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-        .badge.load {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        .badge.truck {
-            background: #dcfce7;
-            color: #166534;
-        }
-        .badge.agent {
-            background: #fef3c7;
-            color: #92400e;
-        }
-        .badge.pass {
-            background: #dcfce7;
-            color: #166534;
-        }
-        .badge.fail {
-            background: #fef2f2;
-            color: #991b1b;
-        }
-        .mt-10 {
-            margin-top: 10px;
-        }
-        .mb-10 {
-            margin-bottom: 10px;
-        }
-        .filter-row {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-            background: #12121e;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-        .filter-row label {
-            font-weight: 600;
-            color: #94a3b8;
-            font-size: 13px;
-        }
-        .filter-row select {
-            min-width: 120px;
-        }
-        .filter-row input {
-            min-width: 200px;
-        }
-        .result-count {
-            font-size: 14px;
-            font-weight: 600;
-            color: #2563eb;
-            padding: 8px 0;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>To Location Filter Test</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+body{font-family:system-ui;background:#0a0a12;color:#e2e8f0;padding:20px;max-width:900px;margin:0 auto}
+.card{background:#1a1a2e;border-radius:12px;padding:20px;margin-bottom:16px;border:1px solid #2d2d3d}
+button{background:#2563eb;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:600;margin:4px}
+button:hover{background:#1d4ed8}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+th{text-align:left;color:#94a3b8;border-bottom:1px solid #2d2d3d;padding:6px 8px}
+td{padding:6px 8px;border-bottom:1px solid #1a1a2e}
+.pass{color:#4ade80}
+.fail{color:#f87171}
+.highlight{background:#2563eb33;padding:2px 6px;border-radius:4px}
+.log{font-size:12px;color:#94a3b8;padding:4px 0;font-family:monospace}
+</style>
 </head>
 <body>
 
-    <div class="card">
-        <h2>🔍 To Location Filter Debug Tool</h2>
-        <p class="info">This tool helps debug why loads are not being filtered by "To Location".</p>
-        <div class="flex">
-            <button onclick="testWithToLocation(50000101, 53300104)">📍 Hyderabad → Kakinada</button>
-            <button onclick="testWithToLocation(50000101, 52400103)">📍 Hyderabad → Nellore</button>
-            <button onclick="testWithToLocation(53300104, 50000101)">📍 Kakinada → Hyderabad</button>
-            <button onclick="testWithToLocation(50000101, null)">📍 Hyderabad (No To Location)</button>
-            <button class="secondary" onclick="showAllData()">📊 Show All Data</button>
-            <button class="secondary" onclick="clearResults()">Clear</button>
-        </div>
+<div class="card">
+    <h2>🔍 To Location Filter Test</h2>
+    <p>This test isolates the "To Location" filter to identify the bug.</p>
+    <div>
+        <button onclick="runTest()">▶ Run Test</button>
+        <button onclick="clearResults()">Clear</button>
     </div>
+</div>
 
-    <div id="results"></div>
+<div id="results"></div>
 
-    <script>
-        // ============================================================
-        // CONFIG
-        // ============================================================
-        const SB_URL = 'https://ghjoffovatgvhzxlupef.supabase.co';
-        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
-        const sb = window.supabase.createClient(SB_URL, SB_KEY);
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const SB_URL = 'https://ghjoffovatgvhzxlupef.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
+const sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+// ============================================================
+// LOCATIONS
+// ============================================================
+const LOCATIONS = [
+    { pin_id: 53300104, pincode: "533001", name: "Kakinada", district: "Kakinada", state: "AP", lat: 16.9550556, lng: 82.2354722 },
+    { pin_id: 53340114, pincode: "533401", name: "Tuni", district: "Kakinada", state: "AP", lat: 17.3581389, lng: 82.5455278 },
+    { pin_id: 52400103, pincode: "524001", name: "Nellore", district: "SPSR NELLORE", state: "AP", lat: 14.451895, lng: 79.980856 },
+    { pin_id: 50000101, pincode: "500001", name: "Hyderabad G.P.O.", district: "HYDERABAD", state: "TG", lat: 17.387993, lng: 78.47652 },
+    { pin_id: 50006201, pincode: "500062", name: "Ecil", district: "MEDCHAL MALKAJGIRI", state: "TG", lat: 17.465795, lng: 78.570653 },
+];
+
+function getLoc(pinId) {
+    if (!pinId) return null;
+    const pinNum = parseInt(pinId);
+    if (isNaN(pinNum)) return null;
+    const exact = LOCATIONS.find(l => l.pin_id === pinNum);
+    if (exact) return exact;
+    // Try pincode match (first 6 digits)
+    const pinStr = String(pinNum);
+    if (pinStr.length >= 6) {
+        const pincode = pinStr.substring(0, 6);
+        const matches = LOCATIONS.filter(l => l.pincode === pincode);
+        if (matches.length > 0) return matches[0];
+    }
+    return null;
+}
+
+function getLocName(pinId) {
+    const l = getLoc(pinId);
+    return l ? l.name + ' (' + l.pincode + ')' : String(pinId);
+}
+
+function dist(lat1, lng1, lat2, lng2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) * Math.sin(dLng/2) * Math.sin(dLng/2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function log(msg) {
+    const el = document.getElementById('log');
+    if (el) el.innerHTML += msg + '\n';
+}
+
+// ============================================================
+// TEST FUNCTION
+// ============================================================
+async function runTest() {
+    const container = document.getElementById('results');
+    container.innerHTML = '<div class="card"><h3>⏳ Running test...</h3></div>';
+
+    try {
+        // Fetch loads
+        const { data: loads } = await sb.from('active_loads').select('*').eq('status', 1);
+        
+        if (!loads || loads.length === 0) {
+            container.innerHTML = '<div class="card"><h3>❌ No loads found in database</h3></div>';
+            return;
+        }
 
         // ============================================================
-        // LOCATIONS
+        // TEST SETUP
         // ============================================================
-        const LOCATIONS = [
-            { pin_id: 53300104, pincode: "533001", name: "Kakinada", district: "Kakinada", state: "AP", lat: 16.9550556,
-                lng: 82.2354722 },
-            { pin_id: 53340114, pincode: "533401", name: "Tuni", district: "Kakinada", state: "AP", lat: 17.3581389,
-                lng: 82.5455278 },
-            { pin_id: 53340604, pincode: "533406", name: "Annavaram", district: "Kakinada", state: "AP", lat: 17.2830278,
-                lng: 82.4064444 },
-            { pin_id: 53342905, pincode: "533429", name: "Yeleswaram", district: "Kakinada", state: "AP", lat: 17.2893333,
-                lng: 82.1058889 },
-            { pin_id: 52400103, pincode: "524001", name: "Nellore", district: "SPSR NELLORE", state: "AP", lat: 14.451895,
-                lng: 79.980856 },
-            { pin_id: 52400405, pincode: "524004", name: "Buja Buja Nellore", district: "SPSR NELLORE", state: "AP",
-                lat: 14.393973, lng: 79.938857 },
-            { pin_id: 52420106, pincode: "524201", name: "Kavali", district: "SPSR NELLORE", state: "AP", lat: 14.91658,
-                lng: 79.993121 },
-            { pin_id: 52434404, pincode: "524344", name: "Muthukur", district: "SPSR NELLORE", state: "AP", lat: 14.5749722,
-                lng: 80.1420833 },
-            { pin_id: 50000101, pincode: "500001", name: "Hyderabad G.P.O.", district: "HYDERABAD", state: "TG",
-                lat: 17.387993, lng: 78.47652 },
-            { pin_id: 50000802, pincode: "500008", name: "Lungeruse", district: "HYDERABAD", state: "TG", lat: 17.37586111,
-                lng: 78.42025 },
-            { pin_id: 50000803, pincode: "500008", name: "Toli Chowki", district: "HYDERABAD", state: "TG", lat: 17.65252778,
-                lng: 78.68886111 },
-            { pin_id: 50004501, pincode: "500045", name: "Yousufguda", district: "HYDERABAD", state: "TG", lat: 17.441504,
-                lng: 78.424536 },
-            { pin_id: 50004902, pincode: "500049", name: "Miyapur", district: "MEDCHAL MALKAJGIRI", state: "TG",
-                lat: 17.49253338, lng: 78.35148793 },
-            { pin_id: 50006201, pincode: "500062", name: "Ecil", district: "MEDCHAL MALKAJGIRI", state: "TG", lat: 17.465795,
-                lng: 78.570653 },
-            { pin_id: 50007503, pincode: "500075", name: "Gandipet", district: "RANGA REDDY", state: "TG", lat: 17.38471,
-                lng: 78.320332 },
-            { pin_id: 50007504, pincode: "500075", name: "Kokapet", district: "RANGA REDDY", state: "TG", lat: 17.38471,
-                lng: 78.320332 },
-            { pin_id: 50009201, pincode: "500092", name: "Boduppal", district: "MEDCHAL MALKAJGIRI", state: "TG",
-                lat: 17.42022, lng: 78.58452 },
-            { pin_id: 50009702, pincode: "500097", name: "Meerpet", district: "RANGA REDDY", state: "TG", lat: 17.320999,
-                lng: 78.530474 },
-            { pin_id: 50009801, pincode: "500098", name: "Medipalli", district: "MEDCHAL MALKAJGIRI", state: "TG",
-                lat: 17.40909, lng: 78.60141 },
-            { pin_id: 50011201, pincode: "500112", name: "Badangpet", district: "HYDERABAD", state: "TG", lat: 17.30505,
-                lng: 78.525178 }
-        ];
+        const HOME_PIN = 50000101; // Hyderabad
+        const TO_PIN = 53300104;   // Kakinada
+        const RADIUS = 100;
+
+        const homeLoc = getLoc(HOME_PIN);
+        const toLoc = getLoc(TO_PIN);
+
+        // Get FIRST 6 DIGITS of To Location pincode
+        const toPincode = String(toLoc.pincode).substring(0, 6);
 
         // ============================================================
-        // HELPER FUNCTIONS
+        // STEP 1: Filter by Home Location
         // ============================================================
-        function getLoc(pinId) {
-            if (!pinId) return null;
-            const pinNum = parseInt(pinId);
-            if (isNaN(pinNum)) return null;
-            const exact = LOCATIONS.find(l => l.pin_id === pinNum);
-            if (exact) return exact;
-            const pinStr = String(pinNum);
+        let homeFiltered = loads.filter(l => {
+            const loc = getLoc(l.pickup_pin);
+            if (loc) {
+                const d = dist(homeLoc.lat, homeLoc.lng, loc.lat, loc.lng);
+                return d <= RADIUS;
+            }
+            // Pincode fallback
+            const pinStr = String(l.pickup_pin);
             if (pinStr.length >= 6) {
                 const pincode = pinStr.substring(0, 6);
-                const matches = LOCATIONS.filter(l => l.pincode === pincode);
-                if (matches.length > 0) {
-                    const exact2 = matches.find(l => l.pin_id === pinNum);
-                    if (exact2) return exact2;
-                    return matches[0];
-                }
+                return pincode === String(homeLoc.pincode);
             }
-            return null;
-        }
-
-        function getLocDisplayName(loc) {
-            if (!loc) return 'Unknown';
-            return loc.name + ', ' + loc.district + ', ' + loc.state + ' (' + loc.pincode + ')';
-        }
-
-        function getLocName(pinId) {
-            const l = getLoc(pinId);
-            return l ? getLocDisplayName(l) : pinId || 'Unknown';
-        }
-
-        function dist(lat1, lng1, lat2, lng2) {
-            const R = 6371;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLng = (lng2 - lng1) * Math.PI / 180;
-            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                Math.sin(dLng / 2) * Math.sin(dLng / 2);
-            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        }
-
-        function formatIndianNumber(num) {
-            if (num === undefined || num === null || isNaN(num)) return '0';
-            return Number(num).toLocaleString('en-IN');
-        }
-
-        function addResult(html) {
-            const container = document.getElementById('results');
-            container.innerHTML += html;
-        }
-
-        function clearResults() {
-            document.getElementById('results').innerHTML = '';
-        }
-
-        function getPincode(pinId) {
-            const loc = getLoc(pinId);
-            if (loc) return String(loc.pincode);
-            const pinStr = String(pinId);
-            if (pinStr.length >= 6) return pinStr.substring(0, 6);
-            return pinStr;
-        }
-
-        // ============================================================
-        // MAIN TEST FUNCTION
-        // ============================================================
-        async function testWithToLocation(homePinId, toPinId) {
-            const container = document.getElementById('results');
-            const radius = 100;
-
-            const homeName = getLocName(homePinId);
-            const toName = toPinId ? getLocName(toPinId) : 'None';
-
-            container.innerHTML =
-                `<div class="card"><h3>⏳ Testing: Home=${homeName} → To=${toName} (Radius: ${radius} KM)</h3></div>`;
-
-            try {
-                // Fetch data
-                const [loadsRes, trucksRes] = await Promise.all([
-                    sb.from('active_loads').select('*').eq('status', 1),
-                    sb.from('active_trucks').select('*').eq('status', 1)
-                ]);
-
-                const loads = loadsRes.data || [];
-                const trucks = trucksRes.data || [];
-
-                // ---- FILTER: Home Location ----
-                let filtered = [];
-
-                // For loads: from_pin = pickup_pin
-                loads.forEach(l => {
-                    const fl = getLoc(l.pickup_pin);
-                    let inRadius = false;
-                    let distance = 'N/A';
-                    let homeMatch = false;
-
-                    if (fl) {
-                        distance = dist(getLoc(homePinId).lat, getLoc(homePinId).lng, fl.lat, fl.lng);
-                        inRadius = distance <= radius;
-                        homeMatch = inRadius;
-                    } else {
-                        const itemPincode = getPincode(l.pickup_pin);
-                        const searchPincode = getPincode(homePinId);
-                        if (itemPincode === searchPincode) {
-                            homeMatch = true;
-                        }
-                    }
-
-                    if (homeMatch) {
-                        filtered.push({
-                            ...l,
-                            type: 'LOAD',
-                            from_pin: l.pickup_pin,
-                            to_pin: l.drop_pin,
-                            distance: distance,
-                            homeMatch: true
-                        });
-                    }
-                });
-
-                // Trucks: from_pin = location_pin
-                trucks.forEach(t => {
-                    const fl = getLoc(t.location_pin);
-                    let inRadius = false;
-                    let distance = 'N/A';
-                    let homeMatch = false;
-
-                    if (fl) {
-                        distance = dist(getLoc(homePinId).lat, getLoc(homePinId).lng, fl.lat, fl.lng);
-                        inRadius = distance <= radius;
-                        homeMatch = inRadius;
-                    } else {
-                        const itemPincode = getPincode(t.location_pin);
-                        const searchPincode = getPincode(homePinId);
-                        if (itemPincode === searchPincode) {
-                            homeMatch = true;
-                        }
-                    }
-
-                    if (homeMatch) {
-                        filtered.push({
-                            ...t,
-                            type: 'TRUCK',
-                            from_pin: t.location_pin,
-                            to_pin: null,
-                            distance: distance,
-                            homeMatch: true
-                        });
-                    }
-                });
-
-                // ---- FILTER: To Location ----
-                const toFiltered = [];
-                const toLoc = toPinId ? getLoc(toPinId) : null;
-                const toPincode = toLoc ? String(toLoc.pincode) : null;
-
-                filtered.forEach(item => {
-                    if (item.type === 'LOAD' && toPinId) {
-                        // Check drop_pin against To Location
-                        const tl2 = getLoc(item.drop_pin);
-                        let toMatch = false;
-                        let toDistance = 'N/A';
-
-                        if (tl2 && toLoc) {
-                            toDistance = dist(toLoc.lat, toLoc.lng, tl2.lat, tl2.lng);
-                            toMatch = toDistance <= radius;
-                        } else if (toLoc) {
-                            const itemPincode = getPincode(item.drop_pin);
-                            if (itemPincode === toPincode) {
-                                toMatch = true;
-                                toDistance = 'Same Pincode Area';
-                            } else {
-                                // Try to find location by pincode
-                                const locMatch = getLoc(item.drop_pin);
-                                if (locMatch) {
-                                    toDistance = dist(toLoc.lat, toLoc.lng, locMatch.lat, locMatch.lng);
-                                    toMatch = toDistance <= radius;
-                                }
-                            }
-                        } else {
-                            toMatch = true;
-                        }
-
-                        if (toMatch) {
-                            toFiltered.push({ ...item, toMatch: true, toDistance: toDistance });
-                        } else {
-                            toFiltered.push({ ...item, toMatch: false, toDistance: toDistance, filtered_out: true });
-                        }
-                    } else {
-                        // Trucks and Agents pass through (they don't have "to" location)
-                        toFiltered.push({ ...item, toMatch: true, toDistance: 'N/A' });
-                    }
-                });
-
-                // ---- Build Results ----
-                let html = '';
-
-                // Summary
-                html += `<div class="card">`;
-                html += `<h3>📍 Results: Home=${homeName} → To=${toName}</h3>`;
-                html += `<div class="flex">`;
-                html += `<span class="info">🔍 Home PIN: ${homePinId}</span>`;
-                html += `<span class="info">📍 Home Pincode: ${getPincode(homePinId)}</span>`;
-                html += `<span class="info">📌 To PIN: ${toPinId || 'None'}</span>`;
-                html += `<span class="info">📍 To Pincode: ${toPincode || 'N/A'}</span>`;
-                html += `<span class="info">📏 Radius: ${radius} KM</span>`;
-                html += `</div>`;
-                html += `<p class="info">📊 Found ${loads.length} loads, ${trucks.length} trucks</p>`;
-
-                const totalMatches = toFiltered.filter(i => i.toMatch !== false).length;
-                const totalFiltered = toFiltered.filter(i => i.filtered_out === true).length;
-                html +=
-                    `<p class="result-count">✅ Passed: ${totalMatches} | ❌ Filtered Out: ${totalFiltered} | 📦 Total: ${toFiltered.length}</p>`;
-                html += `</div>`;
-
-                // ---- Table ----
-                html += `<div class="card"><h3>📋 All Items (${toFiltered.length})</h3>`;
-                if (toFiltered.length === 0) {
-                    html += `<p class="error">❌ No items found within home radius</p>`;
-                } else {
-                    html += `<table>
-                        <tr>
-                            <th>Type</th>
-                            <th>Title</th>
-                            <th>From (pickup)</th>
-                            <th>To (drop)</th>
-                            <th>To Distance</th>
-                            <th>Status</th>
-                        </tr>`;
-
-                    toFiltered.forEach(item => {
-                        const type = item.type || 'LOAD';
-                        const title = item.material || item.truck_no || 'Unknown';
-                        const fromName = getLocName(item.from_pin);
-                        const toName2 = item.to_pin ? getLocName(item.to_pin) : 'N/A';
-
-                        const isPass = item.toMatch !== false;
-                        const statusText = isPass ? '✅ PASS' : '❌ FILTERED OUT';
-                        const statusColor = isPass ? 'color:#4ade80;' : 'color:#f87171;';
-
-                        const distanceDisplay = typeof item.toDistance === 'number' ?
-                            item.toDistance.toFixed(1) + ' KM' :
-                            item.toDistance;
-
-                        html += `<tr style="${statusColor}">
-                            <td><span class="badge ${type === 'LOAD' ? 'load' : 'truck'}">${type}</span></td>
-                            <td>${title}</td>
-                            <td>${fromName}</td>
-                            <td>${toName2}</td>
-                            <td>${distanceDisplay}</td>
-                            <td><strong>${statusText}</strong></td>
-                        </tr>`;
-                    });
-
-                    html += `</table>`;
-                }
-                html += `</div>`;
-
-                // ---- Explanation ----
-                html += `<div class="card"><h3>📖 How To Location Filter Works</h3>`;
-                html += `<p class="info"><strong>1. Home Filter:</strong> All items must be within ${radius} KM of Home Location</p>`;
-                html +=
-                    `<p class="info"><strong>2. To Location Filter:</strong> Only LOADS with drop_pin within ${radius} KM of To Location pass</p>`;
-                html += `<p class="info"><strong>3. Trucks/Agents:</strong> Always pass (they don't have "to" location)</p>`;
-                html +=
-                    `<p class="info"><strong>4. Pincode Matching:</strong> If exact location not found, matches first 6 digits</p>`;
-
-                if (toFiltered.filter(i => i.filtered_out === true).length > 0) {
-                    html += `<p class="success">✅ To Location filter is WORKING! Some items were filtered out.</p>`;
-                } else if (toPinId) {
-                    html += `<p class="error">⚠️ To Location filter may NOT be working. No items were filtered out.</p>`;
-                }
-                html += `</div>`;
-
-                container.innerHTML = html;
-
-            } catch (error) {
-                container.innerHTML =
-                    `<div class="card"><h3 class="error">❌ Error</h3><p>${error.message}</p></div>`;
-                console.error(error);
-            }
-        }
-
-        // ============================================================
-        // SHOW ALL DATA
-        // ============================================================
-        async function showAllData() {
-            const container = document.getElementById('results');
-            container.innerHTML = `<div class="card"><h3>⏳ Loading all data...</h3></div>`;
-
-            try {
-                const [loadsRes, trucksRes] = await Promise.all([
-                    sb.from('active_loads').select('*').eq('status', 1),
-                    sb.from('active_trucks').select('*').eq('status', 1)
-                ]);
-
-                const loads = loadsRes.data || [];
-                const trucks = trucksRes.data || [];
-
-                let html = '';
-                html += `<div class="card"><h3>📊 All Data Summary</h3>`;
-                html += `<p class="success">✅ Loads: ${loads.length}</p>`;
-                html += `<p class="success">✅ Trucks: ${trucks.length}</p>`;
-                html += `</div>`;
-
-                // Loads
-                html += `<div class="card"><h3>📦 All Loads</h3>`;
-                if (loads.length === 0) {
-                    html += `<p class="error">❌ No loads found</p>`;
-                } else {
-                    html += `<table>
-                        <tr><th>ID</th><th>Material</th><th>pickup_pin</th><th>drop_pin</th><th>Pickup Location</th><th>Drop Location</th></tr>`;
-                    loads.forEach(l => {
-                        const pickup = getLocName(l.pickup_pin);
-                        const drop = getLocName(l.drop_pin);
-                        html += `<tr>
-                            <td>${l.id}</td>
-                            <td>${l.material || 'N/A'}</td>
-                            <td>${l.pickup_pin}</td>
-                            <td>${l.drop_pin}</td>
-                            <td>${pickup}</td>
-                            <td>${drop}</td>
-                        </tr>`;
-                    });
-                    html += `</table>`;
-                }
-                html += `</div>`;
-
-                // Trucks
-                html += `<div class="card"><h3>🚛 All Trucks</h3>`;
-                if (trucks.length === 0) {
-                    html += `<p class="error">❌ No trucks found</p>`;
-                } else {
-                    html += `<table>
-                        <tr><th>ID</th><th>Truck No</th><th>location_pin</th><th>Location</th></tr>`;
-                    trucks.forEach(t => {
-                        const loc = getLocName(t.location_pin);
-                        html += `<tr>
-                            <td>${t.id}</td>
-                            <td>${t.truck_no || 'N/A'}</td>
-                            <td>${t.location_pin}</td>
-                            <td>${loc}</td>
-                        </tr>`;
-                    });
-                    html += `</table>`;
-                }
-                html += `</div>`;
-
-                // Test data
-                html += `<div class="card"><h3>🧪 Test Scenarios</h3>`;
-                html += `<div class="flex">`;
-                html +=
-                    `<button onclick="testWithToLocation(50000101, 53300104)">📍 Hyderabad → Kakinada (should show only loads with drop=Kakinada)</button>`;
-                html +=
-                    `<button onclick="testWithToLocation(50000101, 52400103)">📍 Hyderabad → Nellore (should show only loads with drop=Nellore)</button>`;
-                html +=
-                    `<button onclick="testWithToLocation(53300104, 50000101)">📍 Kakinada → Hyderabad (should show only loads with drop=Hyderabad)</button>`;
-                html += `</div>`;
-                html += `</div>`;
-
-                container.innerHTML = html;
-
-            } catch (error) {
-                container.innerHTML =
-                    `<div class="card"><h3 class="error">❌ Error</h3><p>${error.message}</p></div>`;
-                console.error(error);
-            }
-        }
-
-        // ============================================================
-        // AUTO RUN ON LOAD
-        // ============================================================
-        document.addEventListener('DOMContentLoaded', function() {
-            showAllData();
+            return false;
         });
-    </script>
 
+        // ============================================================
+        // STEP 2: TEST TO LOCATION FILTER - 3 DIFFERENT METHODS
+        // ============================================================
+        
+        // Method 1: Compare drop_pin FIRST 6 DIGITS with To Location pincode
+        let method1 = homeFiltered.filter(l => {
+            const dropPinStr = String(l.drop_pin);
+            if (dropPinStr.length >= 6) {
+                const dropPincode = dropPinStr.substring(0, 6);
+                return dropPincode === toPincode;
+            }
+            return false;
+        });
+
+        // Method 2: Compare using getLoc() and distance
+        let method2 = homeFiltered.filter(l => {
+            const loc = getLoc(l.drop_pin);
+            if (loc && toLoc) {
+                const d = dist(toLoc.lat, toLoc.lng, loc.lat, loc.lng);
+                return d <= RADIUS;
+            }
+            return false;
+        });
+
+        // Method 3: Compare using getLoc() AND first 6 digits (combined)
+        let method3 = homeFiltered.filter(l => {
+            // First try distance
+            const loc = getLoc(l.drop_pin);
+            if (loc && toLoc) {
+                const d = dist(toLoc.lat, toLoc.lng, loc.lat, loc.lng);
+                if (d <= RADIUS) return true;
+            }
+            // Then try pincode match
+            const dropPinStr = String(l.drop_pin);
+            if (dropPinStr.length >= 6) {
+                const dropPincode = dropPinStr.substring(0, 6);
+                if (dropPincode === toPincode) return true;
+            }
+            return false;
+        });
+
+        // ============================================================
+        // BUILD RESULTS TABLE
+        // ============================================================
+        let html = '';
+
+        // Summary
+        html += `<div class="card">
+            <h3>📊 Test Results</h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:10px 0">
+                <div style="background:#12121e;padding:12px;border-radius:8px;text-align:center">
+                    <div style="font-size:24px;color:#94a3b8">📦</div>
+                    <div style="font-size:28px;font-weight:700;color:#2563eb">${loads.length}</div>
+                    <div style="font-size:11px;color:#64748b">Total Loads</div>
+                </div>
+                <div style="background:#12121e;padding:12px;border-radius:8px;text-align:center">
+                    <div style="font-size:24px;color:#4ade80">🏠</div>
+                    <div style="font-size:28px;font-weight:700;color:#4ade80">${homeFiltered.length}</div>
+                    <div style="font-size:11px;color:#64748b">Within ${RADIUS} KM of ${homeLoc.name}</div>
+                </div>
+                <div style="background:#12121e;padding:12px;border-radius:8px;text-align:center">
+                    <div style="font-size:24px;color:#f87171">🎯</div>
+                    <div style="font-size:28px;font-weight:700;color:#f87171">${method1.length}</div>
+                    <div style="font-size:11px;color:#64748b">To Location: ${toLoc.name}</div>
+                </div>
+            </div>
+            <div style="font-size:13px;color:#94a3b8;padding:8px;background:#12121e;border-radius:8px">
+                <div>📍 Home: ${getLocName(HOME_PIN)}</div>
+                <div>📍 To: ${getLocName(TO_PIN)}</div>
+                <div>📏 To Pincode (first 6): <span class="highlight">${toPincode}</span></div>
+                <div>📐 Radius: ${RADIUS} KM</div>
+            </div>
+        </div>`;
+
+        // ============================================================
+        // DETAILED TABLE - Show all loads with their drop_pin comparison
+        // ============================================================
+        html += `<div class="card">
+            <h3>📋 All Loads (Home Filtered: ${homeFiltered.length})</h3>
+            <table>
+                <tr>
+                    <th>Material</th>
+                    <th>Pickup</th>
+                    <th>Drop PIN</th>
+                    <th>Drop Pincode (first 6)</th>
+                    <th>Matches To?</th>
+                    <th>Status</th>
+                </tr>`;
+
+        homeFiltered.forEach(l => {
+            const dropPinStr = String(l.drop_pin);
+            let dropPincode = dropPinStr.length >= 6 ? dropPinStr.substring(0, 6) : 'N/A';
+            const matches = dropPincode === toPincode;
+            
+            // Also check distance
+            const loc = getLoc(l.drop_pin);
+            let distance = 'N/A';
+            if (loc && toLoc) {
+                distance = Math.round(dist(toLoc.lat, toLoc.lng, loc.lat, loc.lng)) + ' KM';
+            }
+            
+            const status = matches ? '✅ PASS' : '❌ FILTERED OUT';
+            const color = matches ? 'color:#4ade80;' : 'color:#f87171;';
+            
+            html += `<tr style="${color}">
+                <td>${l.material || 'N/A'}</td>
+                <td>${getLocName(l.pickup_pin)}</td>
+                <td>${l.drop_pin}</td>
+                <td><span class="highlight">${dropPincode}</span></td>
+                <td>${matches ? '✅ Yes' : '❌ No'}</td>
+                <td><strong>${status}</strong></td>
+            </tr>`;
+        });
+
+        html += `</table></div>`;
+
+        // ============================================================
+        // COMPARE METHODS
+        // ============================================================
+        html += `<div class="card">
+            <h3>🔬 Method Comparison</h3>
+            <table>
+                <tr><th>Method</th><th>Description</th><th>Count</th><th>Result</th></tr>
+                <tr>
+                    <td>Method 1</td>
+                    <td>First 6 digits of drop_pin === To pincode</td>
+                    <td><strong>${method1.length}</strong></td>
+                    <td class="${method1.length > 0 ? 'pass' : 'fail'}">${method1.length > 0 ? '✅ Working' : '❌ Not working'}</td>
+                </tr>
+                <tr>
+                    <td>Method 2</td>
+                    <td>Distance from To location to drop location</td>
+                    <td><strong>${method2.length}</strong></td>
+                    <td class="${method2.length > 0 ? 'pass' : 'fail'}">${method2.length > 0 ? '✅ Working' : '❌ Not working'}</td>
+                </tr>
+                <tr>
+                    <td>Method 3</td>
+                    <td>Combined (Distance + First 6 digits)</td>
+                    <td><strong>${method3.length}</strong></td>
+                    <td class="${method3.length > 0 ? 'pass' : 'fail'}">${method3.length > 0 ? '✅ Working' : '❌ Not working'}</td>
+                </tr>
+            </table>
+            <div style="margin-top:12px;padding:12px;background:#12121e;border-radius:8px">
+                <div style="font-weight:600;color:#2563eb">💡 Diagnosis:</div>
+                <div style="font-size:13px;color:#94a3b8;margin-top:4px">
+                    ${method1.length === 0 && method2.length === 0 && method3.length === 0 ? 
+                        '❌ TO LOCATION FILTER IS NOT WORKING. No loads match the To Location.' :
+                        method1.length > 0 ? 
+                        '✅ Method 1 (First 6 digits) is working. The bug is likely in the index.html implementation.' :
+                        method2.length > 0 ?
+                        '⚠️ Method 2 (Distance) is working but Method 1 is not. Check pincode extraction.' :
+                        '⚠️ Only Method 3 is working. Check index.html filter logic.'
+                    }
+                </div>
+                <div style="font-size:12px;color:#64748b;margin-top:8px;font-family:monospace;white-space:pre-wrap">
+                    To Pincode: ${toPincode}
+                    Expected matches: Loads with drop_pin starting with "${toPincode}"
+                    ${homeFiltered.map(l => {
+                        const dp = String(l.drop_pin);
+                        const pc = dp.length >= 6 ? dp.substring(0, 6) : 'N/A';
+                        const match = pc === toPincode;
+                        return `\n  ${l.material || 'N/A'}: drop_pin=${l.drop_pin} → pincode=${pc} ${match ? '✅ MATCH' : '❌ NO'}`;
+                    }).join('')}
+                </div>
+            </div>
+        </div>`;
+
+        container.innerHTML = html;
+
+    } catch (error) {
+        container.innerHTML = `<div class="card"><h3 class="error">❌ Error</h3><p>${error.message}</p></div>`;
+        console.error(error);
+    }
+}
+
+function clearResults() {
+    document.getElementById('results').innerHTML = '';
+}
+
+// Auto-run on load
+document.addEventListener('DOMContentLoaded', function() {
+    runTest();
+});
+
+</script>
 </body>
 </html>
