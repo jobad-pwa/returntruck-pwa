@@ -577,7 +577,7 @@ function calculateRating(endorsements, flags) {
 function toast(msg) { alert(msg); }
 
 // ============================================================
-// RENDER FEED - COMPLETE FIX WITH PROPER TO LOCATION FILTER
+// RENDER FEED - FIXED WITH PROPER TO LOCATION FILTER
 // ============================================================
 async function renderFeed() {
     try {
@@ -654,16 +654,13 @@ async function renderFeed() {
         let filtered = items.slice();
         const radius = parseInt(document.getElementById('radius-select').value) || 100;
 
-        // ============================================================
-        // FIXED: Home Location filtering using FIRST 6 DIGITS (pincode)
-        // ============================================================
+        // Home Location filtering using FIRST 6 DIGITS (pincode)
         if (homePinId) {
             const hl = getLoc(homePinId);
             if (hl) {
                 const searchPincode = String(hl.pincode);
                 
                 filtered = filtered.filter(i => {
-                    // ---- AGENT FILTERING ----
                     if (i.type === 'AGENT') {
                         if (!i.from_pin) return true;
                         const fl = getLoc(i.from_pin);
@@ -679,14 +676,12 @@ async function renderFeed() {
                         return false;
                     }
                     
-                    // ---- LOADS & TRUCKS ----
                     const fl = getLoc(i.from_pin);
                     if (fl) {
                         const distance = dist(hl.lat, hl.lng, fl.lat, fl.lng);
                         return distance <= radius;
                     }
                     
-                    // Try pincode match (first 6 digits)
                     const itemPinStr = String(i.from_pin);
                     if (itemPinStr.length >= 6) {
                         const itemPincode = itemPinStr.substring(0, 6);
@@ -704,50 +699,48 @@ async function renderFeed() {
         else if (tab === 'AGENT') filtered = filtered.filter(i => i.type === 'AGENT');
 
         // ============================================================
-        // FIXED: To Location filter - PROPER PINCODE MATCHING (first 6 digits)
-        // Only for LOADS, using drop_pin
+        // TO LOCATION FILTER - FIXED: Compare FIRST 6 DIGITS
         // ============================================================
         if (toPinId) {
-    const tl = getLoc(toPinId);
-    if (tl) {
-        // Get the FIRST 6 DIGITS of the To Location pincode
-        const toPincode = String(tl.pincode).substring(0, 6);
-        const radius = parseInt(document.getElementById('radius-select').value) || 100;
-        
-        filtered = filtered.filter(i => {
-            // TRUCKS and AGENTS don't have a "to" location, keep them
-            if (i.type === 'TRUCK' || i.type === 'AGENT') {
-                return true;
-            }
-            
-            // Only filter LOADS by drop_pin
-            if (i.type === 'LOAD') {
-                // Get the FIRST 6 DIGITS of the drop_pin
-                const dropPinStr = String(i.to_pin);
-                if (dropPinStr.length >= 6) {
-                    const dropPincode = dropPinStr.substring(0, 6);
-                    // Compare first 6 digits
-                    if (dropPincode === toPincode) {
-                        return true; // MATCH! Same pincode area
-                    }
-                }
+            const tl = getLoc(toPinId);
+            if (tl) {
+                // Get the FIRST 6 DIGITS of the To Location pincode
+                const toPincode = String(tl.pincode).substring(0, 6);
                 
-                // Also try distance-based matching if location exists
-                const tl2 = getLoc(i.to_pin);
-                if (tl2 && tl) {
-                    const distance = dist(tl.lat, tl.lng, tl2.lat, tl2.lng);
-                    if (distance <= radius) {
+                filtered = filtered.filter(i => {
+                    // TRUCKS and AGENTS don't have a "to" location, keep them
+                    if (i.type === 'TRUCK' || i.type === 'AGENT') {
                         return true;
                     }
-                }
-                
-                return false; // FILTER OUT
+                    
+                    // Only filter LOADS by drop_pin
+                    if (i.type === 'LOAD') {
+                        // Get the FIRST 6 DIGITS of the drop_pin
+                        const dropPinStr = String(i.to_pin);
+                        if (dropPinStr.length >= 6) {
+                            const dropPincode = dropPinStr.substring(0, 6);
+                            // Compare first 6 digits
+                            if (dropPincode === toPincode) {
+                                return true; // MATCH! Same pincode area
+                            }
+                        }
+                        
+                        // Also try distance-based matching if location exists
+                        const tl2 = getLoc(i.to_pin);
+                        if (tl2 && tl) {
+                            const distance = dist(tl.lat, tl.lng, tl2.lat, tl2.lng);
+                            if (distance <= radius) {
+                                return true;
+                            }
+                        }
+                        
+                        return false; // FILTER OUT
+                    }
+                    
+                    return true;
+                });
             }
-            
-            return true;
-        });
-    }
-}
+        }
 
         // Vehicle type filter
         const v = document.getElementById('filter-vehicle')?.value;
@@ -843,14 +836,24 @@ function cancelPost() { goHome(); }
 function closeDetail() { detail = null; goHome(); }
 
 // ============================================================
-// SEARCH LOCATION
+// SEARCH LOCATION - FIXED: Properly sets toPinId
 // ============================================================
 function searchLocation(ctx) {
     const inp = $('search-' + ctx);
     const sug = $('suggestions-' + ctx);
     if (!inp || !sug) return;
     const q = inp.value.trim();
-    if (!q) { sug.classList.remove('show'); sug.innerHTML = ''; return; }
+    if (!q) { 
+        sug.classList.remove('show'); 
+        sug.innerHTML = ''; 
+        // If this is the 'to' context, clear the filter
+        if (ctx === 'to') {
+            toPinId = null;
+            document.getElementById('filter-to-hidden').value = '';
+            applyFilters();
+        }
+        return; 
+    }
     const res = LOCATIONS.filter(l => l.name.toLowerCase().includes(q.toLowerCase()) || l.pincode.includes(q) || l.district.toLowerCase().includes(q.toLowerCase()) || l.state.toLowerCase().includes(q.toLowerCase()) || String(l.pin_id).includes(q)).slice(0, 10);
     if (!res.length) { sug.classList.remove('show'); sug.innerHTML = ''; return; }
     let html = '';
@@ -864,6 +867,7 @@ function searchLocation(ctx) {
     sug.innerHTML = html;
     sug.classList.add('show');
 }
+
 document.addEventListener('click', function(e) {
     const item = e.target.closest('.item');
     if (item) {
@@ -876,6 +880,9 @@ document.addEventListener('click', function(e) {
     });
 });
 
+// ============================================================
+// SELECT LOCATION - FIXED: Properly sets toPinId for 'to' context
+// ============================================================
 function selectLoc(ctx, pinId) {
     const l = getLoc(pinId);
     if (!l) return;
@@ -888,9 +895,20 @@ function selectLoc(ctx, pinId) {
         if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
     }
     let hid = null;
-    if (ctx === 'home') { homePinId = pinId; localStorage.setItem('rt_home_location', JSON.stringify({ pinId, displayName: dn })); applyFilters(); return; }
-    if (ctx === 'to') hid = 'filter-to-hidden';
-    else if (ctx === 'pl-pickup') hid = 'pl-pickup-hidden';
+    if (ctx === 'home') { 
+        homePinId = pinId; 
+        localStorage.setItem('rt_home_location', JSON.stringify({ pinId, displayName: dn })); 
+        applyFilters(); 
+        return; 
+    }
+    if (ctx === 'to') {
+        toPinId = pinId;  // CRITICAL: Set the toPinId
+        hid = 'filter-to-hidden';
+        if (hid && $(hid)) $(hid).value = pinId;
+        applyFilters();  // CRITICAL: Re-render with the new filter
+        return;
+    }
+    if (ctx === 'pl-pickup') hid = 'pl-pickup-hidden';
     else if (ctx === 'pl-drop') hid = 'pl-drop-hidden';
     else if (ctx === 'pt-location') hid = 'pt-location-hidden';
     else if (ctx === 'edit-location') hid = 'edit-location-hidden';
@@ -898,11 +916,10 @@ function selectLoc(ctx, pinId) {
     if (hid && $(hid)) $(hid).value = pinId;
     const sug = $('suggestions-' + ctx);
     if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
-    if (ctx === 'to') applyFilters();
 }
 
 // ============================================================
-// LOGIN FUNCTIONS (Full implementation)
+// LOGIN FUNCTIONS
 // ============================================================
 function $(id) { return document.getElementById(id); }
 
