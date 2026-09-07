@@ -699,49 +699,67 @@ function closeDetail() { detail = null; goHome(); }
 function closeEditProfile() { switchPage('profile-page'); loadProfile(); }
 
 // ============================================================
-// RENDER FEED - WITH TO LOCATION FILTER FIX
+// RENDER FEED - FIXED WITH PROPER ID HANDLING
 // ============================================================
 async function renderFeed() {
     try {
-        const { data: loads } = await sb.from('active_loads').select('*').eq('status', 1);
-        const { data: trucks } = await sb.from('active_trucks').select('*').eq('status', 1);
-        const { data: users } = await sb.from('active_users').select('*');
+        console.log('Fetching data...');
+        const { data: loads, error: loadError } = await sb.from('active_loads').select('*').eq('status', 1);
+        const { data: trucks, error: truckError } = await sb.from('active_trucks').select('*').eq('status', 1);
+        const { data: users, error: userError } = await sb.from('active_users').select('*');
+        
+        if (loadError) console.error('Load error:', loadError);
+        if (truckError) console.error('Truck error:', truckError);
+        
+        console.log('Loads found:', loads?.length || 0);
+        console.log('Trucks found:', trucks?.length || 0);
+        console.log('Users found:', users?.length || 0);
 
         items = [];
-        (loads || []).forEach(l => items.push({
-            type: 'LOAD',
-            title: l.material || 'Cargo',
-            company: l.company || '',
-            from_pin: l.pickup_pin,
-            to_pin: l.drop_pin,
-            weight: l.weight || 0,
-            vehicle: l.vehicle_type || '',
-            views: l.views || 0,
-            rate: l.rate || 0,
-            interests: (l.interests || []).length,
-            shares: l.shares || 0,
-            id: l.id,
-            mobile: l.mobile,
-            endorsements: l.endorsements || 0,
-            flags: l.flags || 0
-        }));
+        (loads || []).forEach(l => {
+            items.push({
+                type: 'LOAD',
+                title: l.material || 'Cargo',
+                company: l.company || '',
+                from_pin: l.pickup_pin,
+                to_pin: l.drop_pin,
+                weight: l.weight || 0,
+                vehicle: l.vehicle_type || '',
+                views: l.views || 0,
+                rate: l.rate || 0,
+                interests: (l.interests || []).length,
+                shares: l.shares || 0,
+                id: l.id,
+                mobile: l.mobile,
+                endorsements: l.endorsements || 0,
+                flags: l.flags || 0,
+                pickup_date: l.pickup_date,
+                instructions: l.instructions,
+                dimensions: l.dimensions
+            });
+        });
 
-        (trucks || []).forEach(t => items.push({
-            type: 'TRUCK',
-            title: t.truck_no || 'Truck',
-            company: t.company || '',
-            from_pin: t.location_pin,
-            to_pin: null,
-            vehicle: 'Truck',
-            views: t.views || 0,
-            rate: t.rate || 0,
-            interests: (t.interested || []).length,
-            shares: t.share || 0,
-            id: t.id,
-            mobile: t.mobile,
-            endorsements: t.endorsements || 0,
-            flags: t.flags || 0
-        }));
+        (trucks || []).forEach(t => {
+            items.push({
+                type: 'TRUCK',
+                title: t.truck_no || 'Truck',
+                company: t.company || '',
+                from_pin: t.location_pin,
+                to_pin: null,
+                vehicle: 'Truck',
+                views: t.views || 0,
+                rate: t.rate || 0,
+                interests: (t.interested || []).length,
+                shares: t.share || 0,
+                id: t.id,
+                mobile: t.mobile,
+                endorsements: t.endorsements || 0,
+                flags: t.flags || 0,
+                truck_no: t.truck_no,
+                available_date: t.available_date,
+                other_details: t.other_details
+            });
+        });
 
         (users || []).forEach(u => {
             let ut = u.user_type || [];
@@ -768,7 +786,8 @@ async function renderFeed() {
                     trucks_count: truckCount,
                     rating: u.rating || '4.8',
                     endorsements: u.endorsements || 0,
-                    flags: u.flags || 0
+                    flags: u.flags || 0,
+                    name: u.name
                 });
             }
         });
@@ -895,6 +914,84 @@ async function renderFeed() {
         console.error('Render feed error:', e);
         document.getElementById('feed-container').innerHTML = '<div style="padding:30px 0;color:#f87171;text-align:center">Error loading feed</div>';
     }
+}
+
+// ============================================================
+// OPEN DETAIL - FIXED WITH BETTER ERROR HANDLING
+// ============================================================
+function openDetail(type, id) {
+    console.log('openDetail called with:', type, id);
+    
+    if (!id) {
+        toast('Invalid item ID');
+        return;
+    }
+    
+    if (type === 'AGENT') {
+        sb.from('active_users').select('*').eq('mobile', parseInt(id)).single()
+            .then(async r => {
+                if (r.data) {
+                    detail = { type: 'AGENT', id: id, user: r.data, mobile: parseInt(id) };
+                    const [loads, trucks] = await Promise.all([
+                        sb.from('active_loads').select('*', { count: 'exact' }).eq('mobile', parseInt(id)).eq('status', 1),
+                        sb.from('active_trucks').select('*', { count: 'exact' }).eq('mobile', parseInt(id)).eq('status', 1)
+                    ]);
+                    detail.loads_count = loads.count || 0;
+                    detail.trucks_count = trucks.count || 0;
+                    detail.endorsements = r.data.endorsements || 0;
+                    detail.flags = r.data.flags || 0;
+                    switchPage('detail-page');
+                    renderDetailView(detail);
+                } else {
+                    toast('Agent not found');
+                }
+            }).catch(err => {
+                console.error('Error loading agent:', err);
+                toast('Error loading agent details');
+            });
+        return;
+    }
+    
+    const table = type === 'LOAD' ? 'active_loads' : 'active_trucks';
+    console.log('Fetching from table:', table, 'with id:', id);
+    
+    sb.from(table).select('*').eq('id', id).single()
+        .then(async r => {
+            console.log('Query result:', r);
+            if (r.data) {
+                detail = r.data;
+                detail.type = type;
+                if (type === 'LOAD') {
+                    // Store load specific fields
+                    detail.material = r.data.material;
+                    detail.pickup_pin = r.data.pickup_pin;
+                    detail.drop_pin = r.data.drop_pin;
+                    detail.weight = r.data.weight;
+                    detail.vehicle_type = r.data.vehicle_type;
+                    detail.rate = r.data.rate;
+                    detail.pickup_date = r.data.pickup_date;
+                    detail.instructions = r.data.instructions;
+                    detail.dimensions = r.data.dimensions;
+                } else if (type === 'TRUCK') {
+                    detail.truck_no = r.data.truck_no;
+                    detail.location_pin = r.data.location_pin;
+                    detail.available_date = r.data.available_date;
+                    detail.other_details = r.data.other_details;
+                }
+                const { data: userData } = await sb.from('active_users').select('*').eq('mobile', r.data.mobile).single();
+                detail.user = userData;
+                detail.endorsements = userData?.endorsements || 0;
+                detail.flags = userData?.flags || 0;
+                switchPage('detail-page');
+                renderDetailView(detail);
+            } else {
+                console.error('No data found for id:', id);
+                toast('Item not found');
+            }
+        }).catch(err => { 
+            console.error('Error loading detail:', err);
+            toast('Error loading details'); 
+        });
 }
 
 function applyFilters() { renderFeed(); }
@@ -1290,7 +1387,7 @@ function updateGuestUI() {
 }
 
 // ============================================================
-// PROFILE FUNCTIONS
+// PROFILE FUNCTIONS (rest of the code remains the same)
 // ============================================================
 function loadProfile() {
     if (!user) {
@@ -1388,6 +1485,9 @@ function renderProfileData() {
     loadStats();
 }
 
+// ============================================================
+// LOADING FUNCTIONS - continue from here...
+// ============================================================
 function loadProfileVehicles() {
     const container = document.getElementById('profile-vehicles-container');
     const badge = document.getElementById('vehicle-count-badge');
@@ -1862,45 +1962,8 @@ function handleShareClick() {
 }
 
 // ============================================================
-// DETAIL VIEWS
+// DETAIL VIEWS - FIXED
 // ============================================================
-function openDetail(type, id) {
-    if (type === 'AGENT') {
-        sb.from('active_users').select('*').eq('mobile', parseInt(id)).single()
-            .then(async r => {
-                if (r.data) {
-                    detail = { type: 'AGENT', id: id, user: r.data, mobile: parseInt(id) };
-                    const [loads, trucks] = await Promise.all([
-                        sb.from('active_loads').select('*', { count: 'exact' }).eq('mobile', parseInt(id)).eq('status', 1),
-                        sb.from('active_trucks').select('*', { count: 'exact' }).eq('mobile', parseInt(id)).eq('status', 1)
-                    ]);
-                    detail.loads_count = loads.count || 0;
-                    detail.trucks_count = trucks.count || 0;
-                    detail.endorsements = r.data.endorsements || 0;
-                    detail.flags = r.data.flags || 0;
-                    switchPage('detail-page');
-                    renderDetailView(detail);
-                }
-            });
-        return;
-    }
-    const table = type === 'LOAD' ? 'active_loads' : 'active_trucks';
-    sb.from(table).select('*').eq('id', id).single()
-        .then(async r => {
-            if (r.data) {
-                detail = r.data;
-                detail.type = type;
-                const { data: userData } = await sb.from('active_users').select('*').eq('mobile', r.data.mobile).single();
-                detail.user = userData;
-                detail.endorsements = userData?.endorsements || 0;
-                detail.flags = userData?.flags || 0;
-                switchPage('detail-page');
-                renderDetailView(detail);
-            }
-        }).catch(err => { console.error('Error loading detail:', err);
-            toast('Error loading details'); });
-}
-
 function renderDetailView(data) {
     const container = document.getElementById('detail-content');
     if (data.type === 'LOAD') container.innerHTML = renderLoadDetail(data);
@@ -2131,7 +2194,7 @@ function updateStats(item) {
 }
 
 // ============================================================
-// VEHICLE FUNCTIONS
+// VEHICLE FUNCTIONS (Rest remains the same)
 // ============================================================
 function searchVehiclesForTruck(query) {
     const dropdown = document.getElementById('pt-vehicle-suggest-dropdown');
@@ -2780,6 +2843,29 @@ function checkDeepLink() {
         }
     }
 }
+
+// ============================================================
+// ROAD DISTANCE
+// ============================================================
+const distanceCache = {};
+async function getRoadDistance(lat1, lng1, lat2, lng2) {
+    try {
+        const key = `${Math.round(lat1 * 1000)},${Math.round(lng1 * 1000)}-${Math.round(lat2 * 1000)},${Math.round(lng2 * 1000)}`;
+        if (distanceCache[key]) return distanceCache[key];
+        const url = `https://router.project-osrm.org/route/v1/driving/${lng1},${lat1};${lng2},${lat2}?overview=false`;
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.routes && data.routes.length > 0) {
+            const distanceKM = Math.round(data.routes[0].distance / 1000);
+            const result = { distance: distanceKM, source: 'OSRM' };
+            distanceCache[key] = result;
+            try { localStorage.setItem('rt_distance_cache', JSON.stringify(distanceCache)); } catch (e) {}
+            return result;
+        }
+        return null;
+    } catch (error) { console.error('OSRM API error:', error); return null; }
+}
+try { const cached = localStorage.getItem('rt_distance_cache'); if (cached) Object.assign(distanceCache, JSON.parse(cached)); } catch (e) {}
 
 // ============================================================
 // INIT
