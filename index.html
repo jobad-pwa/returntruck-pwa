@@ -73,10 +73,10 @@ body{background:#0a0a12;margin:0;padding:16px;display:flex;justify-content:cente
 .login-stat-item .label{font-size:9px;font-weight:600;color:#94a3b8;display:block;text-transform:uppercase}
 .login-step-container{flex:1;display:flex;flex-direction:column;justify-content:center}
 
-/* INPUT FIELDS - WHITE BACKGROUND */
-.input-field{width:100%;padding:14px;border:2px solid #d1d5db;border-radius:12px;font-size:16px;text-align:center;background:#ffffff;color:#0f172a;margin-bottom:12px;display:block !important;visibility:visible !important;opacity:1 !important;transition:border-color 0.2s}
-.input-field:focus{border-color:#2563eb;outline:none;background:#ffffff;box-shadow:0 0 0 3px rgba(37,99,235,0.12)}
-.input-field:disabled{background:#f1f5f9;color:#64748b}
+/* INPUT FIELDS - LIGHT GREY BACKGROUND */
+.input-field{width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;background:#f1f5f9;color:#0f172a;margin-bottom:12px;display:block !important;visibility:visible !important;opacity:1 !important;transition:border-color 0.2s}
+.input-field:focus{border-color:#2563eb;outline:none;background:#f8fafc;box-shadow:0 0 0 3px rgba(37,99,235,0.12)}
+.input-field:disabled{background:#e2e8f0;color:#64748b}
 .input-field::placeholder{color:#94a3b8}
 .btn-primary{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px;transition:all 0.2s}
 .btn-primary:hover{background:#1d4ed8;transform:translateY(-1px)}
@@ -92,8 +92,8 @@ body{background:#0a0a12;margin:0;padding:16px;display:flex;justify-content:cente
 /* LOCATION ROW */
 .location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
 .location-row .location-input{flex:2}.location-row .radius-select{flex:1}
-.location-input input,.radius-select select{width:100%;padding:8px 12px;border:2px solid #d1d5db;border-radius:8px;font-size:13px;background:#ffffff;color:#0f172a;transition:border-color 0.2s}
-.location-input input:focus,.radius-select select:focus{border-color:#2563eb;background:#ffffff;outline:none;box-shadow:0 0 0 3px rgba(37,99,235,0.08)}
+.location-input input,.radius-select select{width:100%;padding:8px 12px;border:2px solid #e2e8f0;border-radius:8px;font-size:13px;background:#f1f5f9;color:#0f172a;transition:border-color 0.2s}
+.location-input input:focus,.radius-select select:focus{border-color:#2563eb;background:#f8fafc;outline:none;box-shadow:0 0 0 3px rgba(37,99,235,0.08)}
 .location-input input::placeholder{color:#94a3b8}
 .radius-select select option{background:#ffffff;color:#0f172a}
 
@@ -110,15 +110,15 @@ body{background:#0a0a12;margin:0;padding:16px;display:flex;justify-content:cente
 .filter-container{overflow:hidden;transition:max-height 0.3s ease;max-height:0}
 .filter-container.open{max-height:400px;overflow:visible}
 .filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;padding-top:6px}
-.filter-row label{font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px;letter-spacing:0.5px}
-.filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:12px;background:#ffffff;border:2px solid #d1d5db;border-radius:8px;color:#0f172a;outline:none;transition:border-color 0.2s}
-.filter-row input:focus,.filter-row select:focus{border-color:#2563eb;background:#ffffff;box-shadow:0 0 0 3px rgba(37,99,235,0.06)}
+.filter-row label{font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;display:block;margin-bottom:4px;letter-spacing:0.5px}
+.filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:12px;background:#f1f5f9;border:2px solid #e2e8f0;border-radius:8px;color:#0f172a;outline:none;transition:border-color 0.2s}
+.filter-row input:focus,.filter-row select:focus{border-color:#2563eb;background:#f8fafc;box-shadow:0 0 0 3px rgba(37,99,235,0.06)}
 .filter-row input::placeholder{color:#94a3b8}
 .filter-row select option{background:#ffffff;color:#0f172a}
 
 /* SEARCH */
 .search-wrapper{position:relative;width:100%}
-.search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#ffffff;border:1px solid #d1d5db;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.15)}
 .search-wrapper .suggestions.show{display:block}
 .search-wrapper .suggestions .item{padding:12px 16px;font-size:14px;color:#0f172a;cursor:pointer;border-bottom:1px solid #f1f5f9}
 .search-wrapper .suggestions .item:last-child{border-bottom:none}
@@ -212,182 +212,849 @@ body{background:#0a0a12;margin:0;padding:16px;display:flex;justify-content:cente
 .section-btn.success{background:#16a34a;color:#fff}
 .section-btn.success:hover{background:#15803d}
 
-/* FORM CONTROLS - WHITE BACKGROUND */
-.form-control{width:100%;padding:12px 14px;border:2px solid #d1d5db;border-radius:10px;font-size:14px;background:#ffffff;color:#0f172a;outline:none;transition:all .2s}
-.form-control:focus{border-color:#2563eb;background:#ffffff;box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
-.form-control::placeholder{color:#94a3b8}
-.form-control:hover{border-color:#9ca3af}
-select.form-control{background:#ffffff;color:#0f172a;border:2px solid #d1d5db;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
-select.form-control:hover{border-color:#9ca3af}
-select.form-control:focus{background:#ffffff;border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
-select.form-control option{background:#ffffff;color:#0f172a}
-textarea.form-control{resize:vertical;min-height:60px;background:#ffffff;border:2px solid #d1d5db;color:#0f172a}
-textarea.form-control:focus{background:#ffffff;box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
-.form-label{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:6px;letter-spacing:0.5px}
+/* ============================================================
+   SECTION CONTAINER - WHITE BACKGROUND
+   ============================================================ */
+.section-container {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 10px;
+    border: 1px solid #e8ecf0;
+}
+.section-container .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #2563eb;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ============================================================
+   FORM LABELS - DARK TEXT ON WHITE
+   ============================================================ */
+.form-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #334155;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+}
+
+/* ============================================================
+   FORM CONTROLS - LIGHT GREY BACKGROUND
+   ============================================================ */
+.form-control {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    outline: none;
+    transition: all .2s;
+}
+.form-control:focus {
+    border-color: #2563eb;
+    background: #f8fafc !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+.form-control::placeholder {
+    color: #94a3b8;
+}
+.form-control:hover {
+    border-color: #cbd5e1;
+}
+
+/* SELECT DROPDOWNS - LIGHT GREY BACKGROUND */
+select.form-control {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    border: 2px solid #e2e8f0;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+}
+select.form-control:hover {
+    border-color: #cbd5e1;
+}
+select.form-control:focus {
+    background: #f8fafc !important;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+select.form-control option {
+    background: #ffffff !important;
+    color: #0f172a !important;
+}
+
+/* TEXTAREA - LIGHT GREY BACKGROUND */
+textarea.form-control {
+    resize: vertical;
+    min-height: 60px;
+    background: #f1f5f9 !important;
+    border: 2px solid #e2e8f0;
+    color: #0f172a !important;
+}
+textarea.form-control:focus {
+    background: #f8fafc !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* ============================================================
+   DIMENSION INPUTS - LIGHT GREY BACKGROUND
+   ============================================================ */
+.dim-input {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-top: 4px;
+}
+.dim-input .dim-group {
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 8px 12px;
+    border: 2px solid #e2e8f0;
+    text-align: center;
+    transition: all .2s;
+}
+.dim-input .dim-group:focus-within {
+    border-color: #2563eb;
+    background: #f8fafc;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+.dim-input .dim-group label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 2px;
+    letter-spacing: 0.5px;
+}
+.dim-input .dim-group input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: #0f172a;
+    padding: 4px 0;
+    outline: none;
+}
+.dim-input .dim-group input:focus {
+    color: #2563eb;
+}
+.dim-input .dim-group input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+.dim-input .dim-group input[type=number] {
+    -moz-appearance: textfield;
+}
 
 /* GRID */
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.grid-2-vehicle{display:grid;grid-template-columns:2fr 1fr;gap:12px;align-items:start}
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+.grid-2-vehicle {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 12px;
+    align-items: start;
+}
 
 /* BACK BUTTON */
-.back-btn{background:transparent;border:none;font-size:14px;font-weight:500;color:#94a3b8;cursor:pointer;padding:4px 8px;transition:color 0.2s}
-.back-btn:hover{color:#f87171}
+.back-btn {
+    background: transparent;
+    border: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: color 0.2s;
+}
+.back-btn:hover {
+    color: #f87171;
+}
 
-/* OTP - WHITE BACKGROUND */
-.otp-input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border-radius:12px;border:2px solid #d1d5db;background:#ffffff;color:#0f172a;transition:border-color 0.2s}
-.otp-input:focus{border-color:#2563eb;outline:none;background:#ffffff;box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
-.otp-input:disabled{background:#f1f5f9;color:#64748b}
-.error-text{color:#f87171;font-size:13px;text-align:center;margin-top:4px;display:none}
-.success-text{color:#4ade80;font-size:13px;text-align:center;margin-top:4px;display:none}
-.resend-btn{background:transparent;border:none;color:#2563eb;font-weight:600;cursor:pointer;font-size:13px;text-decoration:underline}
-.resend-btn:disabled{color:#64748b;cursor:not-allowed}
+/* OTP - LIGHT GREY BACKGROUND */
+.otp-input {
+    width: 48px;
+    height: 56px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    background: #f1f5f9;
+    color: #0f172a;
+    transition: border-color 0.2s;
+}
+.otp-input:focus {
+    border-color: #2563eb;
+    outline: none;
+    background: #f8fafc;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+.otp-input:disabled {
+    background: #e2e8f0;
+    color: #64748b;
+}
+.error-text {
+    color: #f87171;
+    font-size: 13px;
+    text-align: center;
+    margin-top: 4px;
+    display: none;
+}
+.success-text {
+    color: #4ade80;
+    font-size: 13px;
+    text-align: center;
+    margin-top: 4px;
+    display: none;
+}
+.resend-btn {
+    background: transparent;
+    border: none;
+    color: #2563eb;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 13px;
+    text-decoration: underline;
+}
+.resend-btn:disabled {
+    color: #64748b;
+    cursor: not-allowed;
+}
 
 /* STAT CARDS */
-.stat-cards{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px}
-.stat-card{background:#1a1a2e;border-radius:10px;padding:12px;text-align:center;border:1px solid #1e1e32}
-.stat-card .icon{font-size:22px;display:block;margin-bottom:2px}
-.stat-card .number{font-size:20px;font-weight:800;color:#e2e8f0}
-.stat-card .label{font-size:9px;color:#64748b;text-transform:uppercase;font-weight:600}
+.stat-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.stat-card {
+    background: #1a1a2e;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #1e1e32;
+}
+.stat-card .icon {
+    font-size: 22px;
+    display: block;
+    margin-bottom: 2px;
+}
+.stat-card .number {
+    font-size: 20px;
+    font-weight: 800;
+    color: #e2e8f0;
+}
+.stat-card .label {
+    font-size: 9px;
+    color: #64748b;
+    text-transform: uppercase;
+    font-weight: 600;
+}
 
 /* LIST ITEMS */
-.list-item{background:#1a1a2e;border:1px solid #1e1e32;border-radius:10px;padding:12px;margin-bottom:8px}
-.list-item .title{font-weight:600;font-size:14px;color:#e2e8f0}
-.list-item .sub{font-size:12px;color:#94a3b8;margin-top:2px}
-.list-item .actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
-.list-item .actions button{padding:4px 12px;font-size:11px;border:none;border-radius:4px;font-weight:600;cursor:pointer}
-.list-item .actions .edit{background:#dbeafe;color:#1e40af}
-.list-item .actions .edit:hover{background:#bfdbfe}
-.list-item .actions .delete{background:#fef2f2;color:#991b1b}
-.list-item .actions .delete:hover{background:#fee2e2}
-.list-item .actions .interests{background:#fef3c7;color:#92400e;font-size:10px}
-.list-item .actions .interests:hover{background:#fde68a}
+.list-item {
+    background: #1a1a2e;
+    border: 1px solid #1e1e32;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 8px;
+}
+.list-item .title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #e2e8f0;
+}
+.list-item .sub {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+.list-item .actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+}
+.list-item .actions button {
+    padding: 4px 12px;
+    font-size: 11px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.list-item .actions .edit {
+    background: #dbeafe;
+    color: #1e40af;
+}
+.list-item .actions .edit:hover {
+    background: #bfdbfe;
+}
+.list-item .actions .delete {
+    background: #fef2f2;
+    color: #991b1b;
+}
+.list-item .actions .delete:hover {
+    background: #fee2e2;
+}
+.list-item .actions .interests {
+    background: #fef3c7;
+    color: #92400e;
+    font-size: 10px;
+}
+.list-item .actions .interests:hover {
+    background: #fde68a;
+}
 
 /* BADGES */
-.status-badge{font-size:10px;padding:2px 10px;border-radius:10px;font-weight:600;display:inline-block}
-.status-badge.active{background:#dcfce7;color:#166534}
-.status-badge.draft{background:#fef3c7;color:#d97706}
-.status-badge.expired{background:#fef2f2;color:#991b1b}
-.count-badge{background:#2563eb;color:#fff;font-size:11px;border-radius:10px;padding:1px 8px;margin-left:4px}
+.status-badge {
+    font-size: 10px;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-weight: 600;
+    display: inline-block;
+}
+.status-badge.active {
+    background: #dcfce7;
+    color: #166534;
+}
+.status-badge.draft {
+    background: #fef3c7;
+    color: #d97706;
+}
+.status-badge.expired {
+    background: #fef2f2;
+    color: #991b1b;
+}
+.count-badge {
+    background: #2563eb;
+    color: #fff;
+    font-size: 11px;
+    border-radius: 10px;
+    padding: 1px 8px;
+    margin-left: 4px;
+}
 
 /* TAGS */
-.route-tag{background:#1e1e32;padding:5px 12px;border-radius:6px;font-size:13px;display:inline-block;margin:2px;color:#94a3b8}
-.route-tag .remove{color:#f87171;cursor:pointer;margin-left:6px;font-weight:700}
-.route-tag .remove:hover{color:#dc2626}
-.agent-tag{background:#1e1e32;padding:5px 12px;border-radius:6px;font-size:13px;display:inline-block;margin:2px;color:#94a3b8}
-.agent-tag .remove{color:#f87171;cursor:pointer;margin-left:6px;font-weight:700}
-.agent-tag .remove:hover{color:#dc2626}
+.route-tag {
+    background: #1e1e32;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    display: inline-block;
+    margin: 2px;
+    color: #94a3b8;
+}
+.route-tag .remove {
+    color: #f87171;
+    cursor: pointer;
+    margin-left: 6px;
+    font-weight: 700;
+}
+.route-tag .remove:hover {
+    color: #dc2626;
+}
+.agent-tag {
+    background: #1e1e32;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    display: inline-block;
+    margin: 2px;
+    color: #94a3b8;
+}
+.agent-tag .remove {
+    color: #f87171;
+    cursor: pointer;
+    margin-left: 6px;
+    font-weight: 700;
+}
+.agent-tag .remove:hover {
+    color: #dc2626;
+}
 
 /* USER TYPE CHECKBOX */
-.user-type-checkbox{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
-.user-type-checkbox label{font-size:14px;display:flex;align-items:center;gap:4px;cursor:pointer;color:#94a3b8}
+.user-type-checkbox {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+.user-type-checkbox label {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    color: #0f172a;
+}
 
 /* ROUTE INPUT */
-.route-input-row{display:flex;gap:6px;margin-bottom:8px}
-.route-input-row input{flex:2}.route-input-row button{flex-shrink:0}
+.route-input-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+.route-input-row input {
+    flex: 2;
+}
+.route-input-row button {
+    flex-shrink: 0;
+}
 
-/* VEHICLE - WHITE BACKGROUND */
-.vehicle-suggest-dropdown{position:absolute;top:100%;left:0;right:0;background:#ffffff;border:1px solid #d1d5db;border-radius:8px;margin-top:4px;max-height:150px;overflow-y:auto;z-index:50;display:none}
-.vehicle-suggest-dropdown.show{display:block}
-.vehicle-suggest-dropdown .item{padding:10px 14px;font-size:14px;cursor:pointer;border-bottom:1px solid #f1f5f9;color:#0f172a}
-.vehicle-suggest-dropdown .item:hover{background:#f1f5f9}
-.vehicle-suggest-dropdown .item .sub{font-size:11px;color:#64748b}
-.vehicle-suggest-dropdown .item .add-new{color:#2563eb;font-weight:600}
-.vehicle-number-input{font-family:monospace;letter-spacing:0.5px;text-transform:uppercase;background:#ffffff !important;color:#0f172a !important}
-.vehicle-number-input:focus{background:#ffffff !important}
-.vehicle-item{display:flex;align-items:center;justify-content:space-between;background:#1a1a2e;padding:8px 12px;border-radius:6px;margin-bottom:4px;border:1px solid #1e1e32}
-.vehicle-item .vnumber{font-weight:600;font-size:14px;color:#e2e8f0;flex:1}
-.vehicle-item .vdetails{font-size:12px;color:#94a3b8;flex:1}
-.vehicle-item .actions{display:flex;gap:4px}
-.vehicle-item .actions button{padding:4px 10px;font-size:10px;border:none;border-radius:4px;font-weight:600;cursor:pointer}
-.vehicle-item .actions .edit-btn{background:#dbeafe;color:#1e40af}
-.vehicle-item .actions .edit-btn:hover{background:#bfdbfe}
-.vehicle-item .actions .delete-btn{background:#fef2f2;color:#991b1b}
-.vehicle-item .actions .delete-btn:hover{background:#fee2e2}
-.vehicle-display-item{background:#1a1a2e;border:1px solid #1e1e32;border-radius:8px;padding:10px 12px;margin-bottom:6px}
-.vehicle-display-item .vnumber{font-weight:700;font-size:14px;color:#e2e8f0}
-.vehicle-display-item .vdetails{font-size:13px;color:#94a3b8;margin-top:2px}
+/* VEHICLE */
+.vehicle-suggest-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-top: 4px;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 50;
+    display: none;
+}
+.vehicle-suggest-dropdown.show {
+    display: block;
+}
+.vehicle-suggest-dropdown .item {
+    padding: 10px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f5f9;
+    color: #0f172a;
+}
+.vehicle-suggest-dropdown .item:hover {
+    background: #f1f5f9;
+}
+.vehicle-suggest-dropdown .item .sub {
+    font-size: 11px;
+    color: #64748b;
+}
+.vehicle-suggest-dropdown .item .add-new {
+    color: #2563eb;
+    font-weight: 600;
+}
+.vehicle-number-input {
+    font-family: monospace;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+}
+.vehicle-number-input:focus {
+    background: #f8fafc !important;
+}
+.vehicle-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #1a1a2e;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    border: 1px solid #1e1e32;
+}
+.vehicle-item .vnumber {
+    font-weight: 600;
+    font-size: 14px;
+    color: #e2e8f0;
+    flex: 1;
+}
+.vehicle-item .vdetails {
+    font-size: 12px;
+    color: #94a3b8;
+    flex: 1;
+}
+.vehicle-item .actions {
+    display: flex;
+    gap: 4px;
+}
+.vehicle-item .actions button {
+    padding: 4px 10px;
+    font-size: 10px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.vehicle-item .actions .edit-btn {
+    background: #dbeafe;
+    color: #1e40af;
+}
+.vehicle-item .actions .edit-btn:hover {
+    background: #bfdbfe;
+}
+.vehicle-item .actions .delete-btn {
+    background: #fef2f2;
+    color: #991b1b;
+}
+.vehicle-item .actions .delete-btn:hover {
+    background: #fee2e2;
+}
+.vehicle-display-item {
+    background: #1a1a2e;
+    border: 1px solid #1e1e32;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+}
+.vehicle-display-item .vnumber {
+    font-weight: 700;
+    font-size: 14px;
+    color: #e2e8f0;
+}
+.vehicle-display-item .vdetails {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-top: 2px;
+}
 
-/* VEHICLE MODAL - WHITE BACKGROUND */
-.vehicle-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;z-index:1000}
-.vehicle-modal.show{display:flex}
-.vehicle-modal-content{background:#12121e;border-radius:16px;padding:24px;max-width:420px;width:90%;max-height:85vh;overflow-y:auto;border:1px solid #1e1e32}
-.vehicle-modal-content .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.vehicle-modal-content .modal-header h3{margin:0;font-size:19px;color:#e2e8f0}
-.vehicle-modal-content .modal-close{background:transparent;border:none;font-size:24px;cursor:pointer;color:#94a3b8}
-.vehicle-modal-content .modal-close:hover{color:#f87171}
-.vehicle-modal-content .form-group{margin-bottom:12px}
-.vehicle-modal-content .form-group .readonly-number{background:#1e1e32;padding:10px 12px;border-radius:8px;font-weight:700;font-size:16px;color:#e2e8f0;border:1px solid #1e1e32}
-.vehicle-modal-content .form-group .form-control{background:#ffffff;color:#0f172a;border:2px solid #d1d5db}
-.vehicle-modal-content .form-group .form-control:focus{border-color:#2563eb;background:#ffffff;box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
-.vehicle-modal-content .form-group label{color:#94a3b8}
+/* VEHICLE MODAL */
+.vehicle-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.vehicle-modal.show {
+    display: flex;
+}
+.vehicle-modal-content {
+    background: #12121e;
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 420px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    border: 1px solid #1e1e32;
+}
+.vehicle-modal-content .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.vehicle-modal-content .modal-header h3 {
+    margin: 0;
+    font-size: 19px;
+    color: #e2e8f0;
+}
+.vehicle-modal-content .modal-close {
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #94a3b8;
+}
+.vehicle-modal-content .modal-close:hover {
+    color: #f87171;
+}
+.vehicle-modal-content .form-group {
+    margin-bottom: 12px;
+}
+.vehicle-modal-content .form-group .readonly-number {
+    background: #1e1e32;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 16px;
+    color: #e2e8f0;
+    border: 1px solid #1e1e32;
+}
+.vehicle-modal-content .form-group .form-control {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    border: 2px solid #e2e8f0;
+}
+.vehicle-modal-content .form-group .form-control:focus {
+    border-color: #2563eb;
+    background: #f8fafc !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+.vehicle-modal-content .form-group label {
+    color: #94a3b8;
+}
 
 /* SPINNER */
-.spinner{display:inline-block;width:20px;height:20px;border:3px solid #1e1e32;border-top-color:#2563eb;border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:8px}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-text{display:flex;align-items:center;justify-content:center;gap:8px;color:#94a3b8;font-size:14px;padding:8px}
-
-/* DIMENSIONS - WHITE BACKGROUND */
-.dim-input{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px}
-.dim-input .dim-group{background:#ffffff;border-radius:8px;padding:8px 12px;border:2px solid #d1d5db;text-align:center;transition:all .2s}
-.dim-input .dim-group:focus-within{border-color:#2563eb;background:#ffffff;box-shadow:0 0 0 3px rgba(37,99,235,0.08)}
-.dim-input .dim-group label{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;display:block;margin-bottom:2px;letter-spacing:0.5px}
-.dim-input .dim-group input{width:100%;border:none;background:transparent;text-align:center;font-size:16px;font-weight:600;color:#0f172a;padding:4px 0;outline:none}
-.dim-input .dim-group input:focus{color:#2563eb}
-.dim-input .dim-group input::-webkit-inner-spin-button{-webkit-appearance:none}
-.dim-input .dim-group input[type=number]{-moz-appearance:textfield}
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #1e1e32;
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+.loading-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #94a3b8;
+    font-size: 14px;
+    padding: 8px;
+}
 
 /* WEBSITE LINK */
-.website-link{color:#2563eb;text-decoration:underline;cursor:pointer;word-break:break-all}
-.website-link:hover{color:#1d4ed8}
+.website-link {
+    color: #2563eb;
+    text-decoration: underline;
+    cursor: pointer;
+    word-break: break-all;
+}
+.website-link:hover {
+    color: #1d4ed8;
+}
 
 /* AGENT ITEMS */
-.agent-item{display:flex;align-items:center;justify-content:space-between;background:#1a1a2e;padding:8px 12px;border-radius:6px;margin-bottom:4px;border:1px solid #1e1e32}
-.agent-item .aname{font-weight:600;font-size:14px;color:#e2e8f0;flex:1}
-.agent-item .adetails{font-size:12px;color:#94a3b8;flex:1}
-.agent-item .actions{display:flex;gap:4px}
-.agent-item .actions button{padding:4px 10px;font-size:10px;border:none;border-radius:4px;font-weight:600;cursor:pointer}
-.agent-item .actions .whatsapp-btn{background:#25D366;color:#fff}
-.agent-item .actions .whatsapp-btn:hover{background:#1da851}
-.agent-item .actions .delete-btn{background:#fef2f2;color:#991b1b}
-.agent-item .actions .delete-btn:hover{background:#fee2e2}
+.agent-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #1a1a2e;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    border: 1px solid #1e1e32;
+}
+.agent-item .aname {
+    font-weight: 600;
+    font-size: 14px;
+    color: #e2e8f0;
+    flex: 1;
+}
+.agent-item .adetails {
+    font-size: 12px;
+    color: #94a3b8;
+    flex: 1;
+}
+.agent-item .actions {
+    display: flex;
+    gap: 4px;
+}
+.agent-item .actions button {
+    padding: 4px 10px;
+    font-size: 10px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.agent-item .actions .whatsapp-btn {
+    background: #25D366;
+    color: #fff;
+}
+.agent-item .actions .whatsapp-btn:hover {
+    background: #1da851;
+}
+.agent-item .actions .delete-btn {
+    background: #fef2f2;
+    color: #991b1b;
+}
+.agent-item .actions .delete-btn:hover {
+    background: #fee2e2;
+}
 
-/* AGENT SUGGEST - WHITE BACKGROUND */
-.agent-suggest-dropdown{position:absolute;top:100%;left:0;right:0;background:#ffffff;border:1px solid #d1d5db;border-radius:8px;margin-top:4px;max-height:150px;overflow-y:auto;z-index:50;display:none}
-.agent-suggest-dropdown.show{display:block}
-.agent-suggest-dropdown .item{padding:10px 14px;font-size:14px;cursor:pointer;border-bottom:1px solid #f1f5f9;color:#0f172a}
-.agent-suggest-dropdown .item:hover{background:#f1f5f9}
-.agent-suggest-dropdown .item .sub{font-size:11px;color:#64748b}
+/* AGENT SUGGEST */
+.agent-suggest-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-top: 4px;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 50;
+    display: none;
+}
+.agent-suggest-dropdown.show {
+    display: block;
+}
+.agent-suggest-dropdown .item {
+    padding: 10px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f5f9;
+    color: #0f172a;
+}
+.agent-suggest-dropdown .item:hover {
+    background: #f1f5f9;
+}
+.agent-suggest-dropdown .item .sub {
+    font-size: 11px;
+    color: #64748b;
+}
 
 /* BULK WHATSAPP */
-.bulk-whatsapp-btn{width:100%;padding:12px;background:#25D366;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;box-shadow:0 2px 8px rgba(37,211,102,0.3);transition:all .2s}
-.bulk-whatsapp-btn:active{transform:scale(0.97)}
-.bulk-whatsapp-btn:hover{background:#1da851}
+.bulk-whatsapp-btn {
+    width: 100%;
+    padding: 12px;
+    background: #25D366;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
+    transition: all .2s;
+}
+.bulk-whatsapp-btn:active {
+    transform: scale(0.97);
+}
+.bulk-whatsapp-btn:hover {
+    background: #1da851;
+}
 
 /* INSTALL BANNER */
-.install-banner{display:none;position:sticky;bottom:76px;background:linear-gradient(135deg,#2563eb,#6c5ce7);background-size:200% 200%;animation:gradientMove 3s ease infinite;color:#fff;padding:10px 24px;border-radius:16px;margin:0 auto 4px auto;box-shadow:0 4px 28px rgba(37,99,235,0.4);z-index:50;text-align:center;font-size:15px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,0.12);max-width:50%;min-width:140px;transition:transform 0.2s}
-.install-banner:hover{transform:scale(1.03)}
-.install-banner .icon{font-size:18px;margin-right:8px}
-.install-banner .sub{font-size:11px;opacity:0.85;font-weight:400;display:block;margin-top:2px}
-@keyframes gradientMove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-
-/* SECTION CONTAINER */
-.section-container{background:#1a1a2e;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #1e1e32}
-.section-container .section-title{font-size:13px;font-weight:700;color:#2563eb;margin-bottom:10px;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:0.5px}
+.install-banner {
+    display: none;
+    position: sticky;
+    bottom: 76px;
+    background: linear-gradient(135deg, #2563eb, #6c5ce7);
+    background-size: 200% 200%;
+    animation: gradientMove 3s ease infinite;
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 16px;
+    margin: 0 auto 4px auto;
+    box-shadow: 0 4px 28px rgba(37, 99, 235, 0.4);
+    z-index: 50;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    max-width: 50%;
+    min-width: 140px;
+    transition: transform 0.2s;
+}
+.install-banner:hover {
+    transform: scale(1.03);
+}
+.install-banner .icon {
+    font-size: 18px;
+    margin-right: 8px;
+}
+.install-banner .sub {
+    font-size: 11px;
+    opacity: 0.85;
+    font-weight: 400;
+    display: block;
+    margin-top: 2px;
+}
+@keyframes gradientMove {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
 
 /* WEIGHT INPUT */
-.weight-input{font-family:monospace}
+.weight-input {
+    font-family: monospace;
+}
 
 /* DISCLAIMER */
-.disclaimer{flex-shrink:0;background:#1a0000;border-left:4px solid #f87171;border-radius:8px;padding:12px 16px;margin-top:12px;font-size:11px;color:#fca5a5;line-height:1.5}
-.disclaimer .title{font-weight:700;font-size:12px;display:flex;align-items:center;gap:4px;color:#fca5a5}
+.disclaimer {
+    flex-shrink: 0;
+    background: #1a0000;
+    border-left: 4px solid #f87171;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    font-size: 11px;
+    color: #fca5a5;
+    line-height: 1.5;
+}
+.disclaimer .title {
+    font-weight: 700;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #fca5a5;
+}
 
-/* VEHICLE DETAIL DISPLAY - ADDED FOR BETTER UX */
-.vehicle-detail-display{background:#1a1a2e;border:1px solid #1e1e32;border-radius:8px;padding:10px 14px;margin-top:6px;display:none}
-.vehicle-detail-display .detail-row{display:flex;justify-content:space-between;padding:4px 0;font-size:13px;color:#94a3b8;border-bottom:1px solid #1e1e32}
-.vehicle-detail-display .detail-row:last-child{border-bottom:none}
-.vehicle-detail-display .detail-row .label{color:#64748b}
-.vehicle-detail-display .detail-row .value{color:#e2e8f0;font-weight:600}
-.vehicle-detail-display.show{display:block}
+/* VEHICLE DETAIL DISPLAY */
+.vehicle-detail-display {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-top: 6px;
+    display: none;
+}
+.vehicle-detail-display .detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-size: 13px;
+    color: #475569;
+    border-bottom: 1px solid #e8ecf0;
+}
+.vehicle-detail-display .detail-row:last-child {
+    border-bottom: none;
+}
+.vehicle-detail-display .detail-row .label {
+    color: #64748b;
+}
+.vehicle-detail-display .detail-row .value {
+    color: #0f172a;
+    font-weight: 600;
+}
+.vehicle-detail-display.show {
+    display: block;
+}
 </style>
 </head>
 <body>
@@ -478,69 +1145,6 @@ textarea.form-control:focus{background:#ffffff;box-shadow:0 0 0 3px rgba(37,99,2
 </div>
 </div>
 <div class="nav-fixed" id="bottom-nav"><button class="nav-item active" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button><button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button><button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button><button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button></div>
-</div>
-
-<!-- POST TRUCK PAGE -->
-<div id="posttruck-page" class="hidden-page">
-<div class="header-fixed"><span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span><button class="back-btn" onclick="cancelPost()">✕ Cancel</button></div>
-<div class="scroll-body" id="posttruck-scroll">
-<div class="section-container">
-    <label class="form-label">🚛 Vehicle Number *</label>
-    <div style="position:relative;width:100%">
-        <input class="form-control vehicle-number-input" id="pt-vehicle-number" placeholder="Type vehicle number..." oninput="searchVehiclesForTruck(this.value)" autocomplete="off">
-        <div class="vehicle-suggest-dropdown" id="pt-vehicle-suggest-dropdown"></div>
-    </div>
-    <div style="font-size:11px;color:#64748b;margin-top:4px">Only letters and numbers, 9-12 characters</div>
-    <!-- Vehicle Detail Display -->
-    <div class="vehicle-detail-display" id="pt-vehicle-detail">
-        <div class="detail-row"><span class="label">Vehicle Number</span><span class="value" id="pt-detail-number">-</span></div>
-        <div class="detail-row"><span class="label">Type</span><span class="value" id="pt-detail-type">-</span></div>
-        <div class="detail-row"><span class="label">Dimensions</span><span class="value" id="pt-detail-dims">-</span></div>
-        <div class="detail-row"><span class="label">Max Weight</span><span class="value" id="pt-detail-weight">-</span></div>
-        <div class="detail-row"><span class="label">ODC Allowed</span><span class="value" id="pt-detail-odc">-</span></div>
-    </div>
-</div>
-<div class="section-container">
-    <label class="form-label">📍 Location PIN *</label>
-    <div style="position:relative;width:100%">
-        <input type="text" id="search-pt-location" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('pt-location')" autocomplete="off" class="form-control">
-        <div class="search-wrapper"><div class="suggestions" id="suggestions-pt-location"></div></div>
-        <input type="hidden" id="pt-location-hidden">
-    </div>
-</div>
-<div class="section-container">
-    <div class="grid-2">
-        <div>
-            <label class="form-label">📅 Available From</label>
-            <input class="form-control" type="date" id="pt-available">
-        </div>
-        <div>
-            <label class="form-label">💰 Price/KM (₹)</label>
-            <input class="form-control" type="text" id="pt-rate" placeholder="0" oninput="formatInputNumber(this)">
-        </div>
-    </div>
-</div>
-<div class="section-container">
-    <label class="form-label">🤝 Agents</label>
-    <div style="font-size:11px;color:#64748b;margin-bottom:6px">💡 Add agents who can help find loads for this truck</div>
-    <div id="pt-agents-container" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px"></div>
-    <div class="route-input-row">
-        <div style="flex:2;position:relative">
-            <input class="form-control" id="pt-agent-search" placeholder="Search agent by name, company or mobile..." oninput="searchAgents('pt-agent-search','pt-agent-suggest-dropdown')" autocomplete="off">
-            <div class="agent-suggest-dropdown" id="pt-agent-suggest-dropdown"></div>
-        </div>
-        <button class="section-btn success" onclick="addAgentFromSearch('pt-agent-search','pt-agent-suggest-dropdown','pt-agents-container','pt-agents')">➕ Add</button>
-    </div>
-    <input type="hidden" id="pt-agents" value="">
-</div>
-<div class="section-container">
-    <label class="form-label">📝 Other Details</label>
-    <textarea class="form-control" id="pt-other-details" rows="3" placeholder="Vehicle features, GPS tracking, driver details, etc."></textarea>
-    <div style="font-size:11px;color:#64748b;text-align:right;margin-top:4px"><span id="pt-other-details-count">0</span>/300</div>
-</div>
-<button class="btn-primary success" onclick="publishTruck()" style="margin-top:4px">📤 List Truck</button>
-</div>
-<div class="nav-fixed" id="bottom-nav3"><button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button><button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button><button class="nav-item active" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button><button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button></div>
 </div>
 
 <!-- POST LOAD PAGE -->
@@ -658,6 +1262,69 @@ textarea.form-control:focus{background:#ffffff;box-shadow:0 0 0 3px rgba(37,99,2
 <button class="btn-primary success" onclick="publishLoad()" style="margin-top:4px">📤 Publish Load</button>
 </div>
 <div class="nav-fixed" id="bottom-nav2"><button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button><button class="nav-item active" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button><button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button><button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button></div>
+</div>
+
+<!-- POST TRUCK PAGE -->
+<div id="posttruck-page" class="hidden-page">
+<div class="header-fixed"><span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span><button class="back-btn" onclick="cancelPost()">✕ Cancel</button></div>
+<div class="scroll-body" id="posttruck-scroll">
+<div class="section-container">
+    <label class="form-label">🚛 Vehicle Number *</label>
+    <div style="position:relative;width:100%">
+        <input class="form-control vehicle-number-input" id="pt-vehicle-number" placeholder="Type vehicle number..." oninput="searchVehiclesForTruck(this.value)" autocomplete="off">
+        <div class="vehicle-suggest-dropdown" id="pt-vehicle-suggest-dropdown"></div>
+    </div>
+    <div style="font-size:11px;color:#64748b;margin-top:4px">Only letters and numbers, 9-12 characters</div>
+    <!-- Vehicle Detail Display -->
+    <div class="vehicle-detail-display" id="pt-vehicle-detail">
+        <div class="detail-row"><span class="label">Vehicle Number</span><span class="value" id="pt-detail-number">-</span></div>
+        <div class="detail-row"><span class="label">Type</span><span class="value" id="pt-detail-type">-</span></div>
+        <div class="detail-row"><span class="label">Dimensions</span><span class="value" id="pt-detail-dims">-</span></div>
+        <div class="detail-row"><span class="label">Max Weight</span><span class="value" id="pt-detail-weight">-</span></div>
+        <div class="detail-row"><span class="label">ODC Allowed</span><span class="value" id="pt-detail-odc">-</span></div>
+    </div>
+</div>
+<div class="section-container">
+    <label class="form-label">📍 Location PIN *</label>
+    <div style="position:relative;width:100%">
+        <input type="text" id="search-pt-location" placeholder="Search location..." onclick="selectInputText(this)" oninput="searchLocation('pt-location')" autocomplete="off" class="form-control">
+        <div class="search-wrapper"><div class="suggestions" id="suggestions-pt-location"></div></div>
+        <input type="hidden" id="pt-location-hidden">
+    </div>
+</div>
+<div class="section-container">
+    <div class="grid-2">
+        <div>
+            <label class="form-label">📅 Available From</label>
+            <input class="form-control" type="date" id="pt-available">
+        </div>
+        <div>
+            <label class="form-label">💰 Price/KM (₹)</label>
+            <input class="form-control" type="text" id="pt-rate" placeholder="0" oninput="formatInputNumber(this)">
+        </div>
+    </div>
+</div>
+<div class="section-container">
+    <label class="form-label">🤝 Agents</label>
+    <div style="font-size:11px;color:#64748b;margin-bottom:6px">💡 Add agents who can help find loads for this truck</div>
+    <div id="pt-agents-container" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px"></div>
+    <div class="route-input-row">
+        <div style="flex:2;position:relative">
+            <input class="form-control" id="pt-agent-search" placeholder="Search agent by name, company or mobile..." oninput="searchAgents('pt-agent-search','pt-agent-suggest-dropdown')" autocomplete="off">
+            <div class="agent-suggest-dropdown" id="pt-agent-suggest-dropdown"></div>
+        </div>
+        <button class="section-btn success" onclick="addAgentFromSearch('pt-agent-search','pt-agent-suggest-dropdown','pt-agents-container','pt-agents')">➕ Add</button>
+    </div>
+    <input type="hidden" id="pt-agents" value="">
+</div>
+<div class="section-container">
+    <label class="form-label">📝 Other Details</label>
+    <textarea class="form-control" id="pt-other-details" rows="3" placeholder="Vehicle features, GPS tracking, driver details, etc."></textarea>
+    <div style="font-size:11px;color:#64748b;text-align:right;margin-top:4px"><span id="pt-other-details-count">0</span>/300</div>
+</div>
+<button class="btn-primary success" onclick="publishTruck()" style="margin-top:4px">📤 List Truck</button>
+</div>
+<div class="nav-fixed" id="bottom-nav3"><button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button><button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button><button class="nav-item active" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button><button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button></div>
 </div>
 
 <!-- PROFILE PAGE -->
@@ -1232,7 +1899,7 @@ function selectLoc(ctx, pinId) {
 }
 
 // ============================================================
-// VEHICLE FUNCTIONS - UPDATED WITH DETAIL DISPLAY
+// VEHICLE FUNCTIONS - WITH DETAIL DISPLAY
 // ============================================================
 function searchVehiclesForTruck(query) {
     const dropdown = document.getElementById('pt-vehicle-suggest-dropdown');
@@ -1242,7 +1909,6 @@ function searchVehiclesForTruck(query) {
     if (q !== cleaned) input.value = cleaned;
     if (input.value.length > 12) input.value = input.value.substring(0, 12);
     
-    // Hide detail if input is cleared
     if (!q || q.length < 1) {
         dropdown.classList.remove('show');
         dropdown.innerHTML = '';
@@ -1284,7 +1950,6 @@ function selectVehicleForTruck(number) {
     document.getElementById('pt-vehicle-number').value = number;
     document.getElementById('pt-vehicle-suggest-dropdown').classList.remove('show');
     
-    // Fetch and display vehicle details
     sb.from('active_vehicles').select('*').eq('vehicle_number', number).single()
         .then(result => {
             if (result.data) {
@@ -1613,7 +2278,7 @@ function updateGuestUI() {
 }
 
 // ============================================================
-// PROFILE FUNCTIONS - FIXED AVATAR INITIALS
+// PROFILE FUNCTIONS - WITH PROPER AVATAR INITIALS
 // ============================================================
 function loadProfile() {
     if (!user) {
@@ -1655,11 +2320,10 @@ function loadProfile() {
 function renderProfileData() {
     if (!user) return;
     
-    // Get user name for display
     const displayName = user.name || user.mobile || 'User';
     document.getElementById('profile-name').textContent = displayName;
     
-    // Set avatar initials - use first letters of name
+    // Set avatar initials
     let initials = '';
     if (user.name) {
         const parts = user.name.trim().split(' ');
@@ -1675,7 +2339,6 @@ function renderProfileData() {
     }
     initials = initials.toUpperCase();
     
-    // Update both avatar buttons
     document.getElementById('avatar-initials-profile').textContent = initials;
     document.getElementById('avatar-initials').textContent = initials;
     
@@ -2113,7 +2776,7 @@ function handleShareClick() {
 }
 
 // ============================================================
-// AGENT FUNCTIONS (Shortened for brevity)
+// AGENT FUNCTIONS
 // ============================================================
 function searchAgents(inputId, dropdownId) {
     const input = document.getElementById(inputId);
