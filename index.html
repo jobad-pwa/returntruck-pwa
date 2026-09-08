@@ -213,10 +213,10 @@ body{background:#0a0a12;margin:0;padding:16px;display:flex;justify-content:cente
 .section-btn.success:hover{background:#15803d}
 
 /* ============================================================
-   SECTION CONTAINER - WHITE BACKGROUND
+   SECTION CONTAINER - WHITE BACKGROUND (FIXED)
    ============================================================ */
 .section-container {
-    background: #ffffff;
+    background: #ffffff !important;
     border-radius: 12px;
     padding: 16px;
     margin-bottom: 10px;
@@ -2277,7 +2277,7 @@ function updateGuestUI() {
 }
 
 // ============================================================
-// PROFILE FUNCTIONS - FIXED EDIT PROFILE
+// PROFILE FUNCTIONS - FIXED
 // ============================================================
 function loadProfile() {
     if (!user) {
@@ -2322,7 +2322,6 @@ function renderProfileData() {
     const displayName = user.name || user.mobile || 'User';
     document.getElementById('profile-name').textContent = displayName;
     
-    // Set avatar initials
     let initials = '';
     if (user.name) {
         const parts = user.name.trim().split(' ');
@@ -2385,6 +2384,135 @@ function renderProfileData() {
     loadMyLoads();
     loadMyTrucks();
     loadStats();
+}
+
+// ============================================================
+// EDIT PROFILE FUNCTIONS - FIXED
+// ============================================================
+function openEditProfile() {
+    if (!user) { toast('Please login first'); return; }
+    sb.from('active_users').select('*').eq('mobile', parseInt(user.mobile)).single()
+        .then(result => { 
+            if (result.data) {
+                Object.assign(user, result.data);
+                const saved = localStorage.getItem('rt_user');
+                if (saved) {
+                    const sd = JSON.parse(saved);
+                    sd.user = user;
+                    localStorage.setItem('rt_user', JSON.stringify(sd));
+                }
+            }
+            populateEditForm();
+            switchPage('edit-profile-page');
+        })
+        .catch(() => {
+            populateEditForm();
+            switchPage('edit-profile-page');
+        });
+}
+
+function populateEditForm() {
+    if (!user) { toast('User not found'); return; }
+    document.getElementById('edit-name').value = user.name || '';
+    document.getElementById('edit-company').value = user.company_name || '';
+    document.getElementById('edit-website').value = user.company_web || '';
+    document.getElementById('edit-pan').value = user.pan || '';
+    document.getElementById('edit-gst').value = user.gst || '';
+    if (user.location) {
+        const loc = getLoc(user.location);
+        if (loc) {
+            document.getElementById('search-edit-location').value = getLocDisplayName(loc);
+            document.getElementById('edit-location-hidden').value = user.location;
+        }
+    }
+    let types = user.user_type || [];
+    if (!Array.isArray(types) && typeof types === 'number') types = [types];
+    document.getElementById('edit-type-loadgiver').checked = types.indexOf(1) !== -1;
+    document.getElementById('edit-type-operator').checked = types.indexOf(2) !== -1;
+    document.getElementById('edit-type-agent').checked = types.indexOf(3) !== -1;
+    
+    // Load vehicles
+    vehicles = [];
+    vehicleDataMap = {};
+    let vno = user.vehicle_no || [];
+    if (Array.isArray(vno)) vehicles = vno.filter(v => v);
+    else if (typeof vno === 'string') vehicles = vno.split(',').filter(v => v.trim() !== '');
+    if (vehicles.length) {
+        sb.from('active_vehicles').select('*').in('vehicle_number', vehicles)
+            .then(res => {
+                if (res.data) {
+                    res.data.forEach(v => {
+                        const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
+                        vehicleDataMap[v.vehicle_number] = {
+                            id: v.id,
+                            vehicle_number: v.vehicle_number,
+                            vehicle_type: v.vehicle_type || 'Unknown',
+                            dimensions: dims
+                        };
+                    });
+                    renderVehicles();
+                }
+            });
+    }
+    renderVehicles();
+    
+    // Load routes
+    routes = [];
+    let pref = user.preferred_routes || [];
+    if (Array.isArray(pref)) routes = pref.filter(r => r);
+    else if (typeof pref === 'string') routes = pref.split(',').filter(r => r.trim() !== '').map(Number);
+    renderRoutes();
+    
+    document.getElementById('edit-details').value = user.details || '';
+    updateCharCount('edit-details', 'edit-details-count');
+    loadAgentsFromUser();
+    renderAgentsUI();
+    updateAgentHiddenField();
+}
+
+function closeEditProfile() { 
+    switchPage('profile-page'); 
+    loadProfile(); 
+}
+
+function saveProfile() {
+    if (!user || !user.mobile) { alert('User not logged in.'); return; }
+    const types = [];
+    if (document.getElementById('edit-type-loadgiver').checked) types.push(1);
+    if (document.getElementById('edit-type-operator').checked) types.push(2);
+    if (document.getElementById('edit-type-agent').checked) types.push(3);
+    const location = document.getElementById('edit-location-hidden').value ? parseInt(document.getElementById('edit-location-hidden').value) : null;
+    const updateData = {
+        name: document.getElementById('edit-name').value.trim() || null,
+        company_name: document.getElementById('edit-company').value.trim() || null,
+        company_web: document.getElementById('edit-website').value.trim() || null,
+        pan: document.getElementById('edit-pan').value.trim() || null,
+        gst: document.getElementById('edit-gst').value.trim() || null,
+        location: location,
+        user_type: types.length ? types : null,
+        vehicle_no: ensureUniqueArray(vehicles).length ? ensureUniqueArray(vehicles) : null,
+        preferred_routes: ensureUniqueArray(routes).length ? ensureUniqueArray(routes) : null,
+        details: document.getElementById('edit-details').value.trim() || null,
+        agents: ensureUniqueArray(agents).length ? ensureUniqueArray(agents) : null,
+        last_active: new Date().toISOString()
+    };
+    const mobileNum = parseInt(user.mobile);
+    sb.from('active_users').update(updateData).eq('mobile', mobileNum)
+        .then(result => {
+            if (result.error) { alert('Error saving profile: ' + result.error.message); return; }
+            sb.from('active_users').select('*').eq('mobile', mobileNum).single()
+                .then(freshResult => {
+                    if (freshResult.data) {
+                        Object.assign(user, freshResult.data);
+                        const saved = localStorage.getItem('rt_user');
+                        if (saved) { const sd = JSON.parse(saved);
+                            sd.user = user;
+                            localStorage.setItem('rt_user', JSON.stringify(sd)); }
+                        alert('✅ Profile saved successfully!');
+                        closeEditProfile();
+                    } else { alert('✅ Profile saved!'); closeEditProfile(); }
+                }).catch(() => { alert('✅ Profile saved!'); closeEditProfile(); });
+        }).catch(err => { alert('Error: ' + err.message); });
 }
 
 // ============================================================
@@ -3468,46 +3596,6 @@ function loadStats() {
 
 function deleteLoadItem(id) { if (!confirm('Delete this load?')) return; sb.from('active_loads').update({ status: 0 }).eq('id', id).then(() => { loadMyLoads(); loadStats(); }); }
 function deleteTruckItem(id) { if (!confirm('Delete this truck?')) return; sb.from('active_trucks').update({ status: 0 }).eq('id', id).then(() => { loadMyTrucks(); loadStats(); }); }
-
-function saveProfile() {
-    if (!user || !user.mobile) { alert('User not logged in.'); return; }
-    const types = [];
-    if (document.getElementById('edit-type-loadgiver').checked) types.push(1);
-    if (document.getElementById('edit-type-operator').checked) types.push(2);
-    if (document.getElementById('edit-type-agent').checked) types.push(3);
-    const location = document.getElementById('edit-location-hidden').value ? parseInt(document.getElementById('edit-location-hidden').value) : null;
-    const updateData = {
-        name: document.getElementById('edit-name').value.trim() || null,
-        company_name: document.getElementById('edit-company').value.trim() || null,
-        company_web: document.getElementById('edit-website').value.trim() || null,
-        pan: document.getElementById('edit-pan').value.trim() || null,
-        gst: document.getElementById('edit-gst').value.trim() || null,
-        location: location,
-        user_type: types.length ? types : null,
-        vehicle_no: ensureUniqueArray(vehicles).length ? ensureUniqueArray(vehicles) : null,
-        preferred_routes: ensureUniqueArray(routes).length ? ensureUniqueArray(routes) : null,
-        details: document.getElementById('edit-details').value.trim() || null,
-        agents: ensureUniqueArray(agents).length ? ensureUniqueArray(agents) : null,
-        last_active: new Date().toISOString()
-    };
-    const mobileNum = parseInt(user.mobile);
-    sb.from('active_users').update(updateData).eq('mobile', mobileNum)
-        .then(result => {
-            if (result.error) { alert('Error saving profile: ' + result.error.message); return; }
-            sb.from('active_users').select('*').eq('mobile', mobileNum).single()
-                .then(freshResult => {
-                    if (freshResult.data) {
-                        Object.assign(user, freshResult.data);
-                        const saved = localStorage.getItem('rt_user');
-                        if (saved) { const sd = JSON.parse(saved);
-                            sd.user = user;
-                            localStorage.setItem('rt_user', JSON.stringify(sd)); }
-                        alert('✅ Profile saved successfully!');
-                        closeEditProfile();
-                    } else { alert('✅ Profile saved!'); closeEditProfile(); }
-                }).catch(() => { alert('✅ Profile saved!'); closeEditProfile(); });
-        }).catch(err => { alert('Error: ' + err.message); });
-}
 
 function updateCharCount(inputId, countId) {
     const input = document.getElementById(inputId);
