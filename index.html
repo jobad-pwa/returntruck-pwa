@@ -74,8 +74,8 @@ body{background:#0a0a12;margin:0;padding:16px;display:flex;justify-content:cente
 .login-step-container{flex:1;display:flex;flex-direction:column;justify-content:center}
 
 /* INPUT FIELDS - LIGHT GREY BACKGROUND */
-.input-field{width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;text-align:center;background:#f1f5f9;color:#0f172a;margin-bottom:12px;display:block !important;visibility:visible !important;opacity:1 !important;transition:border-color 0.2s}
-.input-field:focus{border-color:#2563eb;outline:none;background:#f8fafc;box-shadow:0 0 0 3px rgba(37,99,235,0.12)}
+.input-field{width:100%;padding:14px;border:2px solid #d1d5db;border-radius:12px;font-size:16px;text-align:center;background:#f1f5f9 !important;color:#0f172a;margin-bottom:12px;display:block !important;visibility:visible !important;opacity:1 !important;transition:border-color 0.2s}
+.input-field:focus{border-color:#2563eb;outline:none;background:#f8fafc !important;box-shadow:0 0 0 3px rgba(37,99,235,0.12)}
 .input-field:disabled{background:#e2e8f0;color:#64748b}
 .input-field::placeholder{color:#94a3b8}
 .btn-primary{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px;transition:all 0.2s}
@@ -92,8 +92,8 @@ body{background:#0a0a12;margin:0;padding:16px;display:flex;justify-content:cente
 /* LOCATION ROW */
 .location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
 .location-row .location-input{flex:2}.location-row .radius-select{flex:1}
-.location-input input,.radius-select select{width:100%;padding:8px 12px;border:2px solid #e2e8f0;border-radius:8px;font-size:13px;background:#f1f5f9;color:#0f172a;transition:border-color 0.2s}
-.location-input input:focus,.radius-select select:focus{border-color:#2563eb;background:#f8fafc;outline:none;box-shadow:0 0 0 3px rgba(37,99,235,0.08)}
+.location-input input,.radius-select select{width:100%;padding:8px 12px;border:2px solid #d1d5db;border-radius:8px;font-size:13px;background:#f1f5f9 !important;color:#0f172a;transition:border-color 0.2s}
+.location-input input:focus,.radius-select select:focus{border-color:#2563eb;background:#f8fafc !important;outline:none;box-shadow:0 0 0 3px rgba(37,99,235,0.08)}
 .location-input input::placeholder{color:#94a3b8}
 .radius-select select option{background:#ffffff;color:#0f172a}
 
@@ -111,14 +111,14 @@ body{background:#0a0a12;margin:0;padding:16px;display:flex;justify-content:cente
 .filter-container.open{max-height:400px;overflow:visible}
 .filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;padding-top:6px}
 .filter-row label{font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;display:block;margin-bottom:4px;letter-spacing:0.5px}
-.filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:12px;background:#f1f5f9;border:2px solid #e2e8f0;border-radius:8px;color:#0f172a;outline:none;transition:border-color 0.2s}
-.filter-row input:focus,.filter-row select:focus{border-color:#2563eb;background:#f8fafc;box-shadow:0 0 0 3px rgba(37,99,235,0.06)}
+.filter-row input,.filter-row select{width:100%;padding:6px 8px;font-size:12px;background:#f1f5f9 !important;border:2px solid #d1d5db;border-radius:8px;color:#0f172a;outline:none;transition:border-color 0.2s}
+.filter-row input:focus,.filter-row select:focus{border-color:#2563eb;background:#f8fafc !important;box-shadow:0 0 0 3px rgba(37,99,235,0.06)}
 .filter-row input::placeholder{color:#94a3b8}
 .filter-row select option{background:#ffffff;color:#0f172a}
 
 /* SEARCH */
 .search-wrapper{position:relative;width:100%}
-.search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#ffffff;border:1px solid #d1d5db;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.15)}
 .search-wrapper .suggestions.show{display:block}
 .search-wrapper .suggestions .item{padding:12px 16px;font-size:14px;color:#0f172a;cursor:pointer;border-bottom:1px solid #f1f5f9}
 .search-wrapper .suggestions .item:last-child{border-bottom:none}
@@ -240,7 +240,7 @@ body{background:#0a0a12;margin:0;padding:16px;display:flex;justify-content:cente
 .form-label {
     font-size: 11px;
     font-weight: 700;
-    color: #334155;
+    color: #334155 !important;
     text-transform: uppercase;
     display: block;
     margin-bottom: 6px;
@@ -248,12 +248,12 @@ body{background:#0a0a12;margin:0;padding:16px;display:flex;justify-content:cente
 }
 
 /* ============================================================
-   FORM CONTROLS - LIGHT GREY BACKGROUND
+   FORM CONTROLS - LIGHT GREY BACKGROUND (FIXED)
    ============================================================ */
 .form-control {
     width: 100%;
     padding: 12px 14px;
-    border: 2px solid #e2e8f0;
+    border: 2px solid #d1d5db !important;
     border-radius: 10px;
     font-size: 14px;
     background: #f1f5f9 !important;
@@ -262,7 +262,7 @@ body{background:#0a0a12;margin:0;padding:16px;display:flex;justify-content:cente
     transition: all .2s;
 }
 .form-control:focus {
-    border-color: #2563eb;
+    border-color: #2563eb !important;
     background: #f8fafc !important;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
@@ -270,14 +270,14 @@ body{background:#0a0a12;margin:0;padding:16px;display:flex;justify-content:cente
     color: #94a3b8;
 }
 .form-control:hover {
-    border-color: #cbd5e1;
+    border-color: #cbd5e1 !important;
 }
 
 /* SELECT DROPDOWNS - LIGHT GREY BACKGROUND */
 select.form-control {
     background: #f1f5f9 !important;
     color: #0f172a !important;
-    border: 2px solid #e2e8f0;
+    border: 2px solid #d1d5db !important;
     cursor: pointer;
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
@@ -286,11 +286,11 @@ select.form-control {
     padding-right: 36px;
 }
 select.form-control:hover {
-    border-color: #cbd5e1;
+    border-color: #cbd5e1 !important;
 }
 select.form-control:focus {
     background: #f8fafc !important;
-    border-color: #2563eb;
+    border-color: #2563eb !important;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 select.form-control option {
@@ -303,7 +303,7 @@ textarea.form-control {
     resize: vertical;
     min-height: 60px;
     background: #f1f5f9 !important;
-    border: 2px solid #e2e8f0;
+    border: 2px solid #d1d5db !important;
     color: #0f172a !important;
 }
 textarea.form-control:focus {
@@ -321,16 +321,16 @@ textarea.form-control:focus {
     margin-top: 4px;
 }
 .dim-input .dim-group {
-    background: #f1f5f9;
+    background: #f1f5f9 !important;
     border-radius: 8px;
     padding: 8px 12px;
-    border: 2px solid #e2e8f0;
+    border: 2px solid #d1d5db !important;
     text-align: center;
     transition: all .2s;
 }
 .dim-input .dim-group:focus-within {
-    border-color: #2563eb;
-    background: #f8fafc;
+    border-color: #2563eb !important;
+    background: #f8fafc !important;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
 }
 .dim-input .dim-group label {
@@ -399,15 +399,15 @@ textarea.form-control:focus {
     font-size: 24px;
     font-weight: 700;
     border-radius: 12px;
-    border: 2px solid #e2e8f0;
-    background: #f1f5f9;
+    border: 2px solid #d1d5db;
+    background: #f1f5f9 !important;
     color: #0f172a;
     transition: border-color 0.2s;
 }
 .otp-input:focus {
     border-color: #2563eb;
     outline: none;
-    background: #f8fafc;
+    background: #f8fafc !important;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 .otp-input:disabled {
@@ -631,7 +631,7 @@ textarea.form-control:focus {
     left: 0;
     right: 0;
     background: #ffffff;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #d1d5db;
     border-radius: 8px;
     margin-top: 4px;
     max-height: 150px;
@@ -797,10 +797,10 @@ textarea.form-control:focus {
 .vehicle-modal-content .form-group .form-control {
     background: #f1f5f9 !important;
     color: #0f172a !important;
-    border: 2px solid #e2e8f0;
+    border: 2px solid #d1d5db !important;
 }
 .vehicle-modal-content .form-group .form-control:focus {
-    border-color: #2563eb;
+    border-color: #2563eb !important;
     background: #f8fafc !important;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
@@ -902,7 +902,7 @@ textarea.form-control:focus {
     left: 0;
     right: 0;
     background: #ffffff;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #d1d5db;
     border-radius: 8px;
     margin-top: 4px;
     max-height: 150px;
@@ -1028,7 +1028,7 @@ textarea.form-control:focus {
 /* VEHICLE DETAIL DISPLAY */
 .vehicle-detail-display {
     background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #d1d5db;
     border-radius: 8px;
     padding: 10px 14px;
     margin-top: 6px;
@@ -1275,7 +1275,6 @@ textarea.form-control:focus {
         <div class="vehicle-suggest-dropdown" id="pt-vehicle-suggest-dropdown"></div>
     </div>
     <div style="font-size:11px;color:#64748b;margin-top:4px">Only letters and numbers, 9-12 characters</div>
-    <!-- Vehicle Detail Display -->
     <div class="vehicle-detail-display" id="pt-vehicle-detail">
         <div class="detail-row"><span class="label">Vehicle Number</span><span class="value" id="pt-detail-number">-</span></div>
         <div class="detail-row"><span class="label">Type</span><span class="value" id="pt-detail-type">-</span></div>
@@ -1899,7 +1898,7 @@ function selectLoc(ctx, pinId) {
 }
 
 // ============================================================
-// VEHICLE FUNCTIONS - WITH DETAIL DISPLAY
+// VEHICLE FUNCTIONS
 // ============================================================
 function searchVehiclesForTruck(query) {
     const dropdown = document.getElementById('pt-vehicle-suggest-dropdown');
@@ -2278,7 +2277,7 @@ function updateGuestUI() {
 }
 
 // ============================================================
-// PROFILE FUNCTIONS - WITH PROPER AVATAR INITIALS
+// PROFILE FUNCTIONS - FIXED EDIT PROFILE
 // ============================================================
 function loadProfile() {
     if (!user) {
