@@ -471,11 +471,13 @@ textarea.form-control:focus {
 .agent-item .actions .delete-btn:hover { background: #fee2e2; }
 
 /* AGENT SUGGEST */
-.agent-suggest-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: #ffffff; border: 1px solid #d1d5db; border-radius: 8px; margin-top: 4px; max-height: 150px; overflow-y: auto; z-index: 50; display: none; }
+.agent-suggest-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: #ffffff; border: 1px solid #d1d5db; border-radius: 8px; margin-top: 4px; max-height: 200px; overflow-y: auto; z-index: 50; display: none; box-shadow: 0 8px 24px rgba(0,0,0,.15); }
 .agent-suggest-dropdown.show { display: block; }
 .agent-suggest-dropdown .item { padding: 10px 14px; font-size: 14px; cursor: pointer; border-bottom: 1px solid #f1f5f9; color: #0f172a; }
+.agent-suggest-dropdown .item:last-child { border-bottom: none; }
 .agent-suggest-dropdown .item:hover { background: #f1f5f9; }
-.agent-suggest-dropdown .item .sub { font-size: 11px; color: #64748b; }
+.agent-suggest-dropdown .item .sub { font-size: 11px; color: #64748b; display: block; margin-top: 2px; }
+.agent-suggest-dropdown .item .highlight { background: #2563eb; color: #fff; font-weight: 600; padding: 0 4px; border-radius: 4px; }
 
 /* BULK WHATSAPP */
 .bulk-whatsapp-btn { width: 100%; padding: 12px; background: #25D366; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 8px; box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3); transition: all .2s; }
@@ -1725,7 +1727,7 @@ function updateGuestUI() {
 }
 
 // ============================================================
-// PROFILE FUNCTIONS - FIXED
+// PROFILE FUNCTIONS
 // ============================================================
 function loadProfile() {
     if (!user) {
@@ -1835,7 +1837,7 @@ function renderProfileData() {
 }
 
 // ============================================================
-// EDIT PROFILE FUNCTIONS - FIXED
+// EDIT PROFILE FUNCTIONS
 // ============================================================
 function openEditProfile() {
     if (!user) { toast('Please login first'); return; }
@@ -2353,63 +2355,100 @@ function handleShareClick() {
 // ============================================================
 // AGENT FUNCTIONS
 // ============================================================
-function searchAgents(inputId, dropdownId) {
+async function searchAgents(inputId, dropdownId) {
     const input = document.getElementById(inputId);
     const dropdown = document.getElementById(dropdownId);
     if (!input || !dropdown) return;
+    
     const q = input.value.trim();
     if (!q || q.length < 1) {
         dropdown.classList.remove('show');
         dropdown.innerHTML = '';
         return;
     }
+    
     dropdown.innerHTML = '<div class="item" style="color:#94a3b8;">🔍 Searching...</div>';
     dropdown.classList.add('show');
-    sb.from('active_users')
-        .select('*')
-        .or(`name.ilike.%${q}%,company_name.ilike.%${q}%,mobile::text.ilike.%${q}%`)
-        .limit(15)
-        .then(result => {
-            if (result.error) {
-                console.error('Error searching agents:', result.error);
-                dropdown.innerHTML = '<div class="item" style="color:#f87171;">❌ Error loading agents</div>';
-                return;
-            }
-            const allUsers = result.data || [];
-            const agentsFiltered = allUsers.filter(u => {
-                let ut = u.user_type || [];
-                if (!Array.isArray(ut) && typeof ut === 'number') ut = [ut];
-                return ut.includes(3);
-            });
-            if (!agentsFiltered.length) {
-                dropdown.innerHTML = '<div class="item" style="color:#94a3b8;">No agents found. Try different search.</div>';
-                dropdown.classList.add('show');
-                return;
-            }
-            let html = '';
-            agentsFiltered.forEach(a => {
-                const displayName = a.name || 'Unknown';
-                const company = a.company_name || '';
-                const mobileNum = a.mobile;
-                const isAdded = agents.includes(mobileNum);
-                let nameDisplay = displayName;
-                if (q) {
-                    const idx = displayName.toLowerCase().indexOf(q.toLowerCase());
-                    if (idx !== -1) {
-                        nameDisplay = displayName.substring(0, idx) + '<span class="highlight">' + displayName.substring(idx, idx + q.length) + '</span>' + displayName.substring(idx + q.length);
-                    }
+    
+    try {
+        // Fetch all potential agents. In a real app, you'd use server-side filtering.
+        // Since the dataset is small, we fetch agents with user_type 3 and filter locally.
+        const { data, error } = await sb.from('active_users')
+            .select('*')
+            .contains('user_type', [3]) // Only fetch agents
+            .limit(50);
+            
+        if (error) throw error;
+        
+        const agentsFiltered = (data || []).filter(u => {
+            const name = (u.name || '').toLowerCase();
+            const company = (u.company_name || '').toLowerCase();
+            const mobileStr = String(u.mobile || '');
+            let locationMatch = false;
+            
+            // Check if the typed text matches any location
+            const locMatch = LOCATIONS.find(l => 
+                l.name.toLowerCase().includes(q.toLowerCase()) || 
+                l.district.toLowerCase().includes(q.toLowerCase()) || 
+                l.pincode.includes(q) ||
+                String(l.pin_id).includes(q)
+            );
+            
+            if (locMatch && u.location) {
+                const agentLoc = getLoc(u.location);
+                if (agentLoc) {
+                    // If the user typed a location, check if the agent is in that location
+                    locationMatch = agentLoc.pincode === locMatch.pincode || 
+                                    agentLoc.name.toLowerCase().includes(q.toLowerCase()) ||
+                                    agentLoc.district.toLowerCase().includes(q.toLowerCase());
                 }
-                html += '<div class="item" onclick="selectAgent(' + mobileNum + ',\'' + inputId + '\',\'' + dropdownId + '\')" style="' + (isAdded ? 'opacity:0.5;' : '') + '">' +
-                    nameDisplay + ' <span class="sub">' + company + (company ? ' • ' : '') + '📱' + mobileNum + '</span>' +
-                    (isAdded ? ' <span style="color:#4ade80;font-size:11px;">✓ Added</span>' : '') +
-                    '</div>';
-            });
-            dropdown.innerHTML = html;
-            dropdown.classList.add('show');
-        }).catch(err => {
-            console.error('Error:', err);
-            dropdown.innerHTML = '<div class="item" style="color:#f87171;">❌ Error loading agents</div>';
+            }
+            
+            return name.includes(q.toLowerCase()) || 
+                   company.includes(q.toLowerCase()) || 
+                   mobileStr.includes(q) ||
+                   locationMatch;
         });
+
+        if (!agentsFiltered.length) {
+            dropdown.innerHTML = '<div class="item" style="color:#94a3b8;">No agents found. Try different search.</div>';
+            dropdown.classList.add('show');
+            return;
+        }
+        
+        let html = '';
+        agentsFiltered.forEach(a => {
+            const displayName = a.name || 'Unknown';
+            const company = a.company_name || '';
+            const mobileNum = a.mobile;
+            const isAdded = agents.includes(mobileNum);
+            let nameDisplay = displayName;
+            
+            // Highlight matching text in name
+            const idx = displayName.toLowerCase().indexOf(q.toLowerCase());
+            if (idx !== -1) {
+                nameDisplay = displayName.substring(0, idx) + '<span class="highlight">' + displayName.substring(idx, idx + q.length) + '</span>' + displayName.substring(idx + q.length);
+            }
+            
+            // Build location string if available
+            let locStr = '';
+            if (a.location) {
+                const loc = getLoc(a.location);
+                if (loc) locStr = ` • 📍 ${loc.name}`;
+            }
+            
+            html += '<div class="item" onclick="selectAgent(' + mobileNum + ',\'' + inputId + '\',\'' + dropdownId + '\')" style="' + (isAdded ? 'opacity:0.5;' : '') + '">' +
+                nameDisplay + ' <span class="sub">' + company + (company ? ' • ' : '') + '📱' + mobileNum + locStr + '</span>' +
+                (isAdded ? ' <span style="color:#4ade80;font-size:11px;">✓ Added</span>' : '') +
+                '</div>';
+        });
+        
+        dropdown.innerHTML = html;
+        dropdown.classList.add('show');
+    } catch (err) {
+        console.error('Error searching agents:', err);
+        dropdown.innerHTML = '<div class="item" style="color:#f87171;">❌ Error loading agents</div>';
+    }
 }
 
 function selectAgent(mobile, inputId, dropdownId) {
