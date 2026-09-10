@@ -18,7 +18,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <style>
 *{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
-body{background:#0a0a12;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
+body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
 .card{max-width:420px;width:100%;background:#12121e;border-radius:28px;padding:0;box-shadow:0 8px 40px rgba(0,0,0,.6);display:flex;flex-direction:column;height:95vh;max-height:820px;position:relative;overflow:hidden}
 .hidden-page{display:none !important}.hidden{display:none !important}
 .header-fixed{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #1e1e32;background:#12121e;z-index:10;width:100%;min-height:50px}
@@ -145,7 +145,9 @@ body{background:#0a0a12;margin:0;padding:16px;display:flex;justify-content:cente
 .feed-card .stats-row span{display:flex;align-items:center;gap:3px}
 .feed-card .stats-row .val{font-weight:600;color:#475569}
 
-/* DETAIL VIEWS */
+/* ============================================================
+   DETAIL VIEWS - WHITE BACKGROUND (FIXED)
+   ============================================================ */
 .detail-header-card{background:linear-gradient(135deg,#1a1a2e,#0e0e1e);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid #1e1e32}
 .detail-header-card .main-title{font-size:20px;font-weight:700;color:#e2e8f0}
 .detail-header-card .company-name{font-size:14px;color:#2563eb;font-weight:600}
@@ -155,25 +157,27 @@ body{background:#0a0a12;margin:0;padding:16px;display:flex;justify-content:cente
 .detail-badge.verified{background:#dcfce7;color:#166534}
 .detail-badge.unverified{background:#fef2f2;color:#991b1b}
 .detail-badge.pan-gst{background:#1e1e32;color:#94a3b8;font-size:10px}
-.detail-card{background:#1a1a2e;border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 12px rgba(0,0,0,.2);border:1px solid #1e1e32}
+
+/* DETAIL CARDS - WHITE BACKGROUND */
+.detail-card{background:#ffffff !important;border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 12px rgba(0,0,0,.2);border:1px solid #e8ecf0}
 .detail-card .section-title{font-size:13px;font-weight:700;color:#2563eb;margin-bottom:10px;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:0.5px}
-.detail-card .spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;color:#94a3b8}
+.detail-card .spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;color:#475569}
 .detail-card .spec-grid .label{color:#64748b;font-weight:500;text-transform:uppercase;font-size:10px;letter-spacing:0.5px}
-.detail-card .spec-grid .value{font-weight:700;color:#e2e8f0;font-size:15px}
+.detail-card .spec-grid .value{font-weight:700;color:#0f172a;font-size:15px}
 .detail-card .spec-grid .value.highlight{color:#2563eb}
-.detail-card .route-display{font-size:14px;color:#94a3b8}
+.detail-card .route-display{font-size:14px;color:#475569}
 .detail-card .route-display .from{color:#2563eb;font-weight:700}
 .detail-card .route-display .to{color:#f87171;font-weight:700}
 .detail-card .route-arrow{text-align:center;font-size:20px;padding:4px 0;color:#475569}
 .detail-card .route-meta{font-size:13px;color:#64748b;margin-top:6px}
-.detail-card .route-meta strong{color:#e2e8f0}
-.detail-card .instructions-text{font-size:14px;color:#94a3b8;padding:4px 0;line-height:1.5}
+.detail-card .route-meta strong{color:#0f172a}
+.detail-card .instructions-text{font-size:14px;color:#475569;padding:4px 0;line-height:1.5}
 
 /* STATS */
 .stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
-.stat-item{background:#12121e;border-radius:10px;padding:8px 4px;text-align:center;border:1px solid #1e1e32}
+.stat-item{background:#f8fafc;border-radius:10px;padding:8px 4px;text-align:center;border:1px solid #e2e8f0}
 .stat-item .stat-icon{font-size:18px;display:block}
-.stat-item .stat-number{font-size:16px;font-weight:700;color:#e2e8f0;display:block;margin-top:2px}
+.stat-item .stat-number{font-size:16px;font-weight:700;color:#0f172a;display:block;margin-top:2px}
 .stat-item .stat-label{font-size:8px;color:#64748b;font-weight:600;text-transform:uppercase;margin-top:2px;display:block}
 
 /* ACTION BUTTONS */
@@ -2157,10 +2161,10 @@ function renderLoadDetail(load) {
     if (user.gst) badges += `<span class="detail-badge pan-gst">📛 ${user.gst}</span>`;
     let agentsHtml = '';
     if (load.agents && load.agents.length) {
-        agentsHtml = '<div class="detail-card"><div class="section-title">🤝 Agents</div><div style="display:flex;flex-wrap:wrap;gap:4px;">' +
+        agentsHtml = '<div class="detail-card"><div class="section-title">🤝 Agents</div><div style="display:flex;flex-direction:column;gap:4px;">' +
             load.agents.map(a => {
-                const name = agentDataMap[a] ? agentDataMap[a].name : a;
-                return `<span class="route-tag">${name}</span>`;
+                const data = agentDataMap[a] || { name: 'Unknown', company: '', location: '' };
+                return `<div style="font-size:14px; color:#0f172a; font-weight:500;">👤 ${data.name} ${data.company ? '(' + data.company + ')' : ''}</div>`;
             }).join('') + '</div></div>';
     }
     return `<div class="detail-header-card"><div class="main-title">📦 ${load.material || 'Cargo'}</div><div class="company-name">${user.company_name || 'Unknown Company'} ${website ? `• ${website}` : ''}</div><div class="meta-row">${badges}</div></div>
@@ -2215,10 +2219,10 @@ function renderTruckDetail(truck) {
     if (user.gst) badges += `<span class="detail-badge pan-gst">📛 ${user.gst}</span>`;
     let agentsHtml = '';
     if (truck.agents && truck.agents.length) {
-        agentsHtml = '<div class="detail-card"><div class="section-title">🤝 Agents</div><div style="display:flex;flex-wrap:wrap;gap:4px;">' +
+        agentsHtml = '<div class="detail-card"><div class="section-title">🤝 Agents</div><div style="display:flex;flex-direction:column;gap:4px;">' +
             truck.agents.map(a => {
-                const name = agentDataMap[a] ? agentDataMap[a].name : a;
-                return `<span class="route-tag">${name}</span>`;
+                const data = agentDataMap[a] || { name: 'Unknown', company: '', location: '' };
+                return `<div style="font-size:14px; color:#0f172a; font-weight:500;">👤 ${data.name} ${data.company ? '(' + data.company + ')' : ''}</div>`;
             }).join('') + '</div></div>';
     }
     return `<div class="detail-header-card"><div class="main-title">🚛 ${truck.truck_no || 'Truck'}</div><div class="company-name">${user.company_name || 'Unknown Company'} ${website ? `• ${website}` : ''}</div><div class="meta-row">${badges}</div></div>
