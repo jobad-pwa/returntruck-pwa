@@ -28,7 +28,7 @@ body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:cente
 .avatar-btn{width:36px;height:36px;border-radius:50%;border:2px solid #1e1e32;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#e2e8f0;background:#1e1e32;transition:all .2s}
 .avatar-btn.guest{background:#1e1e32}
 .avatar-btn:hover{border-color:#2563eb}
-.profile-dropdown{position:absolute;top:45px;right:0;background:#12121e;border:1px solid #1e1e32;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.6);min-width:160px;z-index:100;display:none}
+.profile-dropdown{position:absolute;top:45px;right:0;background:#12121e;border:1px solid #1e1e32;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.6);min-width:180px;z-index:100;display:none}
 .profile-dropdown.show{display:block}
 .dropdown-item{padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500;color:#c8d0e0;cursor:pointer;border:none;background:transparent;width:100%}
 .dropdown-item:hover{background:#1a1a2e;color:#fff}
@@ -579,7 +579,17 @@ textarea.form-control:focus {
 
 <!-- HOME PAGE -->
 <div id="home-page" class="hidden-page">
-<div class="header-fixed"><div class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></div><div class="header-right"><button class="avatar-btn guest" id="avatar-btn" onclick="toggleDropdown()"><span id="avatar-initials">GU</span></button><div class="profile-dropdown" id="profile-dropdown"><button class="dropdown-item" onclick="closeDropdown();goToProfile()">👤 View Profile</button><button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button><div class="dropdown-divider"></div><button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#f87171">🚪 Logout</button></div></div></div>
+<div class="header-fixed"><div class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></div><div class="header-right"><button class="avatar-btn guest" id="avatar-btn" onclick="toggleDropdown()"><span id="avatar-initials">GU</span></button><div class="profile-dropdown" id="profile-dropdown">
+    <button class="dropdown-item" onclick="closeDropdown();goHome()">🏠 Home</button>
+    <button class="dropdown-item" onclick="closeDropdown();goPostLoad()">📦 Post Load</button>
+    <button class="dropdown-item" onclick="closeDropdown();goPostTruck()">🚛 Post Truck</button>
+    <div class="dropdown-divider"></div>
+    <button class="dropdown-item" onclick="closeDropdown();goToProfile()">👤 View Profile</button>
+    <button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button>
+    <button class="dropdown-item" onclick="closeDropdown();openEditProfile()">✏️ Edit Profile</button>
+    <div class="dropdown-divider"></div>
+    <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#f87171">🚪 Logout</button>
+</div></div></div>
 <div id="home-top" style="flex-shrink:0;padding-top:0;">
 <div id="guest-banner" class="guest-banner"><span>👋 Welcome, Guest!</span><button class="btn-login" onclick="showLogin()">🔐 Login</button></div>
 <div class="location-row"><div class="location-input"><input type="text" id="search-home" placeholder="📍 Search Location" onclick="selectInputText(this)" oninput="searchLocation('home')" autocomplete="off"><div class="search-wrapper"><div class="suggestions" id="suggestions-home"></div></div></div><div class="radius-select"><select id="radius-select" onchange="applyFilters()"><option value="5">5 KM</option><option value="10">10 KM</option><option value="25">25 KM</option><option value="50">50 KM</option><option value="100" selected>100 KM</option><option value="200">200 KM</option></select></div></div>
@@ -780,7 +790,16 @@ textarea.form-control:focus {
 
 <!-- PROFILE PAGE -->
 <div id="profile-page" class="hidden-page">
-<div class="header-fixed"><span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span><div class="header-right"><button class="avatar-btn" id="avatar-btn-profile" onclick="toggleDropdown()"><span id="avatar-initials-profile">GU</span></button><div class="profile-dropdown" id="profile-dropdown-profile"><button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button><button class="dropdown-item" onclick="closeDropdown();openEditProfile()">✏️ Edit Profile</button><div class="dropdown-divider"></div><button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#f87171">🚪 Logout</button></div></div></div>
+<div class="header-fixed"><span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span><div class="header-right"><button class="avatar-btn" id="avatar-btn-profile" onclick="toggleDropdown()"><span id="avatar-initials-profile">GU</span></button><div class="profile-dropdown" id="profile-dropdown-profile">
+    <button class="dropdown-item" onclick="closeDropdown();goHome()">🏠 Home</button>
+    <button class="dropdown-item" onclick="closeDropdown();goPostLoad()">📦 Post Load</button>
+    <button class="dropdown-item" onclick="closeDropdown();goPostTruck()">🚛 Post Truck</button>
+    <div class="dropdown-divider"></div>
+    <button class="dropdown-item" onclick="closeDropdown();openChangePin()">🔑 Change PIN</button>
+    <button class="dropdown-item" onclick="closeDropdown();openEditProfile()">✏️ Edit Profile</button>
+    <div class="dropdown-divider"></div>
+    <button class="dropdown-item" onclick="closeDropdown();logout()" style="color:#f87171">🚪 Logout</button>
+</div></div></div>
 <div class="scroll-body" id="profile-scroll">
 <div class="profile-header-card"><div style="display:flex;justify-content:space-between;align-items:center"><div><div id="profile-name" style="font-size:20px;font-weight:700">--</div><div style="font-size:11px;opacity:.7">⭐ Last active: <span id="profile-last-active">Never</span></div></div><div style="text-align:right"><div style="font-size:20px">👤</div><div style="font-size:11px;background:rgba(255,255,255,.05);padding:2px 12px;border-radius:12px;display:inline-block">⭐ Member</div></div></div></div>
 <div class="profile-section"><div class="section-header"><span class="section-title">🏢 Company Details</span><button class="section-btn secondary" style="padding:4px 12px;font-size:11px" onclick="openEditProfile()">✏️ Edit</button></div><div style="font-weight:600;font-size:15px;color:#0f172a" id="profile-company">Not set</div><div id="profile-website" style="font-size:13px;color:#2563eb;word-break:break-all"></div><div style="font-size:12px;color:#475569;margin-top:4px" id="profile-pan">📛 PAN: --</div><div style="font-size:12px;color:#475569;margin-top:2px" id="profile-gst">📛 GST: --</div><div style="font-size:12px;color:#475569;margin-top:2px" id="profile-location">📍 Location: Not set</div></div>
