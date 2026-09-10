@@ -2157,14 +2157,40 @@ function renderLoadDetail(load) {
     badges += isVerified ? `<span class="detail-badge verified">✅ Verified</span>` : `<span class="detail-badge unverified">🔒 Unverified</span>`;
     if (user.pan) badges += `<span class="detail-badge pan-gst">📛 ${user.pan}</span>`;
     if (user.gst) badges += `<span class="detail-badge pan-gst">📛 ${user.gst}</span>`;
+    
+    // === FIXED AGENT RENDERING (ASYNC FETCH) ===
     let agentsHtml = '';
     if (load.agents && load.agents.length) {
-        agentsHtml = '<div class="detail-card"><div class="section-title">🤝 Agents</div><div style="display:flex;flex-direction:column;gap:4px;">' +
+        agentsHtml = '<div class="detail-card" id="agents-card"><div class="section-title">🤝 Agents</div><div id="agents-list" style="display:flex;flex-direction:column;gap:4px;">' +
             load.agents.map(a => {
                 const data = agentDataMap[a] || { name: 'Unknown', company: '', location: '' };
                 return `<div style="font-size:14px; color:#0f172a; font-weight:500;">👤 ${data.name} ${data.company ? '(' + data.company + ')' : ''}</div>`;
             }).join('') + '</div></div>';
+            
+        // Fetch agent details asynchronously if map is empty
+        const missingAgents = load.agents.filter(a => !agentDataMap[a]);
+        if (missingAgents.length > 0) {
+            sb.from('active_users').select('mobile, name, company_name, location').in('mobile', missingAgents)
+                .then(res => {
+                    if (res.data) {
+                        res.data.forEach(a => {
+                            const loc = getLoc(a.location);
+                            const locStr = loc ? ` • 📍 ${loc.name}` : '';
+                            agentDataMap[a.mobile] = { name: a.name || 'Unknown', company: a.company_name || '', location: locStr };
+                        });
+                        // Update the HTML directly
+                        const listEl = document.getElementById('agents-list');
+                        if (listEl) {
+                            listEl.innerHTML = load.agents.map(a => {
+                                const data = agentDataMap[a] || { name: 'Unknown', company: '', location: '' };
+                                return `<div style="font-size:14px; color:#0f172a; font-weight:500;">👤 ${data.name} ${data.company ? '(' + data.company + ')' : ''} ${data.location || ''}</div>`;
+                            }).join('');
+                        }
+                    }
+                }).catch(err => console.error('Error fetching agents:', err));
+        }
     }
+    
     return `<div class="detail-header-card"><div class="main-title">📦 ${load.material || 'Cargo'}</div><div class="company-name">${user.company_name || 'Unknown Company'} ${website ? `• ${website}` : ''}</div><div class="meta-row">${badges}</div></div>
         <div class="detail-card"><div class="section-title">📋 LOAD SPECS</div><div class="spec-grid">
             <div><span class="label">⚖️ Weight</span><br><span class="value">${formatIndianNumber(load.weight || 0)} Kg</span></div>
@@ -2215,14 +2241,38 @@ function renderTruckDetail(truck) {
     badges += isVerified ? `<span class="detail-badge verified">✅ Verified</span>` : `<span class="detail-badge unverified">🔒 Unverified</span>`;
     if (user.pan) badges += `<span class="detail-badge pan-gst">📛 ${user.pan}</span>`;
     if (user.gst) badges += `<span class="detail-badge pan-gst">📛 ${user.gst}</span>`;
+    
+    // === FIXED AGENT RENDERING (ASYNC FETCH) ===
     let agentsHtml = '';
     if (truck.agents && truck.agents.length) {
-        agentsHtml = '<div class="detail-card"><div class="section-title">🤝 Agents</div><div style="display:flex;flex-direction:column;gap:4px;">' +
+        agentsHtml = '<div class="detail-card" id="agents-card"><div class="section-title">🤝 Agents</div><div id="agents-list" style="display:flex;flex-direction:column;gap:4px;">' +
             truck.agents.map(a => {
                 const data = agentDataMap[a] || { name: 'Unknown', company: '', location: '' };
                 return `<div style="font-size:14px; color:#0f172a; font-weight:500;">👤 ${data.name} ${data.company ? '(' + data.company + ')' : ''}</div>`;
             }).join('') + '</div></div>';
+            
+        const missingAgents = truck.agents.filter(a => !agentDataMap[a]);
+        if (missingAgents.length > 0) {
+            sb.from('active_users').select('mobile, name, company_name, location').in('mobile', missingAgents)
+                .then(res => {
+                    if (res.data) {
+                        res.data.forEach(a => {
+                            const loc = getLoc(a.location);
+                            const locStr = loc ? ` • 📍 ${loc.name}` : '';
+                            agentDataMap[a.mobile] = { name: a.name || 'Unknown', company: a.company_name || '', location: locStr };
+                        });
+                        const listEl = document.getElementById('agents-list');
+                        if (listEl) {
+                            listEl.innerHTML = truck.agents.map(a => {
+                                const data = agentDataMap[a] || { name: 'Unknown', company: '', location: '' };
+                                return `<div style="font-size:14px; color:#0f172a; font-weight:500;">👤 ${data.name} ${data.company ? '(' + data.company + ')' : ''} ${data.location || ''}</div>`;
+                            }).join('');
+                        }
+                    }
+                }).catch(err => console.error('Error fetching agents:', err));
+        }
     }
+    
     return `<div class="detail-header-card"><div class="main-title">🚛 ${truck.truck_no || 'Truck'}</div><div class="company-name">${user.company_name || 'Unknown Company'} ${website ? `• ${website}` : ''}</div><div class="meta-row">${badges}</div></div>
         <div class="detail-card"><div class="section-title">📋 VEHICLE SPECS</div><div id="vehicle-detail-specs" class="spec-grid">${vehicleSpecsHtml}</div>
         <div style="margin-top:8px;font-size:13px;color:#475569;"><span class="label">💲 Rate/KM</span><br><span class="value">₹${formatIndianNumber(truck.rate || 0)}</span></div></div>
