@@ -1839,7 +1839,7 @@ function renderProfileData() {
 // ============================================================
 // PROFILE VEHICLES & ROUTES RENDERING (FIXED)
 // ============================================================
-function loadProfileVehicles() {
+async function loadProfileVehicles() {
     const container = document.getElementById('profile-vehicles-container');
     const badge = document.getElementById('vehicle-count-badge');
     if (!container) return;
@@ -1855,14 +1855,50 @@ function loadProfileVehicles() {
         return;
     }
     
-    container.innerHTML = vno.map(v => {
-        const data = vehicleDataMap[v] || { vehicle_type: 'Unknown', dimensions: 'N/A' };
-        const dims = data.dimensions || 'N/A';
-        return '<div class="vehicle-display-item">' +
-            '<div class="vnumber">' + v + '</div>' +
-            '<div class="vdetails">' + (data.vehicle_type || 'Unknown') + ' • ' + dims + ' ft</div>' +
-            '</div>';
-    }).join('');
+    // Show loading state
+    container.innerHTML = '<div style="color:#64748b;font-size:13px;text-align:center;padding:8px">🔄 Loading vehicles...</div>';
+    
+    // Fetch vehicle details from database
+    try {
+        const { data, error } = await sb.from('active_vehicles')
+            .select('*')
+            .in('vehicle_number', vno);
+            
+        if (error) throw error;
+        
+        // Populate vehicleDataMap with fetched data
+        if (data) {
+            data.forEach(v => {
+                const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
+                vehicleDataMap[v.vehicle_number] = {
+                    id: v.id,
+                    vehicle_number: v.vehicle_number,
+                    vehicle_type: v.vehicle_type || 'Unknown',
+                    dimensions: dims
+                };
+            });
+        }
+        
+        // Render with the now-populated data
+        container.innerHTML = vno.map(v => {
+            const dataMap = vehicleDataMap[v] || { vehicle_type: 'Unknown', dimensions: 'N/A' };
+            const dims = dataMap.dimensions || 'N/A';
+            return '<div class="vehicle-display-item">' +
+                '<div class="vnumber">' + v + '</div>' +
+                '<div class="vdetails">' + (dataMap.vehicle_type || 'Unknown') + ' • ' + dims + ' ft</div>' +
+                '</div>';
+        }).join('');
+        
+    } catch (err) {
+        console.error('Error loading profile vehicles:', err);
+        // Fallback: show just the vehicle numbers if fetch fails
+        container.innerHTML = vno.map(v => {
+            return '<div class="vehicle-display-item">' +
+                '<div class="vnumber">' + v + '</div>' +
+                '<div class="vdetails">Details unavailable</div>' +
+                '</div>';
+        }).join('');
+    }
 }
 
 function loadProfileRoutes() {
