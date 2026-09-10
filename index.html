@@ -194,7 +194,7 @@ body{background:#0a0a12;margin:0;padding:16px;display:flex;justify-content:cente
 .guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px;transition:all 0.2s}
 .guest-banner .btn-login:hover{transform:scale(1.03)}
 
-/* PROFILE - WHITE CONTAINERS (FIXED) */
+/* PROFILE - WHITE CONTAINERS */
 .profile-header-card{background:linear-gradient(135deg,#1a1a2e,#0e0e1e);border-radius:12px;padding:16px;color:#e2e8f0;margin-bottom:12px;border:1px solid #1e1e32}
 .profile-section{background:#ffffff !important;border:1px solid #e8ecf0;border-radius:12px;padding:16px;margin-bottom:12px;color:#0f172a}
 .profile-section .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
@@ -1837,6 +1837,55 @@ function renderProfileData() {
 }
 
 // ============================================================
+// PROFILE VEHICLES & ROUTES RENDERING (FIXED)
+// ============================================================
+function loadProfileVehicles() {
+    const container = document.getElementById('profile-vehicles-container');
+    const badge = document.getElementById('vehicle-count-badge');
+    if (!container) return;
+    
+    let vno = user.vehicle_no || [];
+    if (typeof vno === 'string') vno = vno.split(',').filter(v => v.trim() !== '');
+    if (!Array.isArray(vno)) vno = [];
+    
+    if (badge) badge.textContent = vno.length + ' Vehicles';
+    
+    if (vno.length === 0) {
+        container.innerHTML = '<div style="color:#64748b;font-size:13px;text-align:center;padding:8px">No vehicles added</div>';
+        return;
+    }
+    
+    container.innerHTML = vno.map(v => {
+        const data = vehicleDataMap[v] || { vehicle_type: 'Unknown', dimensions: 'N/A' };
+        const dims = data.dimensions || 'N/A';
+        return '<div class="vehicle-display-item">' +
+            '<div class="vnumber">' + v + '</div>' +
+            '<div class="vdetails">' + (data.vehicle_type || 'Unknown') + ' • ' + dims + ' ft</div>' +
+            '</div>';
+    }).join('');
+}
+
+function loadProfileRoutes() {
+    const container = document.getElementById('profile-routes-container');
+    if (!container) return;
+    
+    let pref = user.preferred_routes || [];
+    if (typeof pref === 'string') pref = pref.split(',').filter(r => r.trim() !== '').map(Number);
+    if (!Array.isArray(pref)) pref = [];
+    
+    if (pref.length === 0) {
+        container.innerHTML = '<span style="color:#64748b;font-size:13px">No routes added</span>';
+        return;
+    }
+    
+    container.innerHTML = pref.map(r => {
+        const loc = getLoc(r);
+        const display = loc ? getLocDisplayName(loc) : r;
+        return '<span class="route-tag">' + display + '</span>';
+    }).join('');
+}
+
+// ============================================================
 // EDIT PROFILE FUNCTIONS
 // ============================================================
 function openEditProfile() {
@@ -2371,11 +2420,9 @@ async function searchAgents(inputId, dropdownId) {
     dropdown.classList.add('show');
     
     try {
-        // Fetch all potential agents. In a real app, you'd use server-side filtering.
-        // Since the dataset is small, we fetch agents with user_type 3 and filter locally.
         const { data, error } = await sb.from('active_users')
             .select('*')
-            .contains('user_type', [3]) // Only fetch agents
+            .contains('user_type', [3])
             .limit(50);
             
         if (error) throw error;
@@ -2386,7 +2433,6 @@ async function searchAgents(inputId, dropdownId) {
             const mobileStr = String(u.mobile || '');
             let locationMatch = false;
             
-            // Check if the typed text matches any location
             const locMatch = LOCATIONS.find(l => 
                 l.name.toLowerCase().includes(q.toLowerCase()) || 
                 l.district.toLowerCase().includes(q.toLowerCase()) || 
@@ -2397,7 +2443,6 @@ async function searchAgents(inputId, dropdownId) {
             if (locMatch && u.location) {
                 const agentLoc = getLoc(u.location);
                 if (agentLoc) {
-                    // If the user typed a location, check if the agent is in that location
                     locationMatch = agentLoc.pincode === locMatch.pincode || 
                                     agentLoc.name.toLowerCase().includes(q.toLowerCase()) ||
                                     agentLoc.district.toLowerCase().includes(q.toLowerCase());
@@ -2424,13 +2469,11 @@ async function searchAgents(inputId, dropdownId) {
             const isAdded = agents.includes(mobileNum);
             let nameDisplay = displayName;
             
-            // Highlight matching text in name
             const idx = displayName.toLowerCase().indexOf(q.toLowerCase());
             if (idx !== -1) {
                 nameDisplay = displayName.substring(0, idx) + '<span class="highlight">' + displayName.substring(idx, idx + q.length) + '</span>' + displayName.substring(idx + q.length);
             }
             
-            // Build location string if available
             let locStr = '';
             if (a.location) {
                 const loc = getLoc(a.location);
