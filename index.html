@@ -579,7 +579,7 @@ textarea.form-control:focus {
 
 <!-- HOME PAGE -->
 <div id="home-page" class="hidden-page">
-<div class="header-fixed"><div class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></div><div class="header-right"><button class="avatar-btn guest" id="avatar-btn" onclick="toggleDropdown()"><span id="avatar-initials">GU</span></button><div class="profile-dropdown" id="profile-dropdown">
+<div class="header-fixed"><div class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></div><div class="header-right"><button class="avatar-btn guest" id="avatar-btn" onclick="toggleDropdown(event)"><span id="avatar-initials">GU</span></button><div class="profile-dropdown" id="profile-dropdown">
     <button class="dropdown-item" onclick="closeDropdown();goHome()">🏠 Home</button>
     <button class="dropdown-item" onclick="closeDropdown();goPostLoad()">📦 Post Load</button>
     <button class="dropdown-item" onclick="closeDropdown();goPostTruck()">🚛 Post Truck</button>
@@ -790,7 +790,7 @@ textarea.form-control:focus {
 
 <!-- PROFILE PAGE -->
 <div id="profile-page" class="hidden-page">
-<div class="header-fixed"><span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span><div class="header-right"><button class="avatar-btn" id="avatar-btn-profile" onclick="toggleDropdown()"><span id="avatar-initials-profile">GU</span></button><div class="profile-dropdown" id="profile-dropdown-profile">
+<div class="header-fixed"><span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span><div class="header-right"><button class="avatar-btn" id="avatar-btn-profile" onclick="toggleDropdown(event)"><span id="avatar-initials-profile">GU</span></button><div class="profile-dropdown" id="profile-dropdown-profile">
     <button class="dropdown-item" onclick="closeDropdown();goHome()">🏠 Home</button>
     <button class="dropdown-item" onclick="closeDropdown();goPostLoad()">📦 Post Load</button>
     <button class="dropdown-item" onclick="closeDropdown();goPostTruck()">🚛 Post Truck</button>
@@ -1012,6 +1012,7 @@ function showHome() {
     });
     document.getElementById('home-page').classList.remove('hidden-page');
     updateGuestUI();
+    updateAvatarInitials();
     setTimeout(() => { renderFeed(); autoLocate(); }, 50);
 }
 
@@ -1034,6 +1035,7 @@ function goHome() {
     document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
     const navItems = document.querySelectorAll('.nav-fixed .nav-item');
     if (navItems.length > 0) navItems[0].classList.add('active');
+    updateAvatarInitials();
     setTimeout(() => { renderFeed(); }, 50);
 }
 
@@ -1067,6 +1069,29 @@ function goToProfile() {
 function cancelPost() { goHome(); }
 function closeDetail() { detail = null; goHome(); }
 function closeEditProfile() { switchPage('profile-page'); loadProfile(); }
+
+// ============================================================
+// UPDATE AVATAR INITIALS (FIXED)
+// ============================================================
+function updateAvatarInitials() {
+    let initials = 'GU';
+    if (user && user.name) {
+        const parts = user.name.trim().split(' ');
+        if (parts.length >= 2) {
+            initials = (parts[0] || '')[0] + (parts[1] || '')[0];
+        } else {
+            initials = (parts[0] || '').substring(0, 2);
+        }
+    } else if (user && user.mobile) {
+        initials = user.mobile.toString().slice(-2);
+    }
+    initials = initials.toUpperCase();
+    
+    const avatarHome = document.getElementById('avatar-initials');
+    const avatarProfile = document.getElementById('avatar-initials-profile');
+    if (avatarHome) avatarHome.textContent = initials;
+    if (avatarProfile) avatarProfile.textContent = initials;
+}
 
 // ============================================================
 // RENDER FEED
@@ -1321,16 +1346,31 @@ function searchLocation(ctx) {
     sug.classList.add('show');
 }
 
+// Close dropdowns when clicking outside
 document.addEventListener('click', function(e) {
+    // Close avatar dropdown
+    const profileDropdowns = document.querySelectorAll('.profile-dropdown');
+    profileDropdowns.forEach(d => {
+        if (d.classList.contains('show')) {
+            const parent = d.parentElement;
+            if (parent && !parent.contains(e.target)) {
+                d.classList.remove('show');
+            }
+        }
+    });
+
+    // Close location suggestions
+    document.querySelectorAll('.suggestions').forEach(s => {
+        const parent = s.parentElement;
+        if (parent && !parent.contains(e.target)) { s.classList.remove('show'); s.innerHTML = ''; }
+    });
+    
+    // Handle location suggestion clicks
     const item = e.target.closest('.item');
     if (item) {
         const ctx = item.dataset.ctx, pinId = item.dataset.pinid;
         if (ctx && pinId) { selectLoc(ctx, pinId); e.stopPropagation(); }
     }
-    document.querySelectorAll('.suggestions').forEach(s => {
-        const parent = s.parentElement;
-        if (parent && !parent.contains(e.target)) { s.classList.remove('show'); s.innerHTML = ''; }
-    });
 });
 
 function selectLoc(ctx, pinId) {
@@ -1793,23 +1833,7 @@ function renderProfileData() {
     const displayName = user.name || user.mobile || 'User';
     document.getElementById('profile-name').textContent = displayName;
     
-    let initials = '';
-    if (user.name) {
-        const parts = user.name.trim().split(' ');
-        if (parts.length >= 2) {
-            initials = (parts[0] || '')[0] + (parts[1] || '')[0];
-        } else {
-            initials = (parts[0] || '').substring(0, 2);
-        }
-    } else if (user.mobile) {
-        initials = user.mobile.toString().slice(-2);
-    } else {
-        initials = 'GU';
-    }
-    initials = initials.toUpperCase();
-    
-    document.getElementById('avatar-initials-profile').textContent = initials;
-    document.getElementById('avatar-initials').textContent = initials;
+    updateAvatarInitials();
     
     if (user.last_active) {
         const d = new Date(user.last_active);
@@ -3240,7 +3264,10 @@ function updateCharCount(inputId, countId) {
     if (input && count) count.textContent = input.value.length;
 }
 
-function toggleDropdown() { document.querySelectorAll('.profile-dropdown').forEach(d => d.classList.toggle('show')); }
+function toggleDropdown(event) { 
+    if (event) event.stopPropagation();
+    document.querySelectorAll('.profile-dropdown').forEach(d => d.classList.toggle('show')); 
+}
 function closeDropdown() { document.querySelectorAll('.profile-dropdown').forEach(d => d.classList.remove('show')); }
 function logout() { if (confirm('Logout?')) { localStorage.removeItem('rt_user'); window.location.reload(); } }
 function openChangePin() { toast('Change PIN stub'); }
