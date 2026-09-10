@@ -128,22 +128,24 @@ body{background:#0a0a12;margin:0;padding:16px;display:flex;justify-content:cente
 /* RESULTS */
 .results-count{display:flex;justify-content:space-between;padding-bottom:4px;margin-bottom:6px;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
 
-/* FEED CARDS */
+/* ============================================================
+   FEED CARDS - WHITE BACKGROUND (FIXED)
+   ============================================================ */
 .feed-container{display:flex;flex-direction:column;gap:10px}
-.feed-card{background:#1a1a2e;border-radius:14px;padding:14px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.3);transition:all .2s;border:1px solid #1e1e32}
+.feed-card{background:#ffffff !important;border-radius:14px;padding:14px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.3);transition:all .2s;border:1px solid #e8ecf0}
 .feed-card:hover{border-color:#2563eb;transform:translateY(-2px);box-shadow:0 4px 20px rgba(37,99,235,.12)}
 .feed-card .header-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
-.feed-card .title{font-weight:700;font-size:15px;color:#e2e8f0;flex:1}
+.feed-card .title{font-weight:700;font-size:15px;color:#0f172a;flex:1}
 .feed-card .type-badge{flex-shrink:0;font-size:10px;padding:3px 10px;border-radius:4px;font-weight:700;text-transform:uppercase}
 .feed-card .type-badge.load{background:#dbeafe;color:#1e40af}
 .feed-card .type-badge.truck{background:#dcfce7;color:#166534}
 .feed-card .type-badge.agent{background:#fef3c7;color:#92400e}
 .feed-card .company{font-size:13px;color:#2563eb;font-weight:600;margin-bottom:2px}
-.feed-card .meta{font-size:12px;color:#94a3b8;margin-top:3px;display:flex;align-items:center;gap:4px}
+.feed-card .meta{font-size:12px;color:#475569;margin-top:3px;display:flex;align-items:center;gap:4px}
 .feed-card .meta .highlight{color:#2563eb;font-weight:600}
-.feed-card .stats-row{margin-top:8px;padding-top:8px;border-top:1px solid #1e1e32;display:flex;gap:12px;font-size:11px;color:#64748b}
+.feed-card .stats-row{margin-top:8px;padding-top:8px;border-top:1px solid #e8ecf0;display:flex;gap:12px;font-size:11px;color:#64748b}
 .feed-card .stats-row span{display:flex;align-items:center;gap:3px}
-.feed-card .stats-row .val{font-weight:600;color:#94a3b8}
+.feed-card .stats-row .val{font-weight:600;color:#475569}
 
 /* DETAIL VIEWS */
 .detail-header-card{background:linear-gradient(135deg,#1a1a2e,#0e0e1e);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid #1e1e32}
