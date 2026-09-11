@@ -905,7 +905,7 @@ let deepLinkProcessed = false;
 let agentDataMap = {};
 let deferredPrompt = null;
 let pendingDeepLink = null;
-let currentTruckVehicleData = null; // New state for truck vehicle details in share
+let currentTruckVehicleData = null;
 
 // ============================================================
 // NUMBER FORMATTING
@@ -951,27 +951,20 @@ const LOCATIONS = [
 // ============================================================
 // LOCATION FUNCTIONS
 // ============================================================
-function getLocByPincode(pinId) {
-    if (!pinId) return null;
-    const pinNum = parseInt(pinId);
-    if (isNaN(pinNum)) return null;
-    const pinStr = String(pinNum);
-    if (pinStr.length < 6) return null;
-    const pincode = pinStr.substring(0, 6);
-    const matches = LOCATIONS.filter(l => l.pincode === pincode);
-    if (matches.length === 0) return null;
-    const exact = matches.find(l => l.pin_id === pinNum);
-    if (exact) return exact;
-    return matches[0];
-}
-
 function getLoc(pinId) { 
     if (!pinId) return null; 
     const pinNum = parseInt(pinId); 
     if (isNaN(pinNum)) return null; 
     const exact = LOCATIONS.find(l => l.pin_id === pinNum);
     if (exact) return exact;
-    return getLocByPincode(pinNum);
+    const pinStr = String(pinNum);
+    if (pinStr.length < 6) return null;
+    const pincode = pinStr.substring(0, 6);
+    const matches = LOCATIONS.filter(l => l.pincode === pincode);
+    if (matches.length === 0) return null;
+    const fallback = matches.find(l => l.pin_id === pinNum);
+    if (fallback) return fallback;
+    return matches[0];
 }
 
 function getLocDisplayName(loc) { if (!loc) return 'Unknown'; return loc.name + ', ' + loc.district + ', ' + loc.state + ' (' + loc.pincode + ')'; }
@@ -1055,7 +1048,6 @@ function showLogin() {
         if (el) el.classList.add('hidden-page');
     });
     document.getElementById('login-screen').style.display = 'flex';
-    // If there's a pending deep link, show a message on login screen
     if (pendingDeepLink) {
         const status = document.getElementById('mobile-status');
         if (status) {
@@ -1077,7 +1069,6 @@ function showHome() {
     setTimeout(() => { 
         renderFeed(); 
         autoLocate(); 
-        // Check for pending deep link after home is shown
         if (pendingDeepLink) {
             openDetail(pendingDeepLink.type, pendingDeepLink.id);
             pendingDeepLink = null;
@@ -1173,12 +1164,16 @@ async function renderFeed() {
 
         items = [];
         (loads || []).forEach(l => {
+            const fromLoc = getLoc(l.pickup_pin);
+            const toLoc = getLoc(l.drop_pin);
             items.push({
                 type: 'LOAD',
                 title: l.material || 'Cargo',
                 company: l.company || '',
                 from_pin: l.pickup_pin,
                 to_pin: l.drop_pin,
+                from_loc: fromLoc,
+                to_loc: toLoc,
                 weight: l.weight || 0,
                 vehicle: l.vehicle_type || '',
                 views: l.views || 0,
@@ -1196,12 +1191,15 @@ async function renderFeed() {
         });
 
         (trucks || []).forEach(t => {
+            const loc = getLoc(t.location_pin);
             items.push({
                 type: 'TRUCK',
                 title: t.truck_no || 'Truck',
                 company: t.company || '',
                 from_pin: t.location_pin,
                 to_pin: null,
+                from_loc: loc,
+                to_loc: null,
                 vehicle: 'Truck',
                 views: t.views || 0,
                 rate: t.rate || 0,
@@ -1224,12 +1222,15 @@ async function renderFeed() {
                 let loadCount = 0, truckCount = 0;
                 (loads || []).forEach(l => { if (l.mobile == u.mobile) loadCount++; });
                 (trucks || []).forEach(t => { if (t.mobile == u.mobile) truckCount++; });
+                const loc = u.location ? getLoc(u.location) : null;
                 items.push({
                     type: 'AGENT',
                     title: u.company_name || u.name || 'Agent',
                     company: u.company_name || '',
                     from_pin: u.location,
                     to_pin: null,
+                    from_loc: loc,
+                    to_loc: null,
                     vehicle: 'Agent',
                     views: 0,
                     rate: 0,
@@ -1258,30 +1259,15 @@ async function renderFeed() {
                 const searchPincode = String(hl.pincode);
                 filtered = filtered.filter(i => {
                     if (i.type === 'AGENT') {
-                        if (!i.from_pin) return true;
-                        const fl = getLoc(i.from_pin);
-                        if (fl) {
-                            const distance = dist(hl.lat, hl.lng, fl.lat, fl.lng);
-                            return distance <= radius;
-                        }
-                        const itemPinStr = String(i.from_pin);
-                        if (itemPinStr.length >= 6) {
-                            const itemPincode = itemPinStr.substring(0, 6);
-                            if (itemPincode === searchPincode) return true;
-                        }
-                        return false;
-                    }
-                    const fl = getLoc(i.from_pin);
-                    if (fl) {
-                        const distance = dist(hl.lat, hl.lng, fl.lat, fl.lng);
+                        if (!i.from_loc) return true;
+                        const distance = dist(hl.lat, hl.lng, i.from_loc.lat, i.from_loc.lng);
                         return distance <= radius;
                     }
-                    const itemPinStr = String(i.from_pin);
-                    if (itemPinStr.length >= 6) {
-                        const itemPincode = itemPinStr.substring(0, 6);
-                        if (itemPincode === searchPincode) return true;
-                    }
-                    return false;
+                    if (!i.from_loc) return false;
+                    const distance = dist(hl.lat, hl.lng, i.from_loc.lat, i.from_loc.lng);
+                    if (distance <= radius) return true;
+                    const itemPincode = String(i.from_loc.pincode);
+                    return itemPincode === searchPincode;
                 });
             }
         }
@@ -1299,17 +1285,11 @@ async function renderFeed() {
                 filtered = filtered.filter(i => {
                     if (i.type === 'TRUCK' || i.type === 'AGENT') return true;
                     if (i.type === 'LOAD') {
-                        const dropPinStr = String(i.to_pin);
-                        if (dropPinStr.length >= 6) {
-                            const dropPincode = dropPinStr.substring(0, 6);
-                            if (dropPincode === toPincode) return true;
-                        }
-                        const tl2 = getLoc(i.to_pin);
-                        if (tl2 && tl) {
-                            const distance = dist(tl.lat, tl.lng, tl2.lat, tl2.lng);
-                            if (distance <= radius) return true;
-                        }
-                        return false;
+                        if (!i.to_loc) return false;
+                        const dropPincode = String(i.to_loc.pincode).substring(0, 6);
+                        if (dropPincode === toPincode) return true;
+                        const distance = dist(tl.lat, tl.lng, i.to_loc.lat, i.to_loc.lng);
+                        return distance <= radius;
                     }
                     return true;
                 });
@@ -1333,20 +1313,20 @@ async function renderFeed() {
             let bc = i.type === 'LOAD' ? 'load' : (i.type === 'TRUCK' ? 'truck' : 'agent');
             let loc = '', sub = '', stats = '', rateDisplay = '';
             if (i.type === 'LOAD') {
-                loc = '📍 ' + getLocName(i.from_pin) + ' → ' + getLocName(i.to_pin);
+                loc = '📍 ' + (i.from_loc ? getLocDisplayName(i.from_loc) : 'Unknown') + ' → ' + (i.to_loc ? getLocDisplayName(i.to_loc) : 'Unknown');
                 sub = '💼 ' + i.company;
                 const ratingInfo = calculateRating(i.endorsements || 0, i.flags || 0);
                 stats = '⚖️ ' + formatIndianNumber(i.weight || 0) + ' Kg • 🚛 ' + i.vehicle;
                 rateDisplay = ' ₹' + formatIndianNumber(i.rate);
                 stats += ' • ' + ratingInfo.display;
             } else if (i.type === 'TRUCK') {
-                loc = '📍 ' + getLocName(i.from_pin);
+                loc = '📍 ' + (i.from_loc ? getLocDisplayName(i.from_loc) : 'Unknown');
                 sub = '🚛 ' + i.title;
                 const ratingInfo = calculateRating(i.endorsements || 0, i.flags || 0);
                 stats = '📅 Available Now • ' + ratingInfo.display;
                 rateDisplay = ' ₹' + formatIndianNumber(i.rate);
             } else if (i.type === 'AGENT') {
-                loc = '📍 ' + (i.from_pin ? getLocName(i.from_pin) : 'Multiple Locations');
+                loc = '📍 ' + (i.from_loc ? getLocDisplayName(i.from_loc) : 'Multiple Locations');
                 sub = '🤝 ' + i.company;
                 const ratingInfo = calculateRating(i.endorsements || 0, i.flags || 0);
                 stats = '📦 ' + (i.loads_count || 0) + ' Loads • 🚛 ' + (i.trucks_count || 0) + ' Trucks';
@@ -1678,7 +1658,6 @@ function submitPin() {
                 btn.textContent = '🔐 Login';
                 btn.disabled = false;
                 showHome();
-                // Deep link check handled in showHome
                 return;
             }
             if (result.isNewUser === true) {
@@ -1938,7 +1917,6 @@ function renderProfileData() {
     loadProfileRoutes();
     loadMyLoads();
     loadMyTrucks();
-    loadStats();
 }
 
 // ============================================================
@@ -2511,7 +2489,6 @@ async function handleShareClick() {
     if (!detail) { toast('No details to share'); return; }
     
     let truckVehicleDetails = null;
-    // If it's a truck, fetch the vehicle details first
     if (detail.type === 'TRUCK' && detail.truck_no) {
         try {
             const { data: vehicleData } = await sb.from('active_vehicles')
@@ -2532,8 +2509,6 @@ async function handleShareClick() {
         const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
         const file = new File([blob], 'load-preview.png', { type: 'image/png' });
         const shareUrl = 'https://returntruck-pwa.vercel.app/?listing=' + detail.type + '_' + detail.id;
-        
-        // We only pass the URL as text, everything else is in the image
         const shareText = shareUrl; 
 
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -2561,15 +2536,14 @@ async function handleShareClick() {
 // Revised renderShareImage with dynamic height, instructions, and truck vehicle details
 async function renderShareImage(data, vehicleData) {
     const W = 800;
-    const baseH = 600; // Base height for header and footer
+    const baseH = 600;
     const rowHeight = 90;
     const titleAreaHeight = 150;
-    const instructionsBoxHeight = 180; // Approximate space for instructions
+    const instructionsBoxHeight = 180;
 
     let contentHeight = 0;
     let rows = [];
 
-    // Build rows based on type
     if (data.type === 'LOAD') {
         const from = getLoc(data.pickup_pin);
         const to = getLoc(data.drop_pin);
@@ -2594,7 +2568,6 @@ async function renderShareImage(data, vehicleData) {
             rows.push({ label: '⚖️ MAX WEIGHT', value: formatIndianNumber(vehicleData.max_weight || 0) + ' Kg' });
         }
         if (data.available_date) rows.push({ label: '📅 AVAILABLE FROM', value: new Date(data.available_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) });
-        // Add operating routes for truck if available
         if (data.user && data.user.preferred_routes && data.user.preferred_routes.length > 0) {
             const routeNames = data.user.preferred_routes.map(r => { const loc = getLoc(r); return loc ? loc.name : r; }).join(', ');
             rows.push({ label: '🗺️ OPERATING ROUTES', value: routeNames });
@@ -2604,14 +2577,12 @@ async function renderShareImage(data, vehicleData) {
         rows.push({ label: '🏢 COMPANY', value: u.company_name || 'N/A' });
         rows.push({ label: '📍 LOCATION', value: u.location ? getLocName(u.location) : 'N/A' });
         rows.push({ label: '📞 CONTACT', value: u.mobile ? '+91 ' + u.mobile : 'N/A' });
-        // Add operating routes for agent if available
         if (u.preferred_routes && u.preferred_routes.length > 0) {
             const routeNames = u.preferred_routes.map(r => { const loc = getLoc(r); return loc ? loc.name : r; }).join(', ');
             rows.push({ label: '🗺️ OPERATING ROUTES', value: routeNames });
         }
     }
 
-    // Calculate dynamic content height
     contentHeight = titleAreaHeight + (rows.length * rowHeight);
     let hasInstructions = false;
     let instructionText = '';
@@ -2627,7 +2598,6 @@ async function renderShareImage(data, vehicleData) {
         contentHeight += instructionsBoxHeight;
     }
 
-    // Total canvas height, ensuring a minimum
     const H = Math.max(1000, baseH + contentHeight);
     const canvas = document.createElement('canvas');
     canvas.width = W;
@@ -2637,14 +2607,12 @@ async function renderShareImage(data, vehicleData) {
     ctx.fillStyle = '#0a0a12';
     ctx.fillRect(0, 0, W, H);
 
-    // Header Gradient
     const grad = ctx.createLinearGradient(0, 0, W, 220);
     grad.addColorStop(0, '#1e3a8a');
     grad.addColorStop(1, '#2563eb');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, W, 220);
 
-    // Header Text - Dynamic based on type
     const postedBy = data.user ? (data.user.company_name || data.user.name || 'User') : 'User';
     const postedLoc = data.user && data.user.location ? getLocName(data.user.location) : '';
     
@@ -2678,9 +2646,8 @@ async function renderShareImage(data, vehicleData) {
     wrapText(ctx, title, 40, 390, W - 80, 68);
 
     let y = 500;
-    // White box for rows
     const boxY = y;
-    const boxH = rows.length * rowHeight + 40; // padding
+    const boxH = rows.length * rowHeight + 40;
 
     ctx.fillStyle = '#ffffff';
     roundRect(ctx, 40, boxY, W - 80, boxH, 24);
@@ -2697,7 +2664,6 @@ async function renderShareImage(data, vehicleData) {
         y += rowHeight;
     });
 
-    // Instructions box (if any)
     if (hasInstructions) {
         const instY = boxY + boxH + 30;
         ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
@@ -2713,13 +2679,12 @@ async function renderShareImage(data, vehicleData) {
         wrapText(ctx, instructionText, 70, instY + 80, W - 140, 30);
     }
 
-    // Footer with URL
     const shareUrl = 'https://returntruck-pwa.vercel.app/?listing=' + data.type + '_' + data.id;
     ctx.fillStyle = 'rgba(255,255,255,0.5)';
     ctx.font = '500 20px system-ui, sans-serif';
     ctx.fillText('Tap to view details on ReturnTruck', 40, H - 40);
     
-    ctx.fillStyle = '#2563eb'; // Blue for link
+    ctx.fillStyle = '#2563eb';
     ctx.font = 'bold 22px system-ui, sans-serif';
     ctx.fillText(shareUrl, 40, H - 10);
 
@@ -3469,6 +3434,9 @@ function loadMyTrucks() {
         });
 }
 
+function deleteLoadItem(id) { if (!confirm('Delete this load?')) return; sb.from('active_loads').update({ status: 0 }).eq('id', id).then(() => { loadMyLoads(); loadStats(); }); }
+function deleteTruckItem(id) { if (!confirm('Delete this truck?')) return; sb.from('active_trucks').update({ status: 0 }).eq('id', id).then(() => { loadMyTrucks(); loadStats(); }); }
+
 function loadStats() {
     if (!user) return;
     sb.from('active_loads').select('*', { count: 'exact', head: true }).eq('mobile', parseInt(user.mobile)).eq('status', 1)
@@ -3476,9 +3444,6 @@ function loadStats() {
     sb.from('active_trucks').select('*', { count: 'exact', head: true }).eq('mobile', parseInt(user.mobile)).eq('status', 1)
         .then(r => { document.getElementById('stat-trucks-count').textContent = r.count || 0; });
 }
-
-function deleteLoadItem(id) { if (!confirm('Delete this load?')) return; sb.from('active_loads').update({ status: 0 }).eq('id', id).then(() => { loadMyLoads(); loadStats(); }); }
-function deleteTruckItem(id) { if (!confirm('Delete this truck?')) return; sb.from('active_trucks').update({ status: 0 }).eq('id', id).then(() => { loadMyTrucks(); loadStats(); }); }
 
 function updateCharCount(inputId, countId) {
     const input = document.getElementById(inputId);
