@@ -507,10 +507,46 @@ textarea.form-control:focus {
 .vehicle-detail-display .detail-row .label { color: #64748b; }
 .vehicle-detail-display .detail-row .value { color: #0f172a; font-weight: 600; }
 .vehicle-detail-display.show { display: block; }
+
+/* LOADING OVERLAY */
+.loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(18, 18, 30, 0.95);
+    z-index: 2000;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+}
+.loading-overlay.show {
+    display: flex;
+}
+.loading-overlay .loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 5px solid #1e1e32;
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 20px;
+}
+.loading-overlay .loading-text {
+    font-size: 16px;
+    color: #94a3b8;
+    font-weight: 500;
+}
 </style>
 </head>
 <body>
 <div class="card" id="app-card">
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loading-overlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text" id="loading-message">Loading...</div>
+</div>
 
 <!-- LOGIN SCREEN -->
 <div id="login-screen">
@@ -961,6 +997,21 @@ function calculateRating(endorsements, flags) {
 function toast(msg) { alert(msg); }
 
 // ============================================================
+// LOADING OVERLAY CONTROLS
+// ============================================================
+function showLoading(message) {
+    const overlay = document.getElementById('loading-overlay');
+    const msgEl = document.getElementById('loading-message');
+    if (msgEl) msgEl.textContent = message || 'Loading...';
+    if (overlay) overlay.classList.add('show');
+}
+
+function hideLoading() {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) overlay.classList.remove('show');
+}
+
+// ============================================================
 // IS MOBILE DETECTION
 // ============================================================
 function isMobile() {
@@ -1004,6 +1055,14 @@ function showLogin() {
         if (el) el.classList.add('hidden-page');
     });
     document.getElementById('login-screen').style.display = 'flex';
+    // If there's a pending deep link, show a message on login screen
+    if (pendingDeepLink) {
+        const status = document.getElementById('mobile-status');
+        if (status) {
+            status.textContent = '🔗 Login to view shared ' + pendingDeepLink.type.toLowerCase() + ' details';
+            status.style.color = '#2563eb';
+        }
+    }
 }
 
 function showHome() {
@@ -2098,6 +2157,8 @@ function openDetail(type, id) {
         return;
     }
     
+    showLoading('Opening ' + type.toLowerCase() + ' details...');
+
     if (type === 'AGENT') {
         sb.from('active_users').select('*').eq('mobile', parseInt(id)).single()
             .then(async r => {
@@ -2116,9 +2177,11 @@ function openDetail(type, id) {
                 } else {
                     toast('Agent not found');
                 }
+                hideLoading();
             }).catch(err => {
                 console.error('Error loading agent:', err);
                 toast('Error loading agent details');
+                hideLoading();
             });
         return;
     }
@@ -2155,9 +2218,11 @@ function openDetail(type, id) {
             } else {
                 toast('Item not found');
             }
+            hideLoading();
         }).catch(err => { 
             console.error('Error loading detail:', err);
             toast('Error loading details'); 
+            hideLoading();
         });
 }
 
@@ -3535,10 +3600,11 @@ function checkDeepLink() {
             if (type && id) {
                 deepLinkProcessed = true;
                 if (user || guest) {
-                    setTimeout(() => { openDetail(type, id); }, 1000);
+                    showLoading('Opening ' + type.toLowerCase() + ' details...');
+                    setTimeout(() => { openDetail(type, id); }, 500);
                 } else {
                     pendingDeepLink = { type, id };
-                    setTimeout(() => { showLogin(); }, 1000);
+                    setTimeout(() => { showLogin(); }, 500);
                 }
             }
         }
