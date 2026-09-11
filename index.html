@@ -2482,7 +2482,9 @@ async function handleShareClick() {
         const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
         const file = new File([blob], 'load-preview.png', { type: 'image/png' });
         const shareUrl = 'https://returntruck-pwa.vercel.app/?listing=' + detail.type + '_' + detail.id;
-        const shareText = buildShareCaption(detail) + '\n\n' + shareUrl;
+        
+        // We only pass the URL as text, everything else is in the image
+        const shareText = shareUrl; 
 
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
             try {
@@ -2503,27 +2505,6 @@ async function handleShareClick() {
     } catch (err) {
         console.error('Share error:', err);
         toast('Could not generate share image. Try again.');
-    }
-}
-
-function buildShareCaption(data) {
-    const type = data.type;
-    if (type === 'LOAD') {
-        const from = getLoc(data.pickup_pin);
-        const to = getLoc(data.drop_pin);
-        return '📦 LOAD: ' + (data.material || 'Cargo') +
-               '\n📍 ' + (from ? from.name : '') + ' → ' + (to ? to.name : '') +
-               '\n💰 ₹' + formatIndianNumber(data.rate || 0) +
-               '\n⚖️ ' + formatIndianNumber(data.weight || 0) + ' Kg' +
-               '\n🚛 ' + (data.vehicle_type || 'Any');
-    } else if (type === 'TRUCK') {
-        const loc = getLoc(data.location_pin);
-        return '🚛 TRUCK: ' + (data.truck_no || '') +
-               '\n📍 ' + (loc ? loc.name : '') +
-               '\n💰 ₹' + formatIndianNumber(data.rate || 0) + '/KM';
-    } else {
-        const u = data.user || {};
-        return '🤝 AGENT: ' + (u.company_name || u.name || '');
     }
 }
 
@@ -2594,18 +2575,28 @@ async function renderShareImage(data, vehicleData) {
     ctx.fillStyle = '#0a0a12';
     ctx.fillRect(0, 0, W, H);
 
+    // Header Gradient
     const grad = ctx.createLinearGradient(0, 0, W, 220);
     grad.addColorStop(0, '#1e3a8a');
     grad.addColorStop(1, '#2563eb');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, W, 220);
 
+    // Header Text - Dynamic based on type
+    const postedBy = data.user ? (data.user.company_name || data.user.name || 'User') : 'User';
+    const postedLoc = data.user && data.user.location ? getLocName(data.user.location) : '';
+    
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 52px system-ui, -apple-system, sans-serif';
     ctx.fillText('🚛 ReturnTruck', 40, 110);
+    
     ctx.font = '500 26px system-ui, -apple-system, sans-serif';
     ctx.fillStyle = 'rgba(255,255,255,0.85)';
-    ctx.fillText('Find Loads • Post Trucks • Connect Agents', 40, 160);
+    ctx.fillText('Posted by: ' + postedBy, 40, 160);
+    if (postedLoc) {
+        ctx.font = '400 22px system-ui, -apple-system, sans-serif';
+        ctx.fillText('📍 ' + postedLoc, 40, 200);
+    }
 
     let title = '';
     let badge = '';
@@ -2660,9 +2651,15 @@ async function renderShareImage(data, vehicleData) {
         wrapText(ctx, instructionText, 70, instY + 80, W - 140, 30);
     }
 
+    // Footer with URL
+    const shareUrl = 'https://returntruck-pwa.vercel.app/?listing=' + data.type + '_' + data.id;
     ctx.fillStyle = 'rgba(255,255,255,0.5)';
     ctx.font = '500 20px system-ui, sans-serif';
     ctx.fillText('Tap to view details on ReturnTruck', 40, H - 40);
+    
+    ctx.fillStyle = '#2563eb'; // Blue for link
+    ctx.font = 'bold 22px system-ui, sans-serif';
+    ctx.fillText(shareUrl, 40, H - 10);
 
     return canvas;
 }
