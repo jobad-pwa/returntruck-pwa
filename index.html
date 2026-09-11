@@ -1015,7 +1015,15 @@ function showHome() {
     document.getElementById('home-page').classList.remove('hidden-page');
     updateGuestUI();
     updateAvatarInitials();
-    setTimeout(() => { renderFeed(); autoLocate(); }, 50);
+    setTimeout(() => { 
+        renderFeed(); 
+        autoLocate(); 
+        // Check for pending deep link after home is shown
+        if (pendingDeepLink) {
+            openDetail(pendingDeepLink.type, pendingDeepLink.id);
+            pendingDeepLink = null;
+        }
+    }, 50);
 }
 
 function switchPage(id) {
@@ -1611,12 +1619,7 @@ function submitPin() {
                 btn.textContent = '🔐 Login';
                 btn.disabled = false;
                 showHome();
-                if (pendingDeepLink) { 
-                    setTimeout(() => { 
-                        openDetail(pendingDeepLink.type, pendingDeepLink.id); 
-                        pendingDeepLink = null; 
-                    }, 500); 
-                }
+                // Deep link check handled in showHome
                 return;
             }
             if (result.isNewUser === true) {
@@ -1670,12 +1673,6 @@ function registerUser() {
                     localStorage.setItem('rt_user', JSON.stringify({ mobile: user.mobile, user: user }));
                     guest = false;
                     showHome();
-                    if (pendingDeepLink) { 
-                        setTimeout(() => { 
-                            openDetail(pendingDeepLink.type, pendingDeepLink.id); 
-                            pendingDeepLink = null; 
-                        }, 500); 
-                    }
                 }
                 btn.textContent = '🔄 Reset PIN';
                 btn.disabled = false;
@@ -1694,12 +1691,6 @@ function registerUser() {
                 localStorage.setItem('rt_user', JSON.stringify({ mobile: user.mobile, user: user }));
                 guest = false;
                 showHome();
-                if (pendingDeepLink) { 
-                    setTimeout(() => { 
-                        openDetail(pendingDeepLink.type, pendingDeepLink.id); 
-                        pendingDeepLink = null; 
-                    }, 500); 
-                }
                 return;
             }
             btn.textContent = '✅ Create Account';
@@ -1782,12 +1773,6 @@ function continueAsGuest() {
     guest = true; user = null;
     localStorage.setItem('rt_user', JSON.stringify({ guest: true }));
     showHome();
-    if (pendingDeepLink) { 
-        setTimeout(() => { 
-            openDetail(pendingDeepLink.type, pendingDeepLink.id); 
-            pendingDeepLink = null; 
-        }, 500); 
-    }
 }
 
 function updateGuestUI() {
@@ -2531,6 +2516,7 @@ async function renderShareImage(data, vehicleData) {
         if (data.dimensions && data.dimensions.length === 3) {
             rows.push({ label: '📐 DIMENSIONS', value: data.dimensions.join(' × ') + ' ft' });
         }
+        if (data.pickup_date) rows.push({ label: '📅 AVAILABLE FROM', value: new Date(data.pickup_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) });
     } else if (data.type === 'TRUCK') {
         const loc = getLoc(data.location_pin);
         rows.push({ label: '📍 LOCATION', value: loc ? loc.name + ', ' + loc.district : 'N/A' });
@@ -2542,11 +2528,22 @@ async function renderShareImage(data, vehicleData) {
             }
             rows.push({ label: '⚖️ MAX WEIGHT', value: formatIndianNumber(vehicleData.max_weight || 0) + ' Kg' });
         }
+        if (data.available_date) rows.push({ label: '📅 AVAILABLE FROM', value: new Date(data.available_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) });
+        // Add operating routes for truck if available
+        if (data.user && data.user.preferred_routes && data.user.preferred_routes.length > 0) {
+            const routeNames = data.user.preferred_routes.map(r => { const loc = getLoc(r); return loc ? loc.name : r; }).join(', ');
+            rows.push({ label: '🗺️ OPERATING ROUTES', value: routeNames });
+        }
     } else {
         const u = data.user || {};
         rows.push({ label: '🏢 COMPANY', value: u.company_name || 'N/A' });
         rows.push({ label: '📍 LOCATION', value: u.location ? getLocName(u.location) : 'N/A' });
         rows.push({ label: '📞 CONTACT', value: u.mobile ? '+91 ' + u.mobile : 'N/A' });
+        // Add operating routes for agent if available
+        if (u.preferred_routes && u.preferred_routes.length > 0) {
+            const routeNames = u.preferred_routes.map(r => { const loc = getLoc(r); return loc ? loc.name : r; }).join(', ');
+            rows.push({ label: '🗺️ OPERATING ROUTES', value: routeNames });
+        }
     }
 
     // Calculate dynamic content height
