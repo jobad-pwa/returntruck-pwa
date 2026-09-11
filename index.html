@@ -869,6 +869,7 @@ let deepLinkProcessed = false;
 let agentDataMap = {};
 let deferredPrompt = null;
 let pendingDeepLink = null;
+let currentTruckVehicleData = null; // New state for truck vehicle details in share
 
 // ============================================================
 // NUMBER FORMATTING
@@ -2454,12 +2455,30 @@ function updateStats(item) {
 }
 
 // ============================================================
-// SHARE AS IMAGE (Canvas render + Web Share API)
+// SHARE AS IMAGE (Canvas render + Web Share API) - UPDATED
 // ============================================================
 async function handleShareClick() {
     if (!detail) { toast('No details to share'); return; }
+    
+    let truckVehicleDetails = null;
+    // If it's a truck, fetch the vehicle details first
+    if (detail.type === 'TRUCK' && detail.truck_no) {
+        try {
+            const { data: vehicleData } = await sb.from('active_vehicles')
+                .select('*')
+                .eq('vehicle_number', detail.truck_no)
+                .single();
+            if (vehicleData) {
+                truckVehicleDetails = vehicleData;
+            }
+        } catch (e) {
+            console.warn('Could not fetch vehicle details for share image:', e);
+        }
+    }
+    currentTruckVehicleData = truckVehicleDetails;
+
     try {
-        const canvas = await renderShareImage(detail);
+        const canvas = await renderShareImage(detail, truckVehicleDetails);
         const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
         const file = new File([blob], 'load-preview.png', { type: 'image/png' });
         const shareUrl = 'https://returntruck-pwa.vercel.app/?listing=' + detail.type + '_' + detail.id;
@@ -2508,9 +2527,65 @@ function buildShareCaption(data) {
     }
 }
 
-async function renderShareImage(data) {
+// Revised renderShareImage with dynamic height, instructions, and truck vehicle details
+async function renderShareImage(data, vehicleData) {
     const W = 800;
-    const H = 1000;
+    const baseH = 600; // Base height for header and footer
+    const rowHeight = 90;
+    const titleAreaHeight = 150;
+    const instructionsBoxHeight = 180; // Approximate space for instructions
+
+    let contentHeight = 0;
+    let rows = [];
+
+    // Build rows based on type
+    if (data.type === 'LOAD') {
+        const from = getLoc(data.pickup_pin);
+        const to = getLoc(data.drop_pin);
+        rows.push({ label: '📍 FROM', value: from ? from.name + ', ' + from.district : 'N/A' });
+        rows.push({ label: '📍 TO', value: to ? to.name + ', ' + to.district : 'N/A' });
+        rows.push({ label: '💰 RATE', value: '₹ ' + formatIndianNumber(data.rate || 0) });
+        rows.push({ label: '⚖️ WEIGHT', value: formatIndianNumber(data.weight || 0) + ' Kg' });
+        if (data.vehicle_type) rows.push({ label: '🚛 VEHICLE', value: data.vehicle_type });
+        if (data.dimensions && data.dimensions.length === 3) {
+            rows.push({ label: '📐 DIMENSIONS', value: data.dimensions.join(' × ') + ' ft' });
+        }
+    } else if (data.type === 'TRUCK') {
+        const loc = getLoc(data.location_pin);
+        rows.push({ label: '📍 LOCATION', value: loc ? loc.name + ', ' + loc.district : 'N/A' });
+        rows.push({ label: '💰 RATE/KM', value: '₹ ' + formatIndianNumber(data.rate || 0) });
+        if (vehicleData) {
+            rows.push({ label: '🚛 TYPE', value: vehicleData.vehicle_type || 'N/A' });
+            if (vehicleData.dimensions && vehicleData.dimensions.length === 3) {
+                rows.push({ label: '📐 DIMENSIONS', value: vehicleData.dimensions.join(' × ') + ' ft' });
+            }
+            rows.push({ label: '⚖️ MAX WEIGHT', value: formatIndianNumber(vehicleData.max_weight || 0) + ' Kg' });
+        }
+    } else {
+        const u = data.user || {};
+        rows.push({ label: '🏢 COMPANY', value: u.company_name || 'N/A' });
+        rows.push({ label: '📍 LOCATION', value: u.location ? getLocName(u.location) : 'N/A' });
+        rows.push({ label: '📞 CONTACT', value: u.mobile ? '+91 ' + u.mobile : 'N/A' });
+    }
+
+    // Calculate dynamic content height
+    contentHeight = titleAreaHeight + (rows.length * rowHeight);
+    let hasInstructions = false;
+    let instructionText = '';
+    if (data.type === 'LOAD' && data.instructions) {
+        instructionText = data.instructions;
+        hasInstructions = true;
+    } else if (data.type === 'TRUCK' && data.other_details) {
+        instructionText = data.other_details;
+        hasInstructions = true;
+    }
+
+    if (hasInstructions) {
+        contentHeight += instructionsBoxHeight;
+    }
+
+    // Total canvas height, ensuring a minimum
+    const H = Math.max(1000, baseH + contentHeight);
     const canvas = document.createElement('canvas');
     canvas.width = W;
     canvas.height = H;
@@ -2549,14 +2624,16 @@ async function renderShareImage(data) {
     ctx.font = 'bold 60px system-ui, -apple-system, sans-serif';
     wrapText(ctx, title, 40, 390, W - 80, 68);
 
-    const boxY = 500;
-    const boxH = 440;
+    let y = 500;
+    // White box for rows
+    const boxY = y;
+    const boxH = rows.length * rowHeight + 40; // padding
+
     ctx.fillStyle = '#ffffff';
     roundRect(ctx, 40, boxY, W - 80, boxH, 24);
     ctx.fill();
 
-    let y = boxY + 60;
-    const rows = buildRows(data);
+    y = boxY + 50;
     rows.forEach(row => {
         ctx.fillStyle = '#64748b';
         ctx.font = 'bold 18px system-ui, sans-serif';
@@ -2564,36 +2641,30 @@ async function renderShareImage(data) {
         ctx.fillStyle = '#0f172a';
         ctx.font = 'bold 28px system-ui, sans-serif';
         wrapText(ctx, row.value, 70, y + 40, W - 140, 34);
-        y += 90;
+        y += rowHeight;
     });
+
+    // Instructions box (if any)
+    if (hasInstructions) {
+        const instY = boxY + boxH + 30;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        roundRect(ctx, 40, instY, W - 80, 140, 16);
+        ctx.fill();
+
+        ctx.fillStyle = '#fbbf24';
+        ctx.font = 'bold 20px system-ui, sans-serif';
+        ctx.fillText('📝 INSTRUCTIONS', 70, instY + 40);
+
+        ctx.fillStyle = '#e2e8f0';
+        ctx.font = '22px system-ui, sans-serif';
+        wrapText(ctx, instructionText, 70, instY + 80, W - 140, 30);
+    }
 
     ctx.fillStyle = 'rgba(255,255,255,0.5)';
     ctx.font = '500 20px system-ui, sans-serif';
     ctx.fillText('Tap to view details on ReturnTruck', 40, H - 40);
 
     return canvas;
-}
-
-function buildRows(data) {
-    const rows = [];
-    if (data.type === 'LOAD') {
-        const from = getLoc(data.pickup_pin);
-        const to = getLoc(data.drop_pin);
-        rows.push({ label: '📍 FROM', value: from ? from.name + ', ' + from.district : 'N/A' });
-        rows.push({ label: '📍 TO', value: to ? to.name + ', ' + to.district : 'N/A' });
-        rows.push({ label: '💰 RATE', value: '₹ ' + formatIndianNumber(data.rate || 0) });
-    } else if (data.type === 'TRUCK') {
-        const loc = getLoc(data.location_pin);
-        rows.push({ label: '📍 LOCATION', value: loc ? loc.name + ', ' + loc.district : 'N/A' });
-        rows.push({ label: '💰 RATE/KM', value: '₹ ' + formatIndianNumber(data.rate || 0) });
-        rows.push({ label: '🚛 TYPE', value: data.vehicle_type || 'Truck' });
-    } else {
-        const u = data.user || {};
-        rows.push({ label: '🏢 COMPANY', value: u.company_name || 'N/A' });
-        rows.push({ label: '📍 LOCATION', value: u.location ? getLocName(u.location) : 'N/A' });
-        rows.push({ label: '📞 CONTACT', value: u.mobile ? '+91 ' + u.mobile : 'N/A' });
-    }
-    return rows;
 }
 
 function roundRect(ctx, x, y, w, h, r) {
