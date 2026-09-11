@@ -2473,7 +2473,9 @@ function updateStats(item) {
 
 function generateShareMessage(type, data) {
     let message = '';
-    let url = window.location.origin + '/?listing=' + type + '_' + data.id;
+    // The new share URL now points to your serverless function
+    let shareUrl = 'https://returntruck-pwa.vercel.app/api/share?listing=' + type + '_' + data.id;
+    
     if (type === 'LOAD') {
         const fromLoc = getLoc(data.pickup_pin);
         const toLoc = getLoc(data.drop_pin);
@@ -2490,14 +2492,16 @@ function generateShareMessage(type, data) {
         let ratingDisplay = '⭐ New';
         if (total > 0) { const stars = Math.round((end / total * 5) * 10) / 10;
             ratingDisplay = '⭐ ' + stars.toFixed(1) + ' (' + end + '/' + total + ')'; }
+        
+        // Clean message - NO raw URL at the end (WhatsApp will attach the preview from the share URL)
         message = '📦 LOAD AVAILABLE\n─────────────────\n' + (data.material || 'Cargo').toUpperCase() +
             '\n─────────────────\n📍 FROM: ' + fromName + '\n📍 TO: ' + toName +
             '\n─────────────────\n🚛 Vehicle: ' + (data.vehicle_type || 'Any') + '\n📐 Dimensions: ' + dims +
             '\n⚖️ Weight: ' + formatIndianNumber(data.weight || 0) + ' Kg\n─────────────────\n💰 ₹' + formatIndianNumber(data.rate || 0) +
             ' (Negotiable)\n📅 Pickup: ' + pickupDate + '\n─────────────────\n' +
             (data.company ? '🏢 Posted by: ' + data.company + '\n' : '') +
-            ratingDisplay + '\n─────────────────\n🔗 View Details:\n' + url +
-            '\n─────────────────\n📱 ReturnTruck - Find Loads & Trucks';
+            ratingDisplay + '\n─────────────────\n🔗 View Details:\n' + shareUrl;
+            
     } else if (type === 'TRUCK') {
         const loc = getLoc(data.location_pin);
         const locName = loc ? getLocDisplayName(loc) : 'N/A';
@@ -2512,14 +2516,15 @@ function generateShareMessage(type, data) {
         let ratingDisplay = '⭐ New';
         if (total > 0) { const stars = Math.round((end / total * 5) * 10) / 10;
             ratingDisplay = '⭐ ' + stars.toFixed(1) + ' (' + end + '/' + total + ')'; }
+        
         message = '🚛 TRUCK AVAILABLE\n─────────────────\n' + (data.truck_no || 'Truck') +
             '\n─────────────────\n📍 LOCATION: ' + locName +
             '\n─────────────────\n🚛 Type: ' + (data.vehicle_type || 'Any') + '\n📐 Dimensions: ' + dims +
             '\n⚖️ Weight: ' + formatIndianNumber(data.weight || 0) + ' Kg\n─────────────────\n💰 ₹' + formatIndianNumber(data.rate || 0) +
             '/KM (Negotiable)\n📅 Available: ' + availableDate + '\n─────────────────\n' +
             (data.company ? '🏢 Posted by: ' + data.company + '\n' : '') +
-            ratingDisplay + '\n─────────────────\n🔗 View Details:\n' + url +
-            '\n─────────────────\n📱 ReturnTruck - Find Loads & Trucks';
+            ratingDisplay + '\n─────────────────\n🔗 View Details:\n' + shareUrl;
+            
     } else if (type === 'AGENT') {
         const userData = data.user || {};
         const end = data.endorsements || 0;
@@ -2528,6 +2533,7 @@ function generateShareMessage(type, data) {
         let ratingDisplay = '⭐ New';
         if (total > 0) { const stars = Math.round((end / total * 5) * 10) / 10;
             ratingDisplay = '⭐ ' + stars.toFixed(1) + ' (' + end + '/' + total + ')'; }
+        
         message = '🤝 AGENT PROFILE\n─────────────────\n' + (userData.company_name || userData.name || 'Agent') +
             '\n─────────────────\n' +
             (userData.preferred_routes && userData.preferred_routes.length > 0 ? '📍 Service Routes:\n' + userData.preferred_routes.slice(0, 4).map(r => {
@@ -2536,10 +2542,10 @@ function generateShareMessage(type, data) {
             }).join('\n') + (userData.preferred_routes.length > 4 ? '\n• +' + (userData.preferred_routes.length - 4) + ' more' : '') + '\n─────────────────\n' : '') +
             (userData.company_web ? '🌐 ' + userData.company_web + '\n' : '') +
             (userData.details ? '📝 ' + userData.details + '\n' : '') +
-            ratingDisplay + '\n─────────────────\n🔗 View Profile:\n' + url +
-            '\n─────────────────\n📱 ReturnTruck - Find Loads & Trucks';
+            ratingDisplay + '\n─────────────────\n🔗 View Profile:\n' + shareUrl;
     }
-    return { message, url };
+    
+    return { message, url: shareUrl };
 }
 
 function handleShareClick() {
