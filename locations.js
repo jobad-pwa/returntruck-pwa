@@ -1,5 +1,5 @@
 // locations.js
-const LOCATIONS = [
+var LOCATIONS = [
     { pin_id: 53300104, pincode: "533001", name: "Kakinada", district: "Kakinada", state: "AP", lat: 16.9550556, lng: 82.2354722 },
     { pin_id: 53340114, pincode: "533401", name: "Tuni", district: "Kakinada", state: "AP", lat: 17.3581389, lng: 82.5455278 },
     { pin_id: 53340604, pincode: "533406", name: "Annavaram", district: "Kakinada", state: "AP", lat: 17.2830278, lng: 82.4064444 },
