@@ -685,6 +685,7 @@ var LOCATIONS = [
     { pin_id: 50224705, pincode: "502247", name: "BONAL", district: "MEDAK", state: "TG", lat: 18.032811, lng: 78.54462 },
     { pin_id: 50224706, pincode: "502247", name: "Alwal", district: "SIDDIPET", state: "TG", lat: 18.039152, lng: 78.674345 },
     { pin_id: 50224707, pincode: "502247", name: "Doulathabad", district: "SIDDIPET", state: "TG", lat: 17.988971, lng: 78.569861 },
+    { pin_id: 50224708, pincode: "502247", name: "Mubaraspur", district: "MEDAK", state: "TG", lat: 17.8967, lng: 78.7183 },
     { pin_id: 50224709, pincode: "502247", name: "Surampally", district: "SIDDIPET", state: "TG", lat: 17.5907, lng: 78.3643 },
     { pin_id: 50224710, pincode: "502247", name: "Makkarajpet", district: "MEDAK", state: "TG", lat: 17.949501, lng: 78.520028 },
     { pin_id: 50224711, pincode: "502247", name: "Ibrahimpur", district: "MEDAK", state: "TG", lat: 18.02374, lng: 78.525063 },
