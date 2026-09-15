@@ -2018,7 +2018,7 @@ var LOCATIONS = [
     { pin_id: 50430101, pincode: "504301", name: "Ramakrishnapur", district: "MANCHERIAL", state: "TG", lat: 18.939792, lng: 79.464901 },
     { pin_id: 50430102, pincode: "504301", name: "Kyathanpalli", district: "MANCHERIAL", state: "TG", lat: 18.9287266, lng: 79.4573499 },
     { pin_id: 50430201, pincode: "504302", name: "Singapur", district: "MANCHERIAL", state: "TG", lat: 18.8519091, lng: 79.5069436 },
-    { pin_id: 50430202, pincode: "504302", name: "Integrated District Officers Complex(IDOC) Mancher", district: "MANCHERIAL", state: "TG", lat: 18.856818Â°, lng: 79.462604Â° },
+    { pin_id: 50430202, pincode: "504302", name: "Integrated District Officers Complex(IDOC) Mancher", district: "MANCHERIAL", state: "TG", lat: 18.856818, lng: 79.462604 },
     { pin_id: 50430203, pincode: "504302", name: "Coal Chemical Complex", district: "MANCHERIAL", state: "TG", lat: 18.869914, lng: 79.488807 },
     { pin_id: 50430204, pincode: "504302", name: "Naspur", district: "MANCHERIAL", state: "TG", lat: 18.8459615, lng: 79.4619897 },
     { pin_id: 50430301, pincode: "504303", name: "Srirampur Colony", district: "MANCHERIAL", state: "TG", lat: 18.856977, lng: 79.504672 },
