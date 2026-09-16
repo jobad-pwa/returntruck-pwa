@@ -1,4 +1,4 @@
-// ap_locations.js
+// locations_ap.js
 var LOCATIONS = [
     { pin_id: 50314509, pincode: "503145", name: "Kottakki", district: "VIZIANAGARAM", state: "AP", lat: 83.2359, lng: 18.5153 },
     { pin_id: 50318807, pincode: "503188", name: "Manda", district: "VIZIANAGARAM", state: "AP", lat: 83.6118, lng: 18.9427 },
