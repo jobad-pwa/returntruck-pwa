@@ -5,8 +5,42 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ReturnTruck – Find Loads & Trucks</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- ============================================================
+     SPLIT LOCATION DATA FILES
+     locations_tg.js  → declares var LOCATIONS = [ ...TG records... ]
+     locations_ap.js  → declares var LOCATIONS = [ ...AP records... ]
+     Both use `var LOCATIONS`, so the second file overwrites the
+     first. We capture each into a temp global right after it
+     loads, then merge into a single LOCATIONS array.
+     ============================================================ -->
+<script>window.__LOC_TG = null; window.__LOC_AP = null;</script>
 <script src="locations_tg.js"></script>
+<script>window.__LOC_TG = (typeof LOCATIONS !== 'undefined') ? LOCATIONS : [];</script>
 <script src="locations_ap.js"></script>
+<script>
+  window.__LOC_AP = (typeof LOCATIONS !== 'undefined') ? LOCATIONS : [];
+
+  // Merge both states into the single global LOCATIONS array the app expects
+  var __mergedLocations = (window.__LOC_TG || []).concat(window.__LOC_AP || []);
+
+  // Normalize lat/lng: India is roughly lat 6-38, lng 68-98.
+  // The source data has them swapped (lat field contains longitude),
+  // so detect and swap back. This guarantees dist(lat1,lng1,lat2,lng2) works.
+  window.LOCATIONS = __mergedLocations.map(function (loc) {
+    var a = Number(loc.lat), b = Number(loc.lng);
+    if (!isFinite(a) || !isFinite(b)) return loc;
+    if (a > 50 && b < 50) {
+      return Object.assign({}, loc, { lat: b, lng: a });
+    }
+    return loc;
+  });
+
+  console.log('📍 Locations loaded → TG: ' + (window.__LOC_TG || []).length +
+              ', AP: ' + (window.__LOC_AP || []).length +
+              ', Merged Total: ' + window.LOCATIONS.length);
+</script>
+
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#12121e">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -927,8 +961,8 @@ function ensureUniqueArray(array) { if (!array) return []; return [...new Set(ar
 // ============================================================
 // LOCATIONS
 // ============================================================
-// The LOCATIONS array is now loaded from the external file locations_tg.js
-// (declared as `var LOCATIONS = [...]` there). Do not re-declare it here.
+// LOCATIONS is populated in <head> by merging locations_tg.js + locations_ap.js
+// into a single array. Do not re-declare it here.
 
 // ============================================================
 // LOCATION FUNCTIONS
