@@ -7,38 +7,93 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <!-- ============================================================
-     SPLIT LOCATION DATA FILES
-     locations_tg.js  → declares var LOCATIONS = [ ...TG records... ]
-     locations_ap.js  → declares var LOCATIONS = [ ...AP records... ]
-     Both use `var LOCATIONS`, so the second file overwrites the
-     first. We capture each into a temp global right after it
-     loads, then merge into a single LOCATIONS array.
+     SPLIT LOCATION DATA FILES — DYNAMIC LOADER
+     ------------------------------------------------------------
+     Each locations_*.js file declares `var LOCATIONS = [...]` and
+     would overwrite the previous one. This loader loads each file
+     sequentially via synchronous <script> injection, captures the
+     LOCATIONS array right after each load into a temp holder, then
+     merges them all into a single window.LOCATIONS array.
+
+     TO ADD A NEW STATE: just add its filename to LOCATION_FILES
+     below. That's it — nothing else to change.
      ============================================================ -->
-<script>window.__LOC_TG = null; window.__LOC_AP = null;</script>
-<script src="locations_tg.js"></script>
-<script>window.__LOC_TG = (typeof LOCATIONS !== 'undefined') ? LOCATIONS : [];</script>
-<script src="locations_ap.js"></script>
 <script>
-  window.__LOC_AP = (typeof LOCATIONS !== 'undefined') ? LOCATIONS : [];
+  // 👇 ADD NEW STATE FILES HERE (order does not matter)
+  window.LOCATION_FILES = [
+    'locations_tg.js',
+    'locations_ap.js',
+    'locations_od.js'
+    // 'locations_ka.js',
+    // 'locations_mh.js',
+    // 'locations_tn.js',
+    // 'locations_kl.js',
+    // 'locations_gj.js',
+    // 'locations_mp.js',
+    // 'locations_up.js',
+    // 'locations_rj.js',
+    // 'locations_br.js',
+    // 'locations_wb.js',
+    // 'locations_hr.js',
+    // 'locations_pb.js',
+    // 'locations_ga.js',
+    // ...
+  ];
+</script>
 
-  // Merge both states into the single global LOCATIONS array the app expects
-  var __mergedLocations = (window.__LOC_TG || []).concat(window.__LOC_AP || []);
+<script>
+  (function () {
+    // Load each location file synchronously so `var LOCATIONS` is
+    // captured before the next file overwrites it.
+    var merged = [];
+    var counts = {};
 
-  // Normalize lat/lng: India is roughly lat 6-38, lng 68-98.
-  // The source data has them swapped (lat field contains longitude),
-  // so detect and swap back. This guarantees dist(lat1,lng1,lat2,lng2) works.
-  window.LOCATIONS = __mergedLocations.map(function (loc) {
-    var a = Number(loc.lat), b = Number(loc.lng);
-    if (!isFinite(a) || !isFinite(b)) return loc;
-    if (a > 50 && b < 50) {
-      return Object.assign({}, loc, { lat: b, lng: a });
-    }
-    return loc;
-  });
+    window.LOCATION_FILES.forEach(function (file) {
+      try {
+        // ---- Synchronous XHR so we can eval before next file loads ----
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', file, false); // false = synchronous
+        xhr.send(null);
 
-  console.log('📍 Locations loaded → TG: ' + (window.__LOC_TG || []).length +
-              ', AP: ' + (window.__LOC_AP || []).length +
-              ', Merged Total: ' + window.LOCATIONS.length);
+        if (xhr.status === 200 || xhr.status === 0) {
+          // The file sets `var LOCATIONS = [...]` at global scope when
+          // evaluated. We wrap in an IIFE that returns the array.
+          var arr = (new Function(xhr.responseText + '; return LOCATIONS;'))();
+          if (Array.isArray(arr)) {
+            counts[file] = arr.length;
+            merged = merged.concat(arr);
+          } else {
+            counts[file] = 0;
+            console.warn('⚠️ ' + file + ' did not produce a LOCATIONS array');
+          }
+        } else {
+          counts[file] = 0;
+          console.warn('⚠️ Failed to load ' + file + ' (HTTP ' + xhr.status + ')');
+        }
+      } catch (e) {
+        counts[file] = 0;
+        console.error('❌ Error loading ' + file + ':', e);
+      }
+    });
+
+    // ---- Normalize lat/lng ----
+    // India is roughly lat 6–38, lng 68–98.
+    // Source data sometimes swaps them; detect and swap back.
+    window.LOCATIONS = merged.map(function (loc) {
+      var a = Number(loc.lat), b = Number(loc.lng);
+      if (!isFinite(a) || !isFinite(b)) return loc;
+      if (a > 50 && b < 50) {
+        return Object.assign({}, loc, { lat: b, lng: a });
+      }
+      return loc;
+    });
+
+    // ---- Diagnostic log ----
+    var summary = Object.keys(counts).map(function (f) {
+      return f.replace('locations_', '').replace('.js', '').toUpperCase() + ': ' + counts[f];
+    }).join(', ');
+    console.log('📍 Locations loaded → ' + summary + ', Merged Total: ' + window.LOCATIONS.length);
+  })();
 </script>
 
 <link rel="manifest" href="manifest.json">
@@ -961,8 +1016,9 @@ function ensureUniqueArray(array) { if (!array) return []; return [...new Set(ar
 // ============================================================
 // LOCATIONS
 // ============================================================
-// LOCATIONS is populated in <head> by merging locations_tg.js + locations_ap.js
-// into a single array. Do not re-declare it here.
+// LOCATIONS is populated in <head> by the dynamic loader that merges
+// all files listed in window.LOCATION_FILES into a single array.
+// Do not re-declare it here.
 
 // ============================================================
 // LOCATION FUNCTIONS
