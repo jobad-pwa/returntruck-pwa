@@ -1,4 +1,4 @@
-// tg_locations.js
+// locations_tg.js
 var LOCATIONS = [
     { pin_id: 30540201, pincode: "305402", name: "Bahera", district: "Mulugu", state: "TG", lat: 26.240127, lng: 74.915001 },	
     { pin_id: 31160103, pincode: "311601", name: "Shopura (Gega Ka Khera)", district: "Mulugu", state: "TG", lat: 25.289691, lng: 74.947233 },	
