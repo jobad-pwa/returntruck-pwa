@@ -328,7 +328,7 @@ var LOCATIONS = [
     { pin_id: 80130706, pincode: "801307", name: "Kachcharia", district: "NALANDA", state: "BR", lat: 25.36, lng: 85.3 },
     { pin_id: 80130707, pincode: "801307", name: "Chhariari Bujurg", district: "NALANDA", state: "BR", lat: 25.26, lng: 85.38 },
     { pin_id: 80130801, pincode: "801308", name: "Daniyawan", district: "NALANDA", state: "BR", lat: 25.437668, lng: 85.35051 },
-    { pin_id: 80130802, pincode: "801308", name: "Daniyawan", district: "NALANDA", state: "BR", lat: 25.43 N, lng: 85.29 E },
+    { pin_id: 80130802, pincode: "801308", name: "Daniyawan", district: "NALANDA", state: "BR", lat: 25.43, lng: 85.29 },
     { pin_id: 80150301, pincode: "801503", name: "PURANA PANAPUR.", district: "PATNA", state: "BR", lat: 23.059, lng: 80.97 },
     { pin_id: 80150302, pincode: "801503", name: "DALIPCHAK", district: "PATNA", state: "BR", lat: 25.2654845, lng: 85.2548756 },
     { pin_id: 80150303, pincode: "801503", name: "CHANDMARI", district: "PATNA", state: "BR", lat: 25.594095, lng: 85.137565 },
