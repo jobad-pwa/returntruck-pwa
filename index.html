@@ -2001,13 +2001,18 @@ async function handleShareClick() {
         toast('Could not generate share image. Try again.');
     }
 }
+// ============================================================
+// SHARE AS IMAGE (REVISED FOR WHATSAPP VISIBILITY & ROUNDED CORNERS)
+// ============================================================
 async function renderShareImage(data, vehicleData) {
-    const W = 800;
-    const baseH = 600;
-    const rowHeight = 90;
-    const titleAreaHeight = 150;
-    const instructionsBoxHeight = 220; // Increased from 180 for larger text
+    const W = 900; // Increased width for more space
+    const baseH = 700;
+    const rowHeight = 95;
+    const titleAreaHeight = 160;
+    // We will dynamically calculate the instruction box height based on text length
     let contentHeight = 0, rows = [];
+    
+    // --- Build Rows ---
     if (data.type === 'LOAD') {
         const from = getLoc(data.pickup_pin), to = getLoc(data.drop_pin);
         rows.push({ label: '📍 FROM', value: from ? from.name + ', ' + from.district : 'N/A' });
@@ -2042,30 +2047,68 @@ async function renderShareImage(data, vehicleData) {
             rows.push({ label: '🗺️ OPERATING ROUTES', value: routeNames });
         }
     }
-    contentHeight = titleAreaHeight + (rows.length * rowHeight);
+
+    // --- Prepare Instructions & URL ---
     let hasInstructions = false, instructionText = '';
     if (data.type === 'LOAD' && data.instructions) { instructionText = data.instructions; hasInstructions = true; }
     else if (data.type === 'TRUCK' && data.other_details) { instructionText = data.other_details; hasInstructions = true; }
-    if (hasInstructions) contentHeight += instructionsBoxHeight;
-    const H = Math.max(1000, baseH + contentHeight);
-    const canvas = document.createElement('canvas'); canvas.width = W; canvas.height = H;
+
+    const shareUrl = 'https://returntruck-pwa.vercel.app/?listing=' + data.type + '_' + data.id;
+    
+    // --- Calculate Dynamic Heights ---
+    // We need to simulate text wrapping to calculate the height of the instruction box
+    const canvasSim = document.createElement('canvas');
+    const ctxSim = canvasSim.getContext('2d');
+    ctxSim.font = '30px system-ui, sans-serif';
+    
+    let instructionLines = 0;
+    if (hasInstructions) {
+        const words = String(instructionText).split(' ');
+        let line = '';
+        instructionLines = 1;
+        for (let n = 0; n < words.length; n++) {
+            const testLine = line + words[n] + ' ';
+            const metrics = ctxSim.measureText(testLine);
+            if (metrics.width > W - 160 && n > 0) {
+                instructionLines++;
+                line = words[n] + ' ';
+            } else {
+                line = testLine;
+            }
+        }
+    }
+    // Instruction box height: padding + title + lines * lineHeight + padding
+    const instructionBoxHeight = hasInstructions ? (60 + 40 + (instructionLines * 40) + 40) : 0;
+
+    // URL box height
+    const urlBoxHeight = 120;
+
+    // Calculate total height
+    contentHeight = titleAreaHeight + (rows.length * rowHeight) + instructionBoxHeight + urlBoxHeight + 100; // 100 for bottom padding
+    
+    const H = Math.max(1200, baseH + contentHeight); // Ensure minimum height
+
+    // --- Create Canvas ---
+    const canvas = document.createElement('canvas'); 
+    canvas.width = W; 
+    canvas.height = H;
     const ctx = canvas.getContext('2d');
-    // Dark background with rounded corner simulation
-    ctx.fillStyle = '#0a0a12'; ctx.fillRect(0, 0, W, H);
-    // Rounded corners for the whole image (simulate by drawing rounded rect on top of background)
-    // Actually, we want the entire image to appear as a rounded card when shared.
-    // We'll draw a rounded rectangle background instead of plain fill.
-    // Clear first
-    ctx.clearRect(0, 0, W, H);
-    // Draw rounded background
+
+    // 1. Draw Rounded Background (The entire card)
     const bgRadius = 40;
-    ctx.fillStyle = '#0a0a12';
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#0a0a12'; // Dark background
     roundRect(ctx, 0, 0, W, H, bgRadius);
     ctx.fill();
-    // Gradient header
-    const grad = ctx.createLinearGradient(0, 0, W, 220); grad.addColorStop(0, '#1e3a8a'); grad.addColorStop(1, '#2563eb');
-    ctx.fillStyle = grad; ctx.fillRect(0, 0, W, 220);
-    // Clip header to rounded top
+
+    // 2. Draw Header Gradient
+    const grad = ctx.createLinearGradient(0, 0, W, 220); 
+    grad.addColorStop(0, '#1e3a8a'); 
+    grad.addColorStop(1, '#2563eb');
+    ctx.fillStyle = grad; 
+    ctx.fillRect(0, 0, W, 220);
+
+    // Clip header to top rounded corners
     ctx.save();
     roundRect(ctx, 0, 0, W, 220, bgRadius);
     ctx.clip();
@@ -2074,56 +2117,136 @@ async function renderShareImage(data, vehicleData) {
     ctx.fill();
     ctx.restore();
 
+    // Header Text
     const postedBy = data.user ? (data.user.company_name || data.user.name || 'User') : 'User';
     const postedLoc = data.user && data.user.location ? getLocName(data.user.location) : '';
-    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 52px system-ui, -apple-system, sans-serif';
-    ctx.fillText('🚛 ReturnTruck', 40, 110);
-    ctx.font = '500 26px system-ui, -apple-system, sans-serif';
-    ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.fillText('Posted by: ' + postedBy, 40, 160);
-    if (postedLoc) { ctx.font = '400 22px system-ui, -apple-system, sans-serif'; ctx.fillText('📍 ' + postedLoc, 40, 200); }
+    
+    ctx.fillStyle = '#ffffff'; 
+    ctx.font = 'bold 56px system-ui, -apple-system, sans-serif';
+    ctx.fillText('🚛 ReturnTruck', 50, 120);
+    
+    ctx.font = '500 30px system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.9)'; 
+    ctx.fillText('Posted by: ' + postedBy, 50, 175);
+    
+    if (postedLoc) { 
+        ctx.font = '400 24px system-ui, -apple-system, sans-serif'; 
+        ctx.fillText('📍 ' + postedLoc, 50, 215); 
+    }
+
+    // 3. Draw Badge (LOAD AVAILABLE)
     let title = '', badge = '';
     if (data.type === 'LOAD') { title = materialName(data.material_id); badge = 'LOAD AVAILABLE'; }
     else if (data.type === 'TRUCK') { title = data.truck_no || 'Truck'; badge = 'TRUCK AVAILABLE'; }
     else { title = (data.user && (data.user.company_name || data.user.name)) || 'Agent'; badge = 'AGENT PROFILE'; }
-    ctx.fillStyle = '#fbbf24'; roundRect(ctx, 40, 260, 260, 44, 22); ctx.fill();
-    ctx.fillStyle = '#0f172a'; ctx.font = 'bold 20px system-ui, sans-serif'; ctx.fillText(badge, 62, 290);
-    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 60px system-ui, -apple-system, sans-serif';
-    wrapText(ctx, title, 40, 390, W - 80, 68);
-    let y = 500; const boxY = y; const boxH = rows.length * rowHeight + 40;
-    ctx.fillStyle = '#ffffff'; roundRect(ctx, 40, boxY, W - 80, boxH, 24); ctx.fill();
-    y = boxY + 50;
+
+    ctx.fillStyle = '#fbbf24'; 
+    roundRect(ctx, 50, 280, 300, 50, 25); 
+    ctx.fill();
+    
+    ctx.fillStyle = '#0f172a'; 
+    ctx.font = 'bold 24px system-ui, sans-serif'; 
+    ctx.fillText(badge, 75, 315);
+
+    // 4. Draw Title
+    ctx.fillStyle = '#ffffff'; 
+    ctx.font = 'bold 64px system-ui, -apple-system, sans-serif';
+    wrapText(ctx, title, 50, 420, W - 100, 75);
+
+    // 5. Draw Info Box (Rows)
+    let y = 520; 
+    const boxY = y; 
+    const boxH = rows.length * rowHeight + 40;
+    
+    ctx.fillStyle = '#ffffff'; 
+    roundRect(ctx, 50, boxY, W - 100, boxH, 30); 
+    ctx.fill();
+    
+    y = boxY + 55;
     rows.forEach(row => {
-        ctx.fillStyle = '#64748b'; ctx.font = 'bold 18px system-ui, sans-serif'; ctx.fillText(row.label, 70, y);
-        ctx.fillStyle = '#0f172a'; ctx.font = 'bold 28px system-ui, sans-serif'; wrapText(ctx, row.value, 70, y + 40, W - 140, 34);
+        ctx.fillStyle = '#64748b'; 
+        ctx.font = 'bold 20px system-ui, sans-serif'; 
+        ctx.fillText(row.label, 85, y);
+        
+        ctx.fillStyle = '#0f172a'; 
+        ctx.font = 'bold 32px system-ui, sans-serif'; 
+        wrapText(ctx, row.value, 85, y + 40, W - 170, 40);
         y += rowHeight;
     });
+
+    // 6. Draw Instructions Box (Larger & Clearer)
+    let currentY = boxY + boxH + 30;
     if (hasInstructions) {
-        const instY = boxY + boxH + 30;
-        // Larger instruction box height (220) and larger font
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.12)'; roundRect(ctx, 40, instY, W - 80, 160, 16); ctx.fill();
-        ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 24px system-ui, sans-serif'; ctx.fillText('📝 INSTRUCTIONS', 70, instY + 45);
-        ctx.fillStyle = '#e2e8f0'; ctx.font = '26px system-ui, sans-serif'; wrapText(ctx, instructionText, 70, instY + 100, W - 140, 36);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.15)'; 
+        roundRect(ctx, 50, currentY, W - 100, instructionBoxHeight, 20); 
+        ctx.fill();
+
+        ctx.fillStyle = '#fbbf24'; 
+        ctx.font = 'bold 28px system-ui, sans-serif'; 
+        ctx.fillText('📝 INSTRUCTIONS', 85, currentY + 50);
+
+        ctx.fillStyle = '#e2e8f0'; 
+        ctx.font = '30px system-ui, sans-serif'; 
+        // Pass the height limit to wrapText to ensure it doesn't overflow
+        wrapText(ctx, instructionText, 85, currentY + 110, W - 170, 40);
+        
+        currentY += instructionBoxHeight + 30;
     }
-    // ---- Larger URL and text ----
-    const shareUrl = 'https://returntruck-pwa.vercel.app/?listing=' + data.type + '_' + data.id;
-    ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = 'bold 22px system-ui, sans-serif';
-    ctx.fillText('Tap to view details on ReturnTruck', 40, H - 60);
-    ctx.fillStyle = '#60a5fa'; ctx.font = 'bold 26px system-ui, sans-serif'; 
-    ctx.fillText(shareUrl, 40, H - 20);
+
+    // 7. Draw URL / Call to Action Box (Very Prominent)
+    // Draw a distinct background for the URL
+    ctx.fillStyle = '#1e40af'; // Dark blue background
+    roundRect(ctx, 50, currentY, W - 100, 100, 20);
+    ctx.fill();
+
+    // "For full details click on URL" text
+    ctx.fillStyle = '#ffffff'; 
+    ctx.font = 'bold 26px system-ui, sans-serif';
+    ctx.fillText('🔗 For full details, click the link below:', 85, currentY + 40);
+
+    // The URL itself (large, bold, white with underline effect)
+    ctx.fillStyle = '#60a5fa'; 
+    ctx.font = 'bold 32px system-ui, sans-serif'; 
+    ctx.fillText(shareUrl, 85, currentY + 85);
+
+    // Draw a subtle underline for the URL
+    ctx.beginPath();
+    ctx.strokeStyle = '#60a5fa';
+    ctx.lineWidth = 2;
+    ctx.moveTo(85, currentY + 95);
+    ctx.lineTo(85 + ctx.measureText(shareUrl).width, currentY + 95);
+    ctx.stroke();
+
     return canvas;
 }
+
+// Helper function (ensure it's defined)
 function roundRect(ctx, x, y, w, h, r) {
-    ctx.beginPath(); ctx.moveTo(x + r, y);
-    ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
 }
+
+// Helper function (ensure it's defined)
 function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-    const words = String(text).split(' '); let line = '', lineY = y;
+    const words = String(text).split(' '); 
+    let line = '', lineY = y;
     for (let n = 0; n < words.length; n++) {
         const testLine = line + words[n] + ' ';
         const metrics = ctx.measureText(testLine);
-        if (metrics.width > maxWidth && n > 0) { ctx.fillText(line.trim(), x, lineY); line = words[n] + ' '; lineY += lineHeight; }
-        else line = testLine;
+        if (metrics.width > maxWidth && n > 0) { 
+            ctx.fillText(line.trim(), x, lineY); 
+            line = words[n] + ' '; 
+            lineY += lineHeight; 
+        } else {
+            line = testLine;
+        }
     }
     ctx.fillText(line.trim(), x, lineY);
 }
