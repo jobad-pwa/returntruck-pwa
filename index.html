@@ -6,59 +6,32 @@
 <title>ReturnTruck – Find Loads & Trucks</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!-- ============================================================
-     SPLIT LOCATION DATA FILES — DYNAMIC LOADER
-     ============================================================ -->
+<!-- Split location data files — dynamic loader -->
 <script>
-  window.LOCATION_FILES = [
-    'locations_tg.js',
-    'locations_ap.js',
-    'locations_od.js'
-  ];
+  window.LOCATION_FILES = ['locations_tg.js','locations_ap.js','locations_od.js'];
 </script>
-
 <script>
   (function () {
-    var merged = [];
-    var counts = {};
-
+    var merged = [], counts = {};
     window.LOCATION_FILES.forEach(function (file) {
       try {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', file, false);
         xhr.send(null);
-
         if (xhr.status === 200 || xhr.status === 0) {
           var arr = (new Function(xhr.responseText + '; return LOCATIONS;'))();
-          if (Array.isArray(arr)) {
-            counts[file] = arr.length;
-            merged = merged.concat(arr);
-          } else {
-            counts[file] = 0;
-            console.warn('⚠️ ' + file + ' did not produce a LOCATIONS array');
-          }
-        } else {
-          counts[file] = 0;
-          console.warn('⚠️ Failed to load ' + file + ' (HTTP ' + xhr.status + ')');
-        }
-      } catch (e) {
-        counts[file] = 0;
-        console.error('❌ Error loading ' + file + ':', e);
-      }
+          if (Array.isArray(arr)) { counts[file] = arr.length; merged = merged.concat(arr); }
+          else { counts[file] = 0; console.warn('⚠️ ' + file + ' did not produce a LOCATIONS array'); }
+        } else { counts[file] = 0; console.warn('⚠️ Failed to load ' + file + ' (HTTP ' + xhr.status + ')'); }
+      } catch (e) { counts[file] = 0; console.error('❌ Error loading ' + file + ':', e); }
     });
-
     window.LOCATIONS = merged.map(function (loc) {
       var a = Number(loc.lat), b = Number(loc.lng);
       if (!isFinite(a) || !isFinite(b)) return loc;
-      if (a > 50 && b < 50) {
-        return Object.assign({}, loc, { lat: b, lng: a });
-      }
+      if (a > 50 && b < 50) return Object.assign({}, loc, { lat: b, lng: a });
       return loc;
     });
-
-    var summary = Object.keys(counts).map(function (f) {
-      return f.replace('locations_', '').replace('.js', '').toUpperCase() + ': ' + counts[f];
-    }).join(', ');
+    var summary = Object.keys(counts).map(function (f) { return f.replace('locations_', '').replace('.js', '').toUpperCase() + ': ' + counts[f]; }).join(', ');
     console.log('📍 Locations loaded → ' + summary + ', Merged Total: ' + window.LOCATIONS.length);
   })();
 </script>
@@ -96,12 +69,8 @@ body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:cente
 .nav-item.active{color:#2563eb}.nav-item .icon{font-size:24px;margin-bottom:2px}.nav-item .label{font-size:10px;text-transform:uppercase;letter-spacing:.05em}
 .scroll-body{overflow-y:auto;padding:8px 16px;-webkit-overflow-scrolling:touch;display:block;width:100%;flex:1;padding-bottom:70px}
 .scroll-body::-webkit-scrollbar{width:4px}.scroll-body::-webkit-scrollbar-thumb{background:#1e1e32;border-radius:10px}
-
-#home-page, #profile-page, #postload-page, #posttruck-page, #detail-page, #edit-profile-page {
-    display:flex;flex-direction:column;height:100%;width:100%;position:absolute;top:0;left:0;background:#12121e;z-index:1;
-}
+#home-page, #profile-page, #postload-page, #posttruck-page, #detail-page, #edit-profile-page {display:flex;flex-direction:column;height:100%;width:100%;position:absolute;top:0;left:0;background:#12121e;z-index:1;}
 #home-page.hidden-page,#profile-page.hidden-page,#postload-page.hidden-page,#posttruck-page.hidden-page,#detail-page.hidden-page,#edit-profile-page.hidden-page{display:none !important;z-index:0;}
-
 #login-screen{display:flex;flex-direction:column;height:100%;width:100%;overflow-y:auto;padding:16px;background:#12121e;position:absolute;top:0;left:0;z-index:100}
 .login-icon-container{display:flex;justify-content:center;margin-bottom:0}
 .login-icon-container img{width:180px;height:180px;border-radius:40px;box-shadow:0 4px 20px rgba(37,99,235,0.2);background:#1a1a2e;padding:8px;max-width:100%}
@@ -112,7 +81,6 @@ body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:cente
 .login-stat-item .number{font-size:20px;font-weight:800;color:#2563eb;display:block;line-height:1.2}
 .login-stat-item .label{font-size:9px;font-weight:600;color:#94a3b8;display:block;text-transform:uppercase}
 .login-step-container{flex:1;display:flex;flex-direction:column;justify-content:center}
-
 .input-field{width:100%;padding:14px;border:2px solid #d1d5db;border-radius:12px;font-size:16px;text-align:center;background:#f1f5f9 !important;color:#0f172a;margin-bottom:12px;display:block !important;visibility:visible !important;opacity:1 !important;transition:border-color 0.2s}
 .input-field:focus{border-color:#2563eb;outline:none;background:#f8fafc !important;box-shadow:0 0 0 3px rgba(37,99,235,0.12)}
 .input-field:disabled{background:#e2e8f0;color:#64748b}
@@ -127,20 +95,17 @@ body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:cente
 .login-divider{display:flex;align-items:center;gap:12px;margin:16px 0}
 .login-divider div{flex:1;height:1px;background:#1e1e32}
 .login-divider span{font-size:11px;color:#64748b}
-
 .location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
 .location-row .location-input{flex:2}.location-row .radius-select{flex:1}
 .location-input input,.radius-select select{width:100%;padding:8px 12px;border:2px solid #d1d5db;border-radius:8px;font-size:13px;background:#f1f5f9 !important;color:#0f172a;transition:border-color 0.2s}
 .location-input input:focus,.radius-select select:focus{border-color:#2563eb;background:#f8fafc !important;outline:none;box-shadow:0 0 0 3px rgba(37,99,235,0.08)}
 .location-input input::placeholder{color:#94a3b8}
 .radius-select select option{background:#ffffff;color:#0f172a}
-
 .type-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;background:#1a1a2e;padding:3px;border-radius:10px;margin-bottom:6px;border:1px solid #1e1e32}
 .type-tabs button{padding:8px 4px;font-size:12px;font-weight:700;border:none;border-radius:8px;cursor:pointer;transition:all 0.2s}
 .type-tabs .active{background:#2563eb;color:#fff;box-shadow:0 2px 8px rgba(37,99,235,0.25)}
 .type-tabs .inactive{background:transparent;color:#94a3b8}
 .type-tabs .inactive:hover{background:#1e1e32;color:#e2e8f0}
-
 .filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:11px;font-weight:600;color:#94a3b8;border-top:1px solid #1e1e32;margin-top:4px;user-select:none;transition:color 0.2s}
 .filter-toggle:hover{color:#c8d0e0}
 .filter-container{overflow:hidden;transition:max-height 0.3s ease;max-height:0}
@@ -151,7 +116,6 @@ body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:cente
 .filter-row input:focus,.filter-row select:focus{border-color:#2563eb;background:#f8fafc !important;box-shadow:0 0 0 3px rgba(37,99,235,0.06)}
 .filter-row input::placeholder{color:#94a3b8}
 .filter-row select option{background:#ffffff;color:#0f172a}
-
 .search-wrapper{position:relative;width:100%}
 .search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#ffffff;border:1px solid #d1d5db;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.15)}
 .search-wrapper .suggestions.show{display:block}
@@ -159,9 +123,7 @@ body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:cente
 .search-wrapper .suggestions .item:last-child{border-bottom:none}
 .search-wrapper .suggestions .item:hover{background:#f1f5f9}
 .search-wrapper .suggestions .item .highlight{background:#2563eb;color:#fff;font-weight:600;padding:0 4px;border-radius:4px}
-
 .results-count{display:flex;justify-content:space-between;padding-bottom:4px;margin-bottom:6px;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
-
 .feed-container{display:flex;flex-direction:column;gap:10px}
 .feed-card{background:#ffffff !important;border-radius:14px;padding:14px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.3);transition:all .2s;border:1px solid #e8ecf0}
 .feed-card:hover{border-color:#2563eb;transform:translateY(-2px);box-shadow:0 4px 20px rgba(37,99,235,.12)}
@@ -173,11 +135,9 @@ body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:cente
 .feed-card .type-badge.agent{background:#fef3c7;color:#92400e}
 .feed-card .company{font-size:13px;color:#2563eb;font-weight:600;margin-bottom:2px}
 .feed-card .meta{font-size:12px;color:#475569;margin-top:3px;display:flex;align-items:center;gap:4px}
-.feed-card .meta .highlight{color:#2563eb;font-weight:600}
 .feed-card .stats-row{margin-top:8px;padding-top:8px;border-top:1px solid #e8ecf0;display:flex;gap:12px;font-size:11px;color:#64748b}
 .feed-card .stats-row span{display:flex;align-items:center;gap:3px}
 .feed-card .stats-row .val{font-weight:600;color:#475569}
-
 .detail-header-card{background:linear-gradient(135deg,#1a1a2e,#0e0e1e);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid #1e1e32}
 .detail-header-card .main-title{font-size:20px;font-weight:700;color:#e2e8f0}
 .detail-header-card .company-name{font-size:14px;color:#2563eb;font-weight:600}
@@ -187,7 +147,6 @@ body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:cente
 .detail-badge.verified{background:#dcfce7;color:#166534}
 .detail-badge.unverified{background:#fef2f2;color:#991b1b}
 .detail-badge.pan-gst{background:#1e1e32;color:#94a3b8;font-size:10px}
-
 .detail-card{background:#ffffff !important;border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 12px rgba(0,0,0,.2);border:1px solid #e8ecf0}
 .detail-card .section-title{font-size:13px;font-weight:700;color:#2563eb;margin-bottom:10px;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:0.5px}
 .detail-card .spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;color:#475569}
@@ -201,13 +160,11 @@ body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:cente
 .detail-card .route-meta{font-size:13px;color:#64748b;margin-top:6px}
 .detail-card .route-meta strong{color:#0f172a}
 .detail-card .instructions-text{font-size:14px;color:#475569;padding:4px 0;line-height:1.5}
-
 .stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
 .stat-item{background:#f8fafc;border-radius:10px;padding:8px 4px;text-align:center;border:1px solid #e2e8f0}
 .stat-item .stat-icon{font-size:18px;display:block}
 .stat-item .stat-number{font-size:16px;font-weight:700;color:#0f172a;display:block;margin-top:2px}
 .stat-item .stat-label{font-size:8px;color:#64748b;font-weight:600;text-transform:uppercase;margin-top:2px;display:block}
-
 .action-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
 .action-grid button{width:100%;padding:8px 4px;border-radius:8px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:10px;cursor:pointer;transition:all .2s;box-shadow:0 2px 4px rgba(0,0,0,.2)}
 .action-grid button:active{transform:scale(0.95)}
@@ -218,12 +175,10 @@ body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:cente
 .btn-share{background:#25D366}.btn-share:hover{background:#1da851}
 .express-interest-btn{width:100%;padding:12px;background:#8b5cf6;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;box-shadow:0 2px 8px rgba(139,92,246,.3);transition:all .2s}
 .express-interest-btn:active{transform:scale(0.97)}
-
 .guest-banner{flex-shrink:0;background:linear-gradient(135deg,#2563eb,#6c5ce7);color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;border:1px solid rgba(255,255,255,0.08)}
 .guest-banner.hidden{display:none}
 .guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px;transition:all 0.2s}
 .guest-banner .btn-login:hover{transform:scale(1.03)}
-
 .profile-header-card{background:linear-gradient(135deg,#1a1a2e,#0e0e1e);border-radius:12px;padding:16px;color:#e2e8f0;margin-bottom:12px;border:1px solid #1e1e32}
 .profile-section{background:#ffffff !important;border:1px solid #e8ecf0;border-radius:12px;padding:16px;margin-bottom:12px;color:#0f172a}
 .profile-section .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
@@ -240,25 +195,19 @@ body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:cente
 .section-btn.danger:hover{background:#b91c1c}
 .section-btn.success{background:#16a34a;color:#fff}
 .section-btn.success:hover{background:#15803d}
-
 .section-container{background:#ffffff !important;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #e8ecf0}
 .section-container .section-title{font-size:13px;font-weight:700;color:#2563eb;margin-bottom:10px;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:0.5px}
-
 .form-label{font-size:11px;font-weight:700;color:#334155 !important;text-transform:uppercase;display:block;margin-bottom:6px;letter-spacing:0.5px}
-
 .form-control{width:100%;padding:12px 14px;border:2px solid #d1d5db !important;border-radius:10px;font-size:14px;background:#f1f5f9 !important;color:#0f172a !important;outline:none;transition:all .2s}
 .form-control:focus{border-color:#2563eb !important;background:#f8fafc !important;box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
 .form-control::placeholder{color:#94a3b8}
 .form-control:hover{border-color:#cbd5e1 !important}
-
 select.form-control{background:#f1f5f9 !important;color:#0f172a !important;border:2px solid #d1d5db !important;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
 select.form-control:hover{border-color:#cbd5e1 !important}
 select.form-control:focus{background:#f8fafc !important;border-color:#2563eb !important;box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
 select.form-control option{background:#ffffff !important;color:#0f172a !important}
-
 textarea.form-control{resize:vertical;min-height:60px;background:#f1f5f9 !important;border:2px solid #d1d5db !important;color:#0f172a !important}
 textarea.form-control:focus{background:#f8fafc !important;box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
-
 .dim-input{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px}
 .dim-input .dim-group{background:#f1f5f9 !important;border-radius:8px;padding:8px 12px;border:2px solid #d1d5db !important;text-align:center;transition:all .2s}
 .dim-input .dim-group:focus-within{border-color:#2563eb !important;background:#f8fafc !important;box-shadow:0 0 0 3px rgba(37,99,235,0.08)}
@@ -267,13 +216,10 @@ textarea.form-control:focus{background:#f8fafc !important;box-shadow:0 0 0 3px r
 .dim-input .dim-group input:focus{color:#2563eb}
 .dim-input .dim-group input::-webkit-inner-spin-button{-webkit-appearance:none}
 .dim-input .dim-group input[type=number]{-moz-appearance:textfield}
-
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .grid-2-vehicle { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; align-items: start; }
-
 .back-btn { background: transparent; border: none; font-size: 14px; font-weight: 500; color: #94a3b8; cursor: pointer; padding: 4px 8px; transition: color 0.2s; }
 .back-btn:hover { color: #f87171; }
-
 .otp-input { width: 48px; height: 56px; text-align: center; font-size: 24px; font-weight: 700; border-radius: 12px; border: 2px solid #d1d5db; background: #f1f5f9 !important; color: #0f172a; transition: border-color 0.2s; }
 .otp-input:focus { border-color: #2563eb; outline: none; background: #f8fafc !important; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
 .otp-input:disabled { background: #e2e8f0; color: #64748b; }
@@ -281,39 +227,35 @@ textarea.form-control:focus{background:#f8fafc !important;box-shadow:0 0 0 3px r
 .success-text { color: #4ade80; font-size: 13px; text-align: center; margin-top: 4px; display: none; }
 .resend-btn { background: transparent; border: none; color: #2563eb; font-weight: 600; cursor: pointer; font-size: 13px; text-decoration: underline; }
 .resend-btn:disabled { color: #64748b; cursor: not-allowed; }
-
 .stat-cards { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
 .stat-card { background: #f8fafc; border-radius: 10px; padding: 12px; text-align: center; border: 1px solid #e2e8f0; }
 .stat-card .icon { font-size: 22px; display: block; margin-bottom: 2px; }
 .stat-card .number { font-size: 20px; font-weight: 800; color: #0f172a; }
 .stat-card .label { font-size: 9px; color: #64748b; text-transform: uppercase; font-weight: 600; }
-
 .list-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 8px; }
 .list-item .title { font-weight: 600; font-size: 14px; color: #0f172a; }
 .list-item .sub { font-size: 12px; color: #475569; margin-top: 2px; }
 .list-item .actions { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
-.list-item .actions button { padding: 4px 12px; font-size: 11px; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; }
+.list-item .actions button { padding: 4px 12px; font-size: 11px; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; transition: background .15s; }
 .list-item .actions .edit { background: #dbeafe; color: #1e40af; }
+.list-item .actions .edit:hover { background: #bfdbfe; }
 .list-item .actions .delete { background: #fef2f2; color: #991b1b; }
+.list-item .actions .delete:hover { background: #fee2e2; }
 .list-item .actions .interests { background: #fef3c7; color: #92400e; font-size: 10px; }
-
+.list-item .actions .interests:hover { background: #fde68a; }
 .status-badge { font-size: 10px; padding: 2px 10px; border-radius: 10px; font-weight: 600; display: inline-block; }
 .count-badge { background: #2563eb; color: #fff; font-size: 11px; border-radius: 10px; padding: 1px 8px; margin-left: 4px; }
-
 .route-tag { background: #f1f5f9; padding: 5px 12px; border-radius: 6px; font-size: 13px; display: inline-block; margin: 2px; color: #475569; }
 .route-tag .remove { color: #f87171; cursor: pointer; margin-left: 6px; font-weight: 700; }
 .route-tag .remove:hover { color: #dc2626; }
 .agent-tag { background: #f1f5f9; padding: 5px 12px; border-radius: 6px; font-size: 13px; display: inline-block; margin: 2px; color: #475569; }
 .agent-tag .remove { color: #f87171; cursor: pointer; margin-left: 6px; font-weight: 700; }
 .agent-tag .remove:hover { color: #dc2626; }
-
 .user-type-checkbox { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
 .user-type-checkbox label { font-size: 14px; display: flex; align-items: center; gap: 4px; cursor: pointer; color: #0f172a; }
-
 .route-input-row { display: flex; gap: 6px; margin-bottom: 8px; }
 .route-input-row input { flex: 2; }
 .route-input-row button { flex-shrink: 0; }
-
 .vehicle-suggest-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: #ffffff; border: 1px solid #d1d5db; border-radius: 8px; margin-top: 4px; max-height: 150px; overflow-y: auto; z-index: 50; display: none; }
 .vehicle-suggest-dropdown.show { display: block; }
 .vehicle-suggest-dropdown .item { padding: 10px 14px; font-size: 14px; cursor: pointer; border-bottom: 1px solid #f1f5f9; color: #0f172a; }
@@ -332,7 +274,6 @@ textarea.form-control:focus{background:#f8fafc !important;box-shadow:0 0 0 3px r
 .vehicle-display-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; }
 .vehicle-display-item .vnumber { font-weight: 700; font-size: 14px; color: #0f172a; }
 .vehicle-display-item .vdetails { font-size: 13px; color: #64748b; margin-top: 2px; }
-
 .vehicle-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); display: none; align-items: center; justify-content: center; z-index: 1000; }
 .vehicle-modal.show { display: flex; }
 .vehicle-modal-content { background: #ffffff; border-radius: 16px; padding: 24px; max-width: 420px; width: 90%; max-height: 85vh; overflow-y: auto; border: 1px solid #e2e8f0; }
@@ -343,23 +284,17 @@ textarea.form-control:focus{background:#f8fafc !important;box-shadow:0 0 0 3px r
 .vehicle-modal-content .form-group { margin-bottom: 12px; }
 .vehicle-modal-content .form-group .readonly-number { background: #f1f5f9; padding: 10px 12px; border-radius: 8px; font-weight: 700; font-size: 16px; color: #0f172a; border: 1px solid #e2e8f0; }
 .vehicle-modal-content .form-group label { color: #334155; }
-
 .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid #1e1e32; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 8px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading-text { display: flex; align-items: center; justify-content: center; gap: 8px; color: #94a3b8; font-size: 14px; padding: 8px; }
-
 .website-link { color: #2563eb; text-decoration: underline; cursor: pointer; word-break: break-all; }
 .website-link:hover { color: #1d4ed8; }
-
 .agent-item { display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 8px 12px; border-radius: 6px; margin-bottom: 4px; border: 1px solid #e2e8f0; }
 .agent-item .aname { font-weight: 600; font-size: 14px; color: #0f172a; flex: 1; }
 .agent-item .adetails { font-size: 12px; color: #64748b; flex: 1; }
 .agent-item .actions { display: flex; gap: 4px; }
 .agent-item .actions button { padding: 4px 10px; font-size: 10px; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; }
 .agent-item .actions .whatsapp-btn { background: #25D366; color: #fff; }
-.agent-item .actions .whatsapp-btn:hover { background: #1da851; }
-.agent-item .actions .delete-btn { background: #fef2f2; color: #991b1b; }
-
 .agent-suggest-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: #ffffff; border: 1px solid #d1d5db; border-radius: 8px; margin-top: 4px; max-height: 200px; overflow-y: auto; z-index: 50; display: none; box-shadow: 0 8px 24px rgba(0,0,0,.15); }
 .agent-suggest-dropdown.show { display: block; }
 .agent-suggest-dropdown .item { padding: 10px 14px; font-size: 14px; cursor: pointer; border-bottom: 1px solid #f1f5f9; color: #0f172a; }
@@ -367,28 +302,22 @@ textarea.form-control:focus{background:#f8fafc !important;box-shadow:0 0 0 3px r
 .agent-suggest-dropdown .item:hover { background: #f1f5f9; }
 .agent-suggest-dropdown .item .sub { font-size: 11px; color: #64748b; display: block; margin-top: 2px; }
 .agent-suggest-dropdown .item .highlight { background: #2563eb; color: #fff; font-weight: 600; padding: 0 4px; border-radius: 4px; }
-
 .bulk-whatsapp-btn { width: 100%; padding: 12px; background: #25D366; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 8px; box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3); transition: all .2s; }
 .bulk-whatsapp-btn:hover { background: #1da851; }
-
 .install-banner { display: none; position: sticky; bottom: 76px; background: linear-gradient(135deg, #2563eb, #6c5ce7); background-size: 200% 200%; animation: gradientMove 3s ease infinite; color: #fff; padding: 10px 24px; border-radius: 16px; margin: 0 auto 4px auto; box-shadow: 0 4px 28px rgba(37, 99, 235, 0.4); z-index: 50; text-align: center; font-size: 15px; font-weight: 700; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.12); max-width: 50%; min-width: 140px; transition: transform 0.2s; }
 .install-banner:hover { transform: scale(1.03); }
 .install-banner .icon { font-size: 18px; margin-right: 8px; }
 .install-banner .sub { font-size: 11px; opacity: 0.85; font-weight: 400; display: block; margin-top: 2px; }
 @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-
 .weight-input { font-family: monospace; }
-
 .disclaimer { flex-shrink: 0; background: #1a0000; border-left: 4px solid #f87171; border-radius: 8px; padding: 12px 16px; margin-top: 12px; font-size: 11px; color: #fca5a5; line-height: 1.5; }
 .disclaimer .title { font-weight: 700; font-size: 12px; display: flex; align-items: center; gap: 4px; color: #fca5a5; }
-
 .vehicle-detail-display { background: #f8fafc; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 14px; margin-top: 6px; display: none; }
 .vehicle-detail-display .detail-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; color: #475569; border-bottom: 1px solid #e8ecf0; }
 .vehicle-detail-display .detail-row:last-child { border-bottom: none; }
 .vehicle-detail-display .detail-row .label { color: #64748b; }
 .vehicle-detail-display .detail-row .value { color: #0f172a; font-weight: 600; }
 .vehicle-detail-display.show { display: block; }
-
 .loading-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(18, 18, 30, 0.95); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; color: #ffffff; }
 .loading-overlay.show { display: flex; }
 .loading-overlay .loading-spinner { width: 60px; height: 60px; border: 5px solid #1e1e32; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 20px; }
@@ -398,7 +327,6 @@ textarea.form-control:focus{background:#f8fafc !important;box-shadow:0 0 0 3px r
 <body>
 <div class="card" id="app-card">
 
-<!-- LOADING OVERLAY -->
 <div class="loading-overlay" id="loading-overlay">
     <div class="loading-spinner"></div>
     <div class="loading-text" id="loading-message">Loading...</div>
@@ -509,7 +437,7 @@ textarea.form-control:focus{background:#f8fafc !important;box-shadow:0 0 0 3px r
     <label class="form-label">📦 Material Type *</label>
     <select class="form-control" id="pl-material">
         <option value="" disabled selected>Select material type...</option>
-        <option value="1">Steel Pipes</option>
+        <option value="1">Steel angles, plates, pipes etc</option>
         <option value="2">Cement</option>
         <option value="3">Bricks</option>
         <option value="4">Sand</option>
@@ -613,7 +541,7 @@ textarea.form-control:focus{background:#f8fafc !important;box-shadow:0 0 0 3px r
     <textarea class="form-control" id="pl-instructions" rows="2" placeholder="Loading instructions, special requirements..."></textarea>
     <div style="font-size:11px;color:#64748b;text-align:right;margin-top:4px"><span id="pl-instructions-count">0</span>/200</div>
 </div>
-<button class="btn-primary success" onclick="publishLoad()" style="margin-top:4px">📤 Publish Load</button>
+<button class="btn-primary success" id="pl-publish-btn" onclick="publishLoad()" style="margin-top:4px">📤 Publish Load</button>
 </div>
 <div class="nav-fixed" id="bottom-nav2"><button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button><button class="nav-item active" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button><button class="nav-item" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button><button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button></div>
 </div>
@@ -675,7 +603,7 @@ textarea.form-control:focus{background:#f8fafc !important;box-shadow:0 0 0 3px r
     <textarea class="form-control" id="pt-other-details" rows="3" placeholder="Vehicle features, GPS tracking, driver details, etc."></textarea>
     <div style="font-size:11px;color:#64748b;text-align:right;margin-top:4px"><span id="pt-other-details-count">0</span>/300</div>
 </div>
-<button class="btn-primary success" onclick="publishTruck()" style="margin-top:4px">📤 List Truck</button>
+<button class="btn-primary success" id="pt-publish-btn" onclick="publishTruck()" style="margin-top:4px">📤 List Truck</button>
 </div>
 <div class="nav-fixed" id="bottom-nav3"><button class="nav-item" onclick="goHome()"><span class="icon">🏠</span><span class="label">Home</span></button><button class="nav-item" onclick="goPostLoad()"><span class="icon">📦</span><span class="label">Load</span></button><button class="nav-item active" onclick="goPostTruck()"><span class="icon">🚛</span><span class="label">Truck</span></button><button class="nav-item" onclick="goToProfile()"><span class="icon">👤</span><span class="label">Profile</span></button></div>
 </div>
@@ -747,54 +675,22 @@ const EDGE_URL = 'https://ghjoffovatgvhzxlupef.supabase.co/functions/v1';
 const sb = window.supabase.createClient(SB_URL, SB_KEY);
 
 // ============================================================
-// LOOKUP MAPS (id ↔ name) — single source of truth
-// To add a new type: add one line here + one <option> in HTML.
+// LOOKUP MAPS (id ↔ name)
 // ============================================================
 const MATERIALS = {
-    1: 'Steel Pipes',
-    2: 'Cement',
-    3: 'Bricks',
-    4: 'Sand',
-    5: 'Aggregates',
-    6: 'Food Grains',
-    7: 'Chemicals',
-    8: 'Electronics',
-    9: 'Furniture',
-    10: 'Other'
+    1: 'Steel angles, plates, pipes etc', 2: 'Cement', 3: 'Bricks', 4: 'Sand', 5: 'Aggregates',
+    6: 'Food Grains', 7: 'Chemicals', 8: 'Electronics', 9: 'Furniture', 10: 'Other'
 };
-
 const VEHICLE_TYPES = {
-    1: '3-Wheeler / Tempo',
-    2: 'Mini Truck',
-    3: 'LCV Open Body Truck',
-    4: 'LCV - Container',
-    5: 'LCV - Flat bed',
-    6: 'Open Body Truck',
-    7: 'Box Body Truck',
-    8: 'Flat bed Truck',
-    9: 'Trailer - Open Body',
-    10: 'Trailer - Box Body',
-    11: 'Trailer - High Bed',
-    12: 'Trailer - Semi Low Bed',
-    13: 'Trailer - Low Bed',
-    14: 'Trailer - Automobile Carrier',
-    15: 'Tipper / Dumper',
-    16: 'Tanker',
-    17: 'Cement Bulker',
-    18: 'Refrigerated / Reefer',
-    19: 'Explosive / Hazardous Vehicle',
-    20: 'Over-Dimensional Cargo (ODC)'
+    1: '3-Wheeler / Tempo', 2: 'Mini Truck', 3: 'LCV Open Body Truck', 4: 'LCV - Container',
+    5: 'LCV - Flat bed', 6: 'Open Body Truck', 7: 'Box Body Truck', 8: 'Flat bed Truck',
+    9: 'Trailer - Open Body', 10: 'Trailer - Box Body', 11: 'Trailer - High Bed',
+    12: 'Trailer - Semi Low Bed', 13: 'Trailer - Low Bed', 14: 'Trailer - Automobile Carrier',
+    15: 'Tipper / Dumper', 16: 'Tanker', 17: 'Cement Bulker', 18: 'Refrigerated / Reefer',
+    19: 'Explosive / Hazardous Vehicle', 20: 'Over-Dimensional Cargo (ODC)'
 };
-
-function materialName(id) {
-    if (id === null || id === undefined) return 'Cargo';
-    return MATERIALS[id] || 'Unknown';
-}
-
-function vehicleTypeName(id) {
-    if (id === null || id === undefined) return 'Any';
-    return VEHICLE_TYPES[id] || 'Unknown';
-}
+function materialName(id) { if (id === null || id === undefined) return 'Cargo'; return MATERIALS[id] || 'Unknown'; }
+function vehicleTypeName(id) { if (id === null || id === undefined) return 'Any'; return VEHICLE_TYPES[id] || 'Unknown'; }
 
 // ============================================================
 // STATE
@@ -812,6 +708,9 @@ let agentDataMap = {};
 let deferredPrompt = null;
 let pendingDeepLink = null;
 let currentTruckVehicleData = null;
+// ---- NEW: edit-mode tracking ----
+let editingLoadId = null;
+let editingTruckId = null;
 
 // ============================================================
 // NUMBER FORMATTING
@@ -822,7 +721,7 @@ function parseNumberFromInput(value) { return parseFloat(value.replace(/,/g, '')
 function isValidVehicleNumber(number) { return /^[A-Za-z0-9]{9,12}$/.test(number); }
 
 // ============================================================
-// HELPER FUNCTIONS
+// HELPERS
 // ============================================================
 function addUniqueToArray(array, value) { if (!array) return [value]; if (array.includes(value)) return array; return [...array, value]; }
 function removeFromArray(array, value) { if (!array) return []; return array.filter(item => item !== value); }
@@ -833,10 +732,10 @@ function toStrOrNull(v) { if (v === null || v === undefined) return null; const 
 // ============================================================
 // LOCATION FUNCTIONS
 // ============================================================
-function getLoc(pinId) { 
-    if (!pinId) return null; 
-    const pinNum = parseInt(pinId, 10); 
-    if (isNaN(pinNum)) return null; 
+function getLoc(pinId) {
+    if (!pinId) return null;
+    const pinNum = parseInt(pinId, 10);
+    if (isNaN(pinNum)) return null;
     const exact = LOCATIONS.find(l => l.pin_id === pinNum);
     if (exact) return exact;
     const pinStr = String(pinNum);
@@ -848,14 +747,12 @@ function getLoc(pinId) {
     if (fallback) return fallback;
     return matches[0];
 }
-
 function getLocDisplayName(loc) { if (!loc) return 'Unknown'; return loc.name + ', ' + loc.district + ', ' + loc.state + ' (' + loc.pincode + ')'; }
 function getLocName(pinId) { const l = getLoc(pinId); return l ? getLocDisplayName(l) : pinId || 'Unknown'; }
-
-function dist(lat1, lng1, lat2, lng2) { 
-    const R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLng = (lng2 - lng1) * Math.PI / 180; 
-    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) * Math.sin(dLng / 2); 
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+function dist(lat1, lng1, lat2, lng2) {
+    const R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 // ============================================================
@@ -868,11 +765,10 @@ function calculateRating(endorsements, flags) {
     const stars = Math.round((end / total * 5) * 10) / 10;
     return { rating: stars, display: '⭐ ' + stars.toFixed(1) + ' (' + end + '/' + total + ')', stars: stars };
 }
-
 function toast(msg) { alert(msg); }
 
 // ============================================================
-// LOADING OVERLAY CONTROLS
+// LOADING OVERLAY
 // ============================================================
 function showLoading(message) {
     const overlay = document.getElementById('loading-overlay');
@@ -884,91 +780,63 @@ function hideLoading() {
     const overlay = document.getElementById('loading-overlay');
     if (overlay) overlay.classList.remove('show');
 }
-
-function isMobile() {
-    return /Android|iPhone|iPad|iPod|BlackBerry|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent) 
-           || window.innerWidth <= 768;
-}
+function isMobile() { return /Android|iPhone|iPad|iPod|BlackBerry|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent) || window.innerWidth <= 768; }
 
 // ============================================================
 // INSTALL APP
 // ============================================================
 window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    if (isMobile()) {
-        document.getElementById('install-banner').style.display = 'block';
-    }
+    e.preventDefault(); deferredPrompt = e;
+    if (isMobile()) document.getElementById('install-banner').style.display = 'block';
 });
-
 function installApp() {
     if (deferredPrompt) {
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-                document.getElementById('install-banner').style.display = 'none';
-            }
+            if (choiceResult.outcome === 'accepted') document.getElementById('install-banner').style.display = 'none';
             deferredPrompt = null;
         });
-    } else {
-        toast('📱 Tap the share icon and select "Add to Home Screen" to install');
-    }
+    } else toast('📱 Tap the share icon and select "Add to Home Screen" to install');
 }
 
 // ============================================================
 // PAGE NAVIGATION
 // ============================================================
-function showLogin() { 
-    resetForm(); 
+function showLogin() {
+    resetForm();
     document.getElementById('mobile').focus();
     ['home-page', 'profile-page', 'postload-page', 'posttruck-page', 'detail-page', 'edit-profile-page'].forEach(i => {
-        const el = document.getElementById(i);
-        if (el) el.classList.add('hidden-page');
+        const el = document.getElementById(i); if (el) el.classList.add('hidden-page');
     });
     document.getElementById('login-screen').style.display = 'flex';
     if (pendingDeepLink) {
         const status = document.getElementById('mobile-status');
-        if (status) {
-            status.textContent = '🔗 Login to view shared ' + pendingDeepLink.type.toLowerCase() + ' details';
-            status.style.color = '#2563eb';
-        }
+        if (status) { status.textContent = '🔗 Login to view shared ' + pendingDeepLink.type.toLowerCase() + ' details'; status.style.color = '#2563eb'; }
     }
 }
-
 function showHome() {
     document.getElementById('login-screen').style.display = 'none';
     ['home-page', 'profile-page', 'postload-page', 'posttruck-page', 'detail-page', 'edit-profile-page'].forEach(i => {
-        const el = document.getElementById(i);
-        if (el) el.classList.add('hidden-page');
+        const el = document.getElementById(i); if (el) el.classList.add('hidden-page');
     });
     document.getElementById('home-page').classList.remove('hidden-page');
-    updateGuestUI();
-    updateAvatarInitials();
-    setTimeout(() => { 
-        renderFeed(); 
-        autoLocate(); 
-        if (pendingDeepLink) {
-            openDetail(pendingDeepLink.type, pendingDeepLink.id);
-            pendingDeepLink = null;
-        }
+    updateGuestUI(); updateAvatarInitials();
+    setTimeout(() => {
+        renderFeed(); autoLocate();
+        if (pendingDeepLink) { openDetail(pendingDeepLink.type, pendingDeepLink.id); pendingDeepLink = null; }
     }, 50);
 }
-
 function switchPage(id) {
     document.getElementById('login-screen').style.display = 'none';
     ['home-page', 'profile-page', 'edit-profile-page', 'postload-page', 'posttruck-page', 'detail-page'].forEach(i => {
-        const el = document.getElementById(i);
-        if (el) el.classList.add('hidden-page');
+        const el = document.getElementById(i); if (el) el.classList.add('hidden-page');
     });
-    const page = document.getElementById(id);
-    if (page) page.classList.remove('hidden-page');
+    const page = document.getElementById(id); if (page) page.classList.remove('hidden-page');
 }
-
 function goHome() {
     document.getElementById('login-screen').style.display = 'none';
     ['home-page', 'profile-page', 'postload-page', 'posttruck-page', 'detail-page', 'edit-profile-page'].forEach(i => {
-        const el = document.getElementById(i);
-        if (el) el.classList.toggle('hidden-page', i !== 'home-page');
+        const el = document.getElementById(i); if (el) el.classList.toggle('hidden-page', i !== 'home-page');
     });
     document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
     const navItems = document.querySelectorAll('.nav-fixed .nav-item');
@@ -976,32 +844,83 @@ function goHome() {
     updateAvatarInitials();
     setTimeout(() => { renderFeed(); }, 50);
 }
-
-function goPostLoad() { if (guest || !user) { showLogin(); return; } loadAgentsFromUser(); switchPage('postload-page'); }
-function goPostTruck() { if (guest || !user) { showLogin(); return; } loadAgentsFromUser(); switchPage('posttruck-page'); }
+function goPostLoad() {
+    if (guest || !user) { showLogin(); return; }
+    loadAgentsFromUser();
+    // If not in edit mode, reset the form to a clean slate
+    if (editingLoadId === null) resetLoadForm();
+    switchPage('postload-page');
+}
+function goPostTruck() {
+    if (guest || !user) { showLogin(); return; }
+    loadAgentsFromUser();
+    if (editingTruckId === null) resetTruckForm();
+    switchPage('posttruck-page');
+}
 function goToProfile() { if (guest || !user) { showLogin(); return; } switchPage('profile-page'); loadProfile(); }
-
-function cancelPost() { goHome(); }
+function cancelPost() {
+    // Reset edit mode and form
+    editingLoadId = null;
+    editingTruckId = null;
+    resetLoadForm();
+    resetTruckForm();
+    goHome();
+}
 function closeDetail() { detail = null; goHome(); }
 function closeEditProfile() { switchPage('profile-page'); loadProfile(); }
 
 // ============================================================
-// UPDATE AVATAR INITIALS
+// FORM RESET HELPERS
+// ============================================================
+function resetLoadForm() {
+    document.getElementById('pl-material').value = '';
+    document.getElementById('pl-vehicle-type').value = '';
+    document.getElementById('pl-weight').value = '';
+    document.getElementById('pl-length').value = '40';
+    document.getElementById('pl-width').value = '8.2';
+    document.getElementById('pl-height').value = '8';
+    document.getElementById('search-pl-pickup').value = '';
+    document.getElementById('pl-pickup-hidden').value = '';
+    document.getElementById('search-pl-drop').value = '';
+    document.getElementById('pl-drop-hidden').value = '';
+    document.getElementById('pl-rate').value = '';
+    document.getElementById('pl-date').value = '';
+    document.getElementById('pl-instructions').value = '';
+    document.getElementById('pl-instructions-count').textContent = '0';
+    agents = [];
+    renderAgentsUI();
+    updateAgentHiddenField();
+    const btn = document.getElementById('pl-publish-btn');
+    if (btn) btn.textContent = '📤 Publish Load';
+}
+
+function resetTruckForm() {
+    document.getElementById('pt-vehicle-number').value = '';
+    document.getElementById('search-pt-location').value = '';
+    document.getElementById('pt-location-hidden').value = '';
+    document.getElementById('pt-available').value = '';
+    document.getElementById('pt-rate').value = '';
+    document.getElementById('pt-other-details').value = '';
+    document.getElementById('pt-other-details-count').textContent = '0';
+    document.getElementById('pt-vehicle-detail').classList.remove('show');
+    agents = [];
+    renderAgentsUI();
+    updateAgentHiddenField();
+    const btn = document.getElementById('pt-publish-btn');
+    if (btn) btn.textContent = '📤 List Truck';
+}
+
+// ============================================================
+// AVATAR INITIALS
 // ============================================================
 function updateAvatarInitials() {
     let initials = 'GU';
     if (user && user.name) {
         const parts = user.name.trim().split(' ');
-        if (parts.length >= 2) {
-            initials = (parts[0] || '')[0] + (parts[1] || '')[0];
-        } else {
-            initials = (parts[0] || '').substring(0, 2);
-        }
-    } else if (user && user.mobile) {
-        initials = user.mobile.toString().slice(-2);
-    }
+        if (parts.length >= 2) initials = (parts[0] || '')[0] + (parts[1] || '')[0];
+        else initials = (parts[0] || '').substring(0, 2);
+    } else if (user && user.mobile) { initials = user.mobile.toString().slice(-2); }
     initials = initials.toUpperCase();
-    
     const avatarHome = document.getElementById('avatar-initials');
     const avatarProfile = document.getElementById('avatar-initials-profile');
     if (avatarHome) avatarHome.textContent = initials;
@@ -1022,57 +941,31 @@ async function renderFeed() {
             const fromLoc = getLoc(l.pickup_pin);
             const toLoc = getLoc(l.drop_pin);
             items.push({
-                type: 'LOAD',
-                title: materialName(l.material_id),
-                company: l.company || '',
-                from_pin: l.pickup_pin,
-                to_pin: l.drop_pin,
-                from_loc: fromLoc,
-                to_loc: toLoc,
-                weight: l.weight || 0,
-                vehicle: vehicleTypeName(l.vehicle_type_id),
-                vehicle_type_id: l.vehicle_type_id,
-                material_id: l.material_id,
-                views: l.views || 0,
-                rate: l.rate || 0,
-                interests: (l.interests || []).length,
-                shares: l.shares || 0,
-                id: l.id,
-                mobile: l.mobile,
-                endorsements: l.endorsements || 0,
-                flags: l.flags || 0,
-                pickup_date: l.pickup_date,
-                instructions: l.instructions,
-                dimensions: l.dimensions
+                type: 'LOAD', title: materialName(l.material_id), company: l.company || '',
+                from_pin: l.pickup_pin, to_pin: l.drop_pin,
+                from_loc: fromLoc, to_loc: toLoc,
+                weight: l.weight || 0, vehicle: vehicleTypeName(l.vehicle_type_id),
+                vehicle_type_id: l.vehicle_type_id, material_id: l.material_id,
+                views: l.views || 0, rate: l.rate || 0,
+                interests: (l.interests || []).length, shares: l.shares || 0,
+                id: l.id, mobile: l.mobile,
+                endorsements: l.endorsements || 0, flags: l.flags || 0,
+                pickup_date: l.pickup_date, instructions: l.instructions, dimensions: l.dimensions
             });
         });
-
         (trucks || []).forEach(t => {
             const loc = getLoc(t.location_pin);
             items.push({
-                type: 'TRUCK',
-                title: t.truck_no || 'Truck',
-                company: t.company || '',
-                from_pin: t.location_pin,
-                to_pin: null,
-                from_loc: loc,
-                to_loc: null,
-                vehicle: 'Truck',
-                vehicle_type_id: t.vehicle_type_id,
-                views: t.views || 0,
-                rate: t.rate || 0,
-                interests: (t.interested || []).length,
-                shares: t.share || 0,
-                id: t.id,
-                mobile: t.mobile,
-                endorsements: t.endorsements || 0,
-                flags: t.flags || 0,
-                truck_no: t.truck_no,
-                available_date: t.available_date,
-                other_details: t.other_details
+                type: 'TRUCK', title: t.truck_no || 'Truck', company: t.company || '',
+                from_pin: t.location_pin, to_pin: null, from_loc: loc, to_loc: null,
+                vehicle: 'Truck', vehicle_type_id: t.vehicle_type_id,
+                views: t.views || 0, rate: t.rate || 0,
+                interests: (t.interested || []).length, shares: t.share || 0,
+                id: t.id, mobile: t.mobile,
+                endorsements: t.endorsements || 0, flags: t.flags || 0,
+                truck_no: t.truck_no, available_date: t.available_date, other_details: t.other_details
             });
         });
-
         (users || []).forEach(u => {
             let ut = u.user_type || [];
             if (!Array.isArray(ut) && typeof ut === 'number') ut = [ut];
@@ -1082,24 +975,13 @@ async function renderFeed() {
                 (trucks || []).forEach(t => { if (t.mobile == u.mobile) truckCount++; });
                 const loc = u.location ? getLoc(u.location) : null;
                 items.push({
-                    type: 'AGENT',
-                    title: u.company_name || u.name || 'Agent',
-                    company: u.company_name || '',
-                    from_pin: u.location,
-                    to_pin: null,
-                    from_loc: loc,
-                    to_loc: null,
-                    vehicle: 'Agent',
-                    views: 0, rate: 0, interests: 0, shares: 0,
-                    id: u.mobile,
-                    mobile: u.mobile,
-                    user: u,
-                    loads_count: loadCount,
-                    trucks_count: truckCount,
+                    type: 'AGENT', title: u.company_name || u.name || 'Agent', company: u.company_name || '',
+                    from_pin: u.location, to_pin: null, from_loc: loc, to_loc: null,
+                    vehicle: 'Agent', views: 0, rate: 0, interests: 0, shares: 0,
+                    id: u.mobile, mobile: u.mobile, user: u,
+                    loads_count: loadCount, trucks_count: truckCount,
                     rating: u.rating || '4.8',
-                    endorsements: u.endorsements || 0,
-                    flags: u.flags || 0,
-                    name: u.name
+                    endorsements: u.endorsements || 0, flags: u.flags || 0, name: u.name
                 });
             }
         });
@@ -1114,18 +996,15 @@ async function renderFeed() {
                 filtered = filtered.filter(i => {
                     if (i.type === 'AGENT') {
                         if (!i.from_loc) return true;
-                        const distance = dist(hl.lat, hl.lng, i.from_loc.lat, i.from_loc.lng);
-                        return distance <= radius;
+                        return dist(hl.lat, hl.lng, i.from_loc.lat, i.from_loc.lng) <= radius;
                     }
                     if (!i.from_loc) return false;
                     const distance = dist(hl.lat, hl.lng, i.from_loc.lat, i.from_loc.lng);
                     if (distance <= radius) return true;
-                    const itemPincode = String(i.from_loc.pincode);
-                    return itemPincode === searchPincode;
+                    return String(i.from_loc.pincode) === searchPincode;
                 });
             }
         }
-
         if (tab === 'LOAD') filtered = filtered.filter(i => i.type === 'LOAD');
         else if (tab === 'TRUCK') filtered = filtered.filter(i => i.type === 'TRUCK');
         else if (tab === 'AGENT') filtered = filtered.filter(i => i.type === 'AGENT');
@@ -1138,32 +1017,24 @@ async function renderFeed() {
                     if (i.type === 'TRUCK' || i.type === 'AGENT') return true;
                     if (i.type === 'LOAD') {
                         if (!i.to_loc) return false;
-                        const dropPincode = String(i.to_loc.pincode).substring(0, 6);
-                        if (dropPincode === toPincode) return true;
-                        const distance = dist(tl.lat, tl.lng, i.to_loc.lat, i.to_loc.lng);
-                        return distance <= radius;
+                        if (String(i.to_loc.pincode).substring(0, 6) === toPincode) return true;
+                        return dist(tl.lat, tl.lng, i.to_loc.lat, i.to_loc.lng) <= radius;
                     }
                     return true;
                 });
             }
         }
-
-        // Vehicle type filter — compares INTEGER IDs
         const v = document.getElementById('filter-vehicle')?.value;
         if (v && v !== 'ALL') {
             const vId = parseInt(v, 10);
-            if (!isNaN(vId)) {
-                filtered = filtered.filter(i => i.vehicle_type_id === vId);
-            }
+            if (!isNaN(vId)) filtered = filtered.filter(i => i.vehicle_type_id === vId);
         }
 
         document.getElementById('results-count').textContent = 'Showing ' + filtered.length + ' Records within ' + radius + ' KM';
-
         if (!filtered.length) {
             document.getElementById('feed-container').innerHTML = '<div style="padding:30px 0;color:#64748b;text-align:center">No records found</div>';
             return;
         }
-
         document.getElementById('feed-container').innerHTML = filtered.map(i => {
             let bc = i.type === 'LOAD' ? 'load' : (i.type === 'TRUCK' ? 'truck' : 'agent');
             let loc = '', sub = '', stats = '', rateDisplay = '';
@@ -1180,7 +1051,7 @@ async function renderFeed() {
                 const ratingInfo = calculateRating(i.endorsements || 0, i.flags || 0);
                 stats = '📅 Available Now • ' + ratingInfo.display;
                 rateDisplay = ' ₹' + formatIndianNumber(i.rate);
-            } else if (i.type === 'AGENT') {
+            } else {
                 loc = '📍 ' + (i.from_loc ? getLocDisplayName(i.from_loc) : 'Multiple Locations');
                 sub = '🤝 ' + i.company;
                 const ratingInfo = calculateRating(i.endorsements || 0, i.flags || 0);
@@ -1194,24 +1065,19 @@ async function renderFeed() {
                 '<div class="meta">' + stats + '</div>' +
                 '<div class="stats-row"><span>👁️ <span class="val">' + i.views + '</span></span><span>🤝 <span class="val">' + i.interests + '</span></span><span>📨 <span class="val">' + i.shares + '</span></span></div></div>';
         }).join('');
-
     } catch (e) {
         console.error('Render feed error:', e);
         document.getElementById('feed-container').innerHTML = '<div style="padding:30px 0;color:#f87171;text-align:center">Error loading feed</div>';
     }
 }
-
 function applyFilters() { renderFeed(); }
-
 function setTab(t) {
     tab = t;
     document.querySelectorAll('.type-tabs button').forEach(b => b.className = 'inactive');
     const map = { 'ALL': 'tab-all', 'LOAD': 'tab-loads', 'TRUCK': 'tab-trucks', 'AGENT': 'tab-agents' };
-    const el = document.getElementById(map[t]);
-    if (el) el.className = 'active';
+    const el = document.getElementById(map[t]); if (el) el.className = 'active';
     renderFeed();
 }
-
 function toggleFilters() {
     filterOpen = !filterOpen;
     document.getElementById('filter-container').classList.toggle('open', filterOpen);
@@ -1226,15 +1092,10 @@ function searchLocation(ctx) {
     const sug = $('suggestions-' + ctx);
     if (!inp || !sug) return;
     const q = inp.value.trim();
-    if (!q) { 
-        sug.classList.remove('show'); 
-        sug.innerHTML = ''; 
-        if (ctx === 'to') {
-            toPinId = null;
-            document.getElementById('filter-to-hidden').value = '';
-            applyFilters();
-        }
-        return; 
+    if (!q) {
+        sug.classList.remove('show'); sug.innerHTML = '';
+        if (ctx === 'to') { toPinId = null; document.getElementById('filter-to-hidden').value = ''; applyFilters(); }
+        return;
     }
     const res = LOCATIONS.filter(l => l.name.toLowerCase().includes(q.toLowerCase()) || l.pincode.includes(q) || l.district.toLowerCase().includes(q.toLowerCase()) || l.state.toLowerCase().includes(q.toLowerCase()) || String(l.pin_id).includes(q)).slice(0, 10);
     if (!res.length) { sug.classList.remove('show'); sug.innerHTML = ''; return; }
@@ -1246,18 +1107,13 @@ function searchLocation(ctx) {
         if (idx !== -1) dh = dn.substring(0, idx) + '<span class="highlight">' + dn.substring(idx, idx + q.length) + '</span>' + dn.substring(idx + q.length);
         html += '<div class="item" data-ctx="' + ctx + '" data-pinid="' + l.pin_id + '">' + dh + '</div>';
     });
-    sug.innerHTML = html;
-    sug.classList.add('show');
+    sug.innerHTML = html; sug.classList.add('show');
 }
-
 document.addEventListener('click', function(e) {
-    const profileDropdowns = document.querySelectorAll('.profile-dropdown');
-    profileDropdowns.forEach(d => {
+    document.querySelectorAll('.profile-dropdown').forEach(d => {
         if (d.classList.contains('show')) {
             const parent = d.parentElement;
-            if (parent && !parent.contains(e.target)) {
-                d.classList.remove('show');
-            }
+            if (parent && !parent.contains(e.target)) d.classList.remove('show');
         }
     });
     document.querySelectorAll('.suggestions').forEach(s => {
@@ -1270,7 +1126,6 @@ document.addEventListener('click', function(e) {
         if (ctx && pinId) { selectLoc(ctx, pinId); e.stopPropagation(); }
     }
 });
-
 function selectLoc(ctx, pinId) {
     const l = getLoc(pinId);
     if (!l) return;
@@ -1282,21 +1137,18 @@ function selectLoc(ctx, pinId) {
         const sug = $('suggestions-' + ctx);
         if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
     }
-    // Use the actual pin_id (integer) for storage
     const numericPinId = parseInt(l.pin_id, 10);
     let hid = null;
-    if (ctx === 'home') { 
-        homePinId = numericPinId; 
-        localStorage.setItem('rt_home_location', JSON.stringify({ pinId: numericPinId, displayName: dn })); 
-        applyFilters(); 
-        return; 
+    if (ctx === 'home') {
+        homePinId = numericPinId;
+        localStorage.setItem('rt_home_location', JSON.stringify({ pinId: numericPinId, displayName: dn }));
+        applyFilters(); return;
     }
     if (ctx === 'to') {
         toPinId = numericPinId;
         hid = 'filter-to-hidden';
         if (hid && $(hid)) $(hid).value = numericPinId;
-        applyFilters();
-        return;
+        applyFilters(); return;
     }
     if (ctx === 'pl-pickup') hid = 'pl-pickup-hidden';
     else if (ctx === 'pl-drop') hid = 'pl-drop-hidden';
@@ -1318,23 +1170,12 @@ function searchVehiclesForTruck(query) {
     const cleaned = q.replace(/[^A-Za-z0-9]/g, '');
     if (q !== cleaned) input.value = cleaned;
     if (input.value.length > 12) input.value = input.value.substring(0, 12);
-    
-    if (!q || q.length < 1) {
-        dropdown.classList.remove('show');
-        dropdown.innerHTML = '';
-        document.getElementById('pt-vehicle-detail').classList.remove('show');
-        return;
-    }
-    
+    if (!q || q.length < 1) { dropdown.classList.remove('show'); dropdown.innerHTML = ''; document.getElementById('pt-vehicle-detail').classList.remove('show'); return; }
     dropdown.innerHTML = '<div class="item" style="color:#94a3b8;">🔍 Searching...</div>';
     dropdown.classList.add('show');
     sb.from('active_vehicles').select('*').ilike('vehicle_number', '%' + q + '%').limit(10)
         .then(result => {
-            if (result.error) {
-                console.error('Error searching vehicles:', result.error);
-                dropdown.innerHTML = '<div class="item" style="color:#f87171;">❌ Error loading vehicles</div>';
-                return;
-            }
+            if (result.error) { console.error('Error searching vehicles:', result.error); dropdown.innerHTML = '<div class="item" style="color:#f87171;">❌ Error loading vehicles</div>'; return; }
             const vlist = result.data || [];
             if (!vlist.length) {
                 dropdown.innerHTML = '<div class="item add-new" onclick="openVehicleModalForTruck(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
@@ -1345,22 +1186,15 @@ function searchVehiclesForTruck(query) {
             let html = '';
             vlist.forEach(v => {
                 const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
-                const vtn = vehicleTypeName(v.vehicle_type_id);
-                html += '<div class="item" onclick="selectVehicleForTruck(\'' + v.vehicle_number + '\')">' + v.vehicle_number + ' <span class="sub">' + vtn + ' • ' + dims + 'ft</span></div>';
+                html += '<div class="item" onclick="selectVehicleForTruck(\'' + v.vehicle_number + '\')">' + v.vehicle_number + ' <span class="sub">' + vehicleTypeName(v.vehicle_type_id) + ' • ' + dims + 'ft</span></div>';
             });
             html += '<div class="item add-new" onclick="openVehicleModalForTruck(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
-            dropdown.innerHTML = html;
-            dropdown.classList.add('show');
-        }).catch(err => { 
-            console.error('Error:', err); 
-            dropdown.innerHTML = '<div class="item" style="color:#f87171;">❌ Error loading vehicles</div>';
-        });
+            dropdown.innerHTML = html; dropdown.classList.add('show');
+        }).catch(err => { console.error('Error:', err); dropdown.innerHTML = '<div class="item" style="color:#f87171;">❌ Error loading vehicles</div>'; });
 }
-
 function selectVehicleForTruck(number) {
     document.getElementById('pt-vehicle-number').value = number;
     document.getElementById('pt-vehicle-suggest-dropdown').classList.remove('show');
-    
     sb.from('active_vehicles').select('*').eq('vehicle_number', number).single()
         .then(result => {
             if (result.data) {
@@ -1372,11 +1206,8 @@ function selectVehicleForTruck(number) {
                 document.getElementById('pt-detail-odc').textContent = v.odc_allowed ? '✅ Yes' : '❌ No';
                 document.getElementById('pt-vehicle-detail').classList.add('show');
             }
-        }).catch(() => {
-            document.getElementById('pt-vehicle-detail').classList.remove('show');
-        });
+        }).catch(() => { document.getElementById('pt-vehicle-detail').classList.remove('show'); });
 }
-
 function openVehicleModalForTruck(number) {
     document.getElementById('pt-vehicle-suggest-dropdown').classList.remove('show');
     document.getElementById('modal-vehicle-title').textContent = '📝 Register New Vehicle';
@@ -1399,30 +1230,21 @@ function openVehicleModalForTruck(number) {
 // LOGIN FUNCTIONS
 // ============================================================
 function $(id) { return document.getElementById(id); }
-
-function showMobileLoading(show) { 
-    const loading = document.getElementById('mobile-loading'); 
-    const status = document.getElementById('mobile-status'); 
-    const mobileInput = document.getElementById('mobile'); 
-    if (show) { 
-        loading.classList.remove('hidden'); 
-        status.textContent = '⏳ Checking user...'; 
-        status.style.color = '#f59e0b'; 
-        mobileInput.disabled = true; 
-    } else { 
-        loading.classList.add('hidden'); 
-        mobileInput.disabled = false; 
-    } 
+function showMobileLoading(show) {
+    const loading = document.getElementById('mobile-loading');
+    const status = document.getElementById('mobile-status');
+    const mobileInput = document.getElementById('mobile');
+    if (show) { loading.classList.remove('hidden'); status.textContent = '⏳ Checking user...'; status.style.color = '#f59e0b'; mobileInput.disabled = true; }
+    else { loading.classList.add('hidden'); mobileInput.disabled = false; }
 }
-
 document.getElementById('mobile').addEventListener('input', function(e) {
     const m = this.value.trim();
     if (mobileCheckTimeout) { clearTimeout(mobileCheckTimeout); mobileCheckTimeout = null; }
     const status = document.getElementById('mobile-status');
     status.textContent = '';
-    if (m.length === 10) { mobile = m; showMobileLoading(true); mobileCheckTimeout = setTimeout(function() { checkUserAndShowStep(m); }, 300); } else showMobileLoading(false);
+    if (m.length === 10) { mobile = m; showMobileLoading(true); mobileCheckTimeout = setTimeout(function() { checkUserAndShowStep(m); }, 300); }
+    else showMobileLoading(false);
 });
-
 document.getElementById('pin').addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); submitPin(); } });
 document.getElementById('reg-pin').addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('reg-pin-confirm').focus(); } });
 document.getElementById('reg-pin-confirm').addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); registerUser(); } });
@@ -1441,10 +1263,8 @@ async function checkUserAndShowStep(mobileNum) {
             document.getElementById('step2').classList.remove('hidden');
             document.getElementById('display-mobile').textContent = mobileNum;
             const status = document.getElementById('mobile-status');
-            status.textContent = '✅ Existing user - Enter your PIN';
-            status.style.color = '#4ade80';
-            document.getElementById('pin').value = '';
-            document.getElementById('pin').focus();
+            status.textContent = '✅ Existing user - Enter your PIN'; status.style.color = '#4ade80';
+            document.getElementById('pin').value = ''; document.getElementById('pin').focus();
             document.getElementById('pin-error').style.display = 'none';
         } else {
             otpPurpose = 'registration';
@@ -1453,10 +1273,8 @@ async function checkUserAndShowStep(mobileNum) {
             document.getElementById('wa-display-mobile').textContent = mobileNum;
             document.getElementById('otp-purpose').textContent = 'Enter OTP sent via WhatsApp for Registration';
             const status = document.getElementById('mobile-status');
-            status.textContent = '📝 New user - Verify OTP to create account';
-            status.style.color = '#f59e0b';
-            const otpLoading = document.getElementById('otp-loading');
-            otpLoading.classList.remove('hidden');
+            status.textContent = '📝 New user - Verify OTP to create account'; status.style.color = '#f59e0b';
+            const otpLoading = document.getElementById('otp-loading'); otpLoading.classList.remove('hidden');
             await sendWhatsAppOTP();
             otpLoading.classList.add('hidden');
         }
@@ -1464,33 +1282,26 @@ async function checkUserAndShowStep(mobileNum) {
         console.error('Error checking user:', e);
         showMobileLoading(false);
         const status = document.getElementById('mobile-status');
-        status.textContent = '❌ Error connecting to server. Please try again.';
-        status.style.color = '#f87171';
+        status.textContent = '❌ Error connecting to server. Please try again.'; status.style.color = '#f87171';
         document.getElementById('step1').classList.add('hidden');
         document.getElementById('step2').classList.remove('hidden');
         document.getElementById('display-mobile').textContent = mobileNum;
     }
 }
-
 function sendWhatsAppOTP() {
     if (!mobile || mobile.length !== 10) return;
-    const otp = generateOTP();
-    generatedOTP = otp;
+    const otp = generateOTP(); generatedOTP = otp;
     const purposeText = (otpPurpose === 'reset') ? 'PIN Reset' : 'Registration';
     const message = '🔐 ReturnTruck - ' + purposeText + '\n\nYour OTP is: ' + otp + '\n\nThis OTP is valid for 5 minutes.\n\n📱 Mobile: ' + mobile + '\n\n- ReturnTruck Team';
-    const otpLoading = document.getElementById('otp-loading');
-    otpLoading.classList.remove('hidden');
+    const otpLoading = document.getElementById('otp-loading'); otpLoading.classList.remove('hidden');
     window.open('https://wa.me/91' + mobile + '?text=' + encodeURIComponent(message), '_blank');
     setTimeout(function() { otpLoading.classList.add('hidden'); }, 500);
     startOTPTimer();
     document.getElementById('verify-btn').disabled = false;
     document.getElementById('verify-btn').textContent = '✅ Verify';
 }
-
 function resetForm() {
-    otpVerified = false;
-    isResetFlow = false;
-    otpPurpose = 'registration';
+    otpVerified = false; isResetFlow = false; otpPurpose = 'registration';
     if (otpTimer) clearInterval(otpTimer);
     ['step2', 'step3', 'step4'].forEach(i => $(i).classList.add('hidden'));
     document.getElementById('step1').classList.remove('hidden');
@@ -1503,115 +1314,78 @@ function resetForm() {
     document.getElementById('verify-btn').textContent = '✅ Verify';
     showMobileLoading(false);
 }
-
 function submitPin() {
     const pin = document.getElementById('pin').value.trim();
-    if (!pin || pin.length !== 4) {
-        document.getElementById('pin-error').style.display = 'block';
-        document.getElementById('pin-error').textContent = '❌ Please enter a 4-digit PIN';
-        return;
-    }
-    const btn = document.getElementById('submitBtn');
-    btn.textContent = '⏳ Checking...';
-    btn.disabled = true;
+    if (!pin || pin.length !== 4) { document.getElementById('pin-error').style.display = 'block'; document.getElementById('pin-error').textContent = '❌ Please enter a 4-digit PIN'; return; }
+    const btn = document.getElementById('submitBtn'); btn.textContent = '⏳ Checking...'; btn.disabled = true;
     document.getElementById('pin-error').style.display = 'none';
     fetch(EDGE_URL + '/login-user', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
-            body: JSON.stringify({ mobile: mobile, action: 'login', pin: pin })
-        }).then(r => r.json())
-        .then(result => {
-            if (result.success === true && result.user) {
-                user = result.user;
-                user.mobile = mobile;
-                localStorage.setItem('rt_user', JSON.stringify({ mobile: user.mobile, user: user }));
-                guest = false;
-                btn.textContent = '🔐 Login';
-                btn.disabled = false;
-                showHome();
-                return;
-            }
-            if (result.isNewUser === true) {
-                otpPurpose = 'registration';
-                document.getElementById('step2').classList.add('hidden');
-                document.getElementById('step3').classList.remove('hidden');
-                document.getElementById('wa-display-mobile').textContent = mobile;
-                document.getElementById('otp-purpose').textContent = 'Enter OTP sent via WhatsApp for Registration';
-                sendWhatsAppOTP();
-                btn.textContent = '🔐 Login';
-                btn.disabled = false;
-                return;
-            }
-            document.getElementById('pin-error').style.display = 'block';
-            document.getElementById('pin-error').textContent = '❌ ' + (result.error || 'Incorrect PIN. Please try again.');
-            document.getElementById('pin').value = '';
-            document.getElementById('pin').focus();
-            btn.textContent = '🔐 Login';
-            btn.disabled = false;
-        }).catch(e => {
-            console.error(e);
-            document.getElementById('pin-error').style.display = 'block';
-            document.getElementById('pin-error').textContent = '❌ Error connecting to server. Please try again.';
-            btn.textContent = '🔐 Login';
-            btn.disabled = false;
-        });
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
+        body: JSON.stringify({ mobile: mobile, action: 'login', pin: pin })
+    }).then(r => r.json()).then(result => {
+        if (result.success === true && result.user) {
+            user = result.user; user.mobile = mobile;
+            localStorage.setItem('rt_user', JSON.stringify({ mobile: user.mobile, user: user }));
+            guest = false; btn.textContent = '🔐 Login'; btn.disabled = false;
+            showHome(); return;
+        }
+        if (result.isNewUser === true) {
+            otpPurpose = 'registration';
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('step3').classList.remove('hidden');
+            document.getElementById('wa-display-mobile').textContent = mobile;
+            document.getElementById('otp-purpose').textContent = 'Enter OTP sent via WhatsApp for Registration';
+            sendWhatsAppOTP(); btn.textContent = '🔐 Login'; btn.disabled = false; return;
+        }
+        document.getElementById('pin-error').style.display = 'block';
+        document.getElementById('pin-error').textContent = '❌ ' + (result.error || 'Incorrect PIN. Please try again.');
+        document.getElementById('pin').value = ''; document.getElementById('pin').focus();
+        btn.textContent = '🔐 Login'; btn.disabled = false;
+    }).catch(e => {
+        console.error(e);
+        document.getElementById('pin-error').style.display = 'block';
+        document.getElementById('pin-error').textContent = '❌ Error connecting to server. Please try again.';
+        btn.textContent = '🔐 Login'; btn.disabled = false;
+    });
 }
-
 function registerUser() {
     if (!otpVerified) return;
     const pin = document.getElementById('reg-pin').value.trim();
     const conf = document.getElementById('reg-pin-confirm').value.trim();
-    if (!pin || pin.length !== 4 || pin !== conf) {
-        document.getElementById('reg-pin-confirm').value = '';
-        document.getElementById('reg-pin-confirm').focus();
-        return;
-    }
-    const btn = document.getElementById('register-btn');
-    btn.textContent = '⏳ Processing...';
-    btn.disabled = true;
+    if (!pin || pin.length !== 4 || pin !== conf) { document.getElementById('reg-pin-confirm').value = ''; document.getElementById('reg-pin-confirm').focus(); return; }
+    const btn = document.getElementById('register-btn'); btn.textContent = '⏳ Processing...'; btn.disabled = true;
     if (otpPurpose === 'reset') {
         fetch(EDGE_URL + '/login-user', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
-                body: JSON.stringify({ mobile: mobile, action: 'reset_pin', new_pin: pin })
-            }).then(r => r.json())
-            .then(result => {
-                if (result.success && result.user) {
-                    user = result.user;
-                    user.mobile = mobile;
-                    localStorage.setItem('rt_user', JSON.stringify({ mobile: user.mobile, user: user }));
-                    guest = false;
-                    showHome();
-                }
-                btn.textContent = '🔄 Reset PIN';
-                btn.disabled = false;
-            });
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
+            body: JSON.stringify({ mobile: mobile, action: 'reset_pin', new_pin: pin })
+        }).then(r => r.json()).then(result => {
+            if (result.success && result.user) {
+                user = result.user; user.mobile = mobile;
+                localStorage.setItem('rt_user', JSON.stringify({ mobile: user.mobile, user: user }));
+                guest = false; showHome();
+            }
+            btn.textContent = '🔄 Reset PIN'; btn.disabled = false;
+        });
         return;
     }
     fetch(EDGE_URL + '/register-user', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
-            body: JSON.stringify({ mobile: mobile, pin: pin, name: '', company_name: '', location: null })
-        }).then(r => r.json())
-        .then(result => {
-            if (result.success && result.user) {
-                user = result.user;
-                user.mobile = mobile;
-                localStorage.setItem('rt_user', JSON.stringify({ mobile: user.mobile, user: user }));
-                guest = false;
-                showHome();
-                return;
-            }
-            btn.textContent = '✅ Create Account';
-            btn.disabled = false;
-        }).catch(e => { console.error(e); btn.textContent = '✅ Create Account'; btn.disabled = false; });
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
+        body: JSON.stringify({ mobile: mobile, pin: pin, name: '', company_name: '', location: null })
+    }).then(r => r.json()).then(result => {
+        if (result.success && result.user) {
+            user = result.user; user.mobile = mobile;
+            localStorage.setItem('rt_user', JSON.stringify({ mobile: user.mobile, user: user }));
+            guest = false; showHome(); return;
+        }
+        btn.textContent = '✅ Create Account'; btn.disabled = false;
+    }).catch(e => { console.error(e); btn.textContent = '✅ Create Account'; btn.disabled = false; });
 }
-
 function otpInput(el) { if (el.value.length === 1) { const next = el.nextElementSibling; if (next) next.focus(); } document.getElementById('otp-error').style.display = 'none'; }
-
 function startOTPTimer() {
-    otpSeconds = 300;
-    otpVerified = false;
+    otpSeconds = 300; otpVerified = false;
     if (otpTimer) clearInterval(otpTimer);
     const timerDisplay = document.getElementById('otp-timer');
     const resendBtn = document.getElementById('resend-otp-btn');
@@ -1629,18 +1403,11 @@ function startOTPTimer() {
         }
     }, 1000);
 }
-
 function generateOTP() { let otp = ''; for (let i = 0; i < 6; i++) otp += Math.floor(Math.random() * 10); return otp; }
-
 function verifyOTP() {
     const inputs = document.querySelectorAll('.otp-input');
-    let otp = '';
-    inputs.forEach(i => otp += i.value);
-    if (otp.length !== 6) {
-        document.getElementById('otp-error').style.display = 'block';
-        document.getElementById('otp-error').textContent = '❌ Enter complete 6-digit OTP';
-        return;
-    }
+    let otp = ''; inputs.forEach(i => otp += i.value);
+    if (otp.length !== 6) { document.getElementById('otp-error').style.display = 'block'; document.getElementById('otp-error').textContent = '❌ Enter complete 6-digit OTP'; return; }
     if (otp === generatedOTP) {
         otpVerified = true;
         document.getElementById('otp-error').style.display = 'none';
@@ -1665,36 +1432,23 @@ function verifyOTP() {
         document.querySelectorAll('.otp-input')[0].focus();
     }
 }
-
 function resendOTP() { if (otpSeconds > 0) return; sendWhatsAppOTP(); }
-
 function showResetOTP() {
-    isResetFlow = true;
-    otpPurpose = 'reset';
+    isResetFlow = true; otpPurpose = 'reset';
     document.getElementById('step2').classList.add('hidden');
     document.getElementById('step3').classList.remove('hidden');
     document.getElementById('wa-display-mobile').textContent = mobile;
     document.getElementById('otp-purpose').textContent = 'Enter OTP sent via WhatsApp for PIN Reset';
     sendWhatsAppOTP();
 }
-
 function continueAsGuest() {
     guest = true; user = null;
     localStorage.setItem('rt_user', JSON.stringify({ guest: true }));
     showHome();
 }
-
 function updateGuestUI() {
     const b = document.getElementById('guest-banner');
-    if (b) { 
-        if (guest) {
-            b.style.display = 'flex';
-            b.classList.remove('hidden');
-        } else {
-            b.style.display = 'none';
-            b.classList.add('hidden');
-        }
-    }
+    if (b) { if (guest) { b.style.display = 'flex'; b.classList.remove('hidden'); } else { b.style.display = 'none'; b.classList.add('hidden'); } }
 }
 
 // ============================================================
@@ -1706,67 +1460,44 @@ function loadProfile() {
         if (saved) {
             try {
                 const sd = JSON.parse(saved);
-                if (sd.user) {
-                    user = sd.user;
-                    guest = false;
-                } else if (sd.guest) {
-                    guest = true;
-                    document.getElementById('profile-name').textContent = 'Guest User';
-                    return;
-                }
+                if (sd.user) { user = sd.user; guest = false; }
+                else if (sd.guest) { guest = true; document.getElementById('profile-name').textContent = 'Guest User'; return; }
             } catch (e) { console.error('Error loading user:', e); }
         }
     }
-    if (!user || !user.mobile) {
-        document.getElementById('profile-name').textContent = 'Please login';
-        return;
-    }
+    if (!user || !user.mobile) { document.getElementById('profile-name').textContent = 'Please login'; return; }
     sb.from('active_users').select('*').eq('mobile', parseInt(user.mobile, 10)).single()
         .then(result => {
             if (result.data) {
                 Object.assign(user, result.data);
                 const saved = localStorage.getItem('rt_user');
-                if (saved) {
-                    const sd = JSON.parse(saved);
-                    sd.user = user;
-                    localStorage.setItem('rt_user', JSON.stringify(sd));
-                }
+                if (saved) { const sd = JSON.parse(saved); sd.user = user; localStorage.setItem('rt_user', JSON.stringify(sd)); }
             }
             renderProfileData();
-        })
-        .catch(() => renderProfileData());
+        }).catch(() => renderProfileData());
 }
-
 function renderProfileData() {
     if (!user) return;
-    
     const displayName = user.name || user.mobile || 'User';
     document.getElementById('profile-name').textContent = displayName;
-    
     updateAvatarInitials();
-    
     if (user.last_active) {
         const d = new Date(user.last_active);
         document.getElementById('profile-last-active').textContent = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
     }
-    
     document.getElementById('profile-company').textContent = user.company_name || 'Not set';
-    
     const websiteEl = document.getElementById('profile-website');
     if (user.company_web && user.company_web.trim() !== '') {
         let url = user.company_web.trim();
         if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
         websiteEl.innerHTML = '<a href="' + url + '" target="_blank" class="website-link" onclick="event.stopPropagation();">' + user.company_web + ' ↗</a>';
     } else websiteEl.textContent = '--';
-    
     document.getElementById('profile-pan').textContent = '📛 PAN: ' + (user.pan || '--');
     document.getElementById('profile-gst').textContent = '📛 GST: ' + (user.gst || '--');
-    
     if (user.location) {
         const loc = getLoc(user.location);
         document.getElementById('profile-location').textContent = loc ? '📍 Location: ' + getLocDisplayName(loc) : '📍 Location: Unknown';
     } else document.getElementById('profile-location').textContent = '📍 Location: Not set';
-    
     let types = user.user_type || [];
     if (!Array.isArray(types) && typeof types === 'number') types = [types];
     const typeLabels = ['Load Giver', 'Operator', 'Agent'];
@@ -1779,9 +1510,7 @@ function renderProfileData() {
             return '';
         }).join('');
     } else container.innerHTML = '<span class="section-badge optional">Not set</span>';
-    
     document.getElementById('profile-details-text').textContent = user.details || 'No details added';
-    
     loadAgentsFromUser();
     renderProfileAgents();
     loadProfileVehicles();
@@ -1791,107 +1520,65 @@ function renderProfileData() {
 }
 
 // ============================================================
-// PROFILE VEHICLES & ROUTES RENDERING
+// PROFILE VEHICLES & ROUTES
 // ============================================================
 async function loadProfileVehicles() {
     const container = document.getElementById('profile-vehicles-container');
     const badge = document.getElementById('vehicle-count-badge');
     if (!container) return;
-    
     let vno = user.vehicle_no || [];
     if (typeof vno === 'string') vno = vno.split(',').filter(v => v.trim() !== '');
     if (!Array.isArray(vno)) vno = [];
-    
     if (badge) badge.textContent = vno.length + ' Vehicles';
-    
-    if (vno.length === 0) {
-        container.innerHTML = '<div style="color:#64748b;font-size:13px;text-align:center;padding:8px">No vehicles added</div>';
-        return;
-    }
-    
+    if (vno.length === 0) { container.innerHTML = '<div style="color:#64748b;font-size:13px;text-align:center;padding:8px">No vehicles added</div>'; return; }
     container.innerHTML = '<div style="color:#64748b;font-size:13px;text-align:center;padding:8px">🔄 Loading vehicles...</div>';
-    
     try {
         const { data, error } = await sb.from('active_vehicles').select('*').in('vehicle_number', vno);
         if (error) throw error;
-        
         if (data) {
             data.forEach(v => {
                 const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
-                vehicleDataMap[v.vehicle_number] = {
-                    id: v.id,
-                    vehicle_number: v.vehicle_number,
-                    vehicle_type_id: v.vehicle_type_id,
-                    dimensions: dims
-                };
+                vehicleDataMap[v.vehicle_number] = { id: v.id, vehicle_number: v.vehicle_number, vehicle_type_id: v.vehicle_type_id, dimensions: dims };
             });
         }
-        
         container.innerHTML = vno.map(v => {
             const dataMap = vehicleDataMap[v] || { vehicle_type_id: null, dimensions: 'N/A' };
             const dims = dataMap.dimensions || 'N/A';
-            return '<div class="vehicle-display-item">' +
-                '<div class="vnumber">' + v + '</div>' +
-                '<div class="vdetails">' + vehicleTypeName(dataMap.vehicle_type_id) + ' • ' + dims + ' ft</div>' +
-                '</div>';
+            return '<div class="vehicle-display-item"><div class="vnumber">' + v + '</div><div class="vdetails">' + vehicleTypeName(dataMap.vehicle_type_id) + ' • ' + dims + ' ft</div></div>';
         }).join('');
-        
     } catch (err) {
         console.error('Error loading profile vehicles:', err);
-        container.innerHTML = vno.map(v => {
-            return '<div class="vehicle-display-item">' +
-                '<div class="vnumber">' + v + '</div>' +
-                '<div class="vdetails">Details unavailable</div>' +
-                '</div>';
-        }).join('');
+        container.innerHTML = vno.map(v => '<div class="vehicle-display-item"><div class="vnumber">' + v + '</div><div class="vdetails">Details unavailable</div></div>').join('');
     }
 }
-
 function loadProfileRoutes() {
     const container = document.getElementById('profile-routes-container');
     if (!container) return;
-    
     let pref = user.preferred_routes || [];
     if (typeof pref === 'string') pref = pref.split(',').filter(r => r.trim() !== '').map(Number);
     if (!Array.isArray(pref)) pref = [];
-    
-    if (pref.length === 0) {
-        container.innerHTML = '<span style="color:#64748b;font-size:13px">No routes added</span>';
-        return;
-    }
-    
+    if (pref.length === 0) { container.innerHTML = '<span style="color:#64748b;font-size:13px">No routes added</span>'; return; }
     container.innerHTML = pref.map(r => {
         const loc = getLoc(r);
-        const display = loc ? getLocDisplayName(loc) : r;
-        return '<span class="route-tag">' + display + '</span>';
+        return '<span class="route-tag">' + (loc ? getLocDisplayName(loc) : r) + '</span>';
     }).join('');
 }
 
 // ============================================================
-// EDIT PROFILE FUNCTIONS
+// EDIT PROFILE
 // ============================================================
 function openEditProfile() {
     if (!user) { toast('Please login first'); return; }
     sb.from('active_users').select('*').eq('mobile', parseInt(user.mobile, 10)).single()
-        .then(result => { 
+        .then(result => {
             if (result.data) {
                 Object.assign(user, result.data);
                 const saved = localStorage.getItem('rt_user');
-                if (saved) {
-                    const sd = JSON.parse(saved);
-                    sd.user = user;
-                    localStorage.setItem('rt_user', JSON.stringify(sd));
-                }
+                if (saved) { const sd = JSON.parse(saved); sd.user = user; localStorage.setItem('rt_user', JSON.stringify(sd)); }
             }
-            populateEditForm();
-            switchPage('edit-profile-page');
-        })
-        .catch(() => {
-            populateEditForm();
-            switchPage('edit-profile-page');
-        });
+            populateEditForm(); switchPage('edit-profile-page');
+        }).catch(() => { populateEditForm(); switchPage('edit-profile-page'); });
 }
-
 function populateEditForm() {
     if (!user) { toast('User not found'); return; }
     document.getElementById('edit-name').value = user.name || '';
@@ -1911,7 +1598,6 @@ function populateEditForm() {
     document.getElementById('edit-type-loadgiver').checked = types.indexOf(1) !== -1;
     document.getElementById('edit-type-operator').checked = types.indexOf(2) !== -1;
     document.getElementById('edit-type-agent').checked = types.indexOf(3) !== -1;
-    
     vehicles = [];
     vehicleDataMap = {};
     let vno = user.vehicle_no || [];
@@ -1923,59 +1609,37 @@ function populateEditForm() {
                 if (res.data) {
                     res.data.forEach(v => {
                         const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
-                        vehicleDataMap[v.vehicle_number] = {
-                            id: v.id,
-                            vehicle_number: v.vehicle_number,
-                            vehicle_type_id: v.vehicle_type_id,
-                            dimensions: dims
-                        };
+                        vehicleDataMap[v.vehicle_number] = { id: v.id, vehicle_number: v.vehicle_number, vehicle_type_id: v.vehicle_type_id, dimensions: dims };
                     });
                     renderVehicles();
                 }
             });
     }
     renderVehicles();
-    
     routes = [];
     let pref = user.preferred_routes || [];
     if (Array.isArray(pref)) routes = pref.filter(r => r).map(r => parseInt(r, 10)).filter(r => !isNaN(r));
     else if (typeof pref === 'string') routes = pref.split(',').filter(r => r.trim() !== '').map(Number);
     renderRoutes();
-    
     document.getElementById('edit-details').value = user.details || '';
     updateCharCount('edit-details', 'edit-details-count');
     loadAgentsFromUser();
     renderAgentsUI();
     updateAgentHiddenField();
 }
-
-function closeEditProfile() { 
-    switchPage('profile-page'); 
-    loadProfile(); 
-}
-
-// ============================================================
-// SAVE PROFILE (with strict integer casting)
-// ============================================================
+function closeEditProfile() { switchPage('profile-page'); loadProfile(); }
 function saveProfile() {
     if (!user || !user.mobile) { alert('User not logged in.'); return; }
-
     const types = [];
     if (document.getElementById('edit-type-loadgiver').checked) types.push(1);
     if (document.getElementById('edit-type-operator').checked) types.push(2);
     if (document.getElementById('edit-type-agent').checked) types.push(3);
-
     const locationRaw = document.getElementById('edit-location-hidden').value;
     const location = locationRaw ? parseInt(locationRaw, 10) : null;
-    if (locationRaw && isNaN(location)) {
-        alert('❌ Invalid location. Please re-select from dropdown.');
-        return;
-    }
-
+    if (locationRaw && isNaN(location)) { alert('❌ Invalid location. Please re-select.'); return; }
     const routesInts = ensureUniqueArray(routes).map(r => parseInt(r, 10)).filter(r => !isNaN(r));
     const agentsInts = ensureUniqueArray(agents).map(a => parseInt(a, 10)).filter(a => !isNaN(a));
     const vehiclesStrs = ensureUniqueArray(vehicles).filter(v => v && String(v).trim() !== '');
-
     const updateData = {
         name: toStrOrNull(document.getElementById('edit-name').value),
         company_name: toStrOrNull(document.getElementById('edit-company').value),
@@ -1990,33 +1654,21 @@ function saveProfile() {
         agents: agentsInts.length ? agentsInts : null,
         last_active: new Date().toISOString()
     };
-
-    console.log('📤 saveProfile payload:', updateData);
-
     const mobileNum = parseInt(user.mobile, 10);
     sb.from('active_users').update(updateData).eq('mobile', mobileNum)
         .then(result => {
-            if (result.error) { 
-                console.error('❌ saveProfile error:', result.error);
-                alert('Error saving profile: ' + result.error.message); 
-                return; 
-            }
+            if (result.error) { alert('Error saving profile: ' + result.error.message); return; }
             sb.from('active_users').select('*').eq('mobile', mobileNum).single()
                 .then(freshResult => {
                     if (freshResult.data) {
                         Object.assign(user, freshResult.data);
                         const saved = localStorage.getItem('rt_user');
-                        if (saved) { const sd = JSON.parse(saved);
-                            sd.user = user;
-                            localStorage.setItem('rt_user', JSON.stringify(sd)); }
+                        if (saved) { const sd = JSON.parse(saved); sd.user = user; localStorage.setItem('rt_user', JSON.stringify(sd)); }
                         alert('✅ Profile saved successfully!');
                         closeEditProfile();
                     } else { alert('✅ Profile saved!'); closeEditProfile(); }
                 }).catch(() => { alert('✅ Profile saved!'); closeEditProfile(); });
-        }).catch(err => { 
-            console.error('❌ saveProfile exception:', err);
-            alert('Error: ' + err.message); 
-        });
+        }).catch(err => { alert('Error: ' + err.message); });
 }
 
 // ============================================================
@@ -2025,7 +1677,6 @@ function saveProfile() {
 function openDetail(type, id) {
     if (!id) { toast('Invalid item ID'); return; }
     showLoading('Opening ' + type.toLowerCase() + ' details...');
-
     if (type === 'AGENT') {
         sb.from('active_users').select('*').eq('mobile', parseInt(id, 10)).single()
             .then(async r => {
@@ -2039,25 +1690,17 @@ function openDetail(type, id) {
                     detail.trucks_count = trucks.count || 0;
                     detail.endorsements = r.data.endorsements || 0;
                     detail.flags = r.data.flags || 0;
-                    switchPage('detail-page');
-                    renderDetailView(detail);
-                } else { toast('Agent not found'); }
+                    switchPage('detail-page'); renderDetailView(detail);
+                } else toast('Agent not found');
                 hideLoading();
-            }).catch(err => {
-                console.error('Error loading agent:', err);
-                toast('Error loading agent details');
-                hideLoading();
-            });
+            }).catch(err => { console.error('Error loading agent:', err); toast('Error loading agent details'); hideLoading(); });
         return;
     }
-    
     const table = type === 'LOAD' ? 'active_loads' : 'active_trucks';
-    
     sb.from(table).select('*').eq('id', id).single()
         .then(async r => {
             if (r.data) {
-                detail = r.data;
-                detail.type = type;
+                detail = r.data; detail.type = type;
                 if (type === 'LOAD') {
                     detail.material_id = r.data.material_id;
                     detail.pickup_pin = r.data.pickup_pin;
@@ -2079,17 +1722,10 @@ function openDetail(type, id) {
                 detail.user = userData;
                 detail.endorsements = userData?.endorsements || 0;
                 detail.flags = userData?.flags || 0;
-                switchPage('detail-page');
-                renderDetailView(detail);
-            } else {
-                toast('Item not found');
-            }
+                switchPage('detail-page'); renderDetailView(detail);
+            } else toast('Item not found');
             hideLoading();
-        }).catch(err => { 
-            console.error('Error loading detail:', err);
-            toast('Error loading details'); 
-            hideLoading();
-        });
+        }).catch(err => { console.error('Error loading detail:', err); toast('Error loading details'); hideLoading(); });
 }
 
 // ============================================================
@@ -2102,7 +1738,6 @@ function renderDetailView(data) {
     else if (data.type === 'AGENT') container.innerHTML = renderAgentDetail(data);
     updateStats(data);
 }
-
 function renderLoadDetail(load) {
     const user = load.user || {};
     const fromLoc = getLoc(load.pickup_pin);
@@ -2117,7 +1752,8 @@ function renderLoadDetail(load) {
         getRoadDistance(fromLoc.lat, fromLoc.lng, toLoc.lat, toLoc.lng)
             .then(roadData => {
                 const distEl = document.getElementById(distId);
-                if (roadData) { if (distEl) distEl.textContent = roadData.distance + ' KM'; } else { if (distEl) distEl.textContent = aerialDistance + ' KM (aerial)'; }
+                if (roadData) { if (distEl) distEl.textContent = roadData.distance + ' KM'; }
+                else { if (distEl) distEl.textContent = aerialDistance + ' KM (aerial)'; }
             }).catch(() => { const distEl = document.getElementById(distId); if (distEl) distEl.textContent = aerialDistance + ' KM (aerial)'; });
     }
     let badges = '';
@@ -2125,7 +1761,6 @@ function renderLoadDetail(load) {
     badges += isVerified ? `<span class="detail-badge verified">✅ Verified</span>` : `<span class="detail-badge unverified">🔒 Unverified</span>`;
     if (user.pan) badges += `<span class="detail-badge pan-gst">📛 ${user.pan}</span>`;
     if (user.gst) badges += `<span class="detail-badge pan-gst">📛 ${user.gst}</span>`;
-    
     let agentsHtml = '';
     if (load.agents && load.agents.length) {
         agentsHtml = '<div class="detail-card" id="agents-card"><div class="section-title">🤝 Agents</div><div id="agents-list" style="display:flex;flex-direction:column;gap:4px;">' +
@@ -2133,7 +1768,6 @@ function renderLoadDetail(load) {
                 const data = agentDataMap[a] || { name: 'Unknown', company: '', location: '' };
                 return `<div style="font-size:14px; color:#0f172a; font-weight:500;">👤 ${data.name} ${data.company ? '(' + data.company + ')' : ''}</div>`;
             }).join('') + '</div></div>';
-            
         const missingAgents = load.agents.filter(a => !agentDataMap[a]);
         if (missingAgents.length > 0) {
             sb.from('active_users').select('mobile, name, company_name, location').in('mobile', missingAgents)
@@ -2155,7 +1789,6 @@ function renderLoadDetail(load) {
                 }).catch(err => console.error('Error fetching agents:', err));
         }
     }
-    
     return `<div class="detail-header-card"><div class="main-title">📦 ${materialName(load.material_id)}</div><div class="company-name">${user.company_name || 'Unknown Company'} ${website ? `• ${website}` : ''}</div><div class="meta-row">${badges}</div></div>
         <div class="detail-card"><div class="section-title">📋 LOAD SPECS</div><div class="spec-grid">
             <div><span class="label">⚖️ Weight</span><br><span class="value">${formatIndianNumber(load.weight || 0)} Kg</span></div>
@@ -2180,7 +1813,6 @@ function renderLoadDetail(load) {
         </div></div>
         ${renderActionButtons(load)}`;
 }
-
 function renderTruckDetail(truck) {
     const user = truck.user || {};
     const loc = getLoc(truck.location_pin);
@@ -2206,7 +1838,6 @@ function renderTruckDetail(truck) {
     badges += isVerified ? `<span class="detail-badge verified">✅ Verified</span>` : `<span class="detail-badge unverified">🔒 Unverified</span>`;
     if (user.pan) badges += `<span class="detail-badge pan-gst">📛 ${user.pan}</span>`;
     if (user.gst) badges += `<span class="detail-badge pan-gst">📛 ${user.gst}</span>`;
-    
     let agentsHtml = '';
     if (truck.agents && truck.agents.length) {
         agentsHtml = '<div class="detail-card" id="agents-card"><div class="section-title">🤝 Agents</div><div id="agents-list" style="display:flex;flex-direction:column;gap:4px;">' +
@@ -2214,7 +1845,6 @@ function renderTruckDetail(truck) {
                 const data = agentDataMap[a] || { name: 'Unknown', company: '', location: '' };
                 return `<div style="font-size:14px; color:#0f172a; font-weight:500;">👤 ${data.name} ${data.company ? '(' + data.company + ')' : ''}</div>`;
             }).join('') + '</div></div>';
-            
         const missingAgents = truck.agents.filter(a => !agentDataMap[a]);
         if (missingAgents.length > 0) {
             sb.from('active_users').select('mobile, name, company_name, location').in('mobile', missingAgents)
@@ -2236,7 +1866,6 @@ function renderTruckDetail(truck) {
                 }).catch(err => console.error('Error fetching agents:', err));
         }
     }
-    
     return `<div class="detail-header-card"><div class="main-title">🚛 ${truck.truck_no || 'Truck'}</div><div class="company-name">${user.company_name || 'Unknown Company'} ${website ? `• ${website}` : ''}</div><div class="meta-row">${badges}</div></div>
         <div class="detail-card"><div class="section-title">📋 VEHICLE SPECS</div><div id="vehicle-detail-specs" class="spec-grid">${vehicleSpecsHtml}</div>
         <div style="margin-top:8px;font-size:13px;color:#475569;"><span class="label">💲 Rate/KM</span><br><span class="value">₹${formatIndianNumber(truck.rate || 0)}</span></div></div>
@@ -2255,7 +1884,6 @@ function renderTruckDetail(truck) {
         </div></div>
         ${renderActionButtons(truck)}`;
 }
-
 function renderAgentDetail(agent) {
     const user = agent.user || {};
     const website = user.company_web ? `<a href="${user.company_web.startsWith('http') ? user.company_web : 'https://' + user.company_web}" target="_blank" class="website-link" onclick="event.stopPropagation();">${user.company_web} ↗</a>` : '';
@@ -2277,7 +1905,6 @@ function renderAgentDetail(agent) {
         </div></div>
         ${renderActionButtons(agent)}`;
 }
-
 function renderActionButtons(item) {
     const isOwner = user && item.mobile && user.mobile == item.mobile;
     const mobileNum = item.mobile || '';
@@ -2290,62 +1917,32 @@ function renderActionButtons(item) {
         <button class="btn-share" onclick="handleShareClick()"><span class="act-icon">↗️</span>Share</button>
     </div>${!isOwner ? `<button class="express-interest-btn" onclick="expressInterest('${itemId}','${type}')">🔒 Express Interest</button>` : ''}`;
 }
-
 function makeCall(mobile) { if (mobile) window.location.href = 'tel:' + mobile; else toast('Phone number not available'); }
-
 function handleEndorse(id, type) {
     if (!user) { toast('Please login first to endorse'); return; }
     if (id === 'undefined' || !id) { toast('Cannot endorse this item'); return; }
     const table = type === 'LOAD' ? 'active_loads' : (type === 'TRUCK' ? 'active_trucks' : 'active_users');
-    const isAgent = type === 'AGENT';
-    if (isAgent) {
+    if (type === 'AGENT') {
         sb.from('active_users').select('endorsements').eq('mobile', parseInt(id, 10)).single()
-            .then(r => {
-                if (r.data) {
-                    const current = r.data.endorsements || 0;
-                    sb.from('active_users').update({ endorsements: current + 1 }).eq('mobile', parseInt(id, 10))
-                        .then(() => { toast('✅ Endorsed successfully!'); openDetail(type, id); });
-                }
-            });
+            .then(r => { if (r.data) { sb.from('active_users').update({ endorsements: (r.data.endorsements || 0) + 1 }).eq('mobile', parseInt(id, 10)).then(() => { toast('✅ Endorsed successfully!'); openDetail(type, id); }); } });
         return;
     }
     sb.from(table).select('endorsements').eq('id', id).single()
-        .then(r => {
-            if (r.data) {
-                const current = r.data.endorsements || 0;
-                sb.from(table).update({ endorsements: current + 1 }).eq('id', id)
-                    .then(() => { toast('✅ Endorsed successfully!'); openDetail(type, id); });
-            }
-        });
+        .then(r => { if (r.data) { sb.from(table).update({ endorsements: (r.data.endorsements || 0) + 1 }).eq('id', id).then(() => { toast('✅ Endorsed successfully!'); openDetail(type, id); }); } });
 }
-
 function handleFlag(id, type) {
     if (!user) { toast('Please login first to flag'); return; }
     if (id === 'undefined' || !id) { toast('Cannot flag this item'); return; }
     if (!confirm('Are you sure you want to flag this item as inappropriate?')) return;
     const table = type === 'LOAD' ? 'active_loads' : (type === 'TRUCK' ? 'active_trucks' : 'active_users');
-    const isAgent = type === 'AGENT';
-    if (isAgent) {
+    if (type === 'AGENT') {
         sb.from('active_users').select('flags').eq('mobile', parseInt(id, 10)).single()
-            .then(r => {
-                if (r.data) {
-                    const current = r.data.flags || 0;
-                    sb.from('active_users').update({ flags: current + 1 }).eq('mobile', parseInt(id, 10))
-                        .then(() => { toast('✅ Flag reported successfully'); openDetail(type, id); });
-                }
-            });
+            .then(r => { if (r.data) { sb.from('active_users').update({ flags: (r.data.flags || 0) + 1 }).eq('mobile', parseInt(id, 10)).then(() => { toast('✅ Flag reported successfully'); openDetail(type, id); }); } });
         return;
     }
     sb.from(table).select('flags').eq('id', id).single()
-        .then(r => {
-            if (r.data) {
-                const current = r.data.flags || 0;
-                sb.from(table).update({ flags: current + 1 }).eq('id', id)
-                    .then(() => { toast('✅ Flag reported successfully'); openDetail(type, id); });
-            }
-        });
+        .then(r => { if (r.data) { sb.from(table).update({ flags: (r.data.flags || 0) + 1 }).eq('id', id).then(() => { toast('✅ Flag reported successfully'); openDetail(type, id); }); } });
 }
-
 function expressInterest(id, type) {
     if (!user) { toast('Please login first to express interest'); return; }
     const table = type === 'LOAD' ? 'active_loads' : (type === 'TRUCK' ? 'active_trucks' : 'active_users');
@@ -2363,12 +1960,10 @@ function expressInterest(id, type) {
             }
         });
 }
-
 function updateStats(item) {
     if (!item || !item.id) return;
     const table = item.type === 'LOAD' ? 'active_loads' : 'active_trucks';
-    const views = (item.views || 0) + 1;
-    sb.from(table).update({ views: views }).eq('id', item.id).then(() => {});
+    sb.from(table).update({ views: (item.views || 0) + 1 }).eq('id', item.id).then(() => {});
 }
 
 // ============================================================
@@ -2376,69 +1971,47 @@ function updateStats(item) {
 // ============================================================
 async function handleShareClick() {
     if (!detail) { toast('No details to share'); return; }
-    
     let truckVehicleDetails = null;
     if (detail.type === 'TRUCK' && detail.truck_no) {
         try {
             const { data: vehicleData } = await sb.from('active_vehicles').select('*').eq('vehicle_number', detail.truck_no).single();
             if (vehicleData) truckVehicleDetails = vehicleData;
-        } catch (e) {
-            console.warn('Could not fetch vehicle details for share image:', e);
-        }
+        } catch (e) { console.warn('Could not fetch vehicle details for share image:', e); }
     }
     currentTruckVehicleData = truckVehicleDetails;
-
     try {
         const canvas = await renderShareImage(detail, truckVehicleDetails);
         const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
         const file = new File([blob], 'load-preview.png', { type: 'image/png' });
         const shareUrl = 'https://returntruck-pwa.vercel.app/?listing=' + detail.type + '_' + detail.id;
-        const shareText = shareUrl; 
-
+        const shareText = shareUrl;
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
             try {
-                await navigator.share({
-                    files: [file],
-                    title: 'ReturnTruck - ' + (materialName(detail.material_id) || detail.truck_no || 'Load'),
-                    text: shareText
-                });
+                await navigator.share({ files: [file], title: 'ReturnTruck - ' + (materialName(detail.material_id) || detail.truck_no || 'Load'), text: shareText });
                 return;
             } catch (err) {
                 if (err.name === 'AbortError') return;
                 console.warn('Image share failed, falling back to WhatsApp text share', err);
             }
         }
-
         window.open('https://wa.me/?text=' + encodeURIComponent(shareText), '_blank');
-
     } catch (err) {
         console.error('Share error:', err);
         toast('Could not generate share image. Try again.');
     }
 }
-
 async function renderShareImage(data, vehicleData) {
-    const W = 800;
-    const baseH = 600;
-    const rowHeight = 90;
-    const titleAreaHeight = 150;
-    const instructionsBoxHeight = 180;
-
-    let contentHeight = 0;
-    let rows = [];
-
+    const W = 800, baseH = 600, rowHeight = 90, titleAreaHeight = 150, instructionsBoxHeight = 180;
+    let contentHeight = 0, rows = [];
     if (data.type === 'LOAD') {
-        const from = getLoc(data.pickup_pin);
-        const to = getLoc(data.drop_pin);
+        const from = getLoc(data.pickup_pin), to = getLoc(data.drop_pin);
         rows.push({ label: '📍 FROM', value: from ? from.name + ', ' + from.district : 'N/A' });
         rows.push({ label: '📍 TO', value: to ? to.name + ', ' + to.district : 'N/A' });
         rows.push({ label: '💰 RATE', value: '₹ ' + formatIndianNumber(data.rate || 0) });
         rows.push({ label: '⚖️ WEIGHT', value: formatIndianNumber(data.weight || 0) + ' Kg' });
         const vtn = vehicleTypeName(data.vehicle_type_id);
         if (vtn && vtn !== 'Any') rows.push({ label: '🚛 VEHICLE', value: vtn });
-        if (data.dimensions && data.dimensions.length === 3) {
-            rows.push({ label: '📐 DIMENSIONS', value: data.dimensions.join(' × ') + ' ft' });
-        }
+        if (data.dimensions && data.dimensions.length === 3) rows.push({ label: '📐 DIMENSIONS', value: data.dimensions.join(' × ') + ' ft' });
         if (data.pickup_date) rows.push({ label: '📅 AVAILABLE FROM', value: new Date(data.pickup_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) });
     } else if (data.type === 'TRUCK') {
         const loc = getLoc(data.location_pin);
@@ -2446,9 +2019,7 @@ async function renderShareImage(data, vehicleData) {
         rows.push({ label: '💰 RATE/KM', value: '₹ ' + formatIndianNumber(data.rate || 0) });
         if (vehicleData) {
             rows.push({ label: '🚛 TYPE', value: vehicleTypeName(vehicleData.vehicle_type_id) });
-            if (vehicleData.dimensions && vehicleData.dimensions.length === 3) {
-                rows.push({ label: '📐 DIMENSIONS', value: vehicleData.dimensions.join(' × ') + ' ft' });
-            }
+            if (vehicleData.dimensions && vehicleData.dimensions.length === 3) rows.push({ label: '📐 DIMENSIONS', value: vehicleData.dimensions.join(' × ') + ' ft' });
             rows.push({ label: '⚖️ MAX WEIGHT', value: formatIndianNumber(vehicleData.max_weight || 0) + ' Kg' });
         }
         if (data.available_date) rows.push({ label: '📅 AVAILABLE FROM', value: new Date(data.available_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) });
@@ -2466,137 +2037,64 @@ async function renderShareImage(data, vehicleData) {
             rows.push({ label: '🗺️ OPERATING ROUTES', value: routeNames });
         }
     }
-
     contentHeight = titleAreaHeight + (rows.length * rowHeight);
-    let hasInstructions = false;
-    let instructionText = '';
-    if (data.type === 'LOAD' && data.instructions) {
-        instructionText = data.instructions;
-        hasInstructions = true;
-    } else if (data.type === 'TRUCK' && data.other_details) {
-        instructionText = data.other_details;
-        hasInstructions = true;
-    }
-
+    let hasInstructions = false, instructionText = '';
+    if (data.type === 'LOAD' && data.instructions) { instructionText = data.instructions; hasInstructions = true; }
+    else if (data.type === 'TRUCK' && data.other_details) { instructionText = data.other_details; hasInstructions = true; }
     if (hasInstructions) contentHeight += instructionsBoxHeight;
-
     const H = Math.max(1000, baseH + contentHeight);
-    const canvas = document.createElement('canvas');
-    canvas.width = W;
-    canvas.height = H;
+    const canvas = document.createElement('canvas'); canvas.width = W; canvas.height = H;
     const ctx = canvas.getContext('2d');
-
-    ctx.fillStyle = '#0a0a12';
-    ctx.fillRect(0, 0, W, H);
-
-    const grad = ctx.createLinearGradient(0, 0, W, 220);
-    grad.addColorStop(0, '#1e3a8a');
-    grad.addColorStop(1, '#2563eb');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, W, 220);
-
+    ctx.fillStyle = '#0a0a12'; ctx.fillRect(0, 0, W, H);
+    const grad = ctx.createLinearGradient(0, 0, W, 220); grad.addColorStop(0, '#1e3a8a'); grad.addColorStop(1, '#2563eb');
+    ctx.fillStyle = grad; ctx.fillRect(0, 0, W, 220);
     const postedBy = data.user ? (data.user.company_name || data.user.name || 'User') : 'User';
     const postedLoc = data.user && data.user.location ? getLocName(data.user.location) : '';
-    
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 52px system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 52px system-ui, -apple-system, sans-serif';
     ctx.fillText('🚛 ReturnTruck', 40, 110);
-    
     ctx.font = '500 26px system-ui, -apple-system, sans-serif';
-    ctx.fillStyle = 'rgba(255,255,255,0.85)';
-    ctx.fillText('Posted by: ' + postedBy, 40, 160);
-    if (postedLoc) {
-        ctx.font = '400 22px system-ui, -apple-system, sans-serif';
-        ctx.fillText('📍 ' + postedLoc, 40, 200);
-    }
-
-    let title = '';
-    let badge = '';
+    ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.fillText('Posted by: ' + postedBy, 40, 160);
+    if (postedLoc) { ctx.font = '400 22px system-ui, -apple-system, sans-serif'; ctx.fillText('📍 ' + postedLoc, 40, 200); }
+    let title = '', badge = '';
     if (data.type === 'LOAD') { title = materialName(data.material_id); badge = 'LOAD AVAILABLE'; }
     else if (data.type === 'TRUCK') { title = data.truck_no || 'Truck'; badge = 'TRUCK AVAILABLE'; }
     else { title = (data.user && (data.user.company_name || data.user.name)) || 'Agent'; badge = 'AGENT PROFILE'; }
-
-    ctx.fillStyle = '#fbbf24';
-    roundRect(ctx, 40, 260, 260, 44, 22);
-    ctx.fill();
-    ctx.fillStyle = '#0f172a';
-    ctx.font = 'bold 20px system-ui, sans-serif';
-    ctx.fillText(badge, 62, 290);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 60px system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = '#fbbf24'; roundRect(ctx, 40, 260, 260, 44, 22); ctx.fill();
+    ctx.fillStyle = '#0f172a'; ctx.font = 'bold 20px system-ui, sans-serif'; ctx.fillText(badge, 62, 290);
+    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 60px system-ui, -apple-system, sans-serif';
     wrapText(ctx, title, 40, 390, W - 80, 68);
-
-    let y = 500;
-    const boxY = y;
-    const boxH = rows.length * rowHeight + 40;
-
-    ctx.fillStyle = '#ffffff';
-    roundRect(ctx, 40, boxY, W - 80, boxH, 24);
-    ctx.fill();
-
+    let y = 500; const boxY = y; const boxH = rows.length * rowHeight + 40;
+    ctx.fillStyle = '#ffffff'; roundRect(ctx, 40, boxY, W - 80, boxH, 24); ctx.fill();
     y = boxY + 50;
     rows.forEach(row => {
-        ctx.fillStyle = '#64748b';
-        ctx.font = 'bold 18px system-ui, sans-serif';
-        ctx.fillText(row.label, 70, y);
-        ctx.fillStyle = '#0f172a';
-        ctx.font = 'bold 28px system-ui, sans-serif';
-        wrapText(ctx, row.value, 70, y + 40, W - 140, 34);
+        ctx.fillStyle = '#64748b'; ctx.font = 'bold 18px system-ui, sans-serif'; ctx.fillText(row.label, 70, y);
+        ctx.fillStyle = '#0f172a'; ctx.font = 'bold 28px system-ui, sans-serif'; wrapText(ctx, row.value, 70, y + 40, W - 140, 34);
         y += rowHeight;
     });
-
     if (hasInstructions) {
         const instY = boxY + boxH + 30;
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-        roundRect(ctx, 40, instY, W - 80, 140, 16);
-        ctx.fill();
-
-        ctx.fillStyle = '#fbbf24';
-        ctx.font = 'bold 20px system-ui, sans-serif';
-        ctx.fillText('📝 INSTRUCTIONS', 70, instY + 40);
-
-        ctx.fillStyle = '#e2e8f0';
-        ctx.font = '22px system-ui, sans-serif';
-        wrapText(ctx, instructionText, 70, instY + 80, W - 140, 30);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)'; roundRect(ctx, 40, instY, W - 80, 140, 16); ctx.fill();
+        ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 20px system-ui, sans-serif'; ctx.fillText('📝 INSTRUCTIONS', 70, instY + 40);
+        ctx.fillStyle = '#e2e8f0'; ctx.font = '22px system-ui, sans-serif'; wrapText(ctx, instructionText, 70, instY + 80, W - 140, 30);
     }
-
     const shareUrl = 'https://returntruck-pwa.vercel.app/?listing=' + data.type + '_' + data.id;
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
-    ctx.font = '500 20px system-ui, sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '500 20px system-ui, sans-serif';
     ctx.fillText('Tap to view details on ReturnTruck', 40, H - 40);
-    
-    ctx.fillStyle = '#2563eb';
-    ctx.font = 'bold 22px system-ui, sans-serif';
-    ctx.fillText(shareUrl, 40, H - 10);
-
+    ctx.fillStyle = '#2563eb'; ctx.font = 'bold 22px system-ui, sans-serif'; ctx.fillText(shareUrl, 40, H - 10);
     return canvas;
 }
-
 function roundRect(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.arcTo(x + w, y, x + w, y + h, r);
-    ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r);
-    ctx.arcTo(x, y, x + w, y, r);
-    ctx.closePath();
+    ctx.beginPath(); ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
 }
-
 function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-    const words = String(text).split(' ');
-    let line = '';
-    let lineY = y;
+    const words = String(text).split(' '); let line = '', lineY = y;
     for (let n = 0; n < words.length; n++) {
         const testLine = line + words[n] + ' ';
         const metrics = ctx.measureText(testLine);
-        if (metrics.width > maxWidth && n > 0) {
-            ctx.fillText(line.trim(), x, lineY);
-            line = words[n] + ' ';
-            lineY += lineHeight;
-        } else {
-            line = testLine;
-        }
+        if (metrics.width > maxWidth && n > 0) { ctx.fillText(line.trim(), x, lineY); line = words[n] + ' '; lineY += lineHeight; }
+        else line = testLine;
     }
     ctx.fillText(line.trim(), x, lineY);
 }
@@ -2608,55 +2106,37 @@ async function searchAgents(inputId, dropdownId) {
     const input = document.getElementById(inputId);
     const dropdown = document.getElementById(dropdownId);
     if (!input || !dropdown) return;
-    
     const q = input.value.trim();
-    if (!q || q.length < 1) {
-        dropdown.classList.remove('show');
-        dropdown.innerHTML = '';
-        return;
-    }
-    
+    if (!q || q.length < 1) { dropdown.classList.remove('show'); dropdown.innerHTML = ''; return; }
     dropdown.innerHTML = '<div class="item" style="color:#94a3b8;">🔍 Searching...</div>';
     dropdown.classList.add('show');
-    
     try {
         const { data, error } = await sb.from('active_users').select('*').contains('user_type', [3]).limit(50);
         if (error) throw error;
-        
         const agentsFiltered = (data || []).filter(u => {
             const name = (u.name || '').toLowerCase();
             const company = (u.company_name || '').toLowerCase();
             const mobileStr = String(u.mobile || '');
             let locationMatch = false;
-            
-            const locMatch = LOCATIONS.find(l => 
-                l.name.toLowerCase().includes(q.toLowerCase()) || 
-                l.district.toLowerCase().includes(q.toLowerCase()) || 
-                l.pincode.includes(q) ||
-                String(l.pin_id).includes(q)
+            const locMatch = LOCATIONS.find(l =>
+                l.name.toLowerCase().includes(q.toLowerCase()) ||
+                l.district.toLowerCase().includes(q.toLowerCase()) ||
+                l.pincode.includes(q) || String(l.pin_id).includes(q)
             );
-            
             if (locMatch && u.location) {
                 const agentLoc = getLoc(u.location);
                 if (agentLoc) {
-                    locationMatch = agentLoc.pincode === locMatch.pincode || 
-                                    agentLoc.name.toLowerCase().includes(q.toLowerCase()) ||
-                                    agentLoc.district.toLowerCase().includes(q.toLowerCase());
+                    locationMatch = agentLoc.pincode === locMatch.pincode ||
+                        agentLoc.name.toLowerCase().includes(q.toLowerCase()) ||
+                        agentLoc.district.toLowerCase().includes(q.toLowerCase());
                 }
             }
-            
-            return name.includes(q.toLowerCase()) || 
-                   company.includes(q.toLowerCase()) || 
-                   mobileStr.includes(q) ||
-                   locationMatch;
+            return name.includes(q.toLowerCase()) || company.includes(q.toLowerCase()) || mobileStr.includes(q) || locationMatch;
         });
-
         if (!agentsFiltered.length) {
             dropdown.innerHTML = '<div class="item" style="color:#94a3b8;">No agents found. Try different search.</div>';
-            dropdown.classList.add('show');
-            return;
+            dropdown.classList.add('show'); return;
         }
-        
         let html = '';
         agentsFiltered.forEach(a => {
             const displayName = a.name || 'Unknown';
@@ -2664,52 +2144,29 @@ async function searchAgents(inputId, dropdownId) {
             const mobileNum = parseInt(a.mobile, 10);
             const isAdded = agents.includes(mobileNum);
             let nameDisplay = displayName;
-            
             const idx = displayName.toLowerCase().indexOf(q.toLowerCase());
-            if (idx !== -1) {
-                nameDisplay = displayName.substring(0, idx) + '<span class="highlight">' + displayName.substring(idx, idx + q.length) + '</span>' + displayName.substring(idx + q.length);
-            }
-            
+            if (idx !== -1) nameDisplay = displayName.substring(0, idx) + '<span class="highlight">' + displayName.substring(idx, idx + q.length) + '</span>' + displayName.substring(idx + q.length);
             let locStr = '';
-            if (a.location) {
-                const loc = getLoc(a.location);
-                if (loc) locStr = ` • 📍 ${loc.name}`;
-            }
-            
+            if (a.location) { const loc = getLoc(a.location); if (loc) locStr = ` • 📍 ${loc.name}`; }
             html += '<div class="item" onclick="selectAgent(' + mobileNum + ',\'' + inputId + '\',\'' + dropdownId + '\')" style="' + (isAdded ? 'opacity:0.5;' : '') + '">' +
                 nameDisplay + ' <span class="sub">' + company + (company ? ' • ' : '') + '📱' + mobileNum + locStr + '</span>' +
-                (isAdded ? ' <span style="color:#4ade80;font-size:11px;">✓ Added</span>' : '') +
-                '</div>';
+                (isAdded ? ' <span style="color:#4ade80;font-size:11px;">✓ Added</span>' : '') + '</div>';
         });
-        
-        dropdown.innerHTML = html;
-        dropdown.classList.add('show');
+        dropdown.innerHTML = html; dropdown.classList.add('show');
     } catch (err) {
         console.error('Error searching agents:', err);
         dropdown.innerHTML = '<div class="item" style="color:#f87171;">❌ Error loading agents</div>';
     }
 }
-
 function selectAgent(mobile, inputId, dropdownId) {
     const mobileInt = parseInt(mobile, 10);
     if (isNaN(mobileInt)) { toast('Invalid agent mobile'); return; }
-    if (agents.includes(mobileInt)) {
-        toast('Agent already added');
-        document.getElementById(dropdownId).classList.remove('show');
-        return;
-    }
+    if (agents.includes(mobileInt)) { toast('Agent already added'); document.getElementById(dropdownId).classList.remove('show'); return; }
     agents = addUniqueToArray(agents, mobileInt);
     sb.from('active_users').select('*').eq('mobile', mobileInt).single()
         .then(result => {
-            if (result.data) {
-                agentDataMap[mobileInt] = {
-                    mobile: result.data.mobile,
-                    name: result.data.name || 'Unknown',
-                    company: result.data.company_name || ''
-                };
-            } else {
-                agentDataMap[mobileInt] = { mobile: mobileInt, name: 'Agent ' + mobileInt, company: '' };
-            }
+            if (result.data) agentDataMap[mobileInt] = { mobile: result.data.mobile, name: result.data.name || 'Unknown', company: result.data.company_name || '' };
+            else agentDataMap[mobileInt] = { mobile: mobileInt, name: 'Agent ' + mobileInt, company: '' };
             renderAgentsUI();
             document.getElementById(inputId).value = '';
             document.getElementById(dropdownId).classList.remove('show');
@@ -2724,7 +2181,6 @@ function selectAgent(mobile, inputId, dropdownId) {
             toast('✅ Agent added');
         });
 }
-
 function addAgentFromSearch(inputId, dropdownId, containerId, hiddenId) {
     const input = document.getElementById(inputId);
     const mobileStr = input.value.trim();
@@ -2739,75 +2195,47 @@ function addAgentFromSearch(inputId, dropdownId, containerId, hiddenId) {
                     if (!Array.isArray(ut) && typeof ut === 'number') ut = [ut];
                     if (ut.includes(3)) {
                         agents = addUniqueToArray(agents, mobileNum);
-                        agentDataMap[mobileNum] = {
-                            mobile: result.data.mobile,
-                            name: result.data.name || 'Unknown',
-                            company: result.data.company_name || ''
-                        };
-                        renderAgentsUI();
-                        input.value = '';
-                        updateAgentHiddenField();
-                        toast('✅ Agent added');
-                    } else {
-                        toast('User is not an agent (user_type must include 3)');
-                    }
+                        agentDataMap[mobileNum] = { mobile: result.data.mobile, name: result.data.name || 'Unknown', company: result.data.company_name || '' };
+                        renderAgentsUI(); input.value = ''; updateAgentHiddenField(); toast('✅ Agent added');
+                    } else toast('User is not an agent (user_type must include 3)');
                 } else {
                     agents = addUniqueToArray(agents, mobileNum);
                     agentDataMap[mobileNum] = { mobile: mobileNum, name: 'Agent ' + mobileNum, company: '' };
-                    renderAgentsUI();
-                    input.value = '';
-                    updateAgentHiddenField();
-                    toast('✅ Agent added manually');
+                    renderAgentsUI(); input.value = ''; updateAgentHiddenField(); toast('✅ Agent added manually');
                 }
             }).catch(() => {
                 agents = addUniqueToArray(agents, mobileNum);
                 agentDataMap[mobileNum] = { mobile: mobileNum, name: 'Agent ' + mobileNum, company: '' };
-                renderAgentsUI();
-                input.value = '';
-                updateAgentHiddenField();
-                toast('✅ Agent added manually');
+                renderAgentsUI(); input.value = ''; updateAgentHiddenField(); toast('✅ Agent added manually');
             });
         return;
     }
     toast('Please search and select an agent from the dropdown, or enter a 10-digit mobile number');
 }
-
 function removeAgent(mobile) {
     if (!confirm('Remove this agent?')) return;
     agents = removeFromArray(agents, mobile);
     delete agentDataMap[mobile];
-    renderAgentsUI();
-    updateAgentHiddenField();
-    autoSaveAgents();
+    renderAgentsUI(); updateAgentHiddenField(); autoSaveAgents();
 }
-
 function renderAgentsUI() {
-    const containers = ['edit-agents-container', 'pl-agents-container', 'pt-agents-container'];
-    containers.forEach(id => {
+    ['edit-agents-container', 'pl-agents-container', 'pt-agents-container'].forEach(id => {
         const container = document.getElementById(id);
         if (!container) return;
-        if (!agents.length) {
-            container.innerHTML = '<span style="color:#64748b;font-size:13px">No agents added</span>';
-            return;
-        }
+        if (!agents.length) { container.innerHTML = '<span style="color:#64748b;font-size:13px">No agents added</span>'; return; }
         container.innerHTML = agents.map(m => {
             const data = agentDataMap[m] || { name: 'Unknown', company: '' };
-            return '<span class="agent-tag">' +
-                (data.name || 'Unknown') + ' ' + (data.company ? '(' + data.company + ')' : '') +
-                ' <span class="remove" onclick="removeAgent(' + m + ')">✕</span>' +
-                '</span>';
+            return '<span class="agent-tag">' + (data.name || 'Unknown') + ' ' + (data.company ? '(' + data.company + ')' : '') + ' <span class="remove" onclick="removeAgent(' + m + ')">✕</span></span>';
         }).join('');
     });
     renderProfileAgents();
 }
-
 function updateAgentHiddenField() {
     ['edit-agents', 'pl-agents', 'pt-agents'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = agents.join(',');
     });
 }
-
 function renderProfileAgents() {
     const container = document.getElementById('profile-agents-container');
     const badge = document.getElementById('agent-count-badge');
@@ -2820,33 +2248,20 @@ function renderProfileAgents() {
     if (badge) badge.textContent = agents.length + ' Agents';
     container.innerHTML = agents.map(m => {
         const data = agentDataMap[m] || { name: 'Unknown', company: '', mobile: m };
-        return '<div class="agent-item">' +
-            '<span class="aname">' + (data.name || 'Unknown') + '</span>' +
-            '<span class="adetails">' + (data.company || '') + ' • 📱' + m + '</span>' +
-            '<div class="actions">' +
-            '<button class="whatsapp-btn" onclick="whatsappAgent(' + m + ')">💬</button>' +
-            '</div>' +
-            '</div>';
+        return '<div class="agent-item"><span class="aname">' + (data.name || 'Unknown') + '</span><span class="adetails">' + (data.company || '') + ' • 📱' + m + '</span><div class="actions"><button class="whatsapp-btn" onclick="whatsappAgent(' + m + ')">💬</button></div></div>';
     }).join('');
 }
-
 function whatsappAgent(mobile) {
     if (!mobile) return;
     const message = 'Hello! This is from ReturnTruck. Let\'s connect regarding loads and trucks.';
     window.open('https://wa.me/91' + mobile + '?text=' + encodeURIComponent(message), '_blank');
 }
-
 function bulkWhatsAppAgents() {
     if (!agents.length) { toast('No agents added to WhatsApp'); return; }
     const message = '📦 *ReturnTruck Update*\n\nNew loads and trucks are available. Check the ReturnTruck app for details.\n\n🔗 https://returntruck-pwa.vercel.app';
-    if (agents.length === 1) {
-        window.open('https://wa.me/91' + agents[0] + '?text=' + encodeURIComponent(message), '_blank');
-    } else {
-        window.open('https://wa.me/?text=' + encodeURIComponent(message), '_blank');
-        toast('📱 Share this message with your agents');
-    }
+    if (agents.length === 1) window.open('https://wa.me/91' + agents[0] + '?text=' + encodeURIComponent(message), '_blank');
+    else { window.open('https://wa.me/?text=' + encodeURIComponent(message), '_blank'); toast('📱 Share this message with your agents'); }
 }
-
 function autoSaveAgents() {
     if (!user || !user.mobile) return Promise.resolve();
     const mobileNum = parseInt(user.mobile, 10);
@@ -2857,43 +2272,29 @@ function autoSaveAgents() {
             if (result.error) { console.error('Error auto-saving agents:', result.error); return Promise.reject(result.error); }
             user.agents = agentsArray;
             const saved = localStorage.getItem('rt_user');
-            if (saved) { const sd = JSON.parse(saved);
-                sd.user = user;
-                localStorage.setItem('rt_user', JSON.stringify(sd)); }
+            if (saved) { const sd = JSON.parse(saved); sd.user = user; localStorage.setItem('rt_user', JSON.stringify(sd)); }
             return Promise.resolve();
         });
 }
-
 function loadAgentsFromUser() {
     if (!user) return;
-    agents = [];
-    agentDataMap = {};
+    agents = []; agentDataMap = {};
     let agentArr = user.agents || [];
-    if (Array.isArray(agentArr)) {
-        agents = ensureUniqueArray(agentArr.filter(a => a !== null && a !== '').map(a => parseInt(a, 10)).filter(a => !isNaN(a)));
-    } else if (typeof agentArr === 'string') {
-        agents = ensureUniqueArray(agentArr.split(',').filter(a => a.trim() !== '').map(Number).filter(a => !isNaN(a)));
-    }
+    if (Array.isArray(agentArr)) agents = ensureUniqueArray(agentArr.filter(a => a !== null && a !== '').map(a => parseInt(a, 10)).filter(a => !isNaN(a)));
+    else if (typeof agentArr === 'string') agents = ensureUniqueArray(agentArr.split(',').filter(a => a.trim() !== '').map(Number).filter(a => !isNaN(a)));
     if (agents.length) {
         sb.from('active_users').select('*').in('mobile', agents)
             .then(result => {
                 if (result.data) {
-                    result.data.forEach(a => {
-                        agentDataMap[a.mobile] = {
-                            mobile: a.mobile,
-                            name: a.name || 'Unknown',
-                            company: a.company_name || ''
-                        };
-                    });
-                    renderAgentsUI();
-                    updateAgentHiddenField();
+                    result.data.forEach(a => { agentDataMap[a.mobile] = { mobile: a.mobile, name: a.name || 'Unknown', company: a.company_name || '' }; });
+                    renderAgentsUI(); updateAgentHiddenField();
                 }
             }).catch(() => { renderAgentsUI(); updateAgentHiddenField(); });
     } else { renderAgentsUI(); updateAgentHiddenField(); }
 }
 
 // ============================================================
-// VEHICLE FUNCTIONS (Continued)
+// VEHICLE FUNCTIONS (Profile vehicles)
 // ============================================================
 function searchVehicles(query) {
     const dropdown = document.getElementById('vehicle-suggest-dropdown');
@@ -2907,8 +2308,7 @@ function searchVehicles(query) {
             const vlist = result.data || [];
             if (!vlist.length) {
                 dropdown.innerHTML = '<div class="item add-new" onclick="openVehicleModalForEdit(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
-                dropdown.classList.add('show');
-                return;
+                dropdown.classList.add('show'); return;
             }
             let html = '';
             vlist.forEach(v => {
@@ -2917,15 +2317,12 @@ function searchVehicles(query) {
                 const isAlreadyAdded = vehicles.includes(v.vehicle_number);
                 html += '<div class="item" onclick="selectVehicleFromSuggestion(\'' + v.id + '\',\'' + v.vehicle_number + '\',\'' + vtn + '\',\'' + dims + '\')" style="' + (isAlreadyAdded ? 'opacity:0.5;' : '') + '">' +
                     v.vehicle_number + ' <span class="sub">' + vtn + ' • ' + dims + 'ft</span>' +
-                    (isAlreadyAdded ? ' <span style="color:#4ade80;font-size:11px;">✓ Added</span>' : '') +
-                    '</div>';
+                    (isAlreadyAdded ? ' <span style="color:#4ade80;font-size:11px;">✓ Added</span>' : '') + '</div>';
             });
             html += '<div class="item add-new" onclick="openVehicleModalForEdit(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
-            dropdown.innerHTML = html;
-            dropdown.classList.add('show');
+            dropdown.innerHTML = html; dropdown.classList.add('show');
         }).catch(err => { console.error('Error:', err); dropdown.innerHTML = '<div class="item" style="color:#f87171;">❌ Error loading vehicles</div>'; });
 }
-
 function openVehicleModalForEdit(number) {
     document.getElementById('vehicle-suggest-dropdown').classList.remove('show');
     document.getElementById('modal-vehicle-title').textContent = '📝 Register New Vehicle';
@@ -2943,7 +2340,6 @@ function openVehicleModalForEdit(number) {
     editingVehicleNumber = number;
     document.getElementById('vehicle-modal').classList.add('show');
 }
-
 function selectVehicleFromSuggestion(id, number, type, dims) {
     if (vehicles.includes(number)) { toast('Vehicle "' + number + '" already in your list'); document.getElementById('vehicle-suggest-dropdown').classList.remove('show'); document.getElementById('edit-vehicle-input').value = ''; return; }
     vehicles = addUniqueToArray(vehicles, number);
@@ -2953,13 +2349,11 @@ function selectVehicleFromSuggestion(id, number, type, dims) {
     document.getElementById('vehicle-suggest-dropdown').classList.remove('show');
     autoSaveVehicles().then(() => { toast('✅ Vehicle "' + number + '" added to your list'); });
 }
-
 function openVehicleEdit(number) {
     sb.from('active_vehicles').select('*').eq('vehicle_number', number).single()
         .then(res => { if (res.data) populateVehicleModal(res.data, 'edit'); else toast('Vehicle not found'); })
         .catch(() => { toast('Error loading vehicle'); });
 }
-
 function populateVehicleModal(data, mode) {
     document.getElementById('modal-vehicle-title').textContent = mode === 'edit' ? '✏️ Edit Vehicle' : '📝 Register New Vehicle';
     document.getElementById('modal-vehicle-number-display').textContent = data.vehicle_number;
@@ -2978,7 +2372,6 @@ function populateVehicleModal(data, mode) {
     editingVehicleNumber = data.vehicle_number;
     document.getElementById('vehicle-modal').classList.add('show');
 }
-
 function saveVehicleModal() {
     const number = document.getElementById('modal-vehicle-number').value;
     if (!number) { toast('No vehicle number'); return; }
@@ -2987,12 +2380,8 @@ function saveVehicleModal() {
     if (!vtypeRaw || isNaN(vehicleTypeId)) { toast('Please select a vehicle type'); return; }
     const data = {
         vehicle_number: number,
-        vehicle_type_id: vehicleTypeId,                    // ← INTEGER
-        dimensions: [
-            parseFloat(document.getElementById('modal-length').value) || 0,
-            parseFloat(document.getElementById('modal-width').value) || 0,
-            parseFloat(document.getElementById('modal-height').value) || 0
-        ],
+        vehicle_type_id: vehicleTypeId,
+        dimensions: [parseFloat(document.getElementById('modal-length').value) || 0, parseFloat(document.getElementById('modal-width').value) || 0, parseFloat(document.getElementById('modal-height').value) || 0],
         max_weight: parseFloat(document.getElementById('modal-max-weight').value) || 0,
         description: toStrOrNull(document.getElementById('modal-description').value),
         odc_allowed: document.querySelector('input[name="modal-odc"]:checked').value === 'true',
@@ -3007,8 +2396,7 @@ function saveVehicleModal() {
                 if (result.error) { alert('Error: ' + result.error.message); return; }
                 if (!vehicles.includes(number)) { vehicles = addUniqueToArray(vehicles, number); autoSaveVehicles(); }
                 vehicleDataMap[number] = { id: vehicleId, ...data };
-                renderVehicles();
-                closeVehicleModal();
+                renderVehicles(); closeVehicleModal();
                 toast('✅ Vehicle "' + number + '" updated successfully!');
                 refreshUserData();
             });
@@ -3020,15 +2408,12 @@ function saveVehicleModal() {
                     if (insertRes.error) { alert('Error: ' + insertRes.error.message); return; }
                     if (!vehicles.includes(number)) { vehicles = addUniqueToArray(vehicles, number); autoSaveVehicles(); }
                     vehicleDataMap[number] = { id: insertRes.data[0].id, ...data };
-                    renderVehicles();
-                    closeVehicleModal();
-                    refreshUserData();
+                    renderVehicles(); closeVehicleModal(); refreshUserData();
                     toast('✅ Vehicle "' + number + '" registered successfully!');
                 });
             });
     }
 }
-
 function deleteVehicleFromModal() {
     const number = document.getElementById('modal-vehicle-number').value;
     const vehicleId = document.getElementById('modal-vehicle-id').value;
@@ -3039,16 +2424,11 @@ function deleteVehicleFromModal() {
             if (result.error) { alert('Error: ' + result.error.message); return; }
             vehicles = removeFromArray(vehicles, number);
             delete vehicleDataMap[number];
-            renderVehicles();
-            closeVehicleModal();
-            autoSaveVehicles();
-            refreshUserData();
+            renderVehicles(); closeVehicleModal(); autoSaveVehicles(); refreshUserData();
             toast('✅ Vehicle "' + number + '" deleted');
         });
 }
-
 function closeVehicleModal() { document.getElementById('vehicle-modal').classList.remove('show'); editingVehicleNumber = null; }
-
 function addSelectedVehicle() {
     const input = document.getElementById('edit-vehicle-input');
     const val = input.value.trim().toUpperCase();
@@ -3060,13 +2440,11 @@ function addSelectedVehicle() {
             if (res.data) {
                 vehicles = addUniqueToArray(vehicles, val);
                 vehicleDataMap[val] = { id: res.data.id, ...res.data };
-                renderVehicles();
-                input.value = '';
+                renderVehicles(); input.value = '';
                 autoSaveVehicles().then(() => { toast('✅ Vehicle "' + val + '" added'); });
             } else openVehicleModalForEdit(val);
         }).catch(() => { openVehicleModalForEdit(val); });
 }
-
 function removeVehicle(v) {
     if (!confirm('Remove vehicle "' + v + '" from your list?')) return;
     vehicles = removeFromArray(vehicles, v);
@@ -3074,7 +2452,6 @@ function removeVehicle(v) {
     renderVehicles();
     autoSaveVehicles().then(() => { toast('✅ Vehicle "' + v + '" removed from your list'); });
 }
-
 function renderVehicles() {
     const container = document.getElementById('edit-vehicles-list');
     if (!vehicles.length) { container.innerHTML = '<span style="color:#64748b;font-size:13px">No vehicles added</span>'; return; }
@@ -3084,7 +2461,6 @@ function renderVehicles() {
         return '<div class="vehicle-item"><span class="vnumber">' + v + '</span><span class="vdetails">' + vehicleTypeName(data.vehicle_type_id) + ' • ' + dims + 'ft</span><div class="actions"><button class="edit-btn" onclick="openVehicleEdit(\'' + v + '\')">✏️ Edit</button><button class="delete-btn" onclick="removeVehicle(\'' + v + '\')">🗑️</button></div></div>';
     }).join('');
 }
-
 function autoSaveVehicles() {
     if (!user || !user.mobile) return Promise.resolve();
     const mobileNum = parseInt(user.mobile, 10);
@@ -3095,9 +2471,7 @@ function autoSaveVehicles() {
             if (result.error) { console.error('Error auto-saving vehicles:', result.error); return Promise.reject(result.error); }
             user.vehicle_no = vehicleArray;
             const saved = localStorage.getItem('rt_user');
-            if (saved) { const sd = JSON.parse(saved);
-                sd.user = user;
-                localStorage.setItem('rt_user', JSON.stringify(sd)); }
+            if (saved) { const sd = JSON.parse(saved); sd.user = user; localStorage.setItem('rt_user', JSON.stringify(sd)); }
             return Promise.resolve();
         });
 }
@@ -3119,24 +2493,20 @@ function addRoute() {
     if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
     autoSaveRoutes().then(() => { toast('Route added'); });
 }
-
 function removeRoute(r) {
     if (!confirm('Remove this route?')) return;
     routes = removeFromArray(routes, r);
     renderRoutes();
     autoSaveRoutes().then(() => { toast('Route removed'); });
 }
-
 function renderRoutes() {
     const container = document.getElementById('edit-routes-list');
     if (!routes.length) { container.innerHTML = '<span style="color:#64748b;font-size:13px">No routes added</span>'; return; }
     container.innerHTML = routes.map(r => {
         const loc = getLoc(r);
-        const display = loc ? getLocDisplayName(loc) : r;
-        return '<span class="route-tag">' + display + ' <span class="remove" onclick="removeRoute(' + r + ')">✕</span></span>';
+        return '<span class="route-tag">' + (loc ? getLocDisplayName(loc) : r) + ' <span class="remove" onclick="removeRoute(' + r + ')">✕</span></span>';
     }).join('');
 }
-
 function autoSaveRoutes() {
     if (!user || !user.mobile) return Promise.resolve();
     const mobileNum = parseInt(user.mobile, 10);
@@ -3147,13 +2517,10 @@ function autoSaveRoutes() {
             if (result.error) { console.error('Error auto-saving routes:', result.error); return Promise.reject(result.error); }
             user.preferred_routes = routesArray;
             const saved = localStorage.getItem('rt_user');
-            if (saved) { const sd = JSON.parse(saved);
-                sd.user = user;
-                localStorage.setItem('rt_user', JSON.stringify(sd)); }
+            if (saved) { const sd = JSON.parse(saved); sd.user = user; localStorage.setItem('rt_user', JSON.stringify(sd)); }
             return Promise.resolve();
         });
 }
-
 function refreshUserData(callback) {
     if (!user || !user.mobile) { if (callback) callback(); return; }
     const mobileNum = parseInt(user.mobile, 10);
@@ -3162,16 +2529,14 @@ function refreshUserData(callback) {
             if (result.data) {
                 Object.assign(user, result.data);
                 const saved = localStorage.getItem('rt_user');
-                if (saved) { const sd = JSON.parse(saved);
-                    sd.user = user;
-                    localStorage.setItem('rt_user', JSON.stringify(sd)); }
+                if (saved) { const sd = JSON.parse(saved); sd.user = user; localStorage.setItem('rt_user', JSON.stringify(sd)); }
             }
             if (callback) callback();
         }).catch(() => { if (callback) callback(); });
 }
 
 // ============================================================
-// PUBLISH LOAD
+// PUBLISH LOAD (INSERT or UPDATE)
 // ============================================================
 function publishLoad() {
     if (!user) { toast('Please login first'); return; }
@@ -3180,31 +2545,25 @@ function publishLoad() {
     const pickupPinIdRaw = document.getElementById('pl-pickup-hidden').value;
     const dropPinIdRaw = document.getElementById('pl-drop-hidden').value;
 
-    if (!materialRaw || !pickupPinIdRaw || !dropPinIdRaw) {
-        toast('Please fill all required fields (Material, Pickup, Drop)');
-        return;
-    }
+    if (!materialRaw || !pickupPinIdRaw || !dropPinIdRaw) { toast('Please fill all required fields (Material, Pickup, Drop)'); return; }
 
     const materialId = parseInt(materialRaw, 10);
     const pickupPinId = parseInt(pickupPinIdRaw, 10);
     const dropPinId = parseInt(dropPinIdRaw, 10);
 
     if (isNaN(materialId)) { toast('❌ Invalid material. Please re-select.'); return; }
-    if (isNaN(pickupPinId) || isNaN(dropPinId)) {
-        toast('❌ Invalid pickup or drop location. Please re-select from dropdown.');
-        return;
-    }
+    if (isNaN(pickupPinId) || isNaN(dropPinId)) { toast('❌ Invalid pickup or drop location. Please re-select.'); return; }
 
     const vtypeRaw = document.getElementById('pl-vehicle-type').value;
     const vehicleTypeId = vtypeRaw ? parseInt(vtypeRaw, 10) : null;
     if (vtypeRaw && isNaN(vehicleTypeId)) { toast('❌ Invalid vehicle type.'); return; }
 
     const length = parseFloat(document.getElementById('pl-length').value) || 0;
-    const width  = parseFloat(document.getElementById('pl-width').value) || 0;
+    const width = parseFloat(document.getElementById('pl-width').value) || 0;
     const height = parseFloat(document.getElementById('pl-height').value) || 0;
     const dimensions = [length, width, height];
 
-    const rate   = parseNumberFromInput(document.getElementById('pl-rate').value);
+    const rate = parseNumberFromInput(document.getElementById('pl-rate').value);
     const weight = parseNumberFromInput(document.getElementById('pl-weight').value);
 
     const agentArray = (agents && agents.length > 0)
@@ -3215,45 +2574,58 @@ function publishLoad() {
         mobile: parseInt(user.mobile, 10),
         company: toStrOrNull(user.company_name) || '',
         company_web: toStrOrNull(user.company_web) || '',
-        material_id: materialId,                          // ← INTEGER
+        material_id: materialId,
         weight: weight,
         dimensions: dimensions,
-        vehicle_type_id: vehicleTypeId,                   // ← INTEGER
-        pickup_pin: pickupPinId,                          // ← INTEGER
-        drop_pin: dropPinId,                              // ← INTEGER
+        vehicle_type_id: vehicleTypeId,
+        pickup_pin: pickupPinId,
+        drop_pin: dropPinId,
         pickup_date: document.getElementById('pl-date').value || null,
         instructions: toStrOrNull(document.getElementById('pl-instructions').value),
         rate: rate,
         status: 1,
-        views: 0,
-        calls: 0,
-        interests: [],
-        shares: 0,
         agents: agentArray,
-        created_at: new Date().toISOString(),
         expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
     };
 
-    console.log('📤 publishLoad payload:', loadData);
+    const isEditing = (editingLoadId !== null);
 
-    sb.from('active_loads').insert(loadData)
-        .then(res => {
-            if (res.error) {
-                console.error('❌ Insert error:', res.error);
-                console.error('❌ Failed payload:', loadData);
-                alert('Error: ' + res.error.message);
-                return;
-            }
-            toast('✅ Load published successfully!');
-            goHome();
-        }).catch(err => { 
-            console.error('❌ Exception:', err);
-            alert('Error: ' + err.message); 
-        });
+    if (isEditing) {
+        console.log('📤 UPDATE active_loads id=' + editingLoadId + ' payload:', loadData);
+        sb.from('active_loads').update(loadData).eq('id', editingLoadId)
+            .then(res => {
+                if (res.error) {
+                    console.error('❌ Update error:', res.error);
+                    alert('Error: ' + res.error.message);
+                    return;
+                }
+                editingLoadId = null;
+                toast('✅ Load updated successfully!');
+                goHome();
+            }).catch(err => { console.error('❌ Exception:', err); alert('Error: ' + err.message); });
+    } else {
+        // Add insert-only fields
+        loadData.views = 0;
+        loadData.calls = 0;
+        loadData.interests = [];
+        loadData.shares = 0;
+        loadData.created_at = new Date().toISOString();
+        console.log('📤 INSERT active_loads payload:', loadData);
+        sb.from('active_loads').insert(loadData)
+            .then(res => {
+                if (res.error) {
+                    console.error('❌ Insert error:', res.error);
+                    alert('Error: ' + res.error.message);
+                    return;
+                }
+                toast('✅ Load published successfully!');
+                goHome();
+            }).catch(err => { console.error('❌ Exception:', err); alert('Error: ' + err.message); });
+    }
 }
 
 // ============================================================
-// PUBLISH TRUCK
+// PUBLISH TRUCK (INSERT or UPDATE)
 // ============================================================
 function publishTruck() {
     if (!user) { toast('Please login first'); return; }
@@ -3261,20 +2633,11 @@ function publishTruck() {
     const number = document.getElementById('pt-vehicle-number').value.trim().toUpperCase();
     const locationPinIdRaw = document.getElementById('pt-location-hidden').value;
 
-    if (!number || !locationPinIdRaw) {
-        toast('Please fill all required fields (Vehicle Number, Location)');
-        return;
-    }
-    if (!isValidVehicleNumber(number)) {
-        alert('Vehicle number must be 9-12 characters (letters and numbers only)');
-        return;
-    }
+    if (!number || !locationPinIdRaw) { toast('Please fill all required fields (Vehicle Number, Location)'); return; }
+    if (!isValidVehicleNumber(number)) { alert('Vehicle number must be 9-12 characters (letters and numbers only)'); return; }
 
     const locationPinId = parseInt(locationPinIdRaw, 10);
-    if (isNaN(locationPinId)) {
-        toast('❌ Invalid location. Please re-select from dropdown.');
-        return;
-    }
+    if (isNaN(locationPinId)) { toast('❌ Invalid location. Please re-select.'); return; }
 
     const rate = parseNumberFromInput(document.getElementById('pt-rate').value);
 
@@ -3282,6 +2645,9 @@ function publishTruck() {
         ? agents.map(a => parseInt(a, 10)).filter(a => !isNaN(a))
         : null;
 
+    const isEditing = (editingTruckId !== null);
+
+    // For both insert and update, we need the vehicle_type_id from the linked vehicle
     sb.from('active_vehicles').select('id, vehicle_type_id').eq('vehicle_number', number).single()
         .then(checkRes => {
             if (!checkRes.data) {
@@ -3290,42 +2656,45 @@ function publishTruck() {
                 }
                 return;
             }
+
             const truckData = {
                 mobile: parseInt(user.mobile, 10),
                 truck_no: String(number),
-                share: 0,
-                calls: 0,
-                views: 0,
-                interested: [],
                 available_date: document.getElementById('pt-available').value
                     ? new Date(document.getElementById('pt-available').value).toISOString()
                     : null,
-                location_pin: locationPinId,                  // ← INTEGER
+                location_pin: locationPinId,
                 other_details: toStrOrNull(document.getElementById('pt-other-details').value),
                 rate: rate,
                 status: 1,
                 agents: agentArray,
-                vehicle_type_id: checkRes.data.vehicle_type_id || null,  // ← copy from vehicle
-                expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-                created_at: new Date().toISOString()
+                vehicle_type_id: checkRes.data.vehicle_type_id || null
             };
 
-            console.log('📤 publishTruck payload:', truckData);
-
-            sb.from('active_trucks').insert(truckData)
-                .then(res => {
-                    if (res.error) {
-                        console.error('❌ Insert error:', res.error);
-                        console.error('❌ Failed payload:', truckData);
-                        alert('Error: ' + res.error.message);
-                        return;
-                    }
-                    toast('✅ Truck listed successfully!');
-                    goHome();
-                }).catch(err => { 
-                    console.error('❌ Exception:', err);
-                    alert('Error: ' + err.message); 
-                });
+            if (isEditing) {
+                console.log('📤 UPDATE active_trucks id=' + editingTruckId + ' payload:', truckData);
+                sb.from('active_trucks').update(truckData).eq('id', editingTruckId)
+                    .then(res => {
+                        if (res.error) { console.error('❌ Update error:', res.error); alert('Error: ' + res.error.message); return; }
+                        editingTruckId = null;
+                        toast('✅ Truck updated successfully!');
+                        goHome();
+                    }).catch(err => { console.error('❌ Exception:', err); alert('Error: ' + err.message); });
+            } else {
+                truckData.share = 0;
+                truckData.calls = 0;
+                truckData.views = 0;
+                truckData.interested = [];
+                truckData.expires_at = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+                truckData.created_at = new Date().toISOString();
+                console.log('📤 INSERT active_trucks payload:', truckData);
+                sb.from('active_trucks').insert(truckData)
+                    .then(res => {
+                        if (res.error) { console.error('❌ Insert error:', res.error); alert('Error: ' + res.error.message); return; }
+                        toast('✅ Truck listed successfully!');
+                        goHome();
+                    }).catch(err => { console.error('❌ Exception:', err); alert('Error: ' + err.message); });
+            }
         }).catch(() => {
             if (confirm('Vehicle "' + number + '" not found. Would you like to register it now?')) {
                 openVehicleModalForTruck(number);
@@ -3333,6 +2702,169 @@ function publishTruck() {
         });
 }
 
+// ============================================================
+// EDIT LOAD / TRUCK
+// ============================================================
+async function editLoad(id) {
+    try {
+        showLoading('Loading load details...');
+        const { data, error } = await sb.from('active_loads').select('*').eq('id', id).single();
+        if (error || !data) { hideLoading(); toast('❌ Could not load this record'); return; }
+
+        editingLoadId = id;
+
+        // Pre-fill material
+        document.getElementById('pl-material').value = data.material_id || '';
+
+        // Pre-fill vehicle type
+        document.getElementById('pl-vehicle-type').value = data.vehicle_type_id || '';
+
+        // Pre-fill weight
+        document.getElementById('pl-weight').value = data.weight ? formatIndianNumber(data.weight) : '';
+
+        // Pre-fill dimensions
+        if (Array.isArray(data.dimensions) && data.dimensions.length === 3) {
+            document.getElementById('pl-length').value = data.dimensions[0];
+            document.getElementById('pl-width').value = data.dimensions[1];
+            document.getElementById('pl-height').value = data.dimensions[2];
+        }
+
+        // Pre-fill pickup location
+        const pickupLoc = getLoc(data.pickup_pin);
+        if (pickupLoc) {
+            document.getElementById('search-pl-pickup').value = getLocDisplayName(pickupLoc);
+            document.getElementById('pl-pickup-hidden').value = data.pickup_pin;
+        }
+
+        // Pre-fill drop location
+        const dropLoc = getLoc(data.drop_pin);
+        if (dropLoc) {
+            document.getElementById('search-pl-drop').value = getLocDisplayName(dropLoc);
+            document.getElementById('pl-drop-hidden').value = data.drop_pin;
+        }
+
+        // Pre-fill rate
+        document.getElementById('pl-rate').value = data.rate ? formatIndianNumber(data.rate) : '';
+
+        // Pre-fill date
+        if (data.pickup_date) {
+            document.getElementById('pl-date').value = data.pickup_date.split('T')[0];
+        } else {
+            document.getElementById('pl-date').value = '';
+        }
+
+        // Pre-fill instructions
+        document.getElementById('pl-instructions').value = data.instructions || '';
+        document.getElementById('pl-instructions-count').textContent = (data.instructions || '').length;
+
+        // Pre-fill agents (load agents array + user's saved agents? Show load's agents)
+        agents = [];
+        agentDataMap = {};
+        if (Array.isArray(data.agents)) {
+            agents = data.agents.map(a => parseInt(a, 10)).filter(a => !isNaN(a));
+            if (agents.length) {
+                const { data: agentUsers } = await sb.from('active_users').select('mobile, name, company_name').in('mobile', agents);
+                (agentUsers || []).forEach(a => {
+                    agentDataMap[a.mobile] = { mobile: a.mobile, name: a.name || 'Unknown', company: a.company_name || '' };
+                });
+            }
+        }
+        renderAgentsUI();
+        updateAgentHiddenField();
+
+        // Change publish button text
+        const btn = document.getElementById('pl-publish-btn');
+        if (btn) btn.textContent = '💾 Update Load';
+
+        hideLoading();
+        switchPage('postload-page');
+    } catch (e) {
+        console.error('Edit load error:', e);
+        hideLoading();
+        toast('❌ Error loading record');
+    }
+}
+
+async function editTruck(id) {
+    try {
+        showLoading('Loading truck details...');
+        const { data, error } = await sb.from('active_trucks').select('*').eq('id', id).single();
+        if (error || !data) { hideLoading(); toast('❌ Could not load this record'); return; }
+
+        editingTruckId = id;
+
+        document.getElementById('pt-vehicle-number').value = data.truck_no || '';
+
+        if (data.location_pin) {
+            const loc = getLoc(data.location_pin);
+            if (loc) {
+                document.getElementById('search-pt-location').value = getLocDisplayName(loc);
+                document.getElementById('pt-location-hidden').value = data.location_pin;
+            }
+        } else {
+            document.getElementById('search-pt-location').value = '';
+            document.getElementById('pt-location-hidden').value = '';
+        }
+
+        if (data.available_date) {
+            document.getElementById('pt-available').value = data.available_date.split('T')[0];
+        } else {
+            document.getElementById('pt-available').value = '';
+        }
+
+        document.getElementById('pt-rate').value = data.rate ? formatIndianNumber(data.rate) : '';
+        document.getElementById('pt-other-details').value = data.other_details || '';
+        document.getElementById('pt-other-details-count').textContent = (data.other_details || '').length;
+
+        // Pre-fill agents
+        agents = [];
+        agentDataMap = {};
+        if (Array.isArray(data.agents)) {
+            agents = data.agents.map(a => parseInt(a, 10)).filter(a => !isNaN(a));
+            if (agents.length) {
+                const { data: agentUsers } = await sb.from('active_users').select('mobile, name, company_name').in('mobile', agents);
+                (agentUsers || []).forEach(a => {
+                    agentDataMap[a.mobile] = { mobile: a.mobile, name: a.name || 'Unknown', company: a.company_name || '' };
+                });
+            }
+        }
+        renderAgentsUI();
+        updateAgentHiddenField();
+
+        // Load vehicle details display
+        if (data.truck_no) {
+            await new Promise(resolve => {
+                sb.from('active_vehicles').select('*').eq('vehicle_number', data.truck_no).single()
+                    .then(vres => {
+                        if (vres.data) {
+                            const v = vres.data;
+                            document.getElementById('pt-detail-number').textContent = v.vehicle_number;
+                            document.getElementById('pt-detail-type').textContent = vehicleTypeName(v.vehicle_type_id);
+                            document.getElementById('pt-detail-dims').textContent = v.dimensions ? v.dimensions.join(' × ') + ' ft' : 'N/A';
+                            document.getElementById('pt-detail-weight').textContent = v.max_weight ? formatIndianNumber(v.max_weight) + ' Kg' : 'N/A';
+                            document.getElementById('pt-detail-odc').textContent = v.odc_allowed ? '✅ Yes' : '❌ No';
+                            document.getElementById('pt-vehicle-detail').classList.add('show');
+                        }
+                        resolve();
+                    }).catch(() => resolve());
+            });
+        }
+
+        const btn = document.getElementById('pt-publish-btn');
+        if (btn) btn.textContent = '💾 Update Truck';
+
+        hideLoading();
+        switchPage('posttruck-page');
+    } catch (e) {
+        console.error('Edit truck error:', e);
+        hideLoading();
+        toast('❌ Error loading record');
+    }
+}
+
+// ============================================================
+// MY LOADS / MY TRUCKS (with Edit button)
+// ============================================================
 function loadMyLoads() {
     if (!user) return;
     sb.from('active_loads').select('*').eq('mobile', parseInt(user.mobile, 10)).eq('status', 1)
@@ -3350,7 +2882,15 @@ function loadMyLoads() {
                 const interests = l.interests || [];
                 let interestHtml = '';
                 if (interests.length > 0) interestHtml = '<div style="font-size:12px;color:#64748b;margin-top:4px;">🤝 Interested: ' + interests.join(', ') + '</div>';
-                return '<div class="list-item"><div class="title">' + materialName(l.material_id) + ' • ' + getLocName(l.pickup_pin) + ' → ' + getLocName(l.drop_pin) + '</div><div class="sub"> ₹' + formatIndianNumber(l.rate || 0) + ' • ⚖️ ' + formatIndianNumber(l.weight || 0) + ' Kg • 🚛 ' + vehicleTypeName(l.vehicle_type_id) + '</div>' + interestHtml + '<div class="actions"><button class="interests">🤝 ' + interests.length + ' Interested</button><button class="delete" onclick="deleteLoadItem(\'' + l.id + '\')">🗑️ Delete</button></div></div>';
+                return '<div class="list-item">' +
+                    '<div class="title">' + materialName(l.material_id) + ' • ' + getLocName(l.pickup_pin) + ' → ' + getLocName(l.drop_pin) + '</div>' +
+                    '<div class="sub"> ₹' + formatIndianNumber(l.rate || 0) + ' • ⚖️ ' + formatIndianNumber(l.weight || 0) + ' Kg • 🚛 ' + vehicleTypeName(l.vehicle_type_id) + '</div>' +
+                    interestHtml +
+                    '<div class="actions">' +
+                    '<button class="interests">🤝 ' + interests.length + ' Interested</button>' +
+                    '<button class="edit" onclick="editLoad(\'' + l.id + '\')">✏️ Edit</button>' +
+                    '<button class="delete" onclick="deleteLoadItem(\'' + l.id + '\')">🗑️ Delete</button>' +
+                    '</div></div>';
             }).join('');
         });
 }
@@ -3372,7 +2912,15 @@ function loadMyTrucks() {
                 const interests = t.interested || [];
                 let interestHtml = '';
                 if (interests.length > 0) interestHtml = '<div style="font-size:12px;color:#64748b;margin-top:4px;">🤝 Interested: ' + interests.join(', ') + '</div>';
-                return '<div class="list-item"><div class="title">' + t.truck_no + ' • 📍 ' + getLocName(t.location_pin) + '</div><div class="sub"> ₹' + formatIndianNumber(t.rate || 0) + ' • 📅 ' + (t.available_date ? new Date(t.available_date).toLocaleDateString() : 'Flexible') + '</div>' + interestHtml + '<div class="actions"><button class="interests">🤝 ' + interests.length + ' Interested</button><button class="delete" onclick="deleteTruckItem(\'' + t.id + '\')">🗑️ Delete</button></div></div>';
+                return '<div class="list-item">' +
+                    '<div class="title">' + t.truck_no + ' • 📍 ' + getLocName(t.location_pin) + '</div>' +
+                    '<div class="sub"> ₹' + formatIndianNumber(t.rate || 0) + ' • 📅 ' + (t.available_date ? new Date(t.available_date).toLocaleDateString() : 'Flexible') + ' • 🚛 ' + vehicleTypeName(t.vehicle_type_id) + '</div>' +
+                    interestHtml +
+                    '<div class="actions">' +
+                    '<button class="interests">🤝 ' + interests.length + ' Interested</button>' +
+                    '<button class="edit" onclick="editTruck(\'' + t.id + '\')">✏️ Edit</button>' +
+                    '<button class="delete" onclick="deleteTruckItem(\'' + t.id + '\')">🗑️ Delete</button>' +
+                    '</div></div>';
             }).join('');
         });
 }
@@ -3394,10 +2942,7 @@ function updateCharCount(inputId, countId) {
     if (input && count) count.textContent = input.value.length;
 }
 
-function toggleDropdown(event) { 
-    if (event) event.stopPropagation();
-    document.querySelectorAll('.profile-dropdown').forEach(d => d.classList.toggle('show')); 
-}
+function toggleDropdown(event) { if (event) event.stopPropagation(); document.querySelectorAll('.profile-dropdown').forEach(d => d.classList.toggle('show')); }
 function closeDropdown() { document.querySelectorAll('.profile-dropdown').forEach(d => d.classList.remove('show')); }
 function logout() { if (confirm('Logout?')) { localStorage.removeItem('rt_user'); window.location.reload(); } }
 function openChangePin() { toast('Change PIN stub'); }
@@ -3414,12 +2959,7 @@ function autoLocate() {
         try {
             const l = JSON.parse(saved);
             const loc = getLoc(l.pinId);
-            if (loc) {
-                inp.value = l.displayName;
-                homePinId = l.pinId;
-                applyFilters();
-                return;
-            }
+            if (loc) { inp.value = l.displayName; homePinId = l.pinId; applyFilters(); return; }
         } catch (e) {}
     }
     if (navigator.geolocation) {
@@ -3427,25 +2967,17 @@ function autoLocate() {
             p => {
                 const lat = p.coords.latitude, lng = p.coords.longitude;
                 let near = null, minD = Infinity;
-                LOCATIONS.forEach(l => {
-                    const d = dist(lat, lng, l.lat, l.lng);
-                    if (d < minD) { minD = d; near = l; }
-                });
+                LOCATIONS.forEach(l => { const d = dist(lat, lng, l.lat, l.lng); if (d < minD) { minD = d; near = l; } });
                 if (near && minD < 100) {
                     const dn = getLocDisplayName(near);
-                    inp.value = dn;
-                    homePinId = near.pin_id;
+                    inp.value = dn; homePinId = near.pin_id;
                     localStorage.setItem('rt_home_location', JSON.stringify({ pinId: near.pin_id, displayName: dn }));
                     applyFilters();
-                } else {
-                    if (LOCATIONS.length > 0) {
-                        const near = LOCATIONS[0];
-                        const dn = getLocDisplayName(near);
-                        inp.value = dn;
-                        homePinId = near.pin_id;
-                        localStorage.setItem('rt_home_location', JSON.stringify({ pinId: near.pin_id, displayName: dn }));
-                        applyFilters();
-                    }
+                } else if (LOCATIONS.length > 0) {
+                    const n = LOCATIONS[0]; const dn = getLocDisplayName(n);
+                    inp.value = dn; homePinId = n.pin_id;
+                    localStorage.setItem('rt_home_location', JSON.stringify({ pinId: n.pin_id, displayName: dn }));
+                    applyFilters();
                 }
             },
             () => {
@@ -3455,42 +2987,32 @@ function autoLocate() {
                     LOCATIONS.forEach(l => {
                         if (l.name.toLowerCase() === city.toLowerCase() || l.district.toLowerCase() === city.toLowerCase()) {
                             const dn = getLocDisplayName(l);
-                            inp.value = dn;
-                            homePinId = l.pin_id;
+                            inp.value = dn; homePinId = l.pin_id;
                             localStorage.setItem('rt_home_location', JSON.stringify({ pinId: l.pin_id, displayName: dn }));
-                            found = true;
-                            applyFilters();
+                            found = true; applyFilters();
                         }
                     });
                     if (!found && LOCATIONS.length > 0) {
-                        const near = LOCATIONS[0];
-                        const dn = getLocDisplayName(near);
-                        inp.value = dn;
-                        homePinId = near.pin_id;
-                        localStorage.setItem('rt_home_location', JSON.stringify({ pinId: near.pin_id, displayName: dn }));
+                        const n = LOCATIONS[0]; const dn = getLocDisplayName(n);
+                        inp.value = dn; homePinId = n.pin_id;
+                        localStorage.setItem('rt_home_location', JSON.stringify({ pinId: n.pin_id, displayName: dn }));
                         applyFilters();
                     }
                 }).catch(() => {
                     if (LOCATIONS.length > 0) {
-                        const near = LOCATIONS[0];
-                        const dn = getLocDisplayName(near);
-                        inp.value = dn;
-                        homePinId = near.pin_id;
-                        localStorage.setItem('rt_home_location', JSON.stringify({ pinId: near.pin_id, displayName: dn }));
+                        const n = LOCATIONS[0]; const dn = getLocDisplayName(n);
+                        inp.value = dn; homePinId = n.pin_id;
+                        localStorage.setItem('rt_home_location', JSON.stringify({ pinId: n.pin_id, displayName: dn }));
                         applyFilters();
                     }
                 });
             }
         );
-    } else {
-        if (LOCATIONS.length > 0) {
-            const near = LOCATIONS[0];
-            const dn = getLocDisplayName(near);
-            inp.value = dn;
-            homePinId = near.pin_id;
-            localStorage.setItem('rt_home_location', JSON.stringify({ pinId: near.pin_id, displayName: dn }));
-            applyFilters();
-        }
+    } else if (LOCATIONS.length > 0) {
+        const n = LOCATIONS[0]; const dn = getLocDisplayName(n);
+        inp.value = dn; homePinId = n.pin_id;
+        localStorage.setItem('rt_home_location', JSON.stringify({ pinId: n.pin_id, displayName: dn }));
+        applyFilters();
     }
 }
 
@@ -3507,13 +3029,8 @@ function checkDeepLink() {
             const type = parts[0], id = parts[1];
             if (type && id) {
                 deepLinkProcessed = true;
-                if (user || guest) {
-                    showLoading('Opening ' + type.toLowerCase() + ' details...');
-                    setTimeout(() => { openDetail(type, id); }, 500);
-                } else {
-                    pendingDeepLink = { type, id };
-                    setTimeout(() => { showLogin(); }, 500);
-                }
+                if (user || guest) { showLoading('Opening ' + type.toLowerCase() + ' details...'); setTimeout(() => { openDetail(type, id); }, 500); }
+                else { pendingDeepLink = { type, id }; setTimeout(() => { showLogin(); }, 500); }
             }
         }
     }
