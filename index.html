@@ -712,7 +712,6 @@ let agentDataMap = {};
 let deferredPrompt = null;
 let pendingDeepLink = null;
 let currentTruckVehicleData = null;
-// ---- NEW: edit-mode tracking ----
 let editingLoadId = null;
 let editingTruckId = null;
 
@@ -851,7 +850,6 @@ function goHome() {
 function goPostLoad() {
     if (guest || !user) { showLogin(); return; }
     loadAgentsFromUser();
-    // If not in edit mode, reset the form to a clean slate
     if (editingLoadId === null) resetLoadForm();
     switchPage('postload-page');
 }
@@ -863,7 +861,6 @@ function goPostTruck() {
 }
 function goToProfile() { if (guest || !user) { showLogin(); return; } switchPage('profile-page'); loadProfile(); }
 function cancelPost() {
-    // Reset edit mode and form
     editingLoadId = null;
     editingTruckId = null;
     resetLoadForm();
@@ -1971,7 +1968,7 @@ function updateStats(item) {
 }
 
 // ============================================================
-// SHARE AS IMAGE
+// SHARE AS IMAGE (REVISED FOR BETTER LEGIBILITY)
 // ============================================================
 async function handleShareClick() {
     if (!detail) { toast('No details to share'); return; }
@@ -2005,7 +2002,11 @@ async function handleShareClick() {
     }
 }
 async function renderShareImage(data, vehicleData) {
-    const W = 800, baseH = 600, rowHeight = 90, titleAreaHeight = 150, instructionsBoxHeight = 180;
+    const W = 800;
+    const baseH = 600;
+    const rowHeight = 90;
+    const titleAreaHeight = 150;
+    const instructionsBoxHeight = 220; // Increased from 180 for larger text
     let contentHeight = 0, rows = [];
     if (data.type === 'LOAD') {
         const from = getLoc(data.pickup_pin), to = getLoc(data.drop_pin);
@@ -2049,9 +2050,30 @@ async function renderShareImage(data, vehicleData) {
     const H = Math.max(1000, baseH + contentHeight);
     const canvas = document.createElement('canvas'); canvas.width = W; canvas.height = H;
     const ctx = canvas.getContext('2d');
+    // Dark background with rounded corner simulation
     ctx.fillStyle = '#0a0a12'; ctx.fillRect(0, 0, W, H);
+    // Rounded corners for the whole image (simulate by drawing rounded rect on top of background)
+    // Actually, we want the entire image to appear as a rounded card when shared.
+    // We'll draw a rounded rectangle background instead of plain fill.
+    // Clear first
+    ctx.clearRect(0, 0, W, H);
+    // Draw rounded background
+    const bgRadius = 40;
+    ctx.fillStyle = '#0a0a12';
+    roundRect(ctx, 0, 0, W, H, bgRadius);
+    ctx.fill();
+    // Gradient header
     const grad = ctx.createLinearGradient(0, 0, W, 220); grad.addColorStop(0, '#1e3a8a'); grad.addColorStop(1, '#2563eb');
     ctx.fillStyle = grad; ctx.fillRect(0, 0, W, 220);
+    // Clip header to rounded top
+    ctx.save();
+    roundRect(ctx, 0, 0, W, 220, bgRadius);
+    ctx.clip();
+    ctx.fillStyle = grad;
+    roundRect(ctx, 0, 0, W, 220, bgRadius);
+    ctx.fill();
+    ctx.restore();
+
     const postedBy = data.user ? (data.user.company_name || data.user.name || 'User') : 'User';
     const postedLoc = data.user && data.user.location ? getLocName(data.user.location) : '';
     ctx.fillStyle = '#ffffff'; ctx.font = 'bold 52px system-ui, -apple-system, sans-serif';
@@ -2077,14 +2099,17 @@ async function renderShareImage(data, vehicleData) {
     });
     if (hasInstructions) {
         const instY = boxY + boxH + 30;
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)'; roundRect(ctx, 40, instY, W - 80, 140, 16); ctx.fill();
-        ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 20px system-ui, sans-serif'; ctx.fillText('📝 INSTRUCTIONS', 70, instY + 40);
-        ctx.fillStyle = '#e2e8f0'; ctx.font = '22px system-ui, sans-serif'; wrapText(ctx, instructionText, 70, instY + 80, W - 140, 30);
+        // Larger instruction box height (220) and larger font
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.12)'; roundRect(ctx, 40, instY, W - 80, 160, 16); ctx.fill();
+        ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 24px system-ui, sans-serif'; ctx.fillText('📝 INSTRUCTIONS', 70, instY + 45);
+        ctx.fillStyle = '#e2e8f0'; ctx.font = '26px system-ui, sans-serif'; wrapText(ctx, instructionText, 70, instY + 100, W - 140, 36);
     }
+    // ---- Larger URL and text ----
     const shareUrl = 'https://returntruck-pwa.vercel.app/?listing=' + data.type + '_' + data.id;
-    ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '500 20px system-ui, sans-serif';
-    ctx.fillText('Tap to view details on ReturnTruck', 40, H - 40);
-    ctx.fillStyle = '#2563eb'; ctx.font = 'bold 22px system-ui, sans-serif'; ctx.fillText(shareUrl, 40, H - 10);
+    ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = 'bold 22px system-ui, sans-serif';
+    ctx.fillText('Tap to view details on ReturnTruck', 40, H - 60);
+    ctx.fillStyle = '#60a5fa'; ctx.font = 'bold 26px system-ui, sans-serif'; 
+    ctx.fillText(shareUrl, 40, H - 20);
     return canvas;
 }
 function roundRect(ctx, x, y, w, h, r) {
@@ -2608,7 +2633,6 @@ function publishLoad() {
                 goHome();
             }).catch(err => { console.error('❌ Exception:', err); alert('Error: ' + err.message); });
     } else {
-        // Add insert-only fields
         loadData.views = 0;
         loadData.calls = 0;
         loadData.interests = [];
@@ -2651,7 +2675,6 @@ function publishTruck() {
 
     const isEditing = (editingTruckId !== null);
 
-    // For both insert and update, we need the vehicle_type_id from the linked vehicle
     sb.from('active_vehicles').select('id, vehicle_type_id').eq('vehicle_number', number).single()
         .then(checkRes => {
             if (!checkRes.data) {
@@ -2717,51 +2740,39 @@ async function editLoad(id) {
 
         editingLoadId = id;
 
-        // Pre-fill material
         document.getElementById('pl-material').value = data.material_id || '';
-
-        // Pre-fill vehicle type
         document.getElementById('pl-vehicle-type').value = data.vehicle_type_id || '';
-
-        // Pre-fill weight
         document.getElementById('pl-weight').value = data.weight ? formatIndianNumber(data.weight) : '';
 
-        // Pre-fill dimensions
         if (Array.isArray(data.dimensions) && data.dimensions.length === 3) {
             document.getElementById('pl-length').value = data.dimensions[0];
             document.getElementById('pl-width').value = data.dimensions[1];
             document.getElementById('pl-height').value = data.dimensions[2];
         }
 
-        // Pre-fill pickup location
         const pickupLoc = getLoc(data.pickup_pin);
         if (pickupLoc) {
             document.getElementById('search-pl-pickup').value = getLocDisplayName(pickupLoc);
             document.getElementById('pl-pickup-hidden').value = data.pickup_pin;
         }
 
-        // Pre-fill drop location
         const dropLoc = getLoc(data.drop_pin);
         if (dropLoc) {
             document.getElementById('search-pl-drop').value = getLocDisplayName(dropLoc);
             document.getElementById('pl-drop-hidden').value = data.drop_pin;
         }
 
-        // Pre-fill rate
         document.getElementById('pl-rate').value = data.rate ? formatIndianNumber(data.rate) : '';
 
-        // Pre-fill date
         if (data.pickup_date) {
             document.getElementById('pl-date').value = data.pickup_date.split('T')[0];
         } else {
             document.getElementById('pl-date').value = '';
         }
 
-        // Pre-fill instructions
         document.getElementById('pl-instructions').value = data.instructions || '';
         document.getElementById('pl-instructions-count').textContent = (data.instructions || '').length;
 
-        // Pre-fill agents (load agents array + user's saved agents? Show load's agents)
         agents = [];
         agentDataMap = {};
         if (Array.isArray(data.agents)) {
@@ -2776,7 +2787,6 @@ async function editLoad(id) {
         renderAgentsUI();
         updateAgentHiddenField();
 
-        // Change publish button text
         const btn = document.getElementById('pl-publish-btn');
         if (btn) btn.textContent = '💾 Update Load';
 
@@ -2820,7 +2830,6 @@ async function editTruck(id) {
         document.getElementById('pt-other-details').value = data.other_details || '';
         document.getElementById('pt-other-details-count').textContent = (data.other_details || '').length;
 
-        // Pre-fill agents
         agents = [];
         agentDataMap = {};
         if (Array.isArray(data.agents)) {
@@ -2835,7 +2844,6 @@ async function editTruck(id) {
         renderAgentsUI();
         updateAgentHiddenField();
 
-        // Load vehicle details display
         if (data.truck_no) {
             await new Promise(resolve => {
                 sb.from('active_vehicles').select('*').eq('vehicle_number', data.truck_no).single()
