@@ -8,56 +8,27 @@
 
 <!-- ============================================================
      SPLIT LOCATION DATA FILES — DYNAMIC LOADER
-     ------------------------------------------------------------
-     Each locations_*.js file declares `var LOCATIONS = [...]` and
-     would overwrite the previous one. This loader loads each file
-     sequentially via synchronous <script> injection, captures the
-     LOCATIONS array right after each load into a temp holder, then
-     merges them all into a single window.LOCATIONS array.
-
-     TO ADD A NEW STATE: just add its filename to LOCATION_FILES
-     below. That's it — nothing else to change.
      ============================================================ -->
 <script>
-  // 👇 ADD NEW STATE FILES HERE (order does not matter)
   window.LOCATION_FILES = [
     'locations_tg.js',
     'locations_ap.js',
     'locations_od.js'
-    // 'locations_ka.js',
-    // 'locations_mh.js',
-    // 'locations_tn.js',
-    // 'locations_kl.js',
-    // 'locations_gj.js',
-    // 'locations_mp.js',
-    // 'locations_up.js',
-    // 'locations_rj.js',
-    // 'locations_br.js',
-    // 'locations_wb.js',
-    // 'locations_hr.js',
-    // 'locations_pb.js',
-    // 'locations_ga.js',
-    // ...
   ];
 </script>
 
 <script>
   (function () {
-    // Load each location file synchronously so `var LOCATIONS` is
-    // captured before the next file overwrites it.
     var merged = [];
     var counts = {};
 
     window.LOCATION_FILES.forEach(function (file) {
       try {
-        // ---- Synchronous XHR so we can eval before next file loads ----
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', file, false); // false = synchronous
+        xhr.open('GET', file, false);
         xhr.send(null);
 
         if (xhr.status === 200 || xhr.status === 0) {
-          // The file sets `var LOCATIONS = [...]` at global scope when
-          // evaluated. We wrap in an IIFE that returns the array.
           var arr = (new Function(xhr.responseText + '; return LOCATIONS;'))();
           if (Array.isArray(arr)) {
             counts[file] = arr.length;
@@ -76,9 +47,6 @@
       }
     });
 
-    // ---- Normalize lat/lng ----
-    // India is roughly lat 6–38, lng 68–98.
-    // Source data sometimes swaps them; detect and swap back.
     window.LOCATIONS = merged.map(function (loc) {
       var a = Number(loc.lat), b = Number(loc.lng);
       if (!isFinite(a) || !isFinite(b)) return loc;
@@ -88,7 +56,6 @@
       return loc;
     });
 
-    // ---- Diagnostic log ----
     var summary = Object.keys(counts).map(function (f) {
       return f.replace('locations_', '').replace('.js', '').toUpperCase() + ': ' + counts[f];
     }).join(', ');
@@ -130,29 +97,11 @@ body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:cente
 .scroll-body{overflow-y:auto;padding:8px 16px;-webkit-overflow-scrolling:touch;display:block;width:100%;flex:1;padding-bottom:70px}
 .scroll-body::-webkit-scrollbar{width:4px}.scroll-body::-webkit-scrollbar-thumb{background:#1e1e32;border-radius:10px}
 
-/* PAGE CONTAINERS */
 #home-page, #profile-page, #postload-page, #posttruck-page, #detail-page, #edit-profile-page {
-    display:flex;
-    flex-direction:column;
-    height:100%;
-    width:100%;
-    position:absolute;
-    top:0;
-    left:0;
-    background:#12121e;
-    z-index:1;
+    display:flex;flex-direction:column;height:100%;width:100%;position:absolute;top:0;left:0;background:#12121e;z-index:1;
 }
-#home-page.hidden-page,
-#profile-page.hidden-page,
-#postload-page.hidden-page,
-#posttruck-page.hidden-page,
-#detail-page.hidden-page,
-#edit-profile-page.hidden-page {
-    display:none !important;
-    z-index:0;
-}
+#home-page.hidden-page,#profile-page.hidden-page,#postload-page.hidden-page,#posttruck-page.hidden-page,#detail-page.hidden-page,#edit-profile-page.hidden-page{display:none !important;z-index:0;}
 
-/* LOGIN SCREEN */
 #login-screen{display:flex;flex-direction:column;height:100%;width:100%;overflow-y:auto;padding:16px;background:#12121e;position:absolute;top:0;left:0;z-index:100}
 .login-icon-container{display:flex;justify-content:center;margin-bottom:0}
 .login-icon-container img{width:180px;height:180px;border-radius:40px;box-shadow:0 4px 20px rgba(37,99,235,0.2);background:#1a1a2e;padding:8px;max-width:100%}
@@ -164,7 +113,6 @@ body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:cente
 .login-stat-item .label{font-size:9px;font-weight:600;color:#94a3b8;display:block;text-transform:uppercase}
 .login-step-container{flex:1;display:flex;flex-direction:column;justify-content:center}
 
-/* INPUT FIELDS - LIGHT GREY BACKGROUND */
 .input-field{width:100%;padding:14px;border:2px solid #d1d5db;border-radius:12px;font-size:16px;text-align:center;background:#f1f5f9 !important;color:#0f172a;margin-bottom:12px;display:block !important;visibility:visible !important;opacity:1 !important;transition:border-color 0.2s}
 .input-field:focus{border-color:#2563eb;outline:none;background:#f8fafc !important;box-shadow:0 0 0 3px rgba(37,99,235,0.12)}
 .input-field:disabled{background:#e2e8f0;color:#64748b}
@@ -180,7 +128,6 @@ body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:cente
 .login-divider div{flex:1;height:1px;background:#1e1e32}
 .login-divider span{font-size:11px;color:#64748b}
 
-/* LOCATION ROW */
 .location-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
 .location-row .location-input{flex:2}.location-row .radius-select{flex:1}
 .location-input input,.radius-select select{width:100%;padding:8px 12px;border:2px solid #d1d5db;border-radius:8px;font-size:13px;background:#f1f5f9 !important;color:#0f172a;transition:border-color 0.2s}
@@ -188,14 +135,12 @@ body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:cente
 .location-input input::placeholder{color:#94a3b8}
 .radius-select select option{background:#ffffff;color:#0f172a}
 
-/* TYPE TABS */
 .type-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;background:#1a1a2e;padding:3px;border-radius:10px;margin-bottom:6px;border:1px solid #1e1e32}
 .type-tabs button{padding:8px 4px;font-size:12px;font-weight:700;border:none;border-radius:8px;cursor:pointer;transition:all 0.2s}
 .type-tabs .active{background:#2563eb;color:#fff;box-shadow:0 2px 8px rgba(37,99,235,0.25)}
 .type-tabs .inactive{background:transparent;color:#94a3b8}
 .type-tabs .inactive:hover{background:#1e1e32;color:#e2e8f0}
 
-/* FILTERS */
 .filter-toggle{display:flex;justify-content:center;align-items:center;gap:6px;padding:6px 0;cursor:pointer;font-size:11px;font-weight:600;color:#94a3b8;border-top:1px solid #1e1e32;margin-top:4px;user-select:none;transition:color 0.2s}
 .filter-toggle:hover{color:#c8d0e0}
 .filter-container{overflow:hidden;transition:max-height 0.3s ease;max-height:0}
@@ -207,7 +152,6 @@ body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:cente
 .filter-row input::placeholder{color:#94a3b8}
 .filter-row select option{background:#ffffff;color:#0f172a}
 
-/* SEARCH */
 .search-wrapper{position:relative;width:100%}
 .search-wrapper .suggestions{position:absolute;top:100%;left:0;right:0;background:#ffffff;border:1px solid #d1d5db;border-radius:12px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.15)}
 .search-wrapper .suggestions.show{display:block}
@@ -216,10 +160,8 @@ body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:cente
 .search-wrapper .suggestions .item:hover{background:#f1f5f9}
 .search-wrapper .suggestions .item .highlight{background:#2563eb;color:#fff;font-weight:600;padding:0 4px;border-radius:4px}
 
-/* RESULTS */
 .results-count{display:flex;justify-content:space-between;padding-bottom:4px;margin-bottom:6px;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
 
-/* FEED CARDS - WHITE BACKGROUND */
 .feed-container{display:flex;flex-direction:column;gap:10px}
 .feed-card{background:#ffffff !important;border-radius:14px;padding:14px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.3);transition:all .2s;border:1px solid #e8ecf0}
 .feed-card:hover{border-color:#2563eb;transform:translateY(-2px);box-shadow:0 4px 20px rgba(37,99,235,.12)}
@@ -236,7 +178,6 @@ body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:cente
 .feed-card .stats-row span{display:flex;align-items:center;gap:3px}
 .feed-card .stats-row .val{font-weight:600;color:#475569}
 
-/* DETAIL VIEWS - WHITE BACKGROUND */
 .detail-header-card{background:linear-gradient(135deg,#1a1a2e,#0e0e1e);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid #1e1e32}
 .detail-header-card .main-title{font-size:20px;font-weight:700;color:#e2e8f0}
 .detail-header-card .company-name{font-size:14px;color:#2563eb;font-weight:600}
@@ -247,7 +188,6 @@ body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:cente
 .detail-badge.unverified{background:#fef2f2;color:#991b1b}
 .detail-badge.pan-gst{background:#1e1e32;color:#94a3b8;font-size:10px}
 
-/* DETAIL CARDS - WHITE BACKGROUND */
 .detail-card{background:#ffffff !important;border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 12px rgba(0,0,0,.2);border:1px solid #e8ecf0}
 .detail-card .section-title{font-size:13px;font-weight:700;color:#2563eb;margin-bottom:10px;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:0.5px}
 .detail-card .spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;color:#475569}
@@ -262,14 +202,12 @@ body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:cente
 .detail-card .route-meta strong{color:#0f172a}
 .detail-card .instructions-text{font-size:14px;color:#475569;padding:4px 0;line-height:1.5}
 
-/* STATS */
 .stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
 .stat-item{background:#f8fafc;border-radius:10px;padding:8px 4px;text-align:center;border:1px solid #e2e8f0}
 .stat-item .stat-icon{font-size:18px;display:block}
 .stat-item .stat-number{font-size:16px;font-weight:700;color:#0f172a;display:block;margin-top:2px}
 .stat-item .stat-label{font-size:8px;color:#64748b;font-weight:600;text-transform:uppercase;margin-top:2px;display:block}
 
-/* ACTION BUTTONS */
 .action-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
 .action-grid button{width:100%;padding:8px 4px;border-radius:8px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:10px;cursor:pointer;transition:all .2s;box-shadow:0 2px 4px rgba(0,0,0,.2)}
 .action-grid button:active{transform:scale(0.95)}
@@ -281,13 +219,11 @@ body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:cente
 .express-interest-btn{width:100%;padding:12px;background:#8b5cf6;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;box-shadow:0 2px 8px rgba(139,92,246,.3);transition:all .2s}
 .express-interest-btn:active{transform:scale(0.97)}
 
-/* GUEST BANNER */
 .guest-banner{flex-shrink:0;background:linear-gradient(135deg,#2563eb,#6c5ce7);color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;border:1px solid rgba(255,255,255,0.08)}
 .guest-banner.hidden{display:none}
 .guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px;transition:all 0.2s}
 .guest-banner .btn-login:hover{transform:scale(1.03)}
 
-/* PROFILE - WHITE CONTAINERS */
 .profile-header-card{background:linear-gradient(135deg,#1a1a2e,#0e0e1e);border-radius:12px;padding:16px;color:#e2e8f0;margin-bottom:12px;border:1px solid #1e1e32}
 .profile-section{background:#ffffff !important;border:1px solid #e8ecf0;border-radius:12px;padding:16px;margin-bottom:12px;color:#0f172a}
 .profile-section .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
@@ -305,158 +241,39 @@ body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:cente
 .section-btn.success{background:#16a34a;color:#fff}
 .section-btn.success:hover{background:#15803d}
 
-/* SECTION CONTAINER - WHITE BACKGROUND */
-.section-container {
-    background: #ffffff !important;
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 10px;
-    border: 1px solid #e8ecf0;
-}
-.section-container .section-title {
-    font-size: 13px;
-    font-weight: 700;
-    color: #2563eb;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
+.section-container{background:#ffffff !important;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #e8ecf0}
+.section-container .section-title{font-size:13px;font-weight:700;color:#2563eb;margin-bottom:10px;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:0.5px}
 
-/* FORM LABELS - DARK TEXT ON WHITE */
-.form-label {
-    font-size: 11px;
-    font-weight: 700;
-    color: #334155 !important;
-    text-transform: uppercase;
-    display: block;
-    margin-bottom: 6px;
-    letter-spacing: 0.5px;
-}
+.form-label{font-size:11px;font-weight:700;color:#334155 !important;text-transform:uppercase;display:block;margin-bottom:6px;letter-spacing:0.5px}
 
-/* FORM CONTROLS - LIGHT GREY BACKGROUND */
-.form-control {
-    width: 100%;
-    padding: 12px 14px;
-    border: 2px solid #d1d5db !important;
-    border-radius: 10px;
-    font-size: 14px;
-    background: #f1f5f9 !important;
-    color: #0f172a !important;
-    outline: none;
-    transition: all .2s;
-}
-.form-control:focus {
-    border-color: #2563eb !important;
-    background: #f8fafc !important;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-.form-control::placeholder {
-    color: #94a3b8;
-}
-.form-control:hover {
-    border-color: #cbd5e1 !important;
-}
+.form-control{width:100%;padding:12px 14px;border:2px solid #d1d5db !important;border-radius:10px;font-size:14px;background:#f1f5f9 !important;color:#0f172a !important;outline:none;transition:all .2s}
+.form-control:focus{border-color:#2563eb !important;background:#f8fafc !important;box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
+.form-control::placeholder{color:#94a3b8}
+.form-control:hover{border-color:#cbd5e1 !important}
 
-/* SELECT DROPDOWNS */
-select.form-control {
-    background: #f1f5f9 !important;
-    color: #0f172a !important;
-    border: 2px solid #d1d5db !important;
-    cursor: pointer;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-right: 36px;
-}
-select.form-control:hover {
-    border-color: #cbd5e1 !important;
-}
-select.form-control:focus {
-    background: #f8fafc !important;
-    border-color: #2563eb !important;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-select.form-control option {
-    background: #ffffff !important;
-    color: #0f172a !important;
-}
+select.form-control{background:#f1f5f9 !important;color:#0f172a !important;border:2px solid #d1d5db !important;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
+select.form-control:hover{border-color:#cbd5e1 !important}
+select.form-control:focus{background:#f8fafc !important;border-color:#2563eb !important;box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
+select.form-control option{background:#ffffff !important;color:#0f172a !important}
 
-/* TEXTAREA */
-textarea.form-control {
-    resize: vertical;
-    min-height: 60px;
-    background: #f1f5f9 !important;
-    border: 2px solid #d1d5db !important;
-    color: #0f172a !important;
-}
-textarea.form-control:focus {
-    background: #f8fafc !important;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
+textarea.form-control{resize:vertical;min-height:60px;background:#f1f5f9 !important;border:2px solid #d1d5db !important;color:#0f172a !important}
+textarea.form-control:focus{background:#f8fafc !important;box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
 
-/* DIMENSION INPUTS */
-.dim-input {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
-    margin-top: 4px;
-}
-.dim-input .dim-group {
-    background: #f1f5f9 !important;
-    border-radius: 8px;
-    padding: 8px 12px;
-    border: 2px solid #d1d5db !important;
-    text-align: center;
-    transition: all .2s;
-}
-.dim-input .dim-group:focus-within {
-    border-color: #2563eb !important;
-    background: #f8fafc !important;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
-}
-.dim-input .dim-group label {
-    font-size: 10px;
-    font-weight: 700;
-    color: #64748b;
-    text-transform: uppercase;
-    display: block;
-    margin-bottom: 2px;
-    letter-spacing: 0.5px;
-}
-.dim-input .dim-group input {
-    width: 100%;
-    border: none;
-    background: transparent;
-    text-align: center;
-    font-size: 16px;
-    font-weight: 600;
-    color: #0f172a;
-    padding: 4px 0;
-    outline: none;
-}
-.dim-input .dim-group input:focus {
-    color: #2563eb;
-}
-.dim-input .dim-group input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-}
-.dim-input .dim-group input[type=number] {
-    -moz-appearance: textfield;
-}
+.dim-input{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px}
+.dim-input .dim-group{background:#f1f5f9 !important;border-radius:8px;padding:8px 12px;border:2px solid #d1d5db !important;text-align:center;transition:all .2s}
+.dim-input .dim-group:focus-within{border-color:#2563eb !important;background:#f8fafc !important;box-shadow:0 0 0 3px rgba(37,99,235,0.08)}
+.dim-input .dim-group label{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;display:block;margin-bottom:2px;letter-spacing:0.5px}
+.dim-input .dim-group input{width:100%;border:none;background:transparent;text-align:center;font-size:16px;font-weight:600;color:#0f172a;padding:4px 0;outline:none}
+.dim-input .dim-group input:focus{color:#2563eb}
+.dim-input .dim-group input::-webkit-inner-spin-button{-webkit-appearance:none}
+.dim-input .dim-group input[type=number]{-moz-appearance:textfield}
 
-/* GRID */
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .grid-2-vehicle { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; align-items: start; }
 
-/* BACK BUTTON */
 .back-btn { background: transparent; border: none; font-size: 14px; font-weight: 500; color: #94a3b8; cursor: pointer; padding: 4px 8px; transition: color 0.2s; }
 .back-btn:hover { color: #f87171; }
 
-/* OTP */
 .otp-input { width: 48px; height: 56px; text-align: center; font-size: 24px; font-weight: 700; border-radius: 12px; border: 2px solid #d1d5db; background: #f1f5f9 !important; color: #0f172a; transition: border-color 0.2s; }
 .otp-input:focus { border-color: #2563eb; outline: none; background: #f8fafc !important; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
 .otp-input:disabled { background: #e2e8f0; color: #64748b; }
@@ -465,34 +282,24 @@ textarea.form-control:focus {
 .resend-btn { background: transparent; border: none; color: #2563eb; font-weight: 600; cursor: pointer; font-size: 13px; text-decoration: underline; }
 .resend-btn:disabled { color: #64748b; cursor: not-allowed; }
 
-/* STAT CARDS */
 .stat-cards { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
 .stat-card { background: #f8fafc; border-radius: 10px; padding: 12px; text-align: center; border: 1px solid #e2e8f0; }
 .stat-card .icon { font-size: 22px; display: block; margin-bottom: 2px; }
 .stat-card .number { font-size: 20px; font-weight: 800; color: #0f172a; }
 .stat-card .label { font-size: 9px; color: #64748b; text-transform: uppercase; font-weight: 600; }
 
-/* LIST ITEMS */
 .list-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 8px; }
 .list-item .title { font-weight: 600; font-size: 14px; color: #0f172a; }
 .list-item .sub { font-size: 12px; color: #475569; margin-top: 2px; }
 .list-item .actions { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
 .list-item .actions button { padding: 4px 12px; font-size: 11px; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; }
 .list-item .actions .edit { background: #dbeafe; color: #1e40af; }
-.list-item .actions .edit:hover { background: #bfdbfe; }
 .list-item .actions .delete { background: #fef2f2; color: #991b1b; }
-.list-item .actions .delete:hover { background: #fee2e2; }
 .list-item .actions .interests { background: #fef3c7; color: #92400e; font-size: 10px; }
-.list-item .actions .interests:hover { background: #fde68a; }
 
-/* BADGES */
 .status-badge { font-size: 10px; padding: 2px 10px; border-radius: 10px; font-weight: 600; display: inline-block; }
-.status-badge.active { background: #dcfce7; color: #166534; }
-.status-badge.draft { background: #fef3c7; color: #d97706; }
-.status-badge.expired { background: #fef2f2; color: #991b1b; }
 .count-badge { background: #2563eb; color: #fff; font-size: 11px; border-radius: 10px; padding: 1px 8px; margin-left: 4px; }
 
-/* TAGS */
 .route-tag { background: #f1f5f9; padding: 5px 12px; border-radius: 6px; font-size: 13px; display: inline-block; margin: 2px; color: #475569; }
 .route-tag .remove { color: #f87171; cursor: pointer; margin-left: 6px; font-weight: 700; }
 .route-tag .remove:hover { color: #dc2626; }
@@ -500,16 +307,13 @@ textarea.form-control:focus {
 .agent-tag .remove { color: #f87171; cursor: pointer; margin-left: 6px; font-weight: 700; }
 .agent-tag .remove:hover { color: #dc2626; }
 
-/* USER TYPE CHECKBOX */
 .user-type-checkbox { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
 .user-type-checkbox label { font-size: 14px; display: flex; align-items: center; gap: 4px; cursor: pointer; color: #0f172a; }
 
-/* ROUTE INPUT */
 .route-input-row { display: flex; gap: 6px; margin-bottom: 8px; }
 .route-input-row input { flex: 2; }
 .route-input-row button { flex-shrink: 0; }
 
-/* VEHICLE */
 .vehicle-suggest-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: #ffffff; border: 1px solid #d1d5db; border-radius: 8px; margin-top: 4px; max-height: 150px; overflow-y: auto; z-index: 50; display: none; }
 .vehicle-suggest-dropdown.show { display: block; }
 .vehicle-suggest-dropdown .item { padding: 10px 14px; font-size: 14px; cursor: pointer; border-bottom: 1px solid #f1f5f9; color: #0f172a; }
@@ -524,14 +328,11 @@ textarea.form-control:focus {
 .vehicle-item .actions { display: flex; gap: 4px; }
 .vehicle-item .actions button { padding: 4px 10px; font-size: 10px; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; }
 .vehicle-item .actions .edit-btn { background: #dbeafe; color: #1e40af; }
-.vehicle-item .actions .edit-btn:hover { background: #bfdbfe; }
 .vehicle-item .actions .delete-btn { background: #fef2f2; color: #991b1b; }
-.vehicle-item .actions .delete-btn:hover { background: #fee2e2; }
 .vehicle-display-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; }
 .vehicle-display-item .vnumber { font-weight: 700; font-size: 14px; color: #0f172a; }
 .vehicle-display-item .vdetails { font-size: 13px; color: #64748b; margin-top: 2px; }
 
-/* VEHICLE MODAL */
 .vehicle-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); display: none; align-items: center; justify-content: center; z-index: 1000; }
 .vehicle-modal.show { display: flex; }
 .vehicle-modal-content { background: #ffffff; border-radius: 16px; padding: 24px; max-width: 420px; width: 90%; max-height: 85vh; overflow-y: auto; border: 1px solid #e2e8f0; }
@@ -543,16 +344,13 @@ textarea.form-control:focus {
 .vehicle-modal-content .form-group .readonly-number { background: #f1f5f9; padding: 10px 12px; border-radius: 8px; font-weight: 700; font-size: 16px; color: #0f172a; border: 1px solid #e2e8f0; }
 .vehicle-modal-content .form-group label { color: #334155; }
 
-/* SPINNER */
 .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid #1e1e32; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 8px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading-text { display: flex; align-items: center; justify-content: center; gap: 8px; color: #94a3b8; font-size: 14px; padding: 8px; }
 
-/* WEBSITE LINK */
 .website-link { color: #2563eb; text-decoration: underline; cursor: pointer; word-break: break-all; }
 .website-link:hover { color: #1d4ed8; }
 
-/* AGENT ITEMS */
 .agent-item { display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 8px 12px; border-radius: 6px; margin-bottom: 4px; border: 1px solid #e2e8f0; }
 .agent-item .aname { font-weight: 600; font-size: 14px; color: #0f172a; flex: 1; }
 .agent-item .adetails { font-size: 12px; color: #64748b; flex: 1; }
@@ -561,9 +359,7 @@ textarea.form-control:focus {
 .agent-item .actions .whatsapp-btn { background: #25D366; color: #fff; }
 .agent-item .actions .whatsapp-btn:hover { background: #1da851; }
 .agent-item .actions .delete-btn { background: #fef2f2; color: #991b1b; }
-.agent-item .actions .delete-btn:hover { background: #fee2e2; }
 
-/* AGENT SUGGEST */
 .agent-suggest-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: #ffffff; border: 1px solid #d1d5db; border-radius: 8px; margin-top: 4px; max-height: 200px; overflow-y: auto; z-index: 50; display: none; box-shadow: 0 8px 24px rgba(0,0,0,.15); }
 .agent-suggest-dropdown.show { display: block; }
 .agent-suggest-dropdown .item { padding: 10px 14px; font-size: 14px; cursor: pointer; border-bottom: 1px solid #f1f5f9; color: #0f172a; }
@@ -572,26 +368,20 @@ textarea.form-control:focus {
 .agent-suggest-dropdown .item .sub { font-size: 11px; color: #64748b; display: block; margin-top: 2px; }
 .agent-suggest-dropdown .item .highlight { background: #2563eb; color: #fff; font-weight: 600; padding: 0 4px; border-radius: 4px; }
 
-/* BULK WHATSAPP */
 .bulk-whatsapp-btn { width: 100%; padding: 12px; background: #25D366; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 8px; box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3); transition: all .2s; }
-.bulk-whatsapp-btn:active { transform: scale(0.97); }
 .bulk-whatsapp-btn:hover { background: #1da851; }
 
-/* INSTALL BANNER */
 .install-banner { display: none; position: sticky; bottom: 76px; background: linear-gradient(135deg, #2563eb, #6c5ce7); background-size: 200% 200%; animation: gradientMove 3s ease infinite; color: #fff; padding: 10px 24px; border-radius: 16px; margin: 0 auto 4px auto; box-shadow: 0 4px 28px rgba(37, 99, 235, 0.4); z-index: 50; text-align: center; font-size: 15px; font-weight: 700; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.12); max-width: 50%; min-width: 140px; transition: transform 0.2s; }
 .install-banner:hover { transform: scale(1.03); }
 .install-banner .icon { font-size: 18px; margin-right: 8px; }
 .install-banner .sub { font-size: 11px; opacity: 0.85; font-weight: 400; display: block; margin-top: 2px; }
 @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-/* WEIGHT INPUT */
 .weight-input { font-family: monospace; }
 
-/* DISCLAIMER */
 .disclaimer { flex-shrink: 0; background: #1a0000; border-left: 4px solid #f87171; border-radius: 8px; padding: 12px 16px; margin-top: 12px; font-size: 11px; color: #fca5a5; line-height: 1.5; }
 .disclaimer .title { font-weight: 700; font-size: 12px; display: flex; align-items: center; gap: 4px; color: #fca5a5; }
 
-/* VEHICLE DETAIL DISPLAY */
 .vehicle-detail-display { background: #f8fafc; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 14px; margin-top: 6px; display: none; }
 .vehicle-detail-display .detail-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; color: #475569; border-bottom: 1px solid #e8ecf0; }
 .vehicle-detail-display .detail-row:last-child { border-bottom: none; }
@@ -599,35 +389,10 @@ textarea.form-control:focus {
 .vehicle-detail-display .detail-row .value { color: #0f172a; font-weight: 600; }
 .vehicle-detail-display.show { display: block; }
 
-/* LOADING OVERLAY */
-.loading-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(18, 18, 30, 0.95);
-    z-index: 2000;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #ffffff;
-}
-.loading-overlay.show {
-    display: flex;
-}
-.loading-overlay .loading-spinner {
-    width: 60px;
-    height: 60px;
-    border: 5px solid #1e1e32;
-    border-top-color: #2563eb;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin-bottom: 20px;
-}
-.loading-overlay .loading-text {
-    font-size: 16px;
-    color: #94a3b8;
-    font-weight: 500;
-}
+.loading-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(18, 18, 30, 0.95); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; color: #ffffff; }
+.loading-overlay.show { display: flex; }
+.loading-overlay .loading-spinner { width: 60px; height: 60px; border: 5px solid #1e1e32; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 20px; }
+.loading-overlay .loading-text { font-size: 16px; color: #94a3b8; font-weight: 500; }
 </style>
 </head>
 <body>
@@ -722,7 +487,7 @@ textarea.form-control:focus {
 <div class="location-row"><div class="location-input"><input type="text" id="search-home" placeholder="📍 Search Location" onclick="selectInputText(this)" oninput="searchLocation('home')" autocomplete="off"><div class="search-wrapper"><div class="suggestions" id="suggestions-home"></div></div></div><div class="radius-select"><select id="radius-select" onchange="applyFilters()"><option value="5">5 KM</option><option value="10">10 KM</option><option value="25">25 KM</option><option value="50">50 KM</option><option value="100" selected>100 KM</option><option value="200">200 KM</option></select></div></div>
 <div class="type-tabs"><button id="tab-all" class="active" onclick="setTab('ALL')">All</button><button id="tab-loads" class="inactive" onclick="setTab('LOAD')">Loads</button><button id="tab-trucks" class="inactive" onclick="setTab('TRUCK')">Trucks</button><button id="tab-agents" class="inactive" onclick="setTab('AGENT')">Agents</button></div>
 <div class="filter-toggle" onclick="toggleFilters()"><span id="filter-toggle-label">🔍 Hide Filters</span><span class="arrow open" id="filter-arrow">▲</span></div>
-<div class="filter-container open" id="filter-container"><div class="filter-row"><div><label>📍 To Location</label><div style="position:relative;width:100%"><input type="text" id="search-to" placeholder="📍 Search Location" onclick="selectInputText(this)" oninput="searchLocation('to')" autocomplete="off"><div class="search-wrapper"><div class="suggestions" id="suggestions-to"></div></div><input type="hidden" id="filter-to-hidden"></div></div><div><label>🚛 Vehicle Type</label><select id="filter-vehicle" onchange="applyFilters()"><option value="ALL">All</option><option value="3-Wheeler / Tempo">3-Wheeler / Tempo</option><option value="Mini Truck">Mini Truck</option><option value="LCV Open Body Truck">LCV Open Body Truck</option><option value="LCV - Container">LCV - Container</option><option value="LCV - Flat bed">LCV - Flat bed</option><option value="Open Body Truck">Open Body Truck</option><option value="Box Body Truck">Box Body Truck</option><option value="Flat bed Truck">Flat bed Truck</option><option value="Trailer - Open Body">Trailer - Open Body</option><option value="Trailer - Box Body">Trailer - Box Body</option><option value="Trailer - High Bed">Trailer - High Bed</option><option value="Trailer - Semi Low Bed">Trailer - Semi Low Bed</option><option value="Trailer - Low Bed">Trailer - Low Bed</option><option value="Trailer - Automobile Carrier">Trailer - Automobile Carrier</option><option value="Tipper / Dumper">Tipper / Dumper</option><option value="Tanker">Tanker</option><option value="Cement Bulker">Cement Bulker</option><option value="Refrigerated / Reefer">Refrigerated / Reefer</option><option value="Explosive / Hazardous Vehicle">Explosive / Hazardous Vehicle</option><option value="Over-Dimensional Cargo (ODC)">Over-Dimensional Cargo (ODC)</option></select></div></div></div>
+<div class="filter-container open" id="filter-container"><div class="filter-row"><div><label>📍 To Location</label><div style="position:relative;width:100%"><input type="text" id="search-to" placeholder="📍 Search Location" onclick="selectInputText(this)" oninput="searchLocation('to')" autocomplete="off"><div class="search-wrapper"><div class="suggestions" id="suggestions-to"></div></div><input type="hidden" id="filter-to-hidden"></div></div><div><label>🚛 Vehicle Type</label><select id="filter-vehicle" onchange="applyFilters()"><option value="ALL">All</option><option value="1">3-Wheeler / Tempo</option><option value="2">Mini Truck</option><option value="3">LCV Open Body Truck</option><option value="4">LCV - Container</option><option value="5">LCV - Flat bed</option><option value="6">Open Body Truck</option><option value="7">Box Body Truck</option><option value="8">Flat bed Truck</option><option value="9">Trailer - Open Body</option><option value="10">Trailer - Box Body</option><option value="11">Trailer - High Bed</option><option value="12">Trailer - Semi Low Bed</option><option value="13">Trailer - Low Bed</option><option value="14">Trailer - Automobile Carrier</option><option value="15">Tipper / Dumper</option><option value="16">Tanker</option><option value="17">Cement Bulker</option><option value="18">Refrigerated / Reefer</option><option value="19">Explosive / Hazardous Vehicle</option><option value="20">Over-Dimensional Cargo (ODC)</option></select></div></div></div>
 <div class="results-count"><span id="results-count">Showing 0 Records</span></div>
 <div style="width:100%;height:1px;background:#1e1e32;margin-top:2px;margin-bottom:4px;flex-shrink:0"></div>
 </div>
@@ -744,16 +509,16 @@ textarea.form-control:focus {
     <label class="form-label">📦 Material Type *</label>
     <select class="form-control" id="pl-material">
         <option value="" disabled selected>Select material type...</option>
-        <option value="Steel, Pipes">Steel Pipes</option>
-        <option value="Cement">Cement</option>
-        <option value="Bricks">Bricks</option>
-        <option value="Sand">Sand</option>
-        <option value="Aggregates">Aggregates</option>
-        <option value="Food Grains">Food Grains</option>
-        <option value="Chemicals">Chemicals</option>
-        <option value="Electronics">Electronics</option>
-        <option value="Furniture">Furniture</option>
-        <option value="Other">Other</option>
+        <option value="1">Steel Pipes</option>
+        <option value="2">Cement</option>
+        <option value="3">Bricks</option>
+        <option value="4">Sand</option>
+        <option value="5">Aggregates</option>
+        <option value="6">Food Grains</option>
+        <option value="7">Chemicals</option>
+        <option value="8">Electronics</option>
+        <option value="9">Furniture</option>
+        <option value="10">Other</option>
     </select>
 </div>
 <div class="section-container">
@@ -762,26 +527,26 @@ textarea.form-control:focus {
             <label class="form-label">🚛 Vehicle Type *</label>
             <select class="form-control" id="pl-vehicle-type">
                 <option value="" disabled selected>Select type...</option>
-                <option value="3-Wheeler / Tempo">3-Wheeler / Tempo</option>
-                <option value="Mini Truck">Mini Truck</option>
-                <option value="LCV Open Body Truck">LCV Open Body Truck</option>
-                <option value="LCV - Container">LCV - Container</option>
-                <option value="LCV - Flat bed">LCV - Flat bed</option>
-                <option value="Open Body Truck">Open Body Truck</option>
-                <option value="Box Body Truck">Box Body Truck</option>
-                <option value="Flat bed Truck">Flat bed Truck</option>
-                <option value="Trailer - Open Body">Trailer - Open Body</option>
-                <option value="Trailer - Box Body">Trailer - Box Body</option>
-                <option value="Trailer - High Bed">Trailer - High Bed</option>
-                <option value="Trailer - Semi Low Bed">Trailer - Semi Low Bed</option>
-                <option value="Trailer - Low Bed">Trailer - Low Bed</option>
-                <option value="Trailer - Automobile Carrier">Trailer - Automobile Carrier</option>
-                <option value="Tipper / Dumper">Tipper / Dumper</option>
-                <option value="Tanker">Tanker</option>
-                <option value="Cement Bulker">Cement Bulker</option>
-                <option value="Refrigerated / Reefer">Refrigerated / Reefer</option>
-                <option value="Explosive / Hazardous Vehicle">Explosive / Hazardous Vehicle</option>
-                <option value="Over-Dimensional Cargo (ODC)">Over-Dimensional Cargo (ODC)</option>
+                <option value="1">3-Wheeler / Tempo</option>
+                <option value="2">Mini Truck</option>
+                <option value="3">LCV Open Body Truck</option>
+                <option value="4">LCV - Container</option>
+                <option value="5">LCV - Flat bed</option>
+                <option value="6">Open Body Truck</option>
+                <option value="7">Box Body Truck</option>
+                <option value="8">Flat bed Truck</option>
+                <option value="9">Trailer - Open Body</option>
+                <option value="10">Trailer - Box Body</option>
+                <option value="11">Trailer - High Bed</option>
+                <option value="12">Trailer - Semi Low Bed</option>
+                <option value="13">Trailer - Low Bed</option>
+                <option value="14">Trailer - Automobile Carrier</option>
+                <option value="15">Tipper / Dumper</option>
+                <option value="16">Tanker</option>
+                <option value="17">Cement Bulker</option>
+                <option value="18">Refrigerated / Reefer</option>
+                <option value="19">Explosive / Hazardous Vehicle</option>
+                <option value="20">Over-Dimensional Cargo (ODC)</option>
             </select>
         </div>
         <div>
@@ -963,7 +728,7 @@ textarea.form-control:focus {
 </div>
 
 <!-- VEHICLE MODAL -->
-<div class="vehicle-modal" id="vehicle-modal"><div class="vehicle-modal-content"><div class="modal-header"><h3 id="modal-vehicle-title">📝 Register New Vehicle</h3><button class="modal-close" onclick="closeVehicleModal()">✕</button></div><div class="form-group"><label class="form-label">🚛 Vehicle Number (Read Only)</label><div class="readonly-number" id="modal-vehicle-number-display"></div><input type="hidden" id="modal-vehicle-number"></div><div class="form-group"><label class="form-label">🚛 Vehicle Type *</label><select class="form-control" id="modal-vehicle-type"><option value="">Select vehicle type...</option><option value="3-Wheeler / Tempo">3-Wheeler / Tempo</option><option value="Mini Truck">Mini Truck</option><option value="LCV Open Body Truck">LCV Open Body Truck</option><option value="LCV - Container">LCV - Container</option><option value="LCV - Flat bed">LCV - Flat bed</option><option value="Open Body Truck">Open Body Truck</option><option value="Box Body Truck">Box Body Truck</option><option value="Flat bed Truck">Flat bed Truck</option><option value="Trailer - Open Body">Trailer - Open Body</option><option value="Trailer - Box Body">Trailer - Box Body</option><option value="Trailer - High Bed">Trailer - High Bed</option><option value="Trailer - Semi Low Bed">Trailer - Semi Low Bed</option><option value="Trailer - Low Bed">Trailer - Low Bed</option><option value="Trailer - Automobile Carrier">Trailer - Automobile Carrier</option><option value="Tipper / Dumper">Tipper / Dumper</option><option value="Tanker">Tanker</option><option value="Cement Bulker">Cement Bulker</option><option value="Refrigerated / Reefer">Refrigerated / Reefer</option><option value="Explosive / Hazardous Vehicle">Explosive / Hazardous Vehicle</option><option value="Over-Dimensional Cargo (ODC)">Over-Dimensional Cargo (ODC)</option></select></div><div class="grid-2"><div class="form-group"><label class="form-label">Length (ft)</label><input class="form-control" id="modal-length" type="number" step="0.1"></div><div class="form-group"><label class="form-label">Width (ft)</label><input class="form-control" id="modal-width" type="number" step="0.1"></div></div><div class="grid-2"><div class="form-group"><label class="form-label">Height (ft)</label><input class="form-control" id="modal-height" type="number" step="0.1"></div><div class="form-group"><label class="form-label">Max Weight (Kg)</label><input class="form-control" id="modal-max-weight" type="number" placeholder="0"></div></div><div class="form-group"><label class="form-label">📝 Description</label><input class="form-control" id="modal-description" placeholder="Vehicle description..."></div><div class="form-group"><label class="form-label">🚛 ODC Allowed</label><div style="display:flex;gap:16px;margin-top:4px"><label><input type="radio" name="modal-odc" value="true" checked> Yes</label><label><input type="radio" name="modal-odc" value="false"> No</label></div></div><button class="btn-primary success" onclick="saveVehicleModal()">💾 Save Vehicle</button><button class="btn-primary" style="background:#dc2626;margin-top:6px" onclick="deleteVehicleFromModal()">🗑️ Delete Vehicle</button><input type="hidden" id="modal-vehicle-id"><input type="hidden" id="modal-edit-mode"></div></div>
+<div class="vehicle-modal" id="vehicle-modal"><div class="vehicle-modal-content"><div class="modal-header"><h3 id="modal-vehicle-title">📝 Register New Vehicle</h3><button class="modal-close" onclick="closeVehicleModal()">✕</button></div><div class="form-group"><label class="form-label">🚛 Vehicle Number (Read Only)</label><div class="readonly-number" id="modal-vehicle-number-display"></div><input type="hidden" id="modal-vehicle-number"></div><div class="form-group"><label class="form-label">🚛 Vehicle Type *</label><select class="form-control" id="modal-vehicle-type"><option value="">Select vehicle type...</option><option value="1">3-Wheeler / Tempo</option><option value="2">Mini Truck</option><option value="3">LCV Open Body Truck</option><option value="4">LCV - Container</option><option value="5">LCV - Flat bed</option><option value="6">Open Body Truck</option><option value="7">Box Body Truck</option><option value="8">Flat bed Truck</option><option value="9">Trailer - Open Body</option><option value="10">Trailer - Box Body</option><option value="11">Trailer - High Bed</option><option value="12">Trailer - Semi Low Bed</option><option value="13">Trailer - Low Bed</option><option value="14">Trailer - Automobile Carrier</option><option value="15">Tipper / Dumper</option><option value="16">Tanker</option><option value="17">Cement Bulker</option><option value="18">Refrigerated / Reefer</option><option value="19">Explosive / Hazardous Vehicle</option><option value="20">Over-Dimensional Cargo (ODC)</option></select></div><div class="grid-2"><div class="form-group"><label class="form-label">Length (ft)</label><input class="form-control" id="modal-length" type="number" step="0.1"></div><div class="form-group"><label class="form-label">Width (ft)</label><input class="form-control" id="modal-width" type="number" step="0.1"></div></div><div class="grid-2"><div class="form-group"><label class="form-label">Height (ft)</label><input class="form-control" id="modal-height" type="number" step="0.1"></div><div class="form-group"><label class="form-label">Max Weight (Kg)</label><input class="form-control" id="modal-max-weight" type="number" placeholder="0"></div></div><div class="form-group"><label class="form-label">📝 Description</label><input class="form-control" id="modal-description" placeholder="Vehicle description..."></div><div class="form-group"><label class="form-label">🚛 ODC Allowed</label><div style="display:flex;gap:16px;margin-top:4px"><label><input type="radio" name="modal-odc" value="true" checked> Yes</label><label><input type="radio" name="modal-odc" value="false"> No</label></div></div><button class="btn-primary success" onclick="saveVehicleModal()">💾 Save Vehicle</button><button class="btn-primary" style="background:#dc2626;margin-top:6px" onclick="deleteVehicleFromModal()">🗑️ Delete Vehicle</button><input type="hidden" id="modal-vehicle-id"><input type="hidden" id="modal-edit-mode"></div></div>
 
 <!-- DETAIL PAGE -->
 <div id="detail-page" class="hidden-page">
@@ -980,6 +745,56 @@ const SB_URL = 'https://ghjoffovatgvhzxlupef.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
 const EDGE_URL = 'https://ghjoffovatgvhzxlupef.supabase.co/functions/v1';
 const sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+// ============================================================
+// LOOKUP MAPS (id ↔ name) — single source of truth
+// To add a new type: add one line here + one <option> in HTML.
+// ============================================================
+const MATERIALS = {
+    1: 'Steel Pipes',
+    2: 'Cement',
+    3: 'Bricks',
+    4: 'Sand',
+    5: 'Aggregates',
+    6: 'Food Grains',
+    7: 'Chemicals',
+    8: 'Electronics',
+    9: 'Furniture',
+    10: 'Other'
+};
+
+const VEHICLE_TYPES = {
+    1: '3-Wheeler / Tempo',
+    2: 'Mini Truck',
+    3: 'LCV Open Body Truck',
+    4: 'LCV - Container',
+    5: 'LCV - Flat bed',
+    6: 'Open Body Truck',
+    7: 'Box Body Truck',
+    8: 'Flat bed Truck',
+    9: 'Trailer - Open Body',
+    10: 'Trailer - Box Body',
+    11: 'Trailer - High Bed',
+    12: 'Trailer - Semi Low Bed',
+    13: 'Trailer - Low Bed',
+    14: 'Trailer - Automobile Carrier',
+    15: 'Tipper / Dumper',
+    16: 'Tanker',
+    17: 'Cement Bulker',
+    18: 'Refrigerated / Reefer',
+    19: 'Explosive / Hazardous Vehicle',
+    20: 'Over-Dimensional Cargo (ODC)'
+};
+
+function materialName(id) {
+    if (id === null || id === undefined) return 'Cargo';
+    return MATERIALS[id] || 'Unknown';
+}
+
+function vehicleTypeName(id) {
+    if (id === null || id === undefined) return 'Any';
+    return VEHICLE_TYPES[id] || 'Unknown';
+}
 
 // ============================================================
 // STATE
@@ -1012,20 +827,15 @@ function isValidVehicleNumber(number) { return /^[A-Za-z0-9]{9,12}$/.test(number
 function addUniqueToArray(array, value) { if (!array) return [value]; if (array.includes(value)) return array; return [...array, value]; }
 function removeFromArray(array, value) { if (!array) return []; return array.filter(item => item !== value); }
 function ensureUniqueArray(array) { if (!array) return []; return [...new Set(array)]; }
-
-// ============================================================
-// LOCATIONS
-// ============================================================
-// LOCATIONS is populated in <head> by the dynamic loader that merges
-// all files listed in window.LOCATION_FILES into a single array.
-// Do not re-declare it here.
+function toIntOrNull(v) { if (v === null || v === undefined || v === '') return null; const n = parseInt(v, 10); return isNaN(n) ? null : n; }
+function toStrOrNull(v) { if (v === null || v === undefined) return null; const s = String(v).trim(); return s === '' ? null : s; }
 
 // ============================================================
 // LOCATION FUNCTIONS
 // ============================================================
 function getLoc(pinId) { 
     if (!pinId) return null; 
-    const pinNum = parseInt(pinId); 
+    const pinNum = parseInt(pinId, 10); 
     if (isNaN(pinNum)) return null; 
     const exact = LOCATIONS.find(l => l.pin_id === pinNum);
     if (exact) return exact;
@@ -1070,15 +880,11 @@ function showLoading(message) {
     if (msgEl) msgEl.textContent = message || 'Loading...';
     if (overlay) overlay.classList.add('show');
 }
-
 function hideLoading() {
     const overlay = document.getElementById('loading-overlay');
     if (overlay) overlay.classList.remove('show');
 }
 
-// ============================================================
-// IS MOBILE DETECTION
-// ============================================================
 function isMobile() {
     return /Android|iPhone|iPad|iPod|BlackBerry|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent) 
            || window.innerWidth <= 768;
@@ -1171,32 +977,9 @@ function goHome() {
     setTimeout(() => { renderFeed(); }, 50);
 }
 
-function goPostLoad() { 
-    if (guest || !user) { 
-        showLogin(); 
-        return; 
-    } 
-    loadAgentsFromUser(); 
-    switchPage('postload-page'); 
-}
-
-function goPostTruck() { 
-    if (guest || !user) { 
-        showLogin(); 
-        return; 
-    } 
-    loadAgentsFromUser(); 
-    switchPage('posttruck-page'); 
-}
-
-function goToProfile() { 
-    if (guest || !user) { 
-        showLogin(); 
-        return; 
-    } 
-    switchPage('profile-page'); 
-    loadProfile(); 
-}
+function goPostLoad() { if (guest || !user) { showLogin(); return; } loadAgentsFromUser(); switchPage('postload-page'); }
+function goPostTruck() { if (guest || !user) { showLogin(); return; } loadAgentsFromUser(); switchPage('posttruck-page'); }
+function goToProfile() { if (guest || !user) { showLogin(); return; } switchPage('profile-page'); loadProfile(); }
 
 function cancelPost() { goHome(); }
 function closeDetail() { detail = null; goHome(); }
@@ -1240,14 +1023,16 @@ async function renderFeed() {
             const toLoc = getLoc(l.drop_pin);
             items.push({
                 type: 'LOAD',
-                title: l.material || 'Cargo',
+                title: materialName(l.material_id),
                 company: l.company || '',
                 from_pin: l.pickup_pin,
                 to_pin: l.drop_pin,
                 from_loc: fromLoc,
                 to_loc: toLoc,
                 weight: l.weight || 0,
-                vehicle: l.vehicle_type || '',
+                vehicle: vehicleTypeName(l.vehicle_type_id),
+                vehicle_type_id: l.vehicle_type_id,
+                material_id: l.material_id,
                 views: l.views || 0,
                 rate: l.rate || 0,
                 interests: (l.interests || []).length,
@@ -1273,6 +1058,7 @@ async function renderFeed() {
                 from_loc: loc,
                 to_loc: null,
                 vehicle: 'Truck',
+                vehicle_type_id: t.vehicle_type_id,
                 views: t.views || 0,
                 rate: t.rate || 0,
                 interests: (t.interested || []).length,
@@ -1304,10 +1090,7 @@ async function renderFeed() {
                     from_loc: loc,
                     to_loc: null,
                     vehicle: 'Agent',
-                    views: 0,
-                    rate: 0,
-                    interests: 0,
-                    shares: 0,
+                    views: 0, rate: 0, interests: 0, shares: 0,
                     id: u.mobile,
                     mobile: u.mobile,
                     user: u,
@@ -1322,9 +1105,8 @@ async function renderFeed() {
         });
 
         let filtered = items.slice();
-        const radius = parseInt(document.getElementById('radius-select').value) || 100;
+        const radius = parseInt(document.getElementById('radius-select').value, 10) || 100;
 
-        // Home Location filtering
         if (homePinId) {
             const hl = getLoc(homePinId);
             if (hl) {
@@ -1344,12 +1126,10 @@ async function renderFeed() {
             }
         }
 
-        // Tab filtering
         if (tab === 'LOAD') filtered = filtered.filter(i => i.type === 'LOAD');
         else if (tab === 'TRUCK') filtered = filtered.filter(i => i.type === 'TRUCK');
         else if (tab === 'AGENT') filtered = filtered.filter(i => i.type === 'AGENT');
 
-        // TO LOCATION FILTER
         if (toPinId) {
             const tl = getLoc(toPinId);
             if (tl) {
@@ -1368,10 +1148,13 @@ async function renderFeed() {
             }
         }
 
-        // Vehicle type filter
+        // Vehicle type filter — compares INTEGER IDs
         const v = document.getElementById('filter-vehicle')?.value;
         if (v && v !== 'ALL') {
-            filtered = filtered.filter(i => i.vehicle && i.vehicle.toLowerCase().includes(v.toLowerCase()));
+            const vId = parseInt(v, 10);
+            if (!isNaN(vId)) {
+                filtered = filtered.filter(i => i.vehicle_type_id === vId);
+            }
         }
 
         document.getElementById('results-count').textContent = 'Showing ' + filtered.length + ' Records within ' + radius + ' KM';
@@ -1499,17 +1282,19 @@ function selectLoc(ctx, pinId) {
         const sug = $('suggestions-' + ctx);
         if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
     }
+    // Use the actual pin_id (integer) for storage
+    const numericPinId = parseInt(l.pin_id, 10);
     let hid = null;
     if (ctx === 'home') { 
-        homePinId = pinId; 
-        localStorage.setItem('rt_home_location', JSON.stringify({ pinId, displayName: dn })); 
+        homePinId = numericPinId; 
+        localStorage.setItem('rt_home_location', JSON.stringify({ pinId: numericPinId, displayName: dn })); 
         applyFilters(); 
         return; 
     }
     if (ctx === 'to') {
-        toPinId = pinId;
+        toPinId = numericPinId;
         hid = 'filter-to-hidden';
-        if (hid && $(hid)) $(hid).value = pinId;
+        if (hid && $(hid)) $(hid).value = numericPinId;
         applyFilters();
         return;
     }
@@ -1518,7 +1303,7 @@ function selectLoc(ctx, pinId) {
     else if (ctx === 'pt-location') hid = 'pt-location-hidden';
     else if (ctx === 'edit-location') hid = 'edit-location-hidden';
     else if (ctx === 'edit-route') hid = 'edit-route-hidden';
-    if (hid && $(hid)) $(hid).value = pinId;
+    if (hid && $(hid)) $(hid).value = numericPinId;
     const sug = $('suggestions-' + ctx);
     if (sug) { sug.classList.remove('show'); sug.innerHTML = ''; }
 }
@@ -1560,7 +1345,8 @@ function searchVehiclesForTruck(query) {
             let html = '';
             vlist.forEach(v => {
                 const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
-                html += '<div class="item" onclick="selectVehicleForTruck(\'' + v.vehicle_number + '\')">' + v.vehicle_number + ' <span class="sub">' + v.vehicle_type + ' • ' + dims + 'ft</span></div>';
+                const vtn = vehicleTypeName(v.vehicle_type_id);
+                html += '<div class="item" onclick="selectVehicleForTruck(\'' + v.vehicle_number + '\')">' + v.vehicle_number + ' <span class="sub">' + vtn + ' • ' + dims + 'ft</span></div>';
             });
             html += '<div class="item add-new" onclick="openVehicleModalForTruck(\'' + q + '\')">➕ Register New Vehicle "' + q + '"</div>';
             dropdown.innerHTML = html;
@@ -1580,7 +1366,7 @@ function selectVehicleForTruck(number) {
             if (result.data) {
                 const v = result.data;
                 document.getElementById('pt-detail-number').textContent = v.vehicle_number;
-                document.getElementById('pt-detail-type').textContent = v.vehicle_type || 'N/A';
+                document.getElementById('pt-detail-type').textContent = vehicleTypeName(v.vehicle_type_id);
                 document.getElementById('pt-detail-dims').textContent = v.dimensions ? v.dimensions.join(' × ') + ' ft' : 'N/A';
                 document.getElementById('pt-detail-weight').textContent = v.max_weight ? formatIndianNumber(v.max_weight) + ' Kg' : 'N/A';
                 document.getElementById('pt-detail-odc').textContent = v.odc_allowed ? '✅ Yes' : '❌ No';
@@ -1614,7 +1400,20 @@ function openVehicleModalForTruck(number) {
 // ============================================================
 function $(id) { return document.getElementById(id); }
 
-function showMobileLoading(show) { const loading = document.getElementById('mobile-loading'); const status = document.getElementById('mobile-status'); const mobileInput = document.getElementById('mobile'); if (show) { loading.classList.remove('hidden'); status.textContent = '⏳ Checking user...'; status.style.color = '#f59e0b'; mobileInput.disabled = true; } else { loading.classList.add('hidden'); mobileInput.disabled = false; } }
+function showMobileLoading(show) { 
+    const loading = document.getElementById('mobile-loading'); 
+    const status = document.getElementById('mobile-status'); 
+    const mobileInput = document.getElementById('mobile'); 
+    if (show) { 
+        loading.classList.remove('hidden'); 
+        status.textContent = '⏳ Checking user...'; 
+        status.style.color = '#f59e0b'; 
+        mobileInput.disabled = true; 
+    } else { 
+        loading.classList.add('hidden'); 
+        mobileInput.disabled = false; 
+    } 
+}
 
 document.getElementById('mobile').addEventListener('input', function(e) {
     const m = this.value.trim();
@@ -1922,7 +1721,7 @@ function loadProfile() {
         document.getElementById('profile-name').textContent = 'Please login';
         return;
     }
-    sb.from('active_users').select('*').eq('mobile', parseInt(user.mobile)).single()
+    sb.from('active_users').select('*').eq('mobile', parseInt(user.mobile, 10)).single()
         .then(result => {
             if (result.data) {
                 Object.assign(user, result.data);
@@ -2013,10 +1812,7 @@ async function loadProfileVehicles() {
     container.innerHTML = '<div style="color:#64748b;font-size:13px;text-align:center;padding:8px">🔄 Loading vehicles...</div>';
     
     try {
-        const { data, error } = await sb.from('active_vehicles')
-            .select('*')
-            .in('vehicle_number', vno);
-            
+        const { data, error } = await sb.from('active_vehicles').select('*').in('vehicle_number', vno);
         if (error) throw error;
         
         if (data) {
@@ -2025,18 +1821,18 @@ async function loadProfileVehicles() {
                 vehicleDataMap[v.vehicle_number] = {
                     id: v.id,
                     vehicle_number: v.vehicle_number,
-                    vehicle_type: v.vehicle_type || 'Unknown',
+                    vehicle_type_id: v.vehicle_type_id,
                     dimensions: dims
                 };
             });
         }
         
         container.innerHTML = vno.map(v => {
-            const dataMap = vehicleDataMap[v] || { vehicle_type: 'Unknown', dimensions: 'N/A' };
+            const dataMap = vehicleDataMap[v] || { vehicle_type_id: null, dimensions: 'N/A' };
             const dims = dataMap.dimensions || 'N/A';
             return '<div class="vehicle-display-item">' +
                 '<div class="vnumber">' + v + '</div>' +
-                '<div class="vdetails">' + (dataMap.vehicle_type || 'Unknown') + ' • ' + dims + ' ft</div>' +
+                '<div class="vdetails">' + vehicleTypeName(dataMap.vehicle_type_id) + ' • ' + dims + ' ft</div>' +
                 '</div>';
         }).join('');
         
@@ -2076,7 +1872,7 @@ function loadProfileRoutes() {
 // ============================================================
 function openEditProfile() {
     if (!user) { toast('Please login first'); return; }
-    sb.from('active_users').select('*').eq('mobile', parseInt(user.mobile)).single()
+    sb.from('active_users').select('*').eq('mobile', parseInt(user.mobile, 10)).single()
         .then(result => { 
             if (result.data) {
                 Object.assign(user, result.data);
@@ -2130,7 +1926,7 @@ function populateEditForm() {
                         vehicleDataMap[v.vehicle_number] = {
                             id: v.id,
                             vehicle_number: v.vehicle_number,
-                            vehicle_type: v.vehicle_type || 'Unknown',
+                            vehicle_type_id: v.vehicle_type_id,
                             dimensions: dims
                         };
                     });
@@ -2142,7 +1938,7 @@ function populateEditForm() {
     
     routes = [];
     let pref = user.preferred_routes || [];
-    if (Array.isArray(pref)) routes = pref.filter(r => r);
+    if (Array.isArray(pref)) routes = pref.filter(r => r).map(r => parseInt(r, 10)).filter(r => !isNaN(r));
     else if (typeof pref === 'string') routes = pref.split(',').filter(r => r.trim() !== '').map(Number);
     renderRoutes();
     
@@ -2158,31 +1954,53 @@ function closeEditProfile() {
     loadProfile(); 
 }
 
+// ============================================================
+// SAVE PROFILE (with strict integer casting)
+// ============================================================
 function saveProfile() {
     if (!user || !user.mobile) { alert('User not logged in.'); return; }
+
     const types = [];
     if (document.getElementById('edit-type-loadgiver').checked) types.push(1);
     if (document.getElementById('edit-type-operator').checked) types.push(2);
     if (document.getElementById('edit-type-agent').checked) types.push(3);
-    const location = document.getElementById('edit-location-hidden').value ? parseInt(document.getElementById('edit-location-hidden').value) : null;
+
+    const locationRaw = document.getElementById('edit-location-hidden').value;
+    const location = locationRaw ? parseInt(locationRaw, 10) : null;
+    if (locationRaw && isNaN(location)) {
+        alert('❌ Invalid location. Please re-select from dropdown.');
+        return;
+    }
+
+    const routesInts = ensureUniqueArray(routes).map(r => parseInt(r, 10)).filter(r => !isNaN(r));
+    const agentsInts = ensureUniqueArray(agents).map(a => parseInt(a, 10)).filter(a => !isNaN(a));
+    const vehiclesStrs = ensureUniqueArray(vehicles).filter(v => v && String(v).trim() !== '');
+
     const updateData = {
-        name: document.getElementById('edit-name').value.trim() || null,
-        company_name: document.getElementById('edit-company').value.trim() || null,
-        company_web: document.getElementById('edit-website').value.trim() || null,
-        pan: document.getElementById('edit-pan').value.trim() || null,
-        gst: document.getElementById('edit-gst').value.trim() || null,
+        name: toStrOrNull(document.getElementById('edit-name').value),
+        company_name: toStrOrNull(document.getElementById('edit-company').value),
+        company_web: toStrOrNull(document.getElementById('edit-website').value),
+        pan: toStrOrNull(document.getElementById('edit-pan').value),
+        gst: toStrOrNull(document.getElementById('edit-gst').value),
         location: location,
         user_type: types.length ? types : null,
-        vehicle_no: ensureUniqueArray(vehicles).length ? ensureUniqueArray(vehicles) : null,
-        preferred_routes: ensureUniqueArray(routes).length ? ensureUniqueArray(routes) : null,
-        details: document.getElementById('edit-details').value.trim() || null,
-        agents: ensureUniqueArray(agents).length ? ensureUniqueArray(agents) : null,
+        vehicle_no: vehiclesStrs.length ? vehiclesStrs : null,
+        preferred_routes: routesInts.length ? routesInts : null,
+        details: toStrOrNull(document.getElementById('edit-details').value),
+        agents: agentsInts.length ? agentsInts : null,
         last_active: new Date().toISOString()
     };
-    const mobileNum = parseInt(user.mobile);
+
+    console.log('📤 saveProfile payload:', updateData);
+
+    const mobileNum = parseInt(user.mobile, 10);
     sb.from('active_users').update(updateData).eq('mobile', mobileNum)
         .then(result => {
-            if (result.error) { alert('Error saving profile: ' + result.error.message); return; }
+            if (result.error) { 
+                console.error('❌ saveProfile error:', result.error);
+                alert('Error saving profile: ' + result.error.message); 
+                return; 
+            }
             sb.from('active_users').select('*').eq('mobile', mobileNum).single()
                 .then(freshResult => {
                     if (freshResult.data) {
@@ -2195,28 +2013,27 @@ function saveProfile() {
                         closeEditProfile();
                     } else { alert('✅ Profile saved!'); closeEditProfile(); }
                 }).catch(() => { alert('✅ Profile saved!'); closeEditProfile(); });
-        }).catch(err => { alert('Error: ' + err.message); });
+        }).catch(err => { 
+            console.error('❌ saveProfile exception:', err);
+            alert('Error: ' + err.message); 
+        });
 }
 
 // ============================================================
 // OPEN DETAIL
 // ============================================================
 function openDetail(type, id) {
-    if (!id) {
-        toast('Invalid item ID');
-        return;
-    }
-    
+    if (!id) { toast('Invalid item ID'); return; }
     showLoading('Opening ' + type.toLowerCase() + ' details...');
 
     if (type === 'AGENT') {
-        sb.from('active_users').select('*').eq('mobile', parseInt(id)).single()
+        sb.from('active_users').select('*').eq('mobile', parseInt(id, 10)).single()
             .then(async r => {
                 if (r.data) {
-                    detail = { type: 'AGENT', id: id, user: r.data, mobile: parseInt(id) };
+                    detail = { type: 'AGENT', id: id, user: r.data, mobile: parseInt(id, 10) };
                     const [loads, trucks] = await Promise.all([
-                        sb.from('active_loads').select('*', { count: 'exact' }).eq('mobile', parseInt(id)).eq('status', 1),
-                        sb.from('active_trucks').select('*', { count: 'exact' }).eq('mobile', parseInt(id)).eq('status', 1)
+                        sb.from('active_loads').select('*', { count: 'exact' }).eq('mobile', parseInt(id, 10)).eq('status', 1),
+                        sb.from('active_trucks').select('*', { count: 'exact' }).eq('mobile', parseInt(id, 10)).eq('status', 1)
                     ]);
                     detail.loads_count = loads.count || 0;
                     detail.trucks_count = trucks.count || 0;
@@ -2224,9 +2041,7 @@ function openDetail(type, id) {
                     detail.flags = r.data.flags || 0;
                     switchPage('detail-page');
                     renderDetailView(detail);
-                } else {
-                    toast('Agent not found');
-                }
+                } else { toast('Agent not found'); }
                 hideLoading();
             }).catch(err => {
                 console.error('Error loading agent:', err);
@@ -2244,11 +2059,11 @@ function openDetail(type, id) {
                 detail = r.data;
                 detail.type = type;
                 if (type === 'LOAD') {
-                    detail.material = r.data.material;
+                    detail.material_id = r.data.material_id;
                     detail.pickup_pin = r.data.pickup_pin;
                     detail.drop_pin = r.data.drop_pin;
                     detail.weight = r.data.weight;
-                    detail.vehicle_type = r.data.vehicle_type;
+                    detail.vehicle_type_id = r.data.vehicle_type_id;
                     detail.rate = r.data.rate;
                     detail.pickup_date = r.data.pickup_date;
                     detail.instructions = r.data.instructions;
@@ -2258,6 +2073,7 @@ function openDetail(type, id) {
                     detail.location_pin = r.data.location_pin;
                     detail.available_date = r.data.available_date;
                     detail.other_details = r.data.other_details;
+                    detail.vehicle_type_id = r.data.vehicle_type_id;
                 }
                 const { data: userData } = await sb.from('active_users').select('*').eq('mobile', r.data.mobile).single();
                 detail.user = userData;
@@ -2340,11 +2156,11 @@ function renderLoadDetail(load) {
         }
     }
     
-    return `<div class="detail-header-card"><div class="main-title">📦 ${load.material || 'Cargo'}</div><div class="company-name">${user.company_name || 'Unknown Company'} ${website ? `• ${website}` : ''}</div><div class="meta-row">${badges}</div></div>
+    return `<div class="detail-header-card"><div class="main-title">📦 ${materialName(load.material_id)}</div><div class="company-name">${user.company_name || 'Unknown Company'} ${website ? `• ${website}` : ''}</div><div class="meta-row">${badges}</div></div>
         <div class="detail-card"><div class="section-title">📋 LOAD SPECS</div><div class="spec-grid">
             <div><span class="label">⚖️ Weight</span><br><span class="value">${formatIndianNumber(load.weight || 0)} Kg</span></div>
             <div><span class="label">📐 Dimensions</span><br><span class="value highlight">${dimensions}</span></div>
-            <div><span class="label">🚛 Vehicle</span><br><span class="value highlight">${load.vehicle_type || 'Any'}</span></div>
+            <div><span class="label">🚛 Vehicle</span><br><span class="value highlight">${vehicleTypeName(load.vehicle_type_id)}</span></div>
             <div><span class="label">💲 Rate</span><br><span class="value">₹${formatIndianNumber(load.rate || 0)}</span></div>
         </div></div>
         <div class="detail-card"><div class="section-title">📍 ROUTE</div><div class="route-display">
@@ -2378,7 +2194,7 @@ function renderTruckDetail(truck) {
                 const dims = v.dimensions ? v.dimensions.join(' x ') + ' ft' : 'N/A';
                 const vehDetail = document.getElementById('vehicle-detail-specs');
                 if (vehDetail) {
-                    vehDetail.innerHTML = `<div><span class="label">🚛 Type</span><br><span class="value highlight">${v.data.vehicle_type || 'N/A'}</span></div>
+                    vehDetail.innerHTML = `<div><span class="label">🚛 Type</span><br><span class="value highlight">${vehicleTypeName(v.data.vehicle_type_id)}</span></div>
                         <div><span class="label">📐 Dimensions</span><br><span class="value highlight">${dims}</span></div>
                         <div><span class="label">⚖️ Max Weight</span><br><span class="value">${formatIndianNumber(v.data.max_weight || 0)} Kg</span></div>
                         <div><span class="label">🚛 ODC</span><br><span class="value">${v.data.odc_allowed ? '✅ Yes' : '❌ No'}</span></div>`;
@@ -2483,11 +2299,11 @@ function handleEndorse(id, type) {
     const table = type === 'LOAD' ? 'active_loads' : (type === 'TRUCK' ? 'active_trucks' : 'active_users');
     const isAgent = type === 'AGENT';
     if (isAgent) {
-        sb.from('active_users').select('endorsements').eq('mobile', parseInt(id)).single()
+        sb.from('active_users').select('endorsements').eq('mobile', parseInt(id, 10)).single()
             .then(r => {
                 if (r.data) {
                     const current = r.data.endorsements || 0;
-                    sb.from('active_users').update({ endorsements: current + 1 }).eq('mobile', parseInt(id))
+                    sb.from('active_users').update({ endorsements: current + 1 }).eq('mobile', parseInt(id, 10))
                         .then(() => { toast('✅ Endorsed successfully!'); openDetail(type, id); });
                 }
             });
@@ -2510,11 +2326,11 @@ function handleFlag(id, type) {
     const table = type === 'LOAD' ? 'active_loads' : (type === 'TRUCK' ? 'active_trucks' : 'active_users');
     const isAgent = type === 'AGENT';
     if (isAgent) {
-        sb.from('active_users').select('flags').eq('mobile', parseInt(id)).single()
+        sb.from('active_users').select('flags').eq('mobile', parseInt(id, 10)).single()
             .then(r => {
                 if (r.data) {
                     const current = r.data.flags || 0;
-                    sb.from('active_users').update({ flags: current + 1 }).eq('mobile', parseInt(id))
+                    sb.from('active_users').update({ flags: current + 1 }).eq('mobile', parseInt(id, 10))
                         .then(() => { toast('✅ Flag reported successfully'); openDetail(type, id); });
                 }
             });
@@ -2539,8 +2355,9 @@ function expressInterest(id, type) {
             if (r.data) {
                 let interests = r.data[field] || [];
                 if (!Array.isArray(interests)) interests = [];
-                if (interests.includes(parseInt(user.mobile))) { toast('You already expressed interest'); return; }
-                interests.push(parseInt(user.mobile));
+                const myMobile = parseInt(user.mobile, 10);
+                if (interests.includes(myMobile)) { toast('You already expressed interest'); return; }
+                interests.push(myMobile);
                 sb.from(table).update({ [field]: interests }).eq('id', id)
                     .then(() => { toast('✅ Interest expressed successfully!'); openDetail(type, id); });
             }
@@ -2555,7 +2372,7 @@ function updateStats(item) {
 }
 
 // ============================================================
-// SHARE AS IMAGE (Canvas render + Web Share API) - UPDATED
+// SHARE AS IMAGE
 // ============================================================
 async function handleShareClick() {
     if (!detail) { toast('No details to share'); return; }
@@ -2563,13 +2380,8 @@ async function handleShareClick() {
     let truckVehicleDetails = null;
     if (detail.type === 'TRUCK' && detail.truck_no) {
         try {
-            const { data: vehicleData } = await sb.from('active_vehicles')
-                .select('*')
-                .eq('vehicle_number', detail.truck_no)
-                .single();
-            if (vehicleData) {
-                truckVehicleDetails = vehicleData;
-            }
+            const { data: vehicleData } = await sb.from('active_vehicles').select('*').eq('vehicle_number', detail.truck_no).single();
+            if (vehicleData) truckVehicleDetails = vehicleData;
         } catch (e) {
             console.warn('Could not fetch vehicle details for share image:', e);
         }
@@ -2587,7 +2399,7 @@ async function handleShareClick() {
             try {
                 await navigator.share({
                     files: [file],
-                    title: 'ReturnTruck - ' + (detail.material || detail.truck_no || 'Load'),
+                    title: 'ReturnTruck - ' + (materialName(detail.material_id) || detail.truck_no || 'Load'),
                     text: shareText
                 });
                 return;
@@ -2605,7 +2417,6 @@ async function handleShareClick() {
     }
 }
 
-// Revised renderShareImage with dynamic height, instructions, and truck vehicle details
 async function renderShareImage(data, vehicleData) {
     const W = 800;
     const baseH = 600;
@@ -2623,7 +2434,8 @@ async function renderShareImage(data, vehicleData) {
         rows.push({ label: '📍 TO', value: to ? to.name + ', ' + to.district : 'N/A' });
         rows.push({ label: '💰 RATE', value: '₹ ' + formatIndianNumber(data.rate || 0) });
         rows.push({ label: '⚖️ WEIGHT', value: formatIndianNumber(data.weight || 0) + ' Kg' });
-        if (data.vehicle_type) rows.push({ label: '🚛 VEHICLE', value: data.vehicle_type });
+        const vtn = vehicleTypeName(data.vehicle_type_id);
+        if (vtn && vtn !== 'Any') rows.push({ label: '🚛 VEHICLE', value: vtn });
         if (data.dimensions && data.dimensions.length === 3) {
             rows.push({ label: '📐 DIMENSIONS', value: data.dimensions.join(' × ') + ' ft' });
         }
@@ -2633,7 +2445,7 @@ async function renderShareImage(data, vehicleData) {
         rows.push({ label: '📍 LOCATION', value: loc ? loc.name + ', ' + loc.district : 'N/A' });
         rows.push({ label: '💰 RATE/KM', value: '₹ ' + formatIndianNumber(data.rate || 0) });
         if (vehicleData) {
-            rows.push({ label: '🚛 TYPE', value: vehicleData.vehicle_type || 'N/A' });
+            rows.push({ label: '🚛 TYPE', value: vehicleTypeName(vehicleData.vehicle_type_id) });
             if (vehicleData.dimensions && vehicleData.dimensions.length === 3) {
                 rows.push({ label: '📐 DIMENSIONS', value: vehicleData.dimensions.join(' × ') + ' ft' });
             }
@@ -2666,9 +2478,7 @@ async function renderShareImage(data, vehicleData) {
         hasInstructions = true;
     }
 
-    if (hasInstructions) {
-        contentHeight += instructionsBoxHeight;
-    }
+    if (hasInstructions) contentHeight += instructionsBoxHeight;
 
     const H = Math.max(1000, baseH + contentHeight);
     const canvas = document.createElement('canvas');
@@ -2702,7 +2512,7 @@ async function renderShareImage(data, vehicleData) {
 
     let title = '';
     let badge = '';
-    if (data.type === 'LOAD') { title = data.material || 'Cargo'; badge = 'LOAD AVAILABLE'; }
+    if (data.type === 'LOAD') { title = materialName(data.material_id); badge = 'LOAD AVAILABLE'; }
     else if (data.type === 'TRUCK') { title = data.truck_no || 'Truck'; badge = 'TRUCK AVAILABLE'; }
     else { title = (data.user && (data.user.company_name || data.user.name)) || 'Agent'; badge = 'AGENT PROFILE'; }
 
@@ -2810,11 +2620,7 @@ async function searchAgents(inputId, dropdownId) {
     dropdown.classList.add('show');
     
     try {
-        const { data, error } = await sb.from('active_users')
-            .select('*')
-            .contains('user_type', [3])
-            .limit(50);
-            
+        const { data, error } = await sb.from('active_users').select('*').contains('user_type', [3]).limit(50);
         if (error) throw error;
         
         const agentsFiltered = (data || []).filter(u => {
@@ -2855,7 +2661,7 @@ async function searchAgents(inputId, dropdownId) {
         agentsFiltered.forEach(a => {
             const displayName = a.name || 'Unknown';
             const company = a.company_name || '';
-            const mobileNum = a.mobile;
+            const mobileNum = parseInt(a.mobile, 10);
             const isAdded = agents.includes(mobileNum);
             let nameDisplay = displayName;
             
@@ -2885,22 +2691,24 @@ async function searchAgents(inputId, dropdownId) {
 }
 
 function selectAgent(mobile, inputId, dropdownId) {
-    if (agents.includes(mobile)) {
+    const mobileInt = parseInt(mobile, 10);
+    if (isNaN(mobileInt)) { toast('Invalid agent mobile'); return; }
+    if (agents.includes(mobileInt)) {
         toast('Agent already added');
         document.getElementById(dropdownId).classList.remove('show');
         return;
     }
-    agents = addUniqueToArray(agents, mobile);
-    sb.from('active_users').select('*').eq('mobile', mobile).single()
+    agents = addUniqueToArray(agents, mobileInt);
+    sb.from('active_users').select('*').eq('mobile', mobileInt).single()
         .then(result => {
             if (result.data) {
-                agentDataMap[mobile] = {
+                agentDataMap[mobileInt] = {
                     mobile: result.data.mobile,
                     name: result.data.name || 'Unknown',
                     company: result.data.company_name || ''
                 };
             } else {
-                agentDataMap[mobile] = { mobile: mobile, name: 'Agent ' + mobile, company: '' };
+                agentDataMap[mobileInt] = { mobile: mobileInt, name: 'Agent ' + mobileInt, company: '' };
             }
             renderAgentsUI();
             document.getElementById(inputId).value = '';
@@ -2908,7 +2716,7 @@ function selectAgent(mobile, inputId, dropdownId) {
             updateAgentHiddenField();
             toast('✅ Agent added successfully');
         }).catch(() => {
-            agentDataMap[mobile] = { mobile: mobile, name: 'Agent ' + mobile, company: '' };
+            agentDataMap[mobileInt] = { mobile: mobileInt, name: 'Agent ' + mobileInt, company: '' };
             renderAgentsUI();
             document.getElementById(inputId).value = '';
             document.getElementById(dropdownId).classList.remove('show');
@@ -2919,10 +2727,10 @@ function selectAgent(mobile, inputId, dropdownId) {
 
 function addAgentFromSearch(inputId, dropdownId, containerId, hiddenId) {
     const input = document.getElementById(inputId);
-    const mobile = input.value.trim();
-    if (!mobile) { toast('Please search and select an agent first'); return; }
-    if (/^\d{10}$/.test(mobile)) {
-        const mobileNum = parseInt(mobile);
+    const mobileStr = input.value.trim();
+    if (!mobileStr) { toast('Please search and select an agent first'); return; }
+    if (/^\d{10}$/.test(mobileStr)) {
+        const mobileNum = parseInt(mobileStr, 10);
         if (agents.includes(mobileNum)) { toast('Agent already added'); return; }
         sb.from('active_users').select('*').eq('mobile', mobileNum).single()
             .then(result => {
@@ -2952,7 +2760,6 @@ function addAgentFromSearch(inputId, dropdownId, containerId, hiddenId) {
                     toast('✅ Agent added manually');
                 }
             }).catch(() => {
-                const mobileNum = parseInt(mobile);
                 agents = addUniqueToArray(agents, mobileNum);
                 agentDataMap[mobileNum] = { mobile: mobileNum, name: 'Agent ' + mobileNum, company: '' };
                 renderAgentsUI();
@@ -3042,9 +2849,9 @@ function bulkWhatsAppAgents() {
 
 function autoSaveAgents() {
     if (!user || !user.mobile) return Promise.resolve();
-    const mobileNum = parseInt(user.mobile);
-    const uniqueAgents = ensureUniqueArray(agents);
-    const agentsArray = uniqueAgents.length > 0 ? uniqueAgents : null;
+    const mobileNum = parseInt(user.mobile, 10);
+    const agentsInts = ensureUniqueArray(agents).map(a => parseInt(a, 10)).filter(a => !isNaN(a));
+    const agentsArray = agentsInts.length > 0 ? agentsInts : null;
     return sb.from('active_users').update({ agents: agentsArray }).eq('mobile', mobileNum)
         .then(result => {
             if (result.error) { console.error('Error auto-saving agents:', result.error); return Promise.reject(result.error); }
@@ -3063,9 +2870,9 @@ function loadAgentsFromUser() {
     agentDataMap = {};
     let agentArr = user.agents || [];
     if (Array.isArray(agentArr)) {
-        agents = ensureUniqueArray(agentArr.filter(a => a !== null && a !== ''));
+        agents = ensureUniqueArray(agentArr.filter(a => a !== null && a !== '').map(a => parseInt(a, 10)).filter(a => !isNaN(a)));
     } else if (typeof agentArr === 'string') {
-        agents = ensureUniqueArray(agentArr.split(',').filter(a => a.trim() !== '').map(Number));
+        agents = ensureUniqueArray(agentArr.split(',').filter(a => a.trim() !== '').map(Number).filter(a => !isNaN(a)));
     }
     if (agents.length) {
         sb.from('active_users').select('*').in('mobile', agents)
@@ -3106,9 +2913,10 @@ function searchVehicles(query) {
             let html = '';
             vlist.forEach(v => {
                 const dims = v.dimensions ? v.dimensions.join('×') : 'N/A';
+                const vtn = vehicleTypeName(v.vehicle_type_id);
                 const isAlreadyAdded = vehicles.includes(v.vehicle_number);
-                html += '<div class="item" onclick="selectVehicleFromSuggestion(\'' + v.id + '\',\'' + v.vehicle_number + '\',\'' + v.vehicle_type + '\',\'' + dims + '\')" style="' + (isAlreadyAdded ? 'opacity:0.5;' : '') + '">' +
-                    v.vehicle_number + ' <span class="sub">' + v.vehicle_type + ' • ' + dims + 'ft</span>' +
+                html += '<div class="item" onclick="selectVehicleFromSuggestion(\'' + v.id + '\',\'' + v.vehicle_number + '\',\'' + vtn + '\',\'' + dims + '\')" style="' + (isAlreadyAdded ? 'opacity:0.5;' : '') + '">' +
+                    v.vehicle_number + ' <span class="sub">' + vtn + ' • ' + dims + 'ft</span>' +
                     (isAlreadyAdded ? ' <span style="color:#4ade80;font-size:11px;">✓ Added</span>' : '') +
                     '</div>';
             });
@@ -3158,7 +2966,7 @@ function populateVehicleModal(data, mode) {
     document.getElementById('modal-vehicle-number').value = data.vehicle_number;
     document.getElementById('modal-vehicle-id').value = data.id || '';
     document.getElementById('modal-edit-mode').value = mode;
-    document.getElementById('modal-vehicle-type').value = data.vehicle_type || '';
+    document.getElementById('modal-vehicle-type').value = data.vehicle_type_id || '';
     if (data.dimensions && data.dimensions.length >= 3) {
         document.getElementById('modal-length').value = data.dimensions[0] || '40';
         document.getElementById('modal-width').value = data.dimensions[1] || '8.2';
@@ -3174,20 +2982,21 @@ function populateVehicleModal(data, mode) {
 function saveVehicleModal() {
     const number = document.getElementById('modal-vehicle-number').value;
     if (!number) { toast('No vehicle number'); return; }
-    const vehicleType = document.getElementById('modal-vehicle-type').value;
-    if (!vehicleType) { toast('Please select a vehicle type'); return; }
+    const vtypeRaw = document.getElementById('modal-vehicle-type').value;
+    const vehicleTypeId = parseInt(vtypeRaw, 10);
+    if (!vtypeRaw || isNaN(vehicleTypeId)) { toast('Please select a vehicle type'); return; }
     const data = {
         vehicle_number: number,
-        vehicle_type: vehicleType,
+        vehicle_type_id: vehicleTypeId,                    // ← INTEGER
         dimensions: [
             parseFloat(document.getElementById('modal-length').value) || 0,
             parseFloat(document.getElementById('modal-width').value) || 0,
             parseFloat(document.getElementById('modal-height').value) || 0
         ],
         max_weight: parseFloat(document.getElementById('modal-max-weight').value) || 0,
-        description: document.getElementById('modal-description').value.trim() || null,
+        description: toStrOrNull(document.getElementById('modal-description').value),
         odc_allowed: document.querySelector('input[name="modal-odc"]:checked').value === 'true',
-        modified_by: user ? parseInt(user.mobile) : null,
+        modified_by: user ? parseInt(user.mobile, 10) : null,
         latest_update_at: new Date().toISOString()
     };
     const vehicleId = document.getElementById('modal-vehicle-id').value;
@@ -3250,7 +3059,6 @@ function addSelectedVehicle() {
         .then(res => {
             if (res.data) {
                 vehicles = addUniqueToArray(vehicles, val);
-                const dims = res.data.dimensions ? res.data.dimensions.join('×') : 'N/A';
                 vehicleDataMap[val] = { id: res.data.id, ...res.data };
                 renderVehicles();
                 input.value = '';
@@ -3271,16 +3079,16 @@ function renderVehicles() {
     const container = document.getElementById('edit-vehicles-list');
     if (!vehicles.length) { container.innerHTML = '<span style="color:#64748b;font-size:13px">No vehicles added</span>'; return; }
     container.innerHTML = vehicles.map(v => {
-        const data = vehicleDataMap[v] || { vehicle_type: 'Unknown', dimensions: 'N/A' };
+        const data = vehicleDataMap[v] || { vehicle_type_id: null, dimensions: 'N/A' };
         const dims = data.dimensions || 'N/A';
-        return '<div class="vehicle-item"><span class="vnumber">' + v + '</span><span class="vdetails">' + (data.vehicle_type || 'Unknown') + ' • ' + dims + 'ft</span><div class="actions"><button class="edit-btn" onclick="openVehicleEdit(\'' + v + '\')">✏️ Edit</button><button class="delete-btn" onclick="removeVehicle(\'' + v + '\')">🗑️</button></div></div>';
+        return '<div class="vehicle-item"><span class="vnumber">' + v + '</span><span class="vdetails">' + vehicleTypeName(data.vehicle_type_id) + ' • ' + dims + 'ft</span><div class="actions"><button class="edit-btn" onclick="openVehicleEdit(\'' + v + '\')">✏️ Edit</button><button class="delete-btn" onclick="removeVehicle(\'' + v + '\')">🗑️</button></div></div>';
     }).join('');
 }
 
 function autoSaveVehicles() {
     if (!user || !user.mobile) return Promise.resolve();
-    const mobileNum = parseInt(user.mobile);
-    const uniqueVehicles = ensureUniqueArray(vehicles);
+    const mobileNum = parseInt(user.mobile, 10);
+    const uniqueVehicles = ensureUniqueArray(vehicles).filter(v => v && String(v).trim() !== '');
     const vehicleArray = uniqueVehicles.length > 0 ? uniqueVehicles : null;
     return sb.from('active_users').update({ vehicle_no: vehicleArray }).eq('mobile', mobileNum)
         .then(result => {
@@ -3298,9 +3106,9 @@ function autoSaveVehicles() {
 // ROUTES FUNCTIONS
 // ============================================================
 function addRoute() {
-    const route = document.getElementById('edit-route-hidden').value;
-    if (!route) { toast('Please search and select a location first'); return; }
-    const routeInt = parseInt(route);
+    const routeRaw = document.getElementById('edit-route-hidden').value;
+    if (!routeRaw) { toast('Please search and select a location first'); return; }
+    const routeInt = parseInt(routeRaw, 10);
     if (isNaN(routeInt)) { toast('Invalid location'); return; }
     if (routes.includes(routeInt)) { toast('Route already added'); return; }
     routes = addUniqueToArray(routes, routeInt);
@@ -3331,9 +3139,9 @@ function renderRoutes() {
 
 function autoSaveRoutes() {
     if (!user || !user.mobile) return Promise.resolve();
-    const mobileNum = parseInt(user.mobile);
-    const uniqueRoutes = ensureUniqueArray(routes);
-    const routesArray = uniqueRoutes.length > 0 ? uniqueRoutes : null;
+    const mobileNum = parseInt(user.mobile, 10);
+    const routesInts = ensureUniqueArray(routes).map(r => parseInt(r, 10)).filter(r => !isNaN(r));
+    const routesArray = routesInts.length > 0 ? routesInts : null;
     return sb.from('active_users').update({ preferred_routes: routesArray }).eq('mobile', mobileNum)
         .then(result => {
             if (result.error) { console.error('Error auto-saving routes:', result.error); return Promise.reject(result.error); }
@@ -3348,7 +3156,7 @@ function autoSaveRoutes() {
 
 function refreshUserData(callback) {
     if (!user || !user.mobile) { if (callback) callback(); return; }
-    const mobileNum = parseInt(user.mobile);
+    const mobileNum = parseInt(user.mobile, 10);
     sb.from('active_users').select('*').eq('mobile', mobileNum).single()
         .then(result => {
             if (result.data) {
@@ -3363,36 +3171,58 @@ function refreshUserData(callback) {
 }
 
 // ============================================================
-// POST FUNCTIONS
+// PUBLISH LOAD
 // ============================================================
 function publishLoad() {
     if (!user) { toast('Please login first'); return; }
-    const material = document.getElementById('pl-material').value;
-    const pickupPinId = document.getElementById('pl-pickup-hidden').value;
-    const dropPinId = document.getElementById('pl-drop-hidden').value;
-    if (!material || !pickupPinId || !dropPinId) {
+
+    const materialRaw = document.getElementById('pl-material').value;
+    const pickupPinIdRaw = document.getElementById('pl-pickup-hidden').value;
+    const dropPinIdRaw = document.getElementById('pl-drop-hidden').value;
+
+    if (!materialRaw || !pickupPinIdRaw || !dropPinIdRaw) {
         toast('Please fill all required fields (Material, Pickup, Drop)');
         return;
     }
+
+    const materialId = parseInt(materialRaw, 10);
+    const pickupPinId = parseInt(pickupPinIdRaw, 10);
+    const dropPinId = parseInt(dropPinIdRaw, 10);
+
+    if (isNaN(materialId)) { toast('❌ Invalid material. Please re-select.'); return; }
+    if (isNaN(pickupPinId) || isNaN(dropPinId)) {
+        toast('❌ Invalid pickup or drop location. Please re-select from dropdown.');
+        return;
+    }
+
+    const vtypeRaw = document.getElementById('pl-vehicle-type').value;
+    const vehicleTypeId = vtypeRaw ? parseInt(vtypeRaw, 10) : null;
+    if (vtypeRaw && isNaN(vehicleTypeId)) { toast('❌ Invalid vehicle type.'); return; }
+
     const length = parseFloat(document.getElementById('pl-length').value) || 0;
-    const width = parseFloat(document.getElementById('pl-width').value) || 0;
+    const width  = parseFloat(document.getElementById('pl-width').value) || 0;
     const height = parseFloat(document.getElementById('pl-height').value) || 0;
     const dimensions = [length, width, height];
-    const rate = parseNumberFromInput(document.getElementById('pl-rate').value);
+
+    const rate   = parseNumberFromInput(document.getElementById('pl-rate').value);
     const weight = parseNumberFromInput(document.getElementById('pl-weight').value);
-    const agentArray = agents.length > 0 ? agents : null;
+
+    const agentArray = (agents && agents.length > 0)
+        ? agents.map(a => parseInt(a, 10)).filter(a => !isNaN(a))
+        : null;
+
     const loadData = {
-        mobile: parseInt(user.mobile),
-        company: user.company_name || '',
-        company_web: user.company_web || '',
-        material: material,
+        mobile: parseInt(user.mobile, 10),
+        company: toStrOrNull(user.company_name) || '',
+        company_web: toStrOrNull(user.company_web) || '',
+        material_id: materialId,                          // ← INTEGER
         weight: weight,
         dimensions: dimensions,
-        vehicle_type: document.getElementById('pl-vehicle-type').value || null,
-        pickup_pin: parseInt(pickupPinId),
-        drop_pin: parseInt(dropPinId),
+        vehicle_type_id: vehicleTypeId,                   // ← INTEGER
+        pickup_pin: pickupPinId,                          // ← INTEGER
+        drop_pin: dropPinId,                              // ← INTEGER
         pickup_date: document.getElementById('pl-date').value || null,
-        instructions: document.getElementById('pl-instructions').value.trim() || null,
+        instructions: toStrOrNull(document.getElementById('pl-instructions').value),
         rate: rate,
         status: 1,
         views: 0,
@@ -3403,29 +3233,56 @@ function publishLoad() {
         created_at: new Date().toISOString(),
         expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
     };
+
+    console.log('📤 publishLoad payload:', loadData);
+
     sb.from('active_loads').insert(loadData)
         .then(res => {
-            if (res.error) { alert('Error: ' + res.error.message); return; }
+            if (res.error) {
+                console.error('❌ Insert error:', res.error);
+                console.error('❌ Failed payload:', loadData);
+                alert('Error: ' + res.error.message);
+                return;
+            }
             toast('✅ Load published successfully!');
             goHome();
-        }).catch(err => { alert('Error: ' + err.message); });
+        }).catch(err => { 
+            console.error('❌ Exception:', err);
+            alert('Error: ' + err.message); 
+        });
 }
 
+// ============================================================
+// PUBLISH TRUCK
+// ============================================================
 function publishTruck() {
     if (!user) { toast('Please login first'); return; }
+
     const number = document.getElementById('pt-vehicle-number').value.trim().toUpperCase();
-    const locationPinId = document.getElementById('pt-location-hidden').value;
-    if (!number || !locationPinId) {
+    const locationPinIdRaw = document.getElementById('pt-location-hidden').value;
+
+    if (!number || !locationPinIdRaw) {
         toast('Please fill all required fields (Vehicle Number, Location)');
         return;
     }
     if (!isValidVehicleNumber(number)) {
-        alert('Vehicle number must be 9-12 characters (letters and numbers only, no spaces or special characters)');
+        alert('Vehicle number must be 9-12 characters (letters and numbers only)');
         return;
     }
+
+    const locationPinId = parseInt(locationPinIdRaw, 10);
+    if (isNaN(locationPinId)) {
+        toast('❌ Invalid location. Please re-select from dropdown.');
+        return;
+    }
+
     const rate = parseNumberFromInput(document.getElementById('pt-rate').value);
-    const agentArray = agents.length > 0 ? agents : null;
-    sb.from('active_vehicles').select('id').eq('vehicle_number', number).single()
+
+    const agentArray = (agents && agents.length > 0)
+        ? agents.map(a => parseInt(a, 10)).filter(a => !isNaN(a))
+        : null;
+
+    sb.from('active_vehicles').select('id, vehicle_type_id').eq('vehicle_number', number).single()
         .then(checkRes => {
             if (!checkRes.data) {
                 if (confirm('Vehicle "' + number + '" not found. Would you like to register it now?')) {
@@ -3434,27 +3291,41 @@ function publishTruck() {
                 return;
             }
             const truckData = {
-                mobile: parseInt(user.mobile),
-                truck_no: number,
+                mobile: parseInt(user.mobile, 10),
+                truck_no: String(number),
                 share: 0,
                 calls: 0,
                 views: 0,
                 interested: [],
-                available_date: document.getElementById('pt-available').value ? new Date(document.getElementById('pt-available').value).toISOString() : null,
-                location_pin: parseInt(locationPinId),
-                other_details: document.getElementById('pt-other-details').value.trim() || null,
+                available_date: document.getElementById('pt-available').value
+                    ? new Date(document.getElementById('pt-available').value).toISOString()
+                    : null,
+                location_pin: locationPinId,                  // ← INTEGER
+                other_details: toStrOrNull(document.getElementById('pt-other-details').value),
                 rate: rate,
                 status: 1,
                 agents: agentArray,
+                vehicle_type_id: checkRes.data.vehicle_type_id || null,  // ← copy from vehicle
                 expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
                 created_at: new Date().toISOString()
             };
+
+            console.log('📤 publishTruck payload:', truckData);
+
             sb.from('active_trucks').insert(truckData)
                 .then(res => {
-                    if (res.error) { alert('Error: ' + res.error.message); return; }
+                    if (res.error) {
+                        console.error('❌ Insert error:', res.error);
+                        console.error('❌ Failed payload:', truckData);
+                        alert('Error: ' + res.error.message);
+                        return;
+                    }
                     toast('✅ Truck listed successfully!');
                     goHome();
-                }).catch(err => { alert('Error: ' + err.message); });
+                }).catch(err => { 
+                    console.error('❌ Exception:', err);
+                    alert('Error: ' + err.message); 
+                });
         }).catch(() => {
             if (confirm('Vehicle "' + number + '" not found. Would you like to register it now?')) {
                 openVehicleModalForTruck(number);
@@ -3464,7 +3335,7 @@ function publishTruck() {
 
 function loadMyLoads() {
     if (!user) return;
-    sb.from('active_loads').select('*').eq('mobile', parseInt(user.mobile)).eq('status', 1)
+    sb.from('active_loads').select('*').eq('mobile', parseInt(user.mobile, 10)).eq('status', 1)
         .then(res => {
             const loads = res.data || [];
             const container = document.getElementById('my-loads-container');
@@ -3479,14 +3350,14 @@ function loadMyLoads() {
                 const interests = l.interests || [];
                 let interestHtml = '';
                 if (interests.length > 0) interestHtml = '<div style="font-size:12px;color:#64748b;margin-top:4px;">🤝 Interested: ' + interests.join(', ') + '</div>';
-                return '<div class="list-item"><div class="title">' + l.material + ' • ' + getLocName(l.pickup_pin) + ' → ' + getLocName(l.drop_pin) + '</div><div class="sub"> ₹' + formatIndianNumber(l.rate || 0) + ' • ⚖️ ' + formatIndianNumber(l.weight || 0) + ' Kg • 🚛 ' + (l.vehicle_type || 'Any') + '</div>' + interestHtml + '<div class="actions"><button class="interests">🤝 ' + interests.length + ' Interested</button><button class="delete" onclick="deleteLoadItem(\'' + l.id + '\')">🗑️ Delete</button></div></div>';
+                return '<div class="list-item"><div class="title">' + materialName(l.material_id) + ' • ' + getLocName(l.pickup_pin) + ' → ' + getLocName(l.drop_pin) + '</div><div class="sub"> ₹' + formatIndianNumber(l.rate || 0) + ' • ⚖️ ' + formatIndianNumber(l.weight || 0) + ' Kg • 🚛 ' + vehicleTypeName(l.vehicle_type_id) + '</div>' + interestHtml + '<div class="actions"><button class="interests">🤝 ' + interests.length + ' Interested</button><button class="delete" onclick="deleteLoadItem(\'' + l.id + '\')">🗑️ Delete</button></div></div>';
             }).join('');
         });
 }
 
 function loadMyTrucks() {
     if (!user) return;
-    sb.from('active_trucks').select('*').eq('mobile', parseInt(user.mobile)).eq('status', 1)
+    sb.from('active_trucks').select('*').eq('mobile', parseInt(user.mobile, 10)).eq('status', 1)
         .then(res => {
             const trucks = res.data || [];
             const container = document.getElementById('my-trucks-container');
@@ -3511,9 +3382,9 @@ function deleteTruckItem(id) { if (!confirm('Delete this truck?')) return; sb.fr
 
 function loadStats() {
     if (!user) return;
-    sb.from('active_loads').select('*', { count: 'exact', head: true }).eq('mobile', parseInt(user.mobile)).eq('status', 1)
+    sb.from('active_loads').select('*', { count: 'exact', head: true }).eq('mobile', parseInt(user.mobile, 10)).eq('status', 1)
         .then(r => { document.getElementById('stat-loads-count').textContent = r.count || 0; });
-    sb.from('active_trucks').select('*', { count: 'exact', head: true }).eq('mobile', parseInt(user.mobile)).eq('status', 1)
+    sb.from('active_trucks').select('*', { count: 'exact', head: true }).eq('mobile', parseInt(user.mobile, 10)).eq('status', 1)
         .then(r => { document.getElementById('stat-trucks-count').textContent = r.count || 0; });
 }
 
