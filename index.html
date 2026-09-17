@@ -1968,12 +1968,12 @@ function updateStats(item) {
 }
 
 // ============================================================
-// SHARE (Monospace card + clickable URL)
+// SHARE (Clean, Simple WhatsApp-formatted, Clickable URL)
 // ============================================================
 async function handleShareClick() {
     if (!detail) { toast('No details to share'); return; }
 
-    let cardText = '';
+    let msg = '';
 
     if (detail.type === 'LOAD') {
         const fromLoc = getLoc(detail.pickup_pin);
@@ -1982,21 +1982,21 @@ async function handleShareClick() {
         const toStr = toLoc ? `${toLoc.name}, ${toLoc.district}, ${toLoc.state}` : 'N/A';
         const weightStr = detail.weight ? `${formatIndianNumber(detail.weight)} kg` : 'N/A';
         const dimStr = (detail.dimensions && detail.dimensions.length === 3)
-            ? `(${detail.dimensions[0]}x${detail.dimensions[1]}x${detail.dimensions[2]} ft)`
+            ? `(${detail.dimensions[0]}×${detail.dimensions[1]}×${detail.dimensions[2]} ft)`
             : '';
         const dateStr = detail.pickup_date
             ? new Date(detail.pickup_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
             : 'Flexible';
         const rateStr = detail.rate ? `₹${formatIndianNumber(detail.rate)} (approx)` : 'Negotiable';
 
-        cardText  = `🚛 LOAD AVAILABLE\n\n`;
-        cardText += `Material : ${materialName(detail.material_id)}\n`;
-        cardText += `Vehicle  : ${vehicleTypeName(detail.vehicle_type_id)}\n`;
-        cardText += `Weight   : ${weightStr} ${dimStr}\n`;
-        cardText += `From     : ${fromStr}\n`;
-        cardText += `To       : ${toStr}\n`;
-        cardText += `Rate     : ${rateStr}\n`;
-        cardText += `Date     : ${dateStr}`;
+        msg  = `🚛 *LOAD AVAILABLE*\n\n`;
+        msg += `*Material* : ${materialName(detail.material_id)}\n`;
+        msg += `*Vehicle*  : ${vehicleTypeName(detail.vehicle_type_id)}\n`;
+        msg += `*Weight*   : ${weightStr} ${dimStr}\n`;
+        msg += `*From*     : ${fromStr}\n`;
+        msg += `*To*       : ${toStr}\n`;
+        msg += `*Rate*     : ${rateStr}\n`;
+        msg += `*Date*     : ${dateStr}\n`;
 
     } else if (detail.type === 'TRUCK') {
         const loc = getLoc(detail.location_pin);
@@ -2006,26 +2006,25 @@ async function handleShareClick() {
             : 'Available Now';
         const rateStr = detail.rate ? `₹${formatIndianNumber(detail.rate)}/km` : 'Negotiable';
 
-        cardText  = `🚛 TRUCK AVAILABLE\n\n`;
-        cardText += `Vehicle  : ${detail.truck_no || 'Truck'}\n`;
-        cardText += `Type     : ${vehicleTypeName(detail.vehicle_type_id)}\n`;
-        cardText += `Location : ${locStr}\n`;
-        cardText += `Rate     : ${rateStr}\n`;
-        cardText += `Date     : ${dateStr}`;
+        msg  = `🚛 *TRUCK AVAILABLE*\n\n`;
+        msg += `*Vehicle*  : ${detail.truck_no || 'Truck'}\n`;
+        msg += `*Type*     : ${vehicleTypeName(detail.vehicle_type_id)}\n`;
+        msg += `*Location* : ${locStr}\n`;
+        msg += `*Rate*     : ${rateStr}\n`;
+        msg += `*Date*     : ${dateStr}\n`;
 
     } else {
         const u = detail.user || {};
-        cardText  = `🤝 AGENT PROFILE\n\n`;
-        cardText += `Company  : ${u.company_name || u.name || 'N/A'}\n`;
-        cardText += `Location : ${u.location ? getLocName(u.location) : 'N/A'}\n`;
-        cardText += `Contact  : +91 ${u.mobile || ''}`;
+        msg  = `🤝 *AGENT PROFILE*\n\n`;
+        msg += `*Company*  : ${u.company_name || u.name || 'N/A'}\n`;
+        msg += `*Location* : ${u.location ? getLocName(u.location) : 'N/A'}\n`;
+        msg += `*Contact*  : +91 ${u.mobile || ''}\n`;
     }
 
-    // Wrap the card content in triple backticks (monospace grey box)
     const shareUrl = 'https://returntruck-pwa.vercel.app/?listing=' + detail.type + '_' + detail.id;
-    const msg = '```\n' + cardText + '\n```\n\n🔗 *Tap for full details:*\n' + shareUrl;
+    msg += `\n🔗 *Tap for full details:*\n${shareUrl}`;
 
-    // Try Web Share API
+    // Try Web Share API (mobile devices)
     if (navigator.share) {
         try {
             await navigator.share({ title: 'ReturnTruck Listing', text: msg });
@@ -2036,7 +2035,7 @@ async function handleShareClick() {
         }
     }
 
-    // Fallback: WhatsApp URL scheme
+    // Fallback: WhatsApp URL scheme (URL auto-linkified by WhatsApp)
     window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
 }
 
