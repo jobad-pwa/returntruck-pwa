@@ -2122,164 +2122,56 @@ async function handleShareClick() {
 // ============================================================
 // SHARE IMAGE (Canvas generator with dynamic poster details)
 // ============================================================
+// ============================================================
+// SHARE IMAGE — Branded banner only (poster signature card)
+// ============================================================
 async function renderShareImage(data, vehicleData) {
+    // Small banner dimensions
     const W = 900;
-    const baseH = 700;
-    const rowHeight = 95;
-    const titleAreaHeight = 160;
-    let contentHeight = 0, rows = [];
-
-    if (data.type === 'LOAD') {
-        const from = getLoc(data.pickup_pin), to = getLoc(data.drop_pin);
-        rows.push({ label: '📍 FROM', value: from ? from.name + ', ' + from.district : 'N/A' });
-        rows.push({ label: '📍 TO', value: to ? to.name + ', ' + to.district : 'N/A' });
-        rows.push({ label: '💰 RATE', value: '₹ ' + formatIndianNumber(data.rate || 0) });
-        rows.push({ label: '⚖️ WEIGHT', value: formatIndianNumber(data.weight || 0) + ' Kg' });
-        const vtn = vehicleTypeName(data.vehicle_type_id);
-        if (vtn && vtn !== 'Any') rows.push({ label: '🚛 VEHICLE', value: vtn });
-        if (data.dimensions && data.dimensions.length === 3) rows.push({ label: '📐 DIMENSIONS', value: data.dimensions.join(' × ') + ' ft' });
-        if (data.pickup_date) rows.push({ label: '📅 AVAILABLE FROM', value: new Date(data.pickup_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) });
-    } else if (data.type === 'TRUCK') {
-        const loc = getLoc(data.location_pin);
-        rows.push({ label: '📍 LOCATION', value: loc ? loc.name + ', ' + loc.district : 'N/A' });
-        rows.push({ label: '💰 RATE/KM', value: '₹ ' + formatIndianNumber(data.rate || 0) });
-        if (vehicleData) {
-            rows.push({ label: '🚛 TYPE', value: vehicleTypeName(vehicleData.vehicle_type_id) });
-            if (vehicleData.dimensions && vehicleData.dimensions.length === 3) rows.push({ label: '📐 DIMENSIONS', value: vehicleData.dimensions.join(' × ') + ' ft' });
-            rows.push({ label: '⚖️ MAX WEIGHT', value: formatIndianNumber(vehicleData.max_weight || 0) + ' Kg' });
-        }
-        if (data.available_date) rows.push({ label: '📅 AVAILABLE FROM', value: new Date(data.available_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) });
-        if (data.user && data.user.preferred_routes && data.user.preferred_routes.length > 0) {
-            const routeNames = data.user.preferred_routes.map(r => { const loc = getLoc(r); return loc ? loc.name : r; }).join(', ');
-            rows.push({ label: '🗺️ OPERATING ROUTES', value: routeNames });
-        }
-    } else {
-        const u = data.user || {};
-        rows.push({ label: '🏢 COMPANY', value: u.company_name || 'N/A' });
-        rows.push({ label: '📍 LOCATION', value: u.location ? getLocName(u.location) : 'N/A' });
-        rows.push({ label: '📞 CONTACT', value: u.mobile ? '+91 ' + u.mobile : 'N/A' });
-        if (u.preferred_routes && u.preferred_routes.length > 0) {
-            const routeNames = u.preferred_routes.map(r => { const loc = getLoc(r); return loc ? loc.name : r; }).join(', ');
-            rows.push({ label: '🗺️ OPERATING ROUTES', value: routeNames });
-        }
-    }
-
-    let hasInstructions = false, instructionText = '';
-    if (data.type === 'LOAD' && data.instructions) { instructionText = data.instructions; hasInstructions = true; }
-    else if (data.type === 'TRUCK' && data.other_details) { instructionText = data.other_details; hasInstructions = true; }
-
-    const shareUrl = 'https://returntruck-pwa.vercel.app/?listing=' + data.type + '_' + data.id;
-
-    const canvasSim = document.createElement('canvas');
-    const ctxSim = canvasSim.getContext('2d');
-    ctxSim.font = '30px system-ui, sans-serif';
-    let instructionLines = 0;
-    if (hasInstructions) {
-        const words = String(instructionText).split(' ');
-        let line = '';
-        instructionLines = 1;
-        for (let n = 0; n < words.length; n++) {
-            const testLine = line + words[n] + ' ';
-            const metrics = ctxSim.measureText(testLine);
-            if (metrics.width > W - 160 && n > 0) { instructionLines++; line = words[n] + ' '; }
-            else { line = testLine; }
-        }
-    }
-    const instructionBoxHeight = hasInstructions ? (60 + 40 + (instructionLines * 40) + 40) : 0;
-    const ctaBoxHeight = 130;
-    contentHeight = titleAreaHeight + (rows.length * rowHeight) + instructionBoxHeight + ctaBoxHeight + 100;
-    const H = Math.max(1200, baseH + contentHeight);
+    const H = 220;
 
     const canvas = document.createElement('canvas');
-    canvas.width = W; canvas.height = H;
+    canvas.width = W;
+    canvas.height = H;
     const ctx = canvas.getContext('2d');
 
-    const bgRadius = 40;
+    // Rounded blue gradient background
+    const bgRadius = 30;
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = '#0a0a12';
-    roundRect(ctx, 0, 0, W, H, bgRadius);
-    ctx.fill();
 
-    const grad = ctx.createLinearGradient(0, 0, W, 220);
+    // Gradient header (same blue as brand)
+    const grad = ctx.createLinearGradient(0, 0, W, H);
     grad.addColorStop(0, '#1e3a8a');
     grad.addColorStop(1, '#2563eb');
-    ctx.save();
-    roundRect(ctx, 0, 0, W, 220, bgRadius);
-    ctx.clip();
-    ctx.fillStyle = grad;
-    roundRect(ctx, 0, 0, W, 220, bgRadius);
-    ctx.fill();
-    ctx.restore();
 
-    const postedBy = data.user ? (data.user.company_name || data.user.name || 'User') : 'User';
-    const postedLoc = data.user && data.user.location ? getLocName(data.user.location) : '';
+    roundRect(ctx, 0, 0, W, H, bgRadius);
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Poster details — DYNAMIC per listing
+    const postedBy = data.user
+        ? (data.user.company_name || data.user.name || 'User')
+        : 'User';
+    const postedLoc = data.user && data.user.location
+        ? getLocName(data.user.location)
+        : '';
+
+    // App branding row
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 56px system-ui, -apple-system, sans-serif';
-    ctx.fillText('🚛 ReturnTruck', 50, 120);
-    ctx.font = '500 30px system-ui, -apple-system, sans-serif';
-    ctx.fillStyle = 'rgba(255,255,255,0.9)';
-    ctx.fillText('Posted by: ' + postedBy, 50, 175);
+    ctx.font = 'bold 52px system-ui, -apple-system, sans-serif';
+    ctx.fillText('🚛 ReturnTruck', 40, 95);
+
+    // Posted by line
+    ctx.font = '500 28px system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.92)';
+    ctx.fillText('Posted by: ' + postedBy, 40, 145);
+
+    // Location line
     if (postedLoc) {
         ctx.font = '400 24px system-ui, -apple-system, sans-serif';
-        ctx.fillText('📍 ' + postedLoc, 50, 215);
+        ctx.fillStyle = 'rgba(255,255,255,0.78)';
+        ctx.fillText('📍 ' + postedLoc, 40, 190);
     }
-
-    let title = '', badge = '';
-    if (data.type === 'LOAD') { title = materialName(data.material_id); badge = 'LOAD AVAILABLE'; }
-    else if (data.type === 'TRUCK') { title = data.truck_no || 'Truck'; badge = 'TRUCK AVAILABLE'; }
-    else { title = (data.user && (data.user.company_name || data.user.name)) || 'Agent'; badge = 'AGENT PROFILE'; }
-
-    ctx.fillStyle = '#fbbf24';
-    roundRect(ctx, 50, 280, 300, 50, 25);
-    ctx.fill();
-    ctx.fillStyle = '#0f172a';
-    ctx.font = 'bold 24px system-ui, sans-serif';
-    ctx.fillText(badge, 75, 315);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 64px system-ui, -apple-system, sans-serif';
-    wrapText(ctx, title, 50, 420, W - 100, 75);
-
-    let y = 520;
-    const boxY = y;
-    const boxH = rows.length * rowHeight + 40;
-    ctx.fillStyle = '#ffffff';
-    roundRect(ctx, 50, boxY, W - 100, boxH, 30);
-    ctx.fill();
-    y = boxY + 55;
-    rows.forEach(row => {
-        ctx.fillStyle = '#64748b';
-        ctx.font = 'bold 20px system-ui, sans-serif';
-        ctx.fillText(row.label, 85, y);
-        ctx.fillStyle = '#0f172a';
-        ctx.font = 'bold 32px system-ui, sans-serif';
-        wrapText(ctx, row.value, 85, y + 40, W - 170, 40);
-        y += rowHeight;
-    });
-
-    let currentY = boxY + boxH + 30;
-    if (hasInstructions) {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-        roundRect(ctx, 50, currentY, W - 100, instructionBoxHeight, 20);
-        ctx.fill();
-        ctx.fillStyle = '#fbbf24';
-        ctx.font = 'bold 28px system-ui, sans-serif';
-        ctx.fillText('📝 INSTRUCTIONS', 85, currentY + 50);
-        ctx.fillStyle = '#e2e8f0';
-        ctx.font = '30px system-ui, sans-serif';
-        wrapText(ctx, instructionText, 85, currentY + 110, W - 170, 40);
-        currentY += instructionBoxHeight + 30;
-    }
-
-    ctx.fillStyle = '#1e40af';
-    roundRect(ctx, 50, currentY, W - 100, ctaBoxHeight, 20);
-    ctx.fill();
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 28px system-ui, sans-serif';
-    ctx.fillText('🔗 View Details & Contact', 85, currentY + 50);
-    ctx.fillStyle = '#93c5fd';
-    ctx.font = 'bold 26px system-ui, sans-serif';
-    ctx.fillText(shareUrl, 85, currentY + 95);
 
     return canvas;
 }
