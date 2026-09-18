@@ -6,7 +6,6 @@
 <title>ReturnTruck – Find Loads & Trucks</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!-- Split location data files — dynamic loader -->
 <script>
   window.LOCATION_FILES = [
     'locations_dh.js','locations_up.js','locations_hr.js','locations_pb.js','locations_ch.js','locations_hp.js','locations_jk.js','locations_la.js','locations_uk.js','locations_rj.js','locations_tg.js','locations_gj.js',
@@ -679,7 +678,7 @@ const EDGE_URL = 'https://ghjoffovatgvhzxlupef.supabase.co/functions/v1';
 const sb = window.supabase.createClient(SB_URL, SB_KEY);
 
 // ============================================================
-// LOOKUP MAPS (id ↔ name)
+// LOOKUP MAPS
 // ============================================================
 const MATERIALS = {
     1: 'Steel TMT, angles, plates, pipes etc', 2: 'Cement', 3: 'Bricks', 4: 'Sand', 5: 'Aggregates',
@@ -1968,21 +1967,18 @@ function updateStats(item) {
 }
 
 // ============================================================
-// SHARE (Aligned text + image with "View Details" hint)
+// SHARE — Sends TWO separate shares: TEXT first, then IMAGE
 // ============================================================
 async function handleShareClick() {
     if (!detail) { toast('No details to share'); return; }
 
-    // ---------- Step 1: Build aligned text message ----------
-    const pad = (label, width) => {
-        // Pads label to fixed width so ":" aligns
-        const spaces = Math.max(0, width - label.length);
-        return label + ' '.repeat(spaces);
-    };
+    // ---------- BUILD TEXT MESSAGE WITH SOLID-LINE SEPARATORS ----------
+    const pad = (label, width) => label + ' '.repeat(Math.max(0, width - label.length));
     const LABEL_WIDTH = 10;
+    const sep = '━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
 
     let msg = '';
-    const line = '━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
+    let shareTitle = '';
 
     if (detail.type === 'LOAD') {
         const fromLoc = getLoc(detail.pickup_pin);
@@ -1991,16 +1987,15 @@ async function handleShareClick() {
         const toStr = toLoc ? `${toLoc.name}, ${toLoc.district}, ${toLoc.state}` : 'N/A';
         const weightStr = detail.weight ? `${formatIndianNumber(detail.weight)} kg` : 'N/A';
         const dimStr = (detail.dimensions && detail.dimensions.length === 3)
-            ? `(${detail.dimensions[0]}x${detail.dimensions[1]}x${detail.dimensions[2]} ft)`
-            : '';
+            ? `(${detail.dimensions[0]}x${detail.dimensions[1]}x${detail.dimensions[2]} ft)` : '';
         const dateStr = detail.pickup_date
             ? new Date(detail.pickup_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
             : 'Flexible';
         const rateStr = detail.rate ? `₹${formatIndianNumber(detail.rate)} (approx)` : 'Negotiable';
 
-        msg  = `${line}\n`;
+        msg  = `${sep}\n`;
         msg += `🚛 *LOAD AVAILABLE*\n`;
-        msg += `${line}\n\n`;
+        msg += `${sep}\n\n`;
         msg += `*${pad('Material', LABEL_WIDTH)}* : ${materialName(detail.material_id)}\n`;
         msg += `*${pad('Vehicle', LABEL_WIDTH)}* : ${vehicleTypeName(detail.vehicle_type_id)}\n`;
         msg += `*${pad('Weight', LABEL_WIDTH)}* : ${weightStr} ${dimStr}\n`;
@@ -2008,7 +2003,9 @@ async function handleShareClick() {
         msg += `*${pad('To', LABEL_WIDTH)}* : ${toStr}\n`;
         msg += `*${pad('Rate', LABEL_WIDTH)}* : ${rateStr}\n`;
         msg += `*${pad('Date', LABEL_WIDTH)}* : ${dateStr}\n\n`;
-        msg += `${line}\n`;
+        msg += `${sep}\n`;
+
+        shareTitle = 'ReturnTruck - ' + materialName(detail.material_id);
 
     } else if (detail.type === 'TRUCK') {
         const loc = getLoc(detail.location_pin);
@@ -2018,84 +2015,130 @@ async function handleShareClick() {
             : 'Available Now';
         const rateStr = detail.rate ? `₹${formatIndianNumber(detail.rate)}/km` : 'Negotiable';
 
-        msg  = `${line}\n`;
+        msg  = `${sep}\n`;
         msg += `🚛 *TRUCK AVAILABLE*\n`;
-        msg += `${line}\n\n`;
+        msg += `${sep}\n\n`;
         msg += `*${pad('Vehicle', LABEL_WIDTH)}* : ${detail.truck_no || 'Truck'}\n`;
         msg += `*${pad('Type', LABEL_WIDTH)}* : ${vehicleTypeName(detail.vehicle_type_id)}\n`;
         msg += `*${pad('Location', LABEL_WIDTH)}* : ${locStr}\n`;
         msg += `*${pad('Rate', LABEL_WIDTH)}* : ${rateStr}\n`;
         msg += `*${pad('Date', LABEL_WIDTH)}* : ${dateStr}\n\n`;
-        msg += `${line}\n`;
+        msg += `${sep}\n`;
+
+        shareTitle = 'ReturnTruck - ' + (detail.truck_no || 'Truck');
 
     } else {
         const u = detail.user || {};
-        msg  = `${line}\n`;
+        msg  = `${sep}\n`;
         msg += `🤝 *AGENT PROFILE*\n`;
-        msg += `${line}\n\n`;
+        msg += `${sep}\n\n`;
         msg += `*${pad('Company', LABEL_WIDTH)}* : ${u.company_name || u.name || 'N/A'}\n`;
         msg += `*${pad('Location', LABEL_WIDTH)}* : ${u.location ? getLocName(u.location) : 'N/A'}\n`;
         msg += `*${pad('Contact', LABEL_WIDTH)}* : +91 ${u.mobile || ''}\n\n`;
-        msg += `${line}\n`;
+        msg += `${sep}\n`;
+
+        shareTitle = 'ReturnTruck - ' + (u.company_name || u.name || 'Agent');
     }
 
     const shareUrl = 'https://returntruck-pwa.vercel.app/?listing=' + detail.type + '_' + detail.id;
-    msg += `\n🔗 *Tap for full details:*\n${shareUrl}\n${line}`;
+    msg += `\n🔗 *Tap for full details:*\n${shareUrl}\n${sep}`;
 
-    // ---------- Step 2: Share flow ----------
-    // Prefer: share image + URL as one action; fallback to text+image; final fallback to URL
+    // ---------- FETCH VEHICLE DATA FOR IMAGE ----------
     let truckVehicleDetails = null;
     if (detail.type === 'TRUCK' && detail.truck_no) {
         try {
             const { data: vehicleData } = await sb.from('active_vehicles').select('*').eq('vehicle_number', detail.truck_no).single();
             if (vehicleData) truckVehicleDetails = vehicleData;
-        } catch (e) { /* ignore */ }
+        } catch (e) { console.warn('Could not fetch vehicle details:', e); }
     }
     currentTruckVehicleData = truckVehicleDetails;
 
+    // ---------- SHARE FLOW ----------
+    // Strategy: Send text first, then image. On some Android versions both
+    // will work; where only one is possible, text (with URL) is prioritized.
+
+    // STEP A: Try sharing text + URL first
+    let textShared = false;
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: shareTitle,
+                text: msg
+            });
+            textShared = true;
+        } catch (err) {
+            if (err.name === 'AbortError') {
+                // User cancelled — abort
+                return;
+            }
+            console.warn('Text share failed, trying image share only:', err);
+        }
+    }
+
+    // STEP B: Try sharing the image as a second message
     try {
         const canvas = await renderShareImage(detail, truckVehicleDetails);
         const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
-        const file = new File([blob], 'returntruck-preview.png', { type: 'image/png' });
+        const fileName = 'returntruck-' + detail.type.toLowerCase() + '-' + detail.id + '.png';
+        const file = new File([blob], fileName, { type: 'image/png' });
 
-        // Try Web Share API with file + text (URL inside text)
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
             try {
-                await navigator.share({
-                    files: [file],
-                    title: 'ReturnTruck Listing',
-                    text: msg
-                });
+                // If text was already shared, send image WITHOUT text (cleaner 2-message layout)
+                // If text share failed, include the msg as caption to be safe.
+                const imageSharePayload = textShared
+                    ? { files: [file], title: shareTitle }
+                    : { files: [file], title: shareTitle, text: msg };
+
+                await navigator.share(imageSharePayload);
                 return;
             } catch (err) {
                 if (err.name === 'AbortError') return;
-                console.warn('Combined share failed, trying text-only:', err);
+                console.warn('Image share failed:', err);
             }
         }
 
-        // Try Web Share API text-only
-        if (navigator.share) {
-            try {
-                await navigator.share({ title: 'ReturnTruck Listing', text: msg });
-                return;
-            } catch (err) {
-                if (err.name === 'AbortError') return;
-                console.warn('Web Share failed, falling back to WhatsApp:', err);
-            }
-        }
+        // Fallback: download image + open WhatsApp with the text
+        if (!textShared) {
+            // Trigger image download
+            const url = URL.createObjectURL(file);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 3000);
 
-        // Fallback: WhatsApp URL scheme (text only — user can attach image manually from download)
-        window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+            setTimeout(() => {
+                window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+            }, 600);
+
+            toast('📸 Image downloaded. Attach it in WhatsApp — the details are pre-filled.');
+        } else {
+            // Text already sent — just download image so user can forward it
+            const url = URL.createObjectURL(file);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 3000);
+            toast('📸 Image downloaded — forward it to the same chat.');
+        }
 
     } catch (err) {
         console.error('Share error:', err);
-        // Final fallback: text-only share
-        window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+        // Final fallback
+        if (!textShared) {
+            window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+        }
     }
 }
 
 // ============================================================
-// SHARE IMAGE (WhatsApp-friendly canvas)
+// RENDER SHARE IMAGE (dynamic per listing with poster details)
 // ============================================================
 async function renderShareImage(data, vehicleData) {
     const W = 900;
@@ -2124,11 +2167,19 @@ async function renderShareImage(data, vehicleData) {
             rows.push({ label: '⚖️ MAX WEIGHT', value: formatIndianNumber(vehicleData.max_weight || 0) + ' Kg' });
         }
         if (data.available_date) rows.push({ label: '📅 AVAILABLE FROM', value: new Date(data.available_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) });
+        if (data.user && data.user.preferred_routes && data.user.preferred_routes.length > 0) {
+            const routeNames = data.user.preferred_routes.map(r => { const loc = getLoc(r); return loc ? loc.name : r; }).join(', ');
+            rows.push({ label: '🗺️ OPERATING ROUTES', value: routeNames });
+        }
     } else {
         const u = data.user || {};
         rows.push({ label: '🏢 COMPANY', value: u.company_name || 'N/A' });
         rows.push({ label: '📍 LOCATION', value: u.location ? getLocName(u.location) : 'N/A' });
         rows.push({ label: '📞 CONTACT', value: u.mobile ? '+91 ' + u.mobile : 'N/A' });
+        if (u.preferred_routes && u.preferred_routes.length > 0) {
+            const routeNames = u.preferred_routes.map(r => { const loc = getLoc(r); return loc ? loc.name : r; }).join(', ');
+            rows.push({ label: '🗺️ OPERATING ROUTES', value: routeNames });
+        }
     }
 
     let hasInstructions = false, instructionText = '';
@@ -2181,7 +2232,7 @@ async function renderShareImage(data, vehicleData) {
     ctx.fill();
     ctx.restore();
 
-    // Header text
+    // Header text — DYNAMIC poster details
     const postedBy = data.user ? (data.user.company_name || data.user.name || 'User') : 'User';
     const postedLoc = data.user && data.user.location ? getLocName(data.user.location) : '';
     ctx.fillStyle = '#ffffff';
@@ -2259,7 +2310,6 @@ async function renderShareImage(data, vehicleData) {
     return canvas;
 }
 
-// Helper: rounded rect
 function roundRect(ctx, x, y, w, h, r) {
     if (w < 2 * r) r = w / 2;
     if (h < 2 * r) r = h / 2;
@@ -2272,7 +2322,6 @@ function roundRect(ctx, x, y, w, h, r) {
     ctx.closePath();
 }
 
-// Helper: wrap text
 function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
     const words = String(text).split(' ');
     let line = '', lineY = y;
@@ -2727,7 +2776,7 @@ function refreshUserData(callback) {
 }
 
 // ============================================================
-// PUBLISH LOAD (INSERT or UPDATE)
+// PUBLISH LOAD
 // ============================================================
 function publishLoad() {
     if (!user) { toast('Please login first'); return; }
@@ -2782,14 +2831,9 @@ function publishLoad() {
     const isEditing = (editingLoadId !== null);
 
     if (isEditing) {
-        console.log('📤 UPDATE active_loads id=' + editingLoadId + ' payload:', loadData);
         sb.from('active_loads').update(loadData).eq('id', editingLoadId)
             .then(res => {
-                if (res.error) {
-                    console.error('❌ Update error:', res.error);
-                    alert('Error: ' + res.error.message);
-                    return;
-                }
+                if (res.error) { alert('Error: ' + res.error.message); return; }
                 editingLoadId = null;
                 toast('✅ Load updated successfully!');
                 goHome();
@@ -2800,14 +2844,9 @@ function publishLoad() {
         loadData.interests = [];
         loadData.shares = 0;
         loadData.created_at = new Date().toISOString();
-        console.log('📤 INSERT active_loads payload:', loadData);
         sb.from('active_loads').insert(loadData)
             .then(res => {
-                if (res.error) {
-                    console.error('❌ Insert error:', res.error);
-                    alert('Error: ' + res.error.message);
-                    return;
-                }
+                if (res.error) { alert('Error: ' + res.error.message); return; }
                 toast('✅ Load published successfully!');
                 goHome();
             }).catch(err => { console.error('❌ Exception:', err); alert('Error: ' + err.message); });
@@ -2815,7 +2854,7 @@ function publishLoad() {
 }
 
 // ============================================================
-// PUBLISH TRUCK (INSERT or UPDATE)
+// PUBLISH TRUCK
 // ============================================================
 function publishTruck() {
     if (!user) { toast('Please login first'); return; }
@@ -2861,10 +2900,9 @@ function publishTruck() {
             };
 
             if (isEditing) {
-                console.log('📤 UPDATE active_trucks id=' + editingTruckId + ' payload:', truckData);
                 sb.from('active_trucks').update(truckData).eq('id', editingTruckId)
                     .then(res => {
-                        if (res.error) { console.error('❌ Update error:', res.error); alert('Error: ' + res.error.message); return; }
+                        if (res.error) { alert('Error: ' + res.error.message); return; }
                         editingTruckId = null;
                         toast('✅ Truck updated successfully!');
                         goHome();
@@ -2876,10 +2914,9 @@ function publishTruck() {
                 truckData.interested = [];
                 truckData.expires_at = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
                 truckData.created_at = new Date().toISOString();
-                console.log('📤 INSERT active_trucks payload:', truckData);
                 sb.from('active_trucks').insert(truckData)
                     .then(res => {
-                        if (res.error) { console.error('❌ Insert error:', res.error); alert('Error: ' + res.error.message); return; }
+                        if (res.error) { alert('Error: ' + res.error.message); return; }
                         toast('✅ Truck listed successfully!');
                         goHome();
                     }).catch(err => { console.error('❌ Exception:', err); alert('Error: ' + err.message); });
@@ -3037,7 +3074,7 @@ async function editTruck(id) {
 }
 
 // ============================================================
-// MY LOADS / MY TRUCKS (with Edit button)
+// MY LOADS / MY TRUCKS
 // ============================================================
 function loadMyLoads() {
     if (!user) return;
