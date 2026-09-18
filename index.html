@@ -176,8 +176,6 @@ body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:cente
 .btn-endorse{background:#8b5cf6}.btn-endorse:hover{background:#7c3aed}
 .btn-flag{background:#ef4444}.btn-flag:hover{background:#dc2626}
 .btn-share{background:#25D366}.btn-share:hover{background:#1da851}
-.express-interest-btn{width:100%;padding:12px;background:#8b5cf6;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;box-shadow:0 2px 8px rgba(139,92,246,.3);transition:all .2s}
-.express-interest-btn:active{transform:scale(0.97)}
 .guest-banner{flex-shrink:0;background:linear-gradient(135deg,#2563eb,#6c5ce7);color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;border:1px solid rgba(255,255,255,0.08)}
 .guest-banner.hidden{display:none}
 .guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px;transition:all 0.2s}
@@ -244,8 +242,6 @@ textarea.form-control:focus{background:#f8fafc !important;box-shadow:0 0 0 3px r
 .list-item .actions .edit:hover { background: #bfdbfe; }
 .list-item .actions .delete { background: #fef2f2; color: #991b1b; }
 .list-item .actions .delete:hover { background: #fee2e2; }
-.list-item .actions .interests { background: #fef3c7; color: #92400e; font-size: 10px; }
-.list-item .actions .interests:hover { background: #fde68a; }
 .status-badge { font-size: 10px; padding: 2px 10px; border-radius: 10px; font-weight: 600; display: inline-block; }
 .count-badge { background: #2563eb; color: #fff; font-size: 11px; border-radius: 10px; padding: 1px 8px; margin-left: 4px; }
 .route-tag { background: #f1f5f9; padding: 5px 12px; border-radius: 6px; font-size: 13px; display: inline-block; margin: 2px; color: #475569; }
@@ -928,7 +924,7 @@ function updateAvatarInitials() {
 }
 
 // ============================================================
-// RENDER FEED
+// RENDER FEED — Stats: Views | Calls | Endorsements | Flags
 // ============================================================
 async function renderFeed() {
     try {
@@ -946,10 +942,10 @@ async function renderFeed() {
                 from_loc: fromLoc, to_loc: toLoc,
                 weight: l.weight || 0, vehicle: vehicleTypeName(l.vehicle_type_id),
                 vehicle_type_id: l.vehicle_type_id, material_id: l.material_id,
-                views: l.views || 0, rate: l.rate || 0,
-                interests: (l.interests || []).length, shares: l.shares || 0,
-                id: l.id, mobile: l.mobile,
+                views: l.views || 0, calls: l.calls || 0,
                 endorsements: l.endorsements || 0, flags: l.flags || 0,
+                rate: l.rate || 0,
+                id: l.id, mobile: l.mobile,
                 pickup_date: l.pickup_date, instructions: l.instructions, dimensions: l.dimensions
             });
         });
@@ -959,10 +955,10 @@ async function renderFeed() {
                 type: 'TRUCK', title: t.truck_no || 'Truck', company: t.company || '',
                 from_pin: t.location_pin, to_pin: null, from_loc: loc, to_loc: null,
                 vehicle: 'Truck', vehicle_type_id: t.vehicle_type_id,
-                views: t.views || 0, rate: t.rate || 0,
-                interests: (t.interested || []).length, shares: t.share || 0,
-                id: t.id, mobile: t.mobile,
+                views: t.views || 0, calls: t.calls || 0,
                 endorsements: t.endorsements || 0, flags: t.flags || 0,
+                rate: t.rate || 0,
+                id: t.id, mobile: t.mobile,
                 truck_no: t.truck_no, available_date: t.available_date, other_details: t.other_details
             });
         });
@@ -977,11 +973,12 @@ async function renderFeed() {
                 items.push({
                     type: 'AGENT', title: u.company_name || u.name || 'Agent', company: u.company_name || '',
                     from_pin: u.location, to_pin: null, from_loc: loc, to_loc: null,
-                    vehicle: 'Agent', views: 0, rate: 0, interests: 0, shares: 0,
+                    vehicle: 'Agent', views: 0, calls: 0,
+                    endorsements: u.endorsements || 0, flags: u.flags || 0,
+                    rate: 0,
                     id: u.mobile, mobile: u.mobile, user: u,
                     loads_count: loadCount, trucks_count: truckCount,
-                    rating: u.rating || '4.8',
-                    endorsements: u.endorsements || 0, flags: u.flags || 0, name: u.name
+                    name: u.name
                 });
             }
         });
@@ -1061,9 +1058,9 @@ async function renderFeed() {
                 '<div class="meta">' + stats + '</div>' +
                 '<div class="stats-row">' +
                     '<span>👁️ <span class="val">' + (i.views || 0) + '</span></span>' +
+                    '<span>📞 <span class="val">' + (i.calls || 0) + '</span></span>' +
                     '<span>⭐ <span class="val">' + (i.endorsements || 0) + '</span></span>' +
                     '<span>🚩 <span class="val">' + (i.flags || 0) + '</span></span>' +
-                    '<span>🤝 <span class="val">' + (i.interests || 0) + '</span></span>' +
                 '</div></div>';
         }).join('');
     } catch (e) {
@@ -1721,7 +1718,7 @@ function openDetail(type, id) {
                 }
                 const { data: userData } = await sb.from('active_users').select('*').eq('mobile', r.data.mobile).single();
                 detail.user = userData;
-                // IMPORTANT: endorsement count is read from the LISTING record (not the user)
+                // endorcement count from the listing record
                 detail.endorsements = r.data.endorsements || 0;
                 detail.flags = r.data.flags || 0;
                 switchPage('detail-page'); renderDetailView(detail);
@@ -1908,7 +1905,6 @@ function renderAgentDetail(agent) {
         ${renderActionButtons(agent)}`;
 }
 function renderActionButtons(item) {
-    const isOwner = user && item.mobile && user.mobile == item.mobile;
     const mobileNum = item.mobile || '';
     const itemId = item.id || '';
     const type = item.type || 'LOAD';
@@ -1917,65 +1913,94 @@ function renderActionButtons(item) {
         <button class="btn-endorse" onclick="handleEndorse('${itemId}','${type}')"><span class="act-icon">⭐</span>Endorse</button>
         <button class="btn-flag" onclick="handleFlag('${itemId}','${type}')"><span class="act-icon">🚩</span>Flag</button>
         <button class="btn-share" onclick="handleShareClick()"><span class="act-icon">↗️</span>Share</button>
-    </div>${!isOwner ? `<button class="express-interest-btn" onclick="expressInterest('${itemId}','${type}')">🔒 Express Interest</button>` : ''}`;
+    </div>`;
 }
-function makeCall(mobile) { if (mobile) window.location.href = 'tel:' + mobile; else toast('Phone number not available'); }
+function makeCall(mobile) {
+    if (mobile) {
+        // Also increment call count
+        if (detail && detail.id) {
+            const table = detail.type === 'LOAD' ? 'active_loads' : (detail.type === 'TRUCK' ? 'active_trucks' : null);
+            if (table) {
+                sb.from(table).select('calls').eq('id', detail.id).single()
+                    .then(r => {
+                        if (r.data) {
+                            sb.from(table).update({ calls: (r.data.calls || 0) + 1 }).eq('id', detail.id).then(() => {});
+                        }
+                    });
+            }
+        }
+        window.location.href = 'tel:' + mobile;
+    } else toast('Phone number not available');
+}
+
+// ENDORSE BUTTON → increments endorsements only
 function handleEndorse(id, type) {
     if (!user) { toast('Please login first to endorse'); return; }
     if (id === 'undefined' || !id) { toast('Cannot endorse this item'); return; }
-    const table = type === 'LOAD' ? 'active_loads' : (type === 'TRUCK' ? 'active_trucks' : 'active_users');
+
     if (type === 'AGENT') {
         sb.from('active_users').select('endorsements').eq('mobile', parseInt(id, 10)).single()
-            .then(r => { if (r.data) { sb.from('active_users').update({ endorsements: (r.data.endorsements || 0) + 1 }).eq('mobile', parseInt(id, 10)).then(() => { toast('✅ Endorsed successfully!'); openDetail(type, id); }); } });
+            .then(r => {
+                if (r.data) {
+                    const newCount = (r.data.endorsements || 0) + 1;
+                    sb.from('active_users').update({ endorsements: newCount }).eq('mobile', parseInt(id, 10))
+                        .then(() => {
+                            toast('✅ Endorsed successfully!');
+                            openDetail(type, id);
+                        });
+                }
+            }).catch(err => { console.error(err); toast('Error endorsing'); });
         return;
     }
+
+    const table = type === 'LOAD' ? 'active_loads' : 'active_trucks';
     sb.from(table).select('endorsements').eq('id', id).single()
-        .then(r => { if (r.data) { sb.from(table).update({ endorsements: (r.data.endorsements || 0) + 1 }).eq('id', id).then(() => { toast('✅ Endorsed successfully!'); openDetail(type, id); }); } });
+        .then(r => {
+            if (r.data) {
+                const newCount = (r.data.endorsements || 0) + 1;
+                sb.from(table).update({ endorsements: newCount }).eq('id', id)
+                    .then(() => {
+                        toast('✅ Endorsed successfully!');
+                        openDetail(type, id);
+                    });
+            }
+        }).catch(err => { console.error(err); toast('Error endorsing'); });
 }
+
+// FLAG BUTTON → increments flags only
 function handleFlag(id, type) {
     if (!user) { toast('Please login first to flag'); return; }
     if (id === 'undefined' || !id) { toast('Cannot flag this item'); return; }
     if (!confirm('Are you sure you want to flag this item as inappropriate?')) return;
-    const table = type === 'LOAD' ? 'active_loads' : (type === 'TRUCK' ? 'active_trucks' : 'active_users');
+
     if (type === 'AGENT') {
         sb.from('active_users').select('flags').eq('mobile', parseInt(id, 10)).single()
-            .then(r => { if (r.data) { sb.from('active_users').update({ flags: (r.data.flags || 0) + 1 }).eq('mobile', parseInt(id, 10)).then(() => { toast('✅ Flag reported successfully'); openDetail(type, id); }); } });
+            .then(r => {
+                if (r.data) {
+                    const newCount = (r.data.flags || 0) + 1;
+                    sb.from('active_users').update({ flags: newCount }).eq('mobile', parseInt(id, 10))
+                        .then(() => { toast('✅ Flag reported successfully'); openDetail(type, id); });
+                }
+            });
         return;
     }
+
+    const table = type === 'LOAD' ? 'active_loads' : 'active_trucks';
     sb.from(table).select('flags').eq('id', id).single()
-        .then(r => { if (r.data) { sb.from(table).update({ flags: (r.data.flags || 0) + 1 }).eq('id', id).then(() => { toast('✅ Flag reported successfully'); openDetail(type, id); }); } });
-}
-function expressInterest(id, type) {
-    if (!user) { toast('Please login first to express interest'); return; }
-    const table = type === 'LOAD' ? 'active_loads' : (type === 'TRUCK' ? 'active_trucks' : 'active_users');
-    const field = type === 'LOAD' ? 'interests' : (type === 'TRUCK' ? 'interested' : 'endorsements');
-    sb.from(table).select(field).eq('id', id).single()
         .then(r => {
             if (r.data) {
-                let interests = r.data[field] || [];
-                if (!Array.isArray(interests)) interests = [];
-                const myMobile = parseInt(user.mobile, 10);
-                if (interests.includes(myMobile)) { toast('You already expressed interest'); return; }
-                interests.push(myMobile);
-                sb.from(table).update({ [field]: interests }).eq('id', id)
-                    .then(() => { toast('✅ Interest expressed successfully!'); openDetail(type, id); });
+                const newCount = (r.data.flags || 0) + 1;
+                sb.from(table).update({ flags: newCount }).eq('id', id)
+                    .then(() => { toast('✅ Flag reported successfully'); openDetail(type, id); });
             }
         });
 }
-function updateStats(item) {
-    if (!item || !item.id) return;
-    const table = item.type === 'LOAD' ? 'active_loads' : 'active_trucks';
-    sb.from(table).update({ views: (item.views || 0) + 1 }).eq('id', item.id).then(() => {});
-}
 
-// ============================================================
-// SHARE — increments endorsement + opens native share
-// ============================================================
+// SHARE BUTTON → increments endorsements + opens native share
 async function handleShareClick() {
     if (!detail) { toast('No details to share'); return; }
 
-    // ---------- STEP 1: Increment endorsement count ----------
-    // Both Share and Endorse buttons increment the same endorsements counter
+    // STEP 1: Increment endorsements (+1)
     try {
         if (detail.type === 'AGENT') {
             const r = await sb.from('active_users').select('endorsements').eq('mobile', parseInt(detail.id, 10)).single();
@@ -2001,7 +2026,7 @@ async function handleShareClick() {
         console.warn('Could not increment endorsement count on share:', e);
     }
 
-    // ---------- STEP 2: Build text message ----------
+    // STEP 2: Build share text
     const sep = '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬';
     const fmtLabel = (label, width) => {
         const padded = label + ' '.repeat(Math.max(0, width - label.length));
@@ -2075,7 +2100,7 @@ async function handleShareClick() {
     const shareUrl = 'https://returntruck-pwa.vercel.app/?listing=' + detail.type + '_' + detail.id;
     msg += `\n🔗 *Tap for full details:*\n${shareUrl}`;
 
-    // ---------- STEP 3: Generate image ----------
+    // STEP 3: Generate image
     let truckVehicleDetails = null;
     if (detail.type === 'TRUCK' && detail.truck_no) {
         try {
@@ -2095,14 +2120,10 @@ async function handleShareClick() {
         console.error('Canvas generation failed:', e);
     }
 
-    // ---------- STEP 4: Open native share ----------
+    // STEP 4: Open native share
     if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
-            await navigator.share({
-                files: [file],
-                title: shareTitle,
-                text: msg
-            });
+            await navigator.share({ files: [file], title: shareTitle, text: msg });
             return;
         } catch (err) {
             if (err.name === 'AbortError') return;
@@ -2687,8 +2708,6 @@ function publishLoad() {
     } else {
         loadData.views = 0;
         loadData.calls = 0;
-        loadData.interests = [];
-        loadData.shares = 0;
         loadData.endorsements = 0;
         loadData.flags = 0;
         loadData.created_at = new Date().toISOString();
@@ -2756,10 +2775,8 @@ function publishTruck() {
                         goHome();
                     }).catch(err => { console.error('❌ Exception:', err); alert('Error: ' + err.message); });
             } else {
-                truckData.share = 0;
                 truckData.calls = 0;
                 truckData.views = 0;
-                truckData.interested = [];
                 truckData.endorsements = 0;
                 truckData.flags = 0;
                 truckData.expires_at = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
@@ -2940,15 +2957,10 @@ function loadMyLoads() {
             }
             count.textContent = loads.length;
             container.innerHTML = loads.map(l => {
-                const interests = l.interests || [];
-                let interestHtml = '';
-                if (interests.length > 0) interestHtml = '<div style="font-size:12px;color:#64748b;margin-top:4px;">🤝 Interested: ' + interests.join(', ') + '</div>';
                 return '<div class="list-item">' +
                     '<div class="title">' + materialName(l.material_id) + ' • ' + getLocName(l.pickup_pin) + ' → ' + getLocName(l.drop_pin) + '</div>' +
                     '<div class="sub"> ₹' + formatIndianNumber(l.rate || 0) + ' • ⚖️ ' + formatIndianNumber(l.weight || 0) + ' Kg • 🚛 ' + vehicleTypeName(l.vehicle_type_id) + '</div>' +
-                    interestHtml +
                     '<div class="actions">' +
-                    '<button class="interests">🤝 ' + interests.length + ' Interested</button>' +
                     '<button class="edit" onclick="editLoad(\'' + l.id + '\')">✏️ Edit</button>' +
                     '<button class="delete" onclick="deleteLoadItem(\'' + l.id + '\')">🗑️ Delete</button>' +
                     '</div></div>';
@@ -2970,15 +2982,10 @@ function loadMyTrucks() {
             }
             count.textContent = trucks.length;
             container.innerHTML = trucks.map(t => {
-                const interests = t.interested || [];
-                let interestHtml = '';
-                if (interests.length > 0) interestHtml = '<div style="font-size:12px;color:#64748b;margin-top:4px;">🤝 Interested: ' + interests.join(', ') + '</div>';
                 return '<div class="list-item">' +
                     '<div class="title">' + t.truck_no + ' • 📍 ' + getLocName(t.location_pin) + '</div>' +
                     '<div class="sub"> ₹' + formatIndianNumber(t.rate || 0) + ' • 📅 ' + (t.available_date ? new Date(t.available_date).toLocaleDateString() : 'Flexible') + ' • 🚛 ' + vehicleTypeName(t.vehicle_type_id) + '</div>' +
-                    interestHtml +
                     '<div class="actions">' +
-                    '<button class="interests">🤝 ' + interests.length + ' Interested</button>' +
                     '<button class="edit" onclick="editTruck(\'' + t.id + '\')">✏️ Edit</button>' +
                     '<button class="delete" onclick="deleteTruckItem(\'' + t.id + '\')">🗑️ Delete</button>' +
                     '</div></div>';
