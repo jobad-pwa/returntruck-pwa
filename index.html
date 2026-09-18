@@ -1967,15 +1967,16 @@ function updateStats(item) {
 }
 
 // ============================================================
-// SHARE — Sends TWO separate shares: TEXT first, then IMAGE
+// SHARE — Thick separators + Image attachment
 // ============================================================
 async function handleShareClick() {
     if (!detail) { toast('No details to share'); return; }
 
-    // ---------- BUILD TEXT MESSAGE WITH SOLID-LINE SEPARATORS ----------
+    // ---------- Build aligned text message with THICK separators ----------
+    // Using ▬ (U+25AC BLACK RECTANGLE) — renders as a thick solid bar in WhatsApp
     const pad = (label, width) => label + ' '.repeat(Math.max(0, width - label.length));
     const LABEL_WIDTH = 10;
-    const sep = '━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
+    const sep = '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬';
 
     let msg = '';
     let shareTitle = '';
@@ -2041,9 +2042,9 @@ async function handleShareClick() {
     }
 
     const shareUrl = 'https://returntruck-pwa.vercel.app/?listing=' + detail.type + '_' + detail.id;
-    msg += `\n🔗 *Tap for full details:*\n${shareUrl}\n${sep}`;
+    msg += `\n🔗 *Tap for full details:*\n${shareUrl}`;
 
-    // ---------- FETCH VEHICLE DATA FOR IMAGE ----------
+    // ---------- Fetch vehicle data for image ----------
     let truckVehicleDetails = null;
     if (detail.type === 'TRUCK' && detail.truck_no) {
         try {
@@ -2053,92 +2054,73 @@ async function handleShareClick() {
     }
     currentTruckVehicleData = truckVehicleDetails;
 
-    // ---------- SHARE FLOW ----------
-    // Strategy: Send text first, then image. On some Android versions both
-    // will work; where only one is possible, text (with URL) is prioritized.
-
-    // STEP A: Try sharing text + URL first
-    let textShared = false;
-    if (navigator.share) {
-        try {
-            await navigator.share({
-                title: shareTitle,
-                text: msg
-            });
-            textShared = true;
-        } catch (err) {
-            if (err.name === 'AbortError') {
-                // User cancelled — abort
-                return;
-            }
-            console.warn('Text share failed, trying image share only:', err);
-        }
-    }
-
-    // STEP B: Try sharing the image as a second message
+    // ---------- Generate the image ----------
+    let file = null;
     try {
         const canvas = await renderShareImage(detail, truckVehicleDetails);
         const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
         const fileName = 'returntruck-' + detail.type.toLowerCase() + '-' + detail.id + '.png';
-        const file = new File([blob], fileName, { type: 'image/png' });
+        file = new File([blob], fileName, { type: 'image/png' });
+    } catch (e) {
+        console.error('Canvas generation failed:', e);
+    }
 
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            try {
-                // If text was already shared, send image WITHOUT text (cleaner 2-message layout)
-                // If text share failed, include the msg as caption to be safe.
-                const imageSharePayload = textShared
-                    ? { files: [file], title: shareTitle }
-                    : { files: [file], title: shareTitle, text: msg };
-
-                await navigator.share(imageSharePayload);
-                return;
-            } catch (err) {
-                if (err.name === 'AbortError') return;
-                console.warn('Image share failed:', err);
-            }
+    // ---------- Share: send image + text together in one call ----------
+    // WhatsApp will show either:
+    //   (a) One message with image + caption (preferred), OR
+    //   (b) Two messages: image first, then text
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+            await navigator.share({
+                files: [file],
+                title: shareTitle,
+                text: msg
+            });
+            return;
+        } catch (err) {
+            if (err.name === 'AbortError') return;
+            console.warn('Combined share failed:', err);
         }
+    }
 
-        // Fallback: download image + open WhatsApp with the text
-        if (!textShared) {
-            // Trigger image download
+    // ---------- Fallback 1: text-only share ----------
+    if (navigator.share) {
+        try {
+            await navigator.share({ title: shareTitle, text: msg });
+            return;
+        } catch (err) {
+            if (err.name === 'AbortError') return;
+            console.warn('Text-only share failed:', err);
+        }
+    }
+
+    // ---------- Fallback 2: download image + open WhatsApp with text ----------
+    if (file) {
+        try {
             const url = URL.createObjectURL(file);
             const a = document.createElement('a');
             a.href = url;
-            a.download = fileName;
+            a.download = file.name;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             setTimeout(() => URL.revokeObjectURL(url), 3000);
-
             setTimeout(() => {
                 window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
             }, 600);
-
             toast('📸 Image downloaded. Attach it in WhatsApp — the details are pre-filled.');
-        } else {
-            // Text already sent — just download image so user can forward it
-            const url = URL.createObjectURL(file);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            setTimeout(() => URL.revokeObjectURL(url), 3000);
-            toast('📸 Image downloaded — forward it to the same chat.');
-        }
-
-    } catch (err) {
-        console.error('Share error:', err);
-        // Final fallback
-        if (!textShared) {
-            window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+            return;
+        } catch (e) {
+            console.error('Download fallback failed:', e);
         }
     }
+
+    // ---------- Final fallback ----------
+    window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
 }
 
 // ============================================================
-// RENDER SHARE IMAGE (dynamic per listing with poster details)
+// SHARE IMAGE (Canvas generator with dynamic poster details)
 // ============================================================
 async function renderShareImage(data, vehicleData) {
     const W = 900;
@@ -2188,7 +2170,6 @@ async function renderShareImage(data, vehicleData) {
 
     const shareUrl = 'https://returntruck-pwa.vercel.app/?listing=' + data.type + '_' + data.id;
 
-    // Simulate text wrap for instructions
     const canvasSim = document.createElement('canvas');
     const ctxSim = canvasSim.getContext('2d');
     ctxSim.font = '30px system-ui, sans-serif';
@@ -2213,14 +2194,12 @@ async function renderShareImage(data, vehicleData) {
     canvas.width = W; canvas.height = H;
     const ctx = canvas.getContext('2d');
 
-    // Rounded background
     const bgRadius = 40;
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = '#0a0a12';
     roundRect(ctx, 0, 0, W, H, bgRadius);
     ctx.fill();
 
-    // Header gradient
     const grad = ctx.createLinearGradient(0, 0, W, 220);
     grad.addColorStop(0, '#1e3a8a');
     grad.addColorStop(1, '#2563eb');
@@ -2232,7 +2211,6 @@ async function renderShareImage(data, vehicleData) {
     ctx.fill();
     ctx.restore();
 
-    // Header text — DYNAMIC poster details
     const postedBy = data.user ? (data.user.company_name || data.user.name || 'User') : 'User';
     const postedLoc = data.user && data.user.location ? getLocName(data.user.location) : '';
     ctx.fillStyle = '#ffffff';
@@ -2246,7 +2224,6 @@ async function renderShareImage(data, vehicleData) {
         ctx.fillText('📍 ' + postedLoc, 50, 215);
     }
 
-    // Badge + Title
     let title = '', badge = '';
     if (data.type === 'LOAD') { title = materialName(data.material_id); badge = 'LOAD AVAILABLE'; }
     else if (data.type === 'TRUCK') { title = data.truck_no || 'Truck'; badge = 'TRUCK AVAILABLE'; }
@@ -2263,7 +2240,6 @@ async function renderShareImage(data, vehicleData) {
     ctx.font = 'bold 64px system-ui, -apple-system, sans-serif';
     wrapText(ctx, title, 50, 420, W - 100, 75);
 
-    // Rows box
     let y = 520;
     const boxY = y;
     const boxH = rows.length * rowHeight + 40;
@@ -2281,7 +2257,6 @@ async function renderShareImage(data, vehicleData) {
         y += rowHeight;
     });
 
-    // Instructions box
     let currentY = boxY + boxH + 30;
     if (hasInstructions) {
         ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
@@ -2296,7 +2271,6 @@ async function renderShareImage(data, vehicleData) {
         currentY += instructionBoxHeight + 30;
     }
 
-    // CTA box
     ctx.fillStyle = '#1e40af';
     roundRect(ctx, 50, currentY, W - 100, ctaBoxHeight, 20);
     ctx.fill();
