@@ -1967,16 +1967,22 @@ function updateStats(item) {
 }
 
 // ============================================================
-// SHARE — Thick separators + Image attachment
+// SHARE — Thick separators + compact image
 // ============================================================
 async function handleShareClick() {
     if (!detail) { toast('No details to share'); return; }
 
-    // ---------- Build aligned text message with THICK separators ----------
-    // Using ▬ (U+25AC BLACK RECTANGLE) — renders as a thick solid bar in WhatsApp
-    const pad = (label, width) => label + ' '.repeat(Math.max(0, width - label.length));
-    const LABEL_WIDTH = 10;
-    const sep = '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬';
+    // ---------- Build text message with THICK separators ----------
+    // ▬ (U+25AC BLACK RECTANGLE) renders as thick solid bar in WhatsApp
+    // Bold labels: asterisks IMMEDIATELY touch text (no space inside)
+    // Padding for alignment placed AFTER closing asterisk
+    const sep = '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬';
+    // Pad the label (WITHOUT asterisks) to a fixed width, then wrap in bold markers
+    const fmtLabel = (label, width) => {
+        const padded = label + ' '.repeat(Math.max(0, width - label.length));
+        return '*' + padded + '*';
+    };
+    const LABEL_WIDTH = 9;
 
     let msg = '';
     let shareTitle = '';
@@ -1996,14 +2002,14 @@ async function handleShareClick() {
 
         msg  = `${sep}\n`;
         msg += `🚛 *LOAD AVAILABLE*\n`;
-        msg += `${sep}\n\n`;
-        msg += `*${pad('Material', LABEL_WIDTH)}* : ${materialName(detail.material_id)}\n`;
-        msg += `*${pad('Vehicle', LABEL_WIDTH)}* : ${vehicleTypeName(detail.vehicle_type_id)}\n`;
-        msg += `*${pad('Weight', LABEL_WIDTH)}* : ${weightStr} ${dimStr}\n`;
-        msg += `*${pad('From', LABEL_WIDTH)}* : ${fromStr}\n`;
-        msg += `*${pad('To', LABEL_WIDTH)}* : ${toStr}\n`;
-        msg += `*${pad('Rate', LABEL_WIDTH)}* : ${rateStr}\n`;
-        msg += `*${pad('Date', LABEL_WIDTH)}* : ${dateStr}\n\n`;
+        msg += `${sep}\n`;
+        msg += `${fmtLabel('Material', LABEL_WIDTH)} : ${materialName(detail.material_id)}\n`;
+        msg += `${fmtLabel('Vehicle', LABEL_WIDTH)} : ${vehicleTypeName(detail.vehicle_type_id)}\n`;
+        msg += `${fmtLabel('Weight', LABEL_WIDTH)} : ${weightStr} ${dimStr}\n`;
+        msg += `${fmtLabel('From', LABEL_WIDTH)} : ${fromStr}\n`;
+        msg += `${fmtLabel('To', LABEL_WIDTH)} : ${toStr}\n`;
+        msg += `${fmtLabel('Rate', LABEL_WIDTH)} : ${rateStr}\n`;
+        msg += `${fmtLabel('Date', LABEL_WIDTH)} : ${dateStr}\n`;
         msg += `${sep}\n`;
 
         shareTitle = 'ReturnTruck - ' + materialName(detail.material_id);
@@ -2018,12 +2024,12 @@ async function handleShareClick() {
 
         msg  = `${sep}\n`;
         msg += `🚛 *TRUCK AVAILABLE*\n`;
-        msg += `${sep}\n\n`;
-        msg += `*${pad('Vehicle', LABEL_WIDTH)}* : ${detail.truck_no || 'Truck'}\n`;
-        msg += `*${pad('Type', LABEL_WIDTH)}* : ${vehicleTypeName(detail.vehicle_type_id)}\n`;
-        msg += `*${pad('Location', LABEL_WIDTH)}* : ${locStr}\n`;
-        msg += `*${pad('Rate', LABEL_WIDTH)}* : ${rateStr}\n`;
-        msg += `*${pad('Date', LABEL_WIDTH)}* : ${dateStr}\n\n`;
+        msg += `${sep}\n`;
+        msg += `${fmtLabel('Vehicle', LABEL_WIDTH)} : ${detail.truck_no || 'Truck'}\n`;
+        msg += `${fmtLabel('Type', LABEL_WIDTH)} : ${vehicleTypeName(detail.vehicle_type_id)}\n`;
+        msg += `${fmtLabel('Location', LABEL_WIDTH)} : ${locStr}\n`;
+        msg += `${fmtLabel('Rate', LABEL_WIDTH)} : ${rateStr}\n`;
+        msg += `${fmtLabel('Date', LABEL_WIDTH)} : ${dateStr}\n`;
         msg += `${sep}\n`;
 
         shareTitle = 'ReturnTruck - ' + (detail.truck_no || 'Truck');
@@ -2032,10 +2038,10 @@ async function handleShareClick() {
         const u = detail.user || {};
         msg  = `${sep}\n`;
         msg += `🤝 *AGENT PROFILE*\n`;
-        msg += `${sep}\n\n`;
-        msg += `*${pad('Company', LABEL_WIDTH)}* : ${u.company_name || u.name || 'N/A'}\n`;
-        msg += `*${pad('Location', LABEL_WIDTH)}* : ${u.location ? getLocName(u.location) : 'N/A'}\n`;
-        msg += `*${pad('Contact', LABEL_WIDTH)}* : +91 ${u.mobile || ''}\n\n`;
+        msg += `${sep}\n`;
+        msg += `${fmtLabel('Company', LABEL_WIDTH)} : ${u.company_name || u.name || 'N/A'}\n`;
+        msg += `${fmtLabel('Location', LABEL_WIDTH)} : ${u.location ? getLocName(u.location) : 'N/A'}\n`;
+        msg += `${fmtLabel('Contact', LABEL_WIDTH)} : +91 ${u.mobile || ''}\n`;
         msg += `${sep}\n`;
 
         shareTitle = 'ReturnTruck - ' + (u.company_name || u.name || 'Agent');
@@ -2054,7 +2060,7 @@ async function handleShareClick() {
     }
     currentTruckVehicleData = truckVehicleDetails;
 
-    // ---------- Generate the image ----------
+    // ---------- Generate the compact branded banner ----------
     let file = null;
     try {
         const canvas = await renderShareImage(detail, truckVehicleDetails);
@@ -2065,10 +2071,7 @@ async function handleShareClick() {
         console.error('Canvas generation failed:', e);
     }
 
-    // ---------- Share: send image + text together in one call ----------
-    // WhatsApp will show either:
-    //   (a) One message with image + caption (preferred), OR
-    //   (b) Two messages: image first, then text
+    // ---------- Share: image + text together ----------
     if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
             await navigator.share({
@@ -2120,33 +2123,24 @@ async function handleShareClick() {
 }
 
 // ============================================================
-// SHARE IMAGE (Canvas generator with dynamic poster details)
-// ============================================================
-// ============================================================
-// SHARE IMAGE — Branded banner only (poster signature card)
+// RENDER SHARE IMAGE — Compact branded banner (160px tall)
 // ============================================================
 async function renderShareImage(data, vehicleData) {
-    // Small banner dimensions
+    // Compact banner — only ReturnTruck branding + poster details
     const W = 900;
-    const H = 220;
+    const H = 160;
 
     const canvas = document.createElement('canvas');
     canvas.width = W;
     canvas.height = H;
     const ctx = canvas.getContext('2d');
 
-    // Rounded blue gradient background
-    const bgRadius = 30;
-    ctx.clearRect(0, 0, W, H);
-
-    // Gradient header (same blue as brand)
+    // Blue gradient background (no rounded corners for flush look)
     const grad = ctx.createLinearGradient(0, 0, W, H);
     grad.addColorStop(0, '#1e3a8a');
     grad.addColorStop(1, '#2563eb');
-
-    roundRect(ctx, 0, 0, W, H, bgRadius);
     ctx.fillStyle = grad;
-    ctx.fill();
+    ctx.fillRect(0, 0, W, H);
 
     // Poster details — DYNAMIC per listing
     const postedBy = data.user
@@ -2158,51 +2152,22 @@ async function renderShareImage(data, vehicleData) {
 
     // App branding row
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 52px system-ui, -apple-system, sans-serif';
-    ctx.fillText('🚛 ReturnTruck', 40, 95);
+    ctx.font = 'bold 48px system-ui, -apple-system, sans-serif';
+    ctx.fillText('🚛 ReturnTruck', 30, 75);
 
     // Posted by line
-    ctx.font = '500 28px system-ui, -apple-system, sans-serif';
+    ctx.font = '500 24px system-ui, -apple-system, sans-serif';
     ctx.fillStyle = 'rgba(255,255,255,0.92)';
-    ctx.fillText('Posted by: ' + postedBy, 40, 145);
+    ctx.fillText('Posted by: ' + postedBy, 30, 115);
 
     // Location line
     if (postedLoc) {
-        ctx.font = '400 24px system-ui, -apple-system, sans-serif';
+        ctx.font = '400 20px system-ui, -apple-system, sans-serif';
         ctx.fillStyle = 'rgba(255,255,255,0.78)';
-        ctx.fillText('📍 ' + postedLoc, 40, 190);
+        ctx.fillText('📍 ' + postedLoc, 30, 145);
     }
 
     return canvas;
-}
-
-function roundRect(ctx, x, y, w, h, r) {
-    if (w < 2 * r) r = w / 2;
-    if (h < 2 * r) r = h / 2;
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.arcTo(x + w, y, x + w, y + h, r);
-    ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r);
-    ctx.arcTo(x, y, x + w, y, r);
-    ctx.closePath();
-}
-
-function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-    const words = String(text).split(' ');
-    let line = '', lineY = y;
-    for (let n = 0; n < words.length; n++) {
-        const testLine = line + words[n] + ' ';
-        const metrics = ctx.measureText(testLine);
-        if (metrics.width > maxWidth && n > 0) {
-            ctx.fillText(line.trim(), x, lineY);
-            line = words[n] + ' ';
-            lineY += lineHeight;
-        } else {
-            line = testLine;
-        }
-    }
-    ctx.fillText(line.trim(), x, lineY);
 }
 
 // ============================================================
