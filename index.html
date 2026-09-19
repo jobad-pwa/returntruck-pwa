@@ -168,14 +168,16 @@ body{background:#ffffff;margin:0;padding:16px;display:flex;justify-content:cente
 .stat-item .stat-icon{font-size:18px;display:block}
 .stat-item .stat-number{font-size:16px;font-weight:700;color:#0f172a;display:block;margin-top:2px}
 .stat-item .stat-label{font-size:8px;color:#64748b;font-weight:600;text-transform:uppercase;margin-top:2px;display:block}
-.action-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.action-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
 .action-grid button{width:100%;padding:8px 4px;border-radius:8px;font-weight:600;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:10px;cursor:pointer;transition:all .2s;box-shadow:0 2px 4px rgba(0,0,0,.2)}
 .action-grid button:active{transform:scale(0.95)}
 .action-grid button .act-icon{font-size:18px;display:block;margin-bottom:1px}
 .btn-call{background:#16a34a}.btn-call:hover{background:#15803d}
-.btn-endorse{background:#8b5cf6}.btn-endorse:hover{background:#7c3aed}
 .btn-flag{background:#ef4444}.btn-flag:hover{background:#dc2626}
 .btn-share{background:#25D366}.btn-share:hover{background:#1da851}
+.btn-express{width:100%;padding:14px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:8px;box-shadow:0 4px 12px rgba(139,92,246,0.3);transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-express:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(139,92,246,0.4)}
+.btn-express:active{transform:scale(0.98)}
 .guest-banner{flex-shrink:0;background:linear-gradient(135deg,#2563eb,#6c5ce7);color:#fff;padding:8px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;border:1px solid rgba(255,255,255,0.08)}
 .guest-banner.hidden{display:none}
 .guest-banner .btn-login{background:#fff;color:#2563eb;border:none;padding:4px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px;transition:all 0.2s}
@@ -242,6 +244,9 @@ textarea.form-control:focus{background:#f8fafc !important;box-shadow:0 0 0 3px r
 .list-item .actions .edit:hover { background: #bfdbfe; }
 .list-item .actions .delete { background: #fef2f2; color: #991b1b; }
 .list-item .actions .delete:hover { background: #fee2e2; }
+.list-item .stats-row-profile { margin-top: 8px; padding-top: 8px; border-top: 1px solid #e8ecf0; display: flex; gap: 12px; font-size: 12px; color: #475569; }
+.list-item .stats-row-profile span { cursor: pointer; display: flex; align-items: center; gap: 3px; padding: 2px 6px; border-radius: 4px; background: #f1f5f9; transition: background 0.2s; }
+.list-item .stats-row-profile span:hover { background: #e2e8f0; }
 .status-badge { font-size: 10px; padding: 2px 10px; border-radius: 10px; font-weight: 600; display: inline-block; }
 .count-badge { background: #2563eb; color: #fff; font-size: 11px; border-radius: 10px; padding: 1px 8px; margin-left: 4px; }
 .route-tag { background: #f1f5f9; padding: 5px 12px; border-radius: 6px; font-size: 13px; display: inline-block; margin: 2px; color: #475569; }
@@ -321,6 +326,18 @@ textarea.form-control:focus{background:#f8fafc !important;box-shadow:0 0 0 3px r
 .loading-overlay.show { display: flex; }
 .loading-overlay .loading-spinner { width: 60px; height: 60px; border: 5px solid #1e1e32; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 20px; }
 .loading-overlay .loading-text { font-size: 16px; color: #94a3b8; font-weight: 500; }
+/* Stats Modal */
+.stats-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); display: none; align-items: center; justify-content: center; z-index: 1100; }
+.stats-modal.show { display: flex; }
+.stats-modal-content { background: #ffffff; border-radius: 16px; padding: 20px; max-width: 420px; width: 90%; max-height: 75vh; display: flex; flex-direction: column; border: 1px solid #e2e8f0; }
+.stats-modal-content .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; }
+.stats-modal-content .modal-header h3 { margin: 0; font-size: 18px; color: #0f172a; }
+.stats-modal-content .modal-close { background: transparent; border: none; font-size: 24px; cursor: pointer; color: #64748b; }
+.stats-modal-content .modal-close:hover { color: #f87171; }
+.stats-user-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+.stats-user-row:last-child { border-bottom: none; }
+.stats-user-row .user-name { font-weight: 600; color: #0f172a; }
+.stats-user-row .user-mobile { color: #64748b; font-size: 13px; }
 </style>
 </head>
 <body>
@@ -657,6 +674,19 @@ textarea.form-control:focus{background:#f8fafc !important;box-shadow:0 0 0 3px r
 <!-- VEHICLE MODAL -->
 <div class="vehicle-modal" id="vehicle-modal"><div class="vehicle-modal-content"><div class="modal-header"><h3 id="modal-vehicle-title">📝 Register New Vehicle</h3><button class="modal-close" onclick="closeVehicleModal()">✕</button></div><div class="form-group"><label class="form-label">🚛 Vehicle Number (Read Only)</label><div class="readonly-number" id="modal-vehicle-number-display"></div><input type="hidden" id="modal-vehicle-number"></div><div class="form-group"><label class="form-label">🚛 Vehicle Type *</label><select class="form-control" id="modal-vehicle-type"><option value="">Select vehicle type...</option><option value="1">3-Wheeler / Tempo</option><option value="2">Mini Truck</option><option value="3">LCV Open Body Truck</option><option value="4">LCV - Container</option><option value="5">LCV - Flat bed</option><option value="6">Open Body Truck</option><option value="7">Box Body Truck</option><option value="8">Flat bed Truck</option><option value="9">Trailer - Open Body</option><option value="10">Trailer - Box Body</option><option value="11">Trailer - High Bed</option><option value="12">Trailer - Semi Low Bed</option><option value="13">Trailer - Low Bed</option><option value="14">Trailer - Automobile Carrier</option><option value="15">Tipper / Dumper</option><option value="16">Tanker</option><option value="17">Cement Bulker</option><option value="18">Refrigerated / Reefer</option><option value="19">Explosive / Hazardous Vehicle</option><option value="20">Over-Dimensional Cargo (ODC)</option></select></div><div class="grid-2"><div class="form-group"><label class="form-label">Length (ft)</label><input class="form-control" id="modal-length" type="number" step="0.1"></div><div class="form-group"><label class="form-label">Width (ft)</label><input class="form-control" id="modal-width" type="number" step="0.1"></div></div><div class="grid-2"><div class="form-group"><label class="form-label">Height (ft)</label><input class="form-control" id="modal-height" type="number" step="0.1"></div><div class="form-group"><label class="form-label">Max Weight (Kg)</label><input class="form-control" id="modal-max-weight" type="number" placeholder="0"></div></div><div class="form-group"><label class="form-label">📝 Description</label><input class="form-control" id="modal-description" placeholder="Vehicle description..."></div><div class="form-group"><label class="form-label">🚛 ODC Allowed</label><div style="display:flex;gap:16px;margin-top:4px"><label><input type="radio" name="modal-odc" value="true" checked> Yes</label><label><input type="radio" name="modal-odc" value="false"> No</label></div></div><button class="btn-primary success" onclick="saveVehicleModal()">💾 Save Vehicle</button><button class="btn-primary" style="background:#dc2626;margin-top:6px" onclick="deleteVehicleFromModal()">🗑️ Delete Vehicle</button><input type="hidden" id="modal-vehicle-id"><input type="hidden" id="modal-edit-mode"></div></div>
 
+<!-- STATS MODAL -->
+<div class="stats-modal" id="stats-modal">
+    <div class="stats-modal-content">
+        <div class="modal-header">
+            <h3 id="stats-modal-title">👁️ Views</h3>
+            <button class="modal-close" onclick="closeStatsModal()">✕</button>
+        </div>
+        <div id="stats-modal-body" style="overflow-y:auto;">
+            <!-- User list will be rendered here -->
+        </div>
+    </div>
+</div>
+
 <!-- DETAIL PAGE -->
 <div id="detail-page" class="hidden-page">
 <div class="header-fixed"><span class="logo" onclick="goHome()"><span class="logo-icon">🚛</span><span class="logo-text">ReturnTruck</span></span><button class="back-btn" onclick="closeDetail()">✕</button></div>
@@ -672,6 +702,7 @@ const SB_URL = 'https://ghjoffovatgvhzxlupef.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoam9mZm92YXRndmh6eGx1cGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDM4MjQsImV4cCI6MjEwMDk3OTgyNH0.bGDIHZDcLdZqJl9u5qhDm5mlGfWR3fp1sxrpwCtsDsg';
 const EDGE_URL = 'https://ghjoffovatgvhzxlupef.supabase.co/functions/v1';
 const sb = window.supabase.createClient(SB_URL, SB_KEY);
+const MAX_ARRAY_SIZE = 1000;
 
 // ============================================================
 // LOOKUP MAPS
@@ -719,11 +750,28 @@ function parseNumberFromInput(value) { return parseFloat(value.replace(/,/g, '')
 function isValidVehicleNumber(number) { return /^[A-Za-z0-9]{9,12}$/.test(number); }
 
 // ============================================================
-// HELPERS
+// ARRAY HELPERS (Stats Deduplication)
 // ============================================================
-function addUniqueToArray(array, value) { if (!array) return [value]; if (array.includes(value)) return array; return [...array, value]; }
-function removeFromArray(array, value) { if (!array) return []; return array.filter(item => item !== value); }
-function ensureUniqueArray(array) { if (!array) return []; return [...new Set(array)]; }
+function addStatEntry(currentArray, mobileOrZero) {
+    let arr = Array.isArray(currentArray) ? currentArray : [];
+    // Soft cap
+    if (arr.length >= MAX_ARRAY_SIZE) return arr;
+    // Deduplicate
+    if (arr.includes(mobileOrZero)) return arr;
+    return [...arr, mobileOrZero];
+}
+function getUniqueCount(arr) {
+    if (!Array.isArray(arr)) return 0;
+    return new Set(arr).size;
+}
+function getGuestCount(arr) {
+    if (!Array.isArray(arr)) return 0;
+    return arr.filter(x => x === 0).length;
+}
+function getNonZeroMobiles(arr) {
+    if (!Array.isArray(arr)) return [];
+    return [...new Set(arr.filter(x => x !== 0 && x !== null && x !== undefined))];
+}
 function toIntOrNull(v) { if (v === null || v === undefined || v === '') return null; const n = parseInt(v, 10); return isNaN(n) ? null : n; }
 function toStrOrNull(v) { if (v === null || v === undefined) return null; const s = String(v).trim(); return s === '' ? null : s; }
 
@@ -757,7 +805,8 @@ function dist(lat1, lng1, lat2, lng2) {
 // RATING
 // ============================================================
 function calculateRating(endorsements, flags) {
-    const end = endorsements || 0, fl = flags || 0;
+    const end = getUniqueCount(endorsements);
+    const fl = getUniqueCount(flags);
     const total = end + fl;
     if (total === 0) return { rating: 0, display: '⭐ New', stars: 0 };
     const stars = Math.round((end / total * 5) * 10) / 10;
@@ -942,8 +991,8 @@ async function renderFeed() {
                 from_loc: fromLoc, to_loc: toLoc,
                 weight: l.weight || 0, vehicle: vehicleTypeName(l.vehicle_type_id),
                 vehicle_type_id: l.vehicle_type_id, material_id: l.material_id,
-                views: l.views || 0, calls: l.calls || 0,
-                endorsements: l.endorsements || 0, flags: l.flags || 0,
+                views: getUniqueCount(l.views), calls: getUniqueCount(l.calls),
+                endorsements: getUniqueCount(l.endorsements), flags: getUniqueCount(l.flags),
                 rate: l.rate || 0,
                 id: l.id, mobile: l.mobile,
                 pickup_date: l.pickup_date, instructions: l.instructions, dimensions: l.dimensions
@@ -955,8 +1004,8 @@ async function renderFeed() {
                 type: 'TRUCK', title: t.truck_no || 'Truck', company: t.company || '',
                 from_pin: t.location_pin, to_pin: null, from_loc: loc, to_loc: null,
                 vehicle: 'Truck', vehicle_type_id: t.vehicle_type_id,
-                views: t.views || 0, calls: t.calls || 0,
-                endorsements: t.endorsements || 0, flags: t.flags || 0,
+                views: getUniqueCount(t.views), calls: getUniqueCount(t.calls),
+                endorsements: getUniqueCount(t.endorsements), flags: getUniqueCount(t.flags),
                 rate: t.rate || 0,
                 id: t.id, mobile: t.mobile,
                 truck_no: t.truck_no, available_date: t.available_date, other_details: t.other_details
@@ -974,7 +1023,7 @@ async function renderFeed() {
                     type: 'AGENT', title: u.company_name || u.name || 'Agent', company: u.company_name || '',
                     from_pin: u.location, to_pin: null, from_loc: loc, to_loc: null,
                     vehicle: 'Agent', views: 0, calls: 0,
-                    endorsements: u.endorsements || 0, flags: u.flags || 0,
+                    endorsements: getUniqueCount(u.endorsements), flags: getUniqueCount(u.flags),
                     rate: 0,
                     id: u.mobile, mobile: u.mobile, user: u,
                     loads_count: loadCount, trucks_count: truckCount,
@@ -1672,33 +1721,56 @@ function saveProfile() {
 // ============================================================
 // OPEN DETAIL
 // ============================================================
-function openDetail(type, id) {
+async function openDetail(type, id) {
     if (!id) { toast('Invalid item ID'); return; }
     showLoading('Opening ' + type.toLowerCase() + ' details...');
+    
+    const currentMobile = (user && user.mobile) ? parseInt(user.mobile, 10) : 0;
+
     if (type === 'AGENT') {
         sb.from('active_users').select('*').eq('mobile', parseInt(id, 10)).single()
             .then(async r => {
                 if (r.data) {
                     detail = { type: 'AGENT', id: id, user: r.data, mobile: parseInt(id, 10) };
+                    
+                    // Update views array for agent
+                    let viewsArr = Array.isArray(r.data.views) ? r.data.views : [];
+                    if (!viewsArr.includes(currentMobile) && viewsArr.length < MAX_ARRAY_SIZE) {
+                        viewsArr.push(currentMobile);
+                        await sb.from('active_users').update({ views: viewsArr }).eq('mobile', parseInt(id, 10));
+                    }
+                    
                     const [loads, trucks] = await Promise.all([
                         sb.from('active_loads').select('*', { count: 'exact' }).eq('mobile', parseInt(id, 10)).eq('status', 1),
                         sb.from('active_trucks').select('*', { count: 'exact' }).eq('mobile', parseInt(id, 10)).eq('status', 1)
                     ]);
                     detail.loads_count = loads.count || 0;
                     detail.trucks_count = trucks.count || 0;
-                    detail.endorsements = r.data.endorsements || 0;
-                    detail.flags = r.data.flags || 0;
+                    detail.endorsements = r.data.endorsements || [];
+                    detail.flags = r.data.flags || [];
                     switchPage('detail-page'); renderDetailView(detail);
                 } else toast('Agent not found');
                 hideLoading();
             }).catch(err => { console.error('Error loading agent:', err); toast('Error loading agent details'); hideLoading(); });
         return;
     }
+    
     const table = type === 'LOAD' ? 'active_loads' : 'active_trucks';
     sb.from(table).select('*').eq('id', id).single()
         .then(async r => {
             if (r.data) {
                 detail = r.data; detail.type = type;
+                
+                // Update views array
+                let viewsArr = Array.isArray(r.data.views) ? r.data.views : [];
+                if (!viewsArr.includes(currentMobile) && viewsArr.length < MAX_ARRAY_SIZE) {
+                    viewsArr.push(currentMobile);
+                    await sb.from(table).update({ views: viewsArr }).eq('id', id);
+                    detail.views = viewsArr;
+                } else {
+                    detail.views = viewsArr;
+                }
+
                 if (type === 'LOAD') {
                     detail.material_id = r.data.material_id;
                     detail.pickup_pin = r.data.pickup_pin;
@@ -1718,9 +1790,8 @@ function openDetail(type, id) {
                 }
                 const { data: userData } = await sb.from('active_users').select('*').eq('mobile', r.data.mobile).single();
                 detail.user = userData;
-                // endorcement count from the listing record
-                detail.endorsements = r.data.endorsements || 0;
-                detail.flags = r.data.flags || 0;
+                detail.endorsements = r.data.endorsements || [];
+                detail.flags = r.data.flags || [];
                 switchPage('detail-page'); renderDetailView(detail);
             } else toast('Item not found');
             hideLoading();
@@ -1735,7 +1806,6 @@ function renderDetailView(data) {
     if (data.type === 'LOAD') container.innerHTML = renderLoadDetail(data);
     else if (data.type === 'TRUCK') container.innerHTML = renderTruckDetail(data);
     else if (data.type === 'AGENT') container.innerHTML = renderAgentDetail(data);
-    updateStats(data);
 }
 function renderLoadDetail(load) {
     const user = load.user || {};
@@ -1744,7 +1814,7 @@ function renderLoadDetail(load) {
     const aerialDistance = fromLoc && toLoc ? Math.round(dist(fromLoc.lat, fromLoc.lng, toLoc.lat, toLoc.lng)) : 'N/A';
     const dimensions = load.dimensions ? load.dimensions.join(' x ') + ' ft' : 'N/A';
     const website = user.company_web ? `<a href="${user.company_web.startsWith('http') ? user.company_web : 'https://' + user.company_web}" target="_blank" class="website-link" onclick="event.stopPropagation();">${user.company_web} ↗</a>` : '';
-    const ratingInfo = calculateRating(load.endorsements || 0, load.flags || 0);
+    const ratingInfo = calculateRating(load.endorsements || [], load.flags || []);
     const isVerified = (user.pan && user.gst);
     const distId = 'dist-' + load.id + '-' + Date.now();
     if (fromLoc && toLoc) {
@@ -1805,10 +1875,10 @@ function renderLoadDetail(load) {
         ${agentsHtml}
         ${load.instructions ? `<div class="detail-card"><div class="section-title">📝 Instructions</div><div class="instructions-text">${load.instructions}</div></div>` : ''}
         <div class="detail-card"><div class="section-title">📊 STATS</div><div class="stats-grid">
-            <div class="stat-item"><span class="stat-icon">👁️</span><span class="stat-number">${load.views || 0}</span><span class="stat-label">Views</span></div>
-            <div class="stat-item"><span class="stat-icon">📞</span><span class="stat-number">${load.calls || 0}</span><span class="stat-label">Calls</span></div>
-            <div class="stat-item"><span class="stat-icon">⭐</span><span class="stat-number" id="detail-endorsement-count">${load.endorsements || 0}</span><span class="stat-label">Endorsements</span></div>
-            <div class="stat-item"><span class="stat-icon">🚩</span><span class="stat-number">${load.flags || 0}</span><span class="stat-label">Flags</span></div>
+            <div class="stat-item"><span class="stat-icon">👁️</span><span class="stat-number">${getUniqueCount(load.views)}</span><span class="stat-label">Views</span></div>
+            <div class="stat-item"><span class="stat-icon">📞</span><span class="stat-number">${getUniqueCount(load.calls)}</span><span class="stat-label">Calls</span></div>
+            <div class="stat-item"><span class="stat-icon">⭐</span><span class="stat-number">${getUniqueCount(load.endorsements)}</span><span class="stat-label">Endorsements</span></div>
+            <div class="stat-item"><span class="stat-icon">🚩</span><span class="stat-number">${getUniqueCount(load.flags)}</span><span class="stat-label">Flags</span></div>
         </div></div>
         ${renderActionButtons(load)}`;
 }
@@ -1816,7 +1886,7 @@ function renderTruckDetail(truck) {
     const user = truck.user || {};
     const loc = getLoc(truck.location_pin);
     const website = user.company_web ? `<a href="${user.company_web.startsWith('http') ? user.company_web : 'https://' + user.company_web}" target="_blank" class="website-link" onclick="event.stopPropagation();">${user.company_web} ↗</a>` : '';
-    const ratingInfo = calculateRating(truck.endorsements || 0, truck.flags || 0);
+    const ratingInfo = calculateRating(truck.endorsements || [], truck.flags || []);
     const isVerified = (user.pan && user.gst);
     let vehicleSpecsHtml = '<div style="font-size:14px;color:#64748b;">🔄 Loading...</div>';
     sb.from('active_vehicles').select('*').eq('vehicle_number', truck.truck_no).single()
@@ -1876,17 +1946,17 @@ function renderTruckDetail(truck) {
         ${user.preferred_routes && user.preferred_routes.length > 0 ? `<div class="detail-card"><div class="section-title">🗺️ Preferred Routes</div><div style="display:flex;flex-wrap:wrap;gap:4px;">${user.preferred_routes.map(r => { const loc2 = getLoc(r); return `<span class="route-tag">${loc2 ? getLocDisplayName(loc2) : r}</span>`; }).join('')}</div></div>` : ''}
         ${truck.other_details ? `<div class="detail-card"><div class="section-title">📝 Other Details</div><div class="instructions-text">${truck.other_details}</div></div>` : ''}
         <div class="detail-card"><div class="section-title">📊 STATS</div><div class="stats-grid">
-            <div class="stat-item"><span class="stat-icon">👁️</span><span class="stat-number">${truck.views || 0}</span><span class="stat-label">Views</span></div>
-            <div class="stat-item"><span class="stat-icon">📞</span><span class="stat-number">${truck.calls || 0}</span><span class="stat-label">Calls</span></div>
-            <div class="stat-item"><span class="stat-icon">⭐</span><span class="stat-number" id="detail-endorsement-count">${truck.endorsements || 0}</span><span class="stat-label">Endorsements</span></div>
-            <div class="stat-item"><span class="stat-icon">🚩</span><span class="stat-number">${truck.flags || 0}</span><span class="stat-label">Flags</span></div>
+            <div class="stat-item"><span class="stat-icon">👁️</span><span class="stat-number">${getUniqueCount(truck.views)}</span><span class="stat-label">Views</span></div>
+            <div class="stat-item"><span class="stat-icon">📞</span><span class="stat-number">${getUniqueCount(truck.calls)}</span><span class="stat-label">Calls</span></div>
+            <div class="stat-item"><span class="stat-icon">⭐</span><span class="stat-number">${getUniqueCount(truck.endorsements)}</span><span class="stat-label">Endorsements</span></div>
+            <div class="stat-item"><span class="stat-icon">🚩</span><span class="stat-number">${getUniqueCount(truck.flags)}</span><span class="stat-label">Flags</span></div>
         </div></div>
         ${renderActionButtons(truck)}`;
 }
 function renderAgentDetail(agent) {
     const user = agent.user || {};
     const website = user.company_web ? `<a href="${user.company_web.startsWith('http') ? user.company_web : 'https://' + user.company_web}" target="_blank" class="website-link" onclick="event.stopPropagation();">${user.company_web} ↗</a>` : '';
-    const ratingInfo = calculateRating(agent.endorsements || 0, agent.flags || 0);
+    const ratingInfo = calculateRating(agent.endorsements || [], agent.flags || []);
     const isVerified = (user.pan && user.gst);
     let badges = '';
     badges += `<span class="detail-badge rating">${ratingInfo.display}</span>`;
@@ -1899,8 +1969,8 @@ function renderAgentDetail(agent) {
         <div class="detail-card"><div class="section-title">📊 STATS</div><div class="stats-grid">
             <div class="stat-item"><span class="stat-icon">📦</span><span class="stat-number">${agent.loads_count || 0}</span><span class="stat-label">Loads</span></div>
             <div class="stat-item"><span class="stat-icon">🚛</span><span class="stat-number">${agent.trucks_count || 0}</span><span class="stat-label">Trucks</span></div>
-            <div class="stat-item"><span class="stat-icon">⭐</span><span class="stat-number" id="detail-endorsement-count">${agent.endorsements || 0}</span><span class="stat-label">Endorsements</span></div>
-            <div class="stat-item"><span class="stat-icon">🚩</span><span class="stat-number">${agent.flags || 0}</span><span class="stat-label">Flags</span></div>
+            <div class="stat-item"><span class="stat-icon">⭐</span><span class="stat-number">${getUniqueCount(agent.endorsements)}</span><span class="stat-label">Endorsements</span></div>
+            <div class="stat-item"><span class="stat-icon">🚩</span><span class="stat-number">${getUniqueCount(agent.flags)}</span><span class="stat-label">Flags</span></div>
         </div></div>
         ${renderActionButtons(agent)}`;
 }
@@ -1908,125 +1978,142 @@ function renderActionButtons(item) {
     const mobileNum = item.mobile || '';
     const itemId = item.id || '';
     const type = item.type || 'LOAD';
-    return `<div class="action-grid">
-        <button class="btn-call" onclick="makeCall('${mobileNum}')"><span class="act-icon">📞</span>Call</button>
-        <button class="btn-endorse" onclick="handleEndorse('${itemId}','${type}')"><span class="act-icon">⭐</span>Endorse</button>
-        <button class="btn-flag" onclick="handleFlag('${itemId}','${type}')"><span class="act-icon">🚩</span>Flag</button>
-        <button class="btn-share" onclick="handleShareClick()"><span class="act-icon">↗️</span>Share</button>
-    </div>`;
-}
-function makeCall(mobile) {
-    if (mobile) {
-        // Also increment call count
-        if (detail && detail.id) {
-            const table = detail.type === 'LOAD' ? 'active_loads' : (detail.type === 'TRUCK' ? 'active_trucks' : null);
-            if (table) {
-                sb.from(table).select('calls').eq('id', detail.id).single()
-                    .then(r => {
-                        if (r.data) {
-                            sb.from(table).update({ calls: (r.data.calls || 0) + 1 }).eq('id', detail.id).then(() => {});
-                        }
-                    });
-            }
-        }
-        window.location.href = 'tel:' + mobile;
-    } else toast('Phone number not available');
+    return `
+        <button class="btn-express" onclick="handleExpressInterest('${itemId}','${type}')">
+            <span>⭐</span> Express Interest
+        </button>
+        <div class="action-grid">
+            <button class="btn-call" onclick="makeCall('${mobileNum}')"><span class="act-icon">📞</span>Call</button>
+            <button class="btn-flag" onclick="handleFlag('${itemId}','${type}')"><span class="act-icon">🚩</span>Flag</button>
+            <button class="btn-share" onclick="handleShareClick()"><span class="act-icon">↗️</span>Share</button>
+        </div>`;
 }
 
-// ENDORSE BUTTON → increments endorsements only
-function handleEndorse(id, type) {
-    if (!user) { toast('Please login first to endorse'); return; }
-    if (id === 'undefined' || !id) { toast('Cannot endorse this item'); return; }
+// ============================================================
+// ACTION HANDLERS (Array Based)
+// ============================================================
+async function makeCall(mobile) {
+    if (!mobile) { toast('Phone number not available'); return; }
+    
+    const currentMobile = (user && user.mobile) ? parseInt(user.mobile, 10) : 0;
+    if (detail && detail.id) {
+        const table = detail.type === 'LOAD' ? 'active_loads' : (detail.type === 'TRUCK' ? 'active_trucks' : 'active_users');
+        const idCol = detail.type === 'AGENT' ? 'mobile' : 'id';
+        const idVal = detail.type === 'AGENT' ? parseInt(detail.id, 10) : detail.id;
+        
+        try {
+            const { data } = await sb.from(table).select('calls').eq(idCol, idVal).single();
+            let callsArr = Array.isArray(data?.calls) ? data.calls : [];
+            if (!callsArr.includes(currentMobile) && callsArr.length < MAX_ARRAY_SIZE) {
+                callsArr.push(currentMobile);
+                await sb.from(table).update({ calls: callsArr }).eq(idCol, idVal);
+                detail.calls = callsArr;
+            }
+        } catch (e) {
+            console.warn('Could not update call count:', e);
+        }
+    }
+    window.location.href = 'tel:' + mobile;
+}
+
+async function handleExpressInterest(id, type) {
+    if (!user && !guest) { toast('Please login first to express interest'); return; }
+    if (id === 'undefined' || !id) { toast('Cannot express interest for this item'); return; }
+
+    const currentMobile = (user && user.mobile) ? parseInt(user.mobile, 10) : 0;
 
     if (type === 'AGENT') {
-        sb.from('active_users').select('endorsements').eq('mobile', parseInt(id, 10)).single()
-            .then(r => {
-                if (r.data) {
-                    const newCount = (r.data.endorsements || 0) + 1;
-                    sb.from('active_users').update({ endorsements: newCount }).eq('mobile', parseInt(id, 10))
-                        .then(() => {
-                            toast('✅ Endorsed successfully!');
-                            openDetail(type, id);
-                        });
-                }
-            }).catch(err => { console.error(err); toast('Error endorsing'); });
+        const idVal = parseInt(id, 10);
+        const { data } = await sb.from('active_users').select('endorsements').eq('mobile', idVal).single();
+        let endArr = Array.isArray(data?.endorsements) ? data.endorsements : [];
+        if (endArr.includes(currentMobile)) { toast('You have already expressed interest.'); return; }
+        if (endArr.length >= MAX_ARRAY_SIZE) { toast('Interest limit reached for this listing.'); return; }
+        
+        endArr.push(currentMobile);
+        await sb.from('active_users').update({ endorsements: endArr }).eq('mobile', idVal);
+        toast('✅ Interest expressed successfully!');
+        openDetail(type, id);
         return;
     }
 
     const table = type === 'LOAD' ? 'active_loads' : 'active_trucks';
-    sb.from(table).select('endorsements').eq('id', id).single()
-        .then(r => {
-            if (r.data) {
-                const newCount = (r.data.endorsements || 0) + 1;
-                sb.from(table).update({ endorsements: newCount }).eq('id', id)
-                    .then(() => {
-                        toast('✅ Endorsed successfully!');
-                        openDetail(type, id);
-                    });
-            }
-        }).catch(err => { console.error(err); toast('Error endorsing'); });
+    const { data } = await sb.from(table).select('endorsements').eq('id', id).single();
+    let endArr = Array.isArray(data?.endorsements) ? data.endorsements : [];
+    
+    if (endArr.includes(currentMobile)) { toast('You have already expressed interest.'); return; }
+    if (endArr.length >= MAX_ARRAY_SIZE) { toast('Interest limit reached for this listing.'); return; }
+
+    endArr.push(currentMobile);
+    await sb.from(table).update({ endorsements: endArr }).eq('id', id);
+    toast('✅ Interest expressed successfully!');
+    openDetail(type, id);
 }
 
-// FLAG BUTTON → increments flags only
-function handleFlag(id, type) {
-    if (!user) { toast('Please login first to flag'); return; }
+async function handleFlag(id, type) {
+    if (!user && !guest) { toast('Please login first to flag'); return; }
     if (id === 'undefined' || !id) { toast('Cannot flag this item'); return; }
     if (!confirm('Are you sure you want to flag this item as inappropriate?')) return;
 
+    const currentMobile = (user && user.mobile) ? parseInt(user.mobile, 10) : 0;
+
     if (type === 'AGENT') {
-        sb.from('active_users').select('flags').eq('mobile', parseInt(id, 10)).single()
-            .then(r => {
-                if (r.data) {
-                    const newCount = (r.data.flags || 0) + 1;
-                    sb.from('active_users').update({ flags: newCount }).eq('mobile', parseInt(id, 10))
-                        .then(() => { toast('✅ Flag reported successfully'); openDetail(type, id); });
-                }
-            });
+        const idVal = parseInt(id, 10);
+        const { data } = await sb.from('active_users').select('flags').eq('mobile', idVal).single();
+        let flagsArr = Array.isArray(data?.flags) ? data.flags : [];
+        if (flagsArr.includes(currentMobile)) { toast('You have already flagged this.'); return; }
+        if (flagsArr.length >= MAX_ARRAY_SIZE) { toast('Flag limit reached.'); return; }
+        
+        flagsArr.push(currentMobile);
+        await sb.from('active_users').update({ flags: flagsArr }).eq('mobile', idVal);
+        toast('✅ Flag reported successfully');
+        openDetail(type, id);
         return;
     }
 
     const table = type === 'LOAD' ? 'active_loads' : 'active_trucks';
-    sb.from(table).select('flags').eq('id', id).single()
-        .then(r => {
-            if (r.data) {
-                const newCount = (r.data.flags || 0) + 1;
-                sb.from(table).update({ flags: newCount }).eq('id', id)
-                    .then(() => { toast('✅ Flag reported successfully'); openDetail(type, id); });
-            }
-        });
+    const { data } = await sb.from(table).select('flags').eq('id', id).single();
+    let flagsArr = Array.isArray(data?.flags) ? data.flags : [];
+    
+    if (flagsArr.includes(currentMobile)) { toast('You have already flagged this.'); return; }
+    if (flagsArr.length >= MAX_ARRAY_SIZE) { toast('Flag limit reached.'); return; }
+
+    flagsArr.push(currentMobile);
+    await sb.from(table).update({ flags: flagsArr }).eq('id', id);
+    toast('✅ Flag reported successfully');
+    openDetail(type, id);
 }
 
-// SHARE BUTTON → increments endorsements + opens native share
 async function handleShareClick() {
     if (!detail) { toast('No details to share'); return; }
 
-    // STEP 1: Increment endorsements (+1)
+    const currentMobile = (user && user.mobile) ? parseInt(user.mobile, 10) : 0;
+
+    // Update endorsements on share
     try {
         if (detail.type === 'AGENT') {
-            const r = await sb.from('active_users').select('endorsements').eq('mobile', parseInt(detail.id, 10)).single();
-            if (r.data) {
-                const newCount = (r.data.endorsements || 0) + 1;
-                await sb.from('active_users').update({ endorsements: newCount }).eq('mobile', parseInt(detail.id, 10));
-                detail.endorsements = newCount;
-                const el = document.getElementById('detail-endorsement-count');
-                if (el) el.textContent = newCount;
+            const idVal = parseInt(detail.id, 10);
+            const { data } = await sb.from('active_users').select('endorsements').eq('mobile', idVal).single();
+            let endArr = Array.isArray(data?.endorsements) ? data.endorsements : [];
+            if (!endArr.includes(currentMobile) && endArr.length < MAX_ARRAY_SIZE) {
+                endArr.push(currentMobile);
+                await sb.from('active_users').update({ endorsements: endArr }).eq('mobile', idVal);
+                detail.endorsements = endArr;
             }
         } else {
             const table = detail.type === 'LOAD' ? 'active_loads' : 'active_trucks';
-            const r = await sb.from(table).select('endorsements').eq('id', detail.id).single();
-            if (r.data) {
-                const newCount = (r.data.endorsements || 0) + 1;
-                await sb.from(table).update({ endorsements: newCount }).eq('id', detail.id);
-                detail.endorsements = newCount;
-                const el = document.getElementById('detail-endorsement-count');
-                if (el) el.textContent = newCount;
+            const { data } = await sb.from(table).select('endorsements').eq('id', detail.id).single();
+            let endArr = Array.isArray(data?.endorsements) ? data.endorsements : [];
+            if (!endArr.includes(currentMobile) && endArr.length < MAX_ARRAY_SIZE) {
+                endArr.push(currentMobile);
+                await sb.from(table).update({ endorsements: endArr }).eq('id', detail.id);
+                detail.endorsements = endArr;
             }
         }
     } catch (e) {
         console.warn('Could not increment endorsement count on share:', e);
     }
 
-    // STEP 2: Build share text
+    // Build share text
     const sep = '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬';
     const fmtLabel = (label, width) => {
         const padded = label + ' '.repeat(Math.max(0, width - label.length));
@@ -2100,7 +2187,7 @@ async function handleShareClick() {
     const shareUrl = 'https://returntruck-pwa.vercel.app/?listing=' + detail.type + '_' + detail.id;
     msg += `\n🔗 *Tap for full details:*\n${shareUrl}`;
 
-    // STEP 3: Generate image
+    // Generate image
     let truckVehicleDetails = null;
     if (detail.type === 'TRUCK' && detail.truck_no) {
         try {
@@ -2120,7 +2207,6 @@ async function handleShareClick() {
         console.error('Canvas generation failed:', e);
     }
 
-    // STEP 4: Open native share
     if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
             await navigator.share({ files: [file], title: shareTitle, text: msg });
@@ -2162,6 +2248,76 @@ async function handleShareClick() {
     }
 
     window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+}
+
+// ============================================================
+// STATS MODAL FUNCTIONS
+// ============================================================
+async function openStatsModal(table, id, statType) {
+    showLoading('Fetching details...');
+    try {
+        let idCol = 'id';
+        let idVal = id;
+        if (table === 'active_users') {
+            idCol = 'mobile';
+            idVal = parseInt(id, 10);
+        }
+
+        const { data, error } = await sb.from(table).select(statType).eq(idCol, idVal).single();
+        if (error || !data) throw new Error('Could not fetch stats');
+        
+        const statArray = data[statType] || [];
+        const uniqueArray = [...new Set(statArray)];
+        
+        const guestCount = uniqueArray.filter(x => x === 0).length;
+        const mobiles = uniqueArray.filter(x => x !== 0 && x !== null && x !== undefined);
+        
+        let userDetails = [];
+        if (mobiles.length > 0) {
+            const { data: users } = await sb.from('active_users').select('mobile, name, company_name').in('mobile', mobiles);
+            userDetails = users || [];
+        }
+        
+        const statNames = {
+            'views': '👁️ Views',
+            'calls': '📞 Calls',
+            'endorsements': '⭐ Endorsements',
+            'flags': '🚩 Flags'
+        };
+        
+        document.getElementById('stats-modal-title').textContent = statNames[statType] || 'Stats';
+        
+        let bodyHtml = '';
+        if (uniqueArray.length === 0) {
+            bodyHtml = '<div style="color:#64748b;text-align:center;padding:12px;">No entries yet</div>';
+        } else {
+            bodyHtml += userDetails.map(u => 
+                `<div class="stats-user-row">
+                    <span class="user-name">👤 ${u.name || 'Unknown'}</span>
+                    <span class="user-mobile">(${u.mobile})</span>
+                </div>`
+            ).join('');
+            
+            if (guestCount > 0) {
+                bodyHtml += `<div class="stats-user-row" style="color:#94a3b8;">
+                    <span class="user-name">👤 Guest</span>
+                    <span class="user-mobile">(0) × ${guestCount}</span>
+                </div>`;
+            }
+        }
+        
+        document.getElementById('stats-modal-body').innerHTML = bodyHtml;
+        document.getElementById('stats-modal').classList.add('show');
+    } catch (e) {
+        console.error(e);
+        alert('Error loading stats details');
+    } finally {
+        hideLoading();
+    }
+}
+
+function closeStatsModal() {
+    document.getElementById('stats-modal').classList.remove('show');
 }
 
 // ============================================================
@@ -2706,10 +2862,10 @@ function publishLoad() {
                 goHome();
             }).catch(err => { console.error('❌ Exception:', err); alert('Error: ' + err.message); });
     } else {
-        loadData.views = 0;
-        loadData.calls = 0;
-        loadData.endorsements = 0;
-        loadData.flags = 0;
+        loadData.views = [];
+        loadData.calls = [];
+        loadData.endorsements = [];
+        loadData.flags = [];
         loadData.created_at = new Date().toISOString();
         sb.from('active_loads').insert(loadData)
             .then(res => {
@@ -2775,10 +2931,10 @@ function publishTruck() {
                         goHome();
                     }).catch(err => { console.error('❌ Exception:', err); alert('Error: ' + err.message); });
             } else {
-                truckData.calls = 0;
-                truckData.views = 0;
-                truckData.endorsements = 0;
-                truckData.flags = 0;
+                truckData.calls = [];
+                truckData.views = [];
+                truckData.endorsements = [];
+                truckData.flags = [];
                 truckData.expires_at = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
                 truckData.created_at = new Date().toISOString();
                 sb.from('active_trucks').insert(truckData)
@@ -2941,7 +3097,7 @@ async function editTruck(id) {
 }
 
 // ============================================================
-// MY LOADS / MY TRUCKS
+// MY LOADS / MY TRUCKS (WITH TAPPABLE STATS)
 // ============================================================
 function loadMyLoads() {
     if (!user) return;
@@ -2957,9 +3113,19 @@ function loadMyLoads() {
             }
             count.textContent = loads.length;
             container.innerHTML = loads.map(l => {
+                const vCount = getUniqueCount(l.views);
+                const cCount = getUniqueCount(l.calls);
+                const eCount = getUniqueCount(l.endorsements);
+                const fCount = getUniqueCount(l.flags);
                 return '<div class="list-item">' +
                     '<div class="title">' + materialName(l.material_id) + ' • ' + getLocName(l.pickup_pin) + ' → ' + getLocName(l.drop_pin) + '</div>' +
                     '<div class="sub"> ₹' + formatIndianNumber(l.rate || 0) + ' • ⚖️ ' + formatIndianNumber(l.weight || 0) + ' Kg • 🚛 ' + vehicleTypeName(l.vehicle_type_id) + '</div>' +
+                    '<div class="stats-row-profile">' +
+                        '<span onclick="openStatsModal(\'active_loads\', \'' + l.id + '\', \'views\')">👁️ ' + vCount + '</span>' +
+                        '<span onclick="openStatsModal(\'active_loads\', \'' + l.id + '\', \'calls\')">📞 ' + cCount + '</span>' +
+                        '<span onclick="openStatsModal(\'active_loads\', \'' + l.id + '\', \'endorsements\')">⭐ ' + eCount + '</span>' +
+                        '<span onclick="openStatsModal(\'active_loads\', \'' + l.id + '\', \'flags\')">🚩 ' + fCount + '</span>' +
+                    '</div>' +
                     '<div class="actions">' +
                     '<button class="edit" onclick="editLoad(\'' + l.id + '\')">✏️ Edit</button>' +
                     '<button class="delete" onclick="deleteLoadItem(\'' + l.id + '\')">🗑️ Delete</button>' +
@@ -2982,9 +3148,19 @@ function loadMyTrucks() {
             }
             count.textContent = trucks.length;
             container.innerHTML = trucks.map(t => {
+                const vCount = getUniqueCount(t.views);
+                const cCount = getUniqueCount(t.calls);
+                const eCount = getUniqueCount(t.endorsements);
+                const fCount = getUniqueCount(t.flags);
                 return '<div class="list-item">' +
                     '<div class="title">' + t.truck_no + ' • 📍 ' + getLocName(t.location_pin) + '</div>' +
                     '<div class="sub"> ₹' + formatIndianNumber(t.rate || 0) + ' • 📅 ' + (t.available_date ? new Date(t.available_date).toLocaleDateString() : 'Flexible') + ' • 🚛 ' + vehicleTypeName(t.vehicle_type_id) + '</div>' +
+                    '<div class="stats-row-profile">' +
+                        '<span onclick="openStatsModal(\'active_trucks\', \'' + t.id + '\', \'views\')">👁️ ' + vCount + '</span>' +
+                        '<span onclick="openStatsModal(\'active_trucks\', \'' + t.id + '\', \'calls\')">📞 ' + cCount + '</span>' +
+                        '<span onclick="openStatsModal(\'active_trucks\', \'' + t.id + '\', \'endorsements\')">⭐ ' + eCount + '</span>' +
+                        '<span onclick="openStatsModal(\'active_trucks\', \'' + t.id + '\', \'flags\')">🚩 ' + fCount + '</span>' +
+                    '</div>' +
                     '<div class="actions">' +
                     '<button class="edit" onclick="editTruck(\'' + t.id + '\')">✏️ Edit</button>' +
                     '<button class="delete" onclick="deleteTruckItem(\'' + t.id + '\')">🗑️ Delete</button>' +
