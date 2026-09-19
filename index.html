@@ -752,6 +752,15 @@ function parseNumberFromInput(value) { return parseFloat(value.replace(/,/g, '')
 function isValidVehicleNumber(number) { return /^[A-Za-z0-9]{9,12}$/.test(number); }
 
 // ============================================================
+// HELPER FUNCTIONS (RESTORED)
+// ============================================================
+function addUniqueToArray(array, value) { if (!array) return [value]; if (array.includes(value)) return array; return [...array, value]; }
+function removeFromArray(array, value) { if (!array) return []; return array.filter(item => item !== value); }
+function ensureUniqueArray(array) { if (!array) return []; return [...new Set(array)]; }
+function toIntOrNull(v) { if (v === null || v === undefined || v === '') return null; const n = parseInt(v, 10); return isNaN(n) ? null : n; }
+function toStrOrNull(v) { if (v === null || v === undefined) return null; const s = String(v).trim(); return s === '' ? null : s; }
+
+// ============================================================
 // ARRAY HELPERS (Stats Deduplication)
 // ============================================================
 function addStatEntry(currentArray, mobileOrZero) {
@@ -772,8 +781,6 @@ function getNonZeroMobiles(arr) {
     if (!Array.isArray(arr)) return [];
     return [...new Set(arr.filter(x => x !== 0 && x !== null && x !== undefined))];
 }
-function toIntOrNull(v) { if (v === null || v === undefined || v === '') return null; const n = parseInt(v, 10); return isNaN(n) ? null : n; }
-function toStrOrNull(v) { if (v === null || v === undefined) return null; const s = String(v).trim(); return s === '' ? null : s; }
 
 // ============================================================
 // LOCATION FUNCTIONS
