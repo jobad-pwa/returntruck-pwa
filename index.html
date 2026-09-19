@@ -3112,9 +3112,12 @@ function loadMyLoads() {
                 const cCount = getUniqueCount(l.calls);
                 const eCount = getUniqueCount(l.endorsements);
                 const fCount = getUniqueCount(l.flags);
+                
+                const isExpired = l.expires_at && new Date(l.expires_at) < new Date();
+                
                 return '<div class="list-item">' +
-                    '<div class="title">' + materialName(l.material_id) + ' • ' + getLocName(l.pickup_pin) + ' → ' + getLocName(l.drop_pin) + '</div>' +
-                    '<div class="sub"> ₹' + formatIndianNumber(l.rate || 0) + ' • ⚖️ ' + formatIndianNumber(l.weight || 0) + ' Kg • 🚛 ' + vehicleTypeName(l.vehicle_type_id) + '</div>' +
+                    '<div class="title">' + (isExpired ? '⚠️ ' : '') + materialName(l.material_id) + ' • ' + getLocName(l.pickup_pin) + ' → ' + getLocName(l.drop_pin) + '</div>' +
+                    '<div class="sub"> ₹' + formatIndianNumber(l.rate || 0) + ' • ⚖️ ' + formatIndianNumber(l.weight || 0) + ' Kg • 🚛 ' + vehicleTypeName(l.vehicle_type_id) + (isExpired ? ' • <span style="color:#dc2626;font-weight:700;">Expired</span>' : '') + '</div>' +
                     '<div class="stats-row-profile">' +
                         '<span onclick="openStatsModal(\'active_loads\', \'' + l.id + '\', \'views\')">👁️ ' + vCount + '</span>' +
                         '<span onclick="openStatsModal(\'active_loads\', \'' + l.id + '\', \'calls\')">📞 ' + cCount + '</span>' +
@@ -3148,9 +3151,12 @@ function loadMyTrucks() {
                 const cCount = getUniqueCount(t.calls);
                 const eCount = getUniqueCount(t.endorsements);
                 const fCount = getUniqueCount(t.flags);
+                
+                const isExpired = t.expires_at && new Date(t.expires_at) < new Date();
+                
                 return '<div class="list-item">' +
-                    '<div class="title">' + t.truck_no + ' • 📍 ' + getLocName(t.location_pin) + '</div>' +
-                    '<div class="sub"> ₹' + formatIndianNumber(t.rate || 0) + ' • 📅 ' + (t.available_date ? new Date(t.available_date).toLocaleDateString() : 'Flexible') + ' • 🚛 ' + vehicleTypeName(t.vehicle_type_id) + '</div>' +
+                    '<div class="title">' + (isExpired ? '⚠️ ' : '') + t.truck_no + ' • 📍 ' + getLocName(t.location_pin) + '</div>' +
+                    '<div class="sub"> ₹' + formatIndianNumber(t.rate || 0) + ' • 📅 ' + (t.available_date ? new Date(t.available_date).toLocaleDateString() : 'Flexible') + ' • 🚛 ' + vehicleTypeName(t.vehicle_type_id) + (isExpired ? ' • <span style="color:#dc2626;font-weight:700;">Expired</span>' : '') + '</div>' +
                     '<div class="stats-row-profile">' +
                         '<span onclick="openStatsModal(\'active_trucks\', \'' + t.id + '\', \'views\')">👁️ ' + vCount + '</span>' +
                         '<span onclick="openStatsModal(\'active_trucks\', \'' + t.id + '\', \'calls\')">📞 ' + cCount + '</span>' +
