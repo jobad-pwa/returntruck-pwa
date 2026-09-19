@@ -2337,7 +2337,7 @@ function closeStatsModal() {
 // ============================================================
 async function renderShareImage(data, vehicleData) {
     const W = 900;
-    const H = 160;
+    const H = 300; // Increased height for better WhatsApp preview
 
     const canvas = document.createElement('canvas');
     canvas.width = W;
@@ -2359,16 +2359,16 @@ async function renderShareImage(data, vehicleData) {
 
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 48px system-ui, -apple-system, sans-serif';
-    ctx.fillText('🚛 ReturnTruck', 30, 75);
+    ctx.fillText('🚛 ReturnTruck', 40, 110);
 
-    ctx.font = '500 24px system-ui, -apple-system, sans-serif';
+    ctx.font = '500 28px system-ui, -apple-system, sans-serif';
     ctx.fillStyle = 'rgba(255,255,255,0.92)';
-    ctx.fillText('Posted by: ' + postedBy, 30, 115);
+    ctx.fillText('Posted by: ' + postedBy, 40, 180);
 
     if (postedLoc) {
-        ctx.font = '400 20px system-ui, -apple-system, sans-serif';
+        ctx.font = '400 24px system-ui, -apple-system, sans-serif';
         ctx.fillStyle = 'rgba(255,255,255,0.78)';
-        ctx.fillText('📍 ' + postedLoc, 30, 145);
+        ctx.fillText('📍 ' + postedLoc, 40, 230);
     }
 
     return canvas;
@@ -3135,7 +3135,7 @@ function loadMyLoads() {
                 const fCount = getUniqueCount(l.flags);
                 const isExpired = l.expires_at && new Date(l.expires_at) < new Date();
                 
-                return '<div class="list-item">' +
+                return '<div class="list-item" onclick="openDetail(\'LOAD\', \'' + l.id + '\')" style="cursor:pointer;">' +
                     '<div class="title">' + (isExpired ? '⚠️ ' : '') + materialName(l.material_id) + ' • ' + getLocName(l.pickup_pin) + ' → ' + getLocName(l.drop_pin) + '</div>' +
                     '<div class="sub"> ₹' + formatIndianNumber(l.rate || 0) + ' • ⚖️ ' + formatIndianNumber(l.weight || 0) + ' Kg • 🚛 ' + vehicleTypeName(l.vehicle_type_id) + (isExpired ? ' • <span style="color:#dc2626;font-weight:700;">Expired</span>' : '') + '</div>' +
                     '<div class="stats-row-profile">' +
@@ -3180,7 +3180,7 @@ function loadMyTrucks() {
                 const fCount = getUniqueCount(t.flags);
                 const isExpired = t.expires_at && new Date(t.expires_at) < new Date();
                 
-                return '<div class="list-item">' +
+                return '<div class="list-item" onclick="openDetail(\'TRUCK\', \'' + t.id + '\')" style="cursor:pointer;">' +
                     '<div class="title">' + (isExpired ? '⚠️ ' : '') + t.truck_no + ' • 📍 ' + getLocName(t.location_pin) + '</div>' +
                     '<div class="sub"> ₹' + formatIndianNumber(t.rate || 0) + ' • 📅 ' + (t.available_date ? new Date(t.available_date).toLocaleDateString() : 'Flexible') + ' • 🚛 ' + vehicleTypeName(t.vehicle_type_id) + (isExpired ? ' • <span style="color:#dc2626;font-weight:700;">Expired</span>' : '') + '</div>' +
                     '<div class="stats-row-profile">' +
