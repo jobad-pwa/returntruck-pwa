@@ -240,6 +240,8 @@ textarea.form-control:focus{background:#f8fafc !important;box-shadow:0 0 0 3px r
 .list-item .sub { font-size: 12px; color: #475569; margin-top: 2px; }
 .list-item .actions { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
 .list-item .actions button { padding: 4px 12px; font-size: 11px; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; transition: background .15s; }
+.list-item .actions .renew { background: #dcfce7; color: #166534; }
+.list-item .actions .renew:hover { background: #bbf7d0; }
 .list-item .actions .edit { background: #dbeafe; color: #1e40af; }
 .list-item .actions .edit:hover { background: #bfdbfe; }
 .list-item .actions .delete { background: #fef2f2; color: #991b1b; }
@@ -754,9 +756,7 @@ function isValidVehicleNumber(number) { return /^[A-Za-z0-9]{9,12}$/.test(number
 // ============================================================
 function addStatEntry(currentArray, mobileOrZero) {
     let arr = Array.isArray(currentArray) ? currentArray : [];
-    // Soft cap
     if (arr.length >= MAX_ARRAY_SIZE) return arr;
-    // Deduplicate
     if (arr.includes(mobileOrZero)) return arr;
     return [...arr, mobileOrZero];
 }
@@ -1733,7 +1733,6 @@ async function openDetail(type, id) {
                 if (r.data) {
                     detail = { type: 'AGENT', id: id, user: r.data, mobile: parseInt(id, 10) };
                     
-                    // Update views array for agent
                     let viewsArr = Array.isArray(r.data.views) ? r.data.views : [];
                     if (!viewsArr.includes(currentMobile) && viewsArr.length < MAX_ARRAY_SIZE) {
                         viewsArr.push(currentMobile);
@@ -1761,7 +1760,6 @@ async function openDetail(type, id) {
             if (r.data) {
                 detail = r.data; detail.type = type;
                 
-                // Update views array
                 let viewsArr = Array.isArray(r.data.views) ? r.data.views : [];
                 if (!viewsArr.includes(currentMobile) && viewsArr.length < MAX_ARRAY_SIZE) {
                     viewsArr.push(currentMobile);
@@ -2088,7 +2086,6 @@ async function handleShareClick() {
 
     const currentMobile = (user && user.mobile) ? parseInt(user.mobile, 10) : 0;
 
-    // Update endorsements on share
     try {
         if (detail.type === 'AGENT') {
             const idVal = parseInt(detail.id, 10);
@@ -2113,7 +2110,6 @@ async function handleShareClick() {
         console.warn('Could not increment endorsement count on share:', e);
     }
 
-    // Build share text
     const sep = '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬';
     const fmtLabel = (label, width) => {
         const padded = label + ' '.repeat(Math.max(0, width - label.length));
@@ -2187,7 +2183,6 @@ async function handleShareClick() {
     const shareUrl = 'https://returntruck-pwa.vercel.app/?listing=' + detail.type + '_' + detail.id;
     msg += `\n🔗 *Tap for full details:*\n${shareUrl}`;
 
-    // Generate image
     let truckVehicleDetails = null;
     if (detail.type === 'TRUCK' && detail.truck_no) {
         try {
@@ -3097,7 +3092,7 @@ async function editTruck(id) {
 }
 
 // ============================================================
-// MY LOADS / MY TRUCKS (WITH TAPPABLE STATS)
+// MY LOADS / MY TRUCKS (WITH TAPPABLE STATS & RENEW)
 // ============================================================
 function loadMyLoads() {
     if (!user) return;
@@ -3127,6 +3122,7 @@ function loadMyLoads() {
                         '<span onclick="openStatsModal(\'active_loads\', \'' + l.id + '\', \'flags\')">🚩 ' + fCount + '</span>' +
                     '</div>' +
                     '<div class="actions">' +
+                    '<button class="renew" onclick="renewLoadItem(\'' + l.id + '\')">🔄 Renew</button>' +
                     '<button class="edit" onclick="editLoad(\'' + l.id + '\')">✏️ Edit</button>' +
                     '<button class="delete" onclick="deleteLoadItem(\'' + l.id + '\')">🗑️ Delete</button>' +
                     '</div></div>';
@@ -3162,10 +3158,33 @@ function loadMyTrucks() {
                         '<span onclick="openStatsModal(\'active_trucks\', \'' + t.id + '\', \'flags\')">🚩 ' + fCount + '</span>' +
                     '</div>' +
                     '<div class="actions">' +
+                    '<button class="renew" onclick="renewTruckItem(\'' + t.id + '\')">🔄 Renew</button>' +
                     '<button class="edit" onclick="editTruck(\'' + t.id + '\')">✏️ Edit</button>' +
                     '<button class="delete" onclick="deleteTruckItem(\'' + t.id + '\')">🗑️ Delete</button>' +
                     '</div></div>';
             }).join('');
+        });
+}
+
+function renewLoadItem(id) {
+    if (!confirm('Renew this load for another 30 days?')) return;
+    const newExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    sb.from('active_loads').update({ expires_at: newExpiry, status: 1 }).eq('id', id)
+        .then(res => {
+            if (res.error) { alert('Error: ' + res.error.message); return; }
+            toast('✅ Load renewed for 30 days!');
+            loadMyLoads();
+        });
+}
+
+function renewTruckItem(id) {
+    if (!confirm('Renew this truck listing for another 30 days?')) return;
+    const newExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    sb.from('active_trucks').update({ expires_at: newExpiry, status: 1 }).eq('id', id)
+        .then(res => {
+            if (res.error) { alert('Error: ' + res.error.message); return; }
+            toast('✅ Truck listing renewed for 30 days!');
+            loadMyTrucks();
         });
 }
 
