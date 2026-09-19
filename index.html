@@ -892,16 +892,26 @@ function goHome() {
     setTimeout(() => { renderFeed(); }, 50);
 }
 function goPostLoad() {
-    if (guest || !user) { showLogin(); return; }
-    loadAgentsFromUser();
-    if (editingLoadId === null) resetLoadForm();
-    switchPage('postload-page');
+    try {
+        if (guest || !user) { showLogin(); return; }
+        loadAgentsFromUser();
+        if (editingLoadId === null) resetLoadForm();
+        switchPage('postload-page');
+    } catch (e) {
+        console.error('Error in goPostLoad:', e);
+        alert('Error opening Post Load page: ' + e.message);
+    }
 }
 function goPostTruck() {
-    if (guest || !user) { showLogin(); return; }
-    loadAgentsFromUser();
-    if (editingTruckId === null) resetTruckForm();
-    switchPage('posttruck-page');
+    try {
+        if (guest || !user) { showLogin(); return; }
+        loadAgentsFromUser();
+        if (editingTruckId === null) resetTruckForm();
+        switchPage('posttruck-page');
+    } catch (e) {
+        console.error('Error in goPostTruck:', e);
+        alert('Error opening Post Truck page: ' + e.message);
+    }
 }
 function goToProfile() { if (guest || !user) { showLogin(); return; } switchPage('profile-page'); loadProfile(); }
 function cancelPost() {
@@ -3096,11 +3106,15 @@ async function editTruck(id) {
 // ============================================================
 function loadMyLoads() {
     if (!user) return;
+    const container = document.getElementById('my-loads-container');
+    const count = document.getElementById('my-loads-count');
+    if (!container) return;
+    
+    container.innerHTML = '<div style="color:#64748b;font-size:13px;text-align:center;padding:8px">🔄 Loading your loads...</div>';
+    
     sb.from('active_loads').select('*').eq('mobile', parseInt(user.mobile, 10)).eq('status', 1)
         .then(res => {
             const loads = res.data || [];
-            const container = document.getElementById('my-loads-container');
-            const count = document.getElementById('my-loads-count');
             if (!loads.length) {
                 container.innerHTML = '<div style="color:#64748b;font-size:13px;text-align:center;padding:8px">No loads posted</div>';
                 count.textContent = '0';
@@ -3112,34 +3126,40 @@ function loadMyLoads() {
                 const cCount = getUniqueCount(l.calls);
                 const eCount = getUniqueCount(l.endorsements);
                 const fCount = getUniqueCount(l.flags);
-                
                 const isExpired = l.expires_at && new Date(l.expires_at) < new Date();
                 
                 return '<div class="list-item">' +
                     '<div class="title">' + (isExpired ? '⚠️ ' : '') + materialName(l.material_id) + ' • ' + getLocName(l.pickup_pin) + ' → ' + getLocName(l.drop_pin) + '</div>' +
                     '<div class="sub"> ₹' + formatIndianNumber(l.rate || 0) + ' • ⚖️ ' + formatIndianNumber(l.weight || 0) + ' Kg • 🚛 ' + vehicleTypeName(l.vehicle_type_id) + (isExpired ? ' • <span style="color:#dc2626;font-weight:700;">Expired</span>' : '') + '</div>' +
                     '<div class="stats-row-profile">' +
-                        '<span onclick="openStatsModal(\'active_loads\', \'' + l.id + '\', \'views\')">👁️ ' + vCount + '</span>' +
-                        '<span onclick="openStatsModal(\'active_loads\', \'' + l.id + '\', \'calls\')">📞 ' + cCount + '</span>' +
-                        '<span onclick="openStatsModal(\'active_loads\', \'' + l.id + '\', \'endorsements\')">⭐ ' + eCount + '</span>' +
-                        '<span onclick="openStatsModal(\'active_loads\', \'' + l.id + '\', \'flags\')">🚩 ' + fCount + '</span>' +
+                        '<span onclick="event.stopPropagation(); openStatsModal(\'active_loads\', \'' + l.id + '\', \'views\')">👁️ ' + vCount + '</span>' +
+                        '<span onclick="event.stopPropagation(); openStatsModal(\'active_loads\', \'' + l.id + '\', \'calls\')">📞 ' + cCount + '</span>' +
+                        '<span onclick="event.stopPropagation(); openStatsModal(\'active_loads\', \'' + l.id + '\', \'endorsements\')">⭐ ' + eCount + '</span>' +
+                        '<span onclick="event.stopPropagation(); openStatsModal(\'active_loads\', \'' + l.id + '\', \'flags\')">🚩 ' + fCount + '</span>' +
                     '</div>' +
                     '<div class="actions">' +
-                    '<button class="renew" onclick="renewLoadItem(\'' + l.id + '\')">🔄 Renew</button>' +
-                    '<button class="edit" onclick="editLoad(\'' + l.id + '\')">✏️ Edit</button>' +
-                    '<button class="delete" onclick="deleteLoadItem(\'' + l.id + '\')">🗑️ Delete</button>' +
+                    '<button class="renew" onclick="event.stopPropagation(); renewLoadItem(\'' + l.id + '\')">🔄 Renew</button>' +
+                    '<button class="edit" onclick="event.stopPropagation(); editLoad(\'' + l.id + '\')">✏️ Edit</button>' +
+                    '<button class="delete" onclick="event.stopPropagation(); deleteLoadItem(\'' + l.id + '\')">🗑️ Delete</button>' +
                     '</div></div>';
             }).join('');
+        }).catch(err => {
+            console.error('Error loading loads:', err);
+            container.innerHTML = '<div style="color:#f87171;font-size:13px;text-align:center;padding:8px">❌ Error loading loads</div>';
         });
 }
 
 function loadMyTrucks() {
     if (!user) return;
+    const container = document.getElementById('my-trucks-container');
+    const count = document.getElementById('my-trucks-count');
+    if (!container) return;
+    
+    container.innerHTML = '<div style="color:#64748b;font-size:13px;text-align:center;padding:8px">🔄 Loading your trucks...</div>';
+    
     sb.from('active_trucks').select('*').eq('mobile', parseInt(user.mobile, 10)).eq('status', 1)
         .then(res => {
             const trucks = res.data || [];
-            const container = document.getElementById('my-trucks-container');
-            const count = document.getElementById('my-trucks-count');
             if (!trucks.length) {
                 container.innerHTML = '<div style="color:#64748b;font-size:13px;text-align:center;padding:8px">No trucks listed</div>';
                 count.textContent = '0';
@@ -3151,24 +3171,26 @@ function loadMyTrucks() {
                 const cCount = getUniqueCount(t.calls);
                 const eCount = getUniqueCount(t.endorsements);
                 const fCount = getUniqueCount(t.flags);
-                
                 const isExpired = t.expires_at && new Date(t.expires_at) < new Date();
                 
                 return '<div class="list-item">' +
                     '<div class="title">' + (isExpired ? '⚠️ ' : '') + t.truck_no + ' • 📍 ' + getLocName(t.location_pin) + '</div>' +
                     '<div class="sub"> ₹' + formatIndianNumber(t.rate || 0) + ' • 📅 ' + (t.available_date ? new Date(t.available_date).toLocaleDateString() : 'Flexible') + ' • 🚛 ' + vehicleTypeName(t.vehicle_type_id) + (isExpired ? ' • <span style="color:#dc2626;font-weight:700;">Expired</span>' : '') + '</div>' +
                     '<div class="stats-row-profile">' +
-                        '<span onclick="openStatsModal(\'active_trucks\', \'' + t.id + '\', \'views\')">👁️ ' + vCount + '</span>' +
-                        '<span onclick="openStatsModal(\'active_trucks\', \'' + t.id + '\', \'calls\')">📞 ' + cCount + '</span>' +
-                        '<span onclick="openStatsModal(\'active_trucks\', \'' + t.id + '\', \'endorsements\')">⭐ ' + eCount + '</span>' +
-                        '<span onclick="openStatsModal(\'active_trucks\', \'' + t.id + '\', \'flags\')">🚩 ' + fCount + '</span>' +
+                        '<span onclick="event.stopPropagation(); openStatsModal(\'active_trucks\', \'' + t.id + '\', \'views\')">👁️ ' + vCount + '</span>' +
+                        '<span onclick="event.stopPropagation(); openStatsModal(\'active_trucks\', \'' + t.id + '\', \'calls\')">📞 ' + cCount + '</span>' +
+                        '<span onclick="event.stopPropagation(); openStatsModal(\'active_trucks\', \'' + t.id + '\', \'endorsements\')">⭐ ' + eCount + '</span>' +
+                        '<span onclick="event.stopPropagation(); openStatsModal(\'active_trucks\', \'' + t.id + '\', \'flags\')">🚩 ' + fCount + '</span>' +
                     '</div>' +
                     '<div class="actions">' +
-                    '<button class="renew" onclick="renewTruckItem(\'' + t.id + '\')">🔄 Renew</button>' +
-                    '<button class="edit" onclick="editTruck(\'' + t.id + '\')">✏️ Edit</button>' +
-                    '<button class="delete" onclick="deleteTruckItem(\'' + t.id + '\')">🗑️ Delete</button>' +
+                    '<button class="renew" onclick="event.stopPropagation(); renewTruckItem(\'' + t.id + '\')">🔄 Renew</button>' +
+                    '<button class="edit" onclick="event.stopPropagation(); editTruck(\'' + t.id + '\')">✏️ Edit</button>' +
+                    '<button class="delete" onclick="event.stopPropagation(); deleteTruckItem(\'' + t.id + '\')">🗑️ Delete</button>' +
                     '</div></div>';
             }).join('');
+        }).catch(err => {
+            console.error('Error loading trucks:', err);
+            container.innerHTML = '<div style="color:#f87171;font-size:13px;text-align:center;padding:8px">❌ Error loading trucks</div>';
         });
 }
 
