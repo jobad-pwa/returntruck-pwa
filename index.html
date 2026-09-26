@@ -246,6 +246,8 @@ textarea.form-control:focus{background:#f8fafc !important;box-shadow:0 0 0 3px r
 .list-item .actions .edit:hover { background: #bfdbfe; }
 .list-item .actions .delete { background: #fef2f2; color: #991b1b; }
 .list-item .actions .delete:hover { background: #fee2e2; }
+.list-item .actions .wa-agents { background: #dcfce7; color: #166534; width: 100%; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+.list-item .actions .wa-agents:hover { background: #bbf7d0; }
 .list-item .stats-row-profile { margin-top: 8px; padding-top: 8px; border-top: 1px solid #e8ecf0; display: flex; gap: 12px; font-size: 12px; color: #475569; }
 .list-item .stats-row-profile span { cursor: pointer; display: flex; align-items: center; gap: 3px; padding: 2px 6px; border-radius: 4px; background: #f1f5f9; transition: background 0.2s; }
 .list-item .stats-row-profile span:hover { background: #e2e8f0; }
@@ -676,6 +678,38 @@ textarea.form-control:focus{background:#f8fafc !important;box-shadow:0 0 0 3px r
 <!-- VEHICLE MODAL -->
 <div class="vehicle-modal" id="vehicle-modal"><div class="vehicle-modal-content"><div class="modal-header"><h3 id="modal-vehicle-title">📝 Register New Vehicle</h3><button class="modal-close" onclick="closeVehicleModal()">✕</button></div><div class="form-group"><label class="form-label">🚛 Vehicle Number (Read Only)</label><div class="readonly-number" id="modal-vehicle-number-display"></div><input type="hidden" id="modal-vehicle-number"></div><div class="form-group"><label class="form-label">🚛 Vehicle Type *</label><select class="form-control" id="modal-vehicle-type"><option value="">Select vehicle type...</option><option value="1">3-Wheeler / Tempo</option><option value="2">Mini Truck</option><option value="3">LCV Open Body Truck</option><option value="4">LCV - Container</option><option value="5">LCV - Flat bed</option><option value="6">Open Body Truck</option><option value="7">Box Body Truck</option><option value="8">Flat bed Truck</option><option value="9">Trailer - Open Body</option><option value="10">Trailer - Box Body</option><option value="11">Trailer - High Bed</option><option value="12">Trailer - Semi Low Bed</option><option value="13">Trailer - Low Bed</option><option value="14">Trailer - Automobile Carrier</option><option value="15">Tipper / Dumper</option><option value="16">Tanker</option><option value="17">Cement Bulker</option><option value="18">Refrigerated / Reefer</option><option value="19">Explosive / Hazardous Vehicle</option><option value="20">Over-Dimensional Cargo (ODC)</option></select></div><div class="grid-2"><div class="form-group"><label class="form-label">Length (ft)</label><input class="form-control" id="modal-length" type="number" step="0.1"></div><div class="form-group"><label class="form-label">Width (ft)</label><input class="form-control" id="modal-width" type="number" step="0.1"></div></div><div class="grid-2"><div class="form-group"><label class="form-label">Height (ft)</label><input class="form-control" id="modal-height" type="number" step="0.1"></div><div class="form-group"><label class="form-label">Max Weight (Kg)</label><input class="form-control" id="modal-max-weight" type="number" placeholder="0"></div></div><div class="form-group"><label class="form-label">📝 Description</label><input class="form-control" id="modal-description" placeholder="Vehicle description..."></div><div class="form-group"><label class="form-label">🚛 ODC Allowed</label><div style="display:flex;gap:16px;margin-top:4px"><label><input type="radio" name="modal-odc" value="true" checked> Yes</label><label><input type="radio" name="modal-odc" value="false"> No</label></div></div><button class="btn-primary success" onclick="saveVehicleModal()">💾 Save Vehicle</button><button class="btn-primary" style="background:#dc2626;margin-top:6px" onclick="deleteVehicleFromModal()">🗑️ Delete Vehicle</button><input type="hidden" id="modal-vehicle-id"><input type="hidden" id="modal-edit-mode"></div></div>
 
+<!-- AGENT MODAL -->
+<div class="vehicle-modal" id="agent-modal">
+    <div class="vehicle-modal-content">
+        <div class="modal-header">
+            <h3 id="modal-agent-title">📝 Add New Agent</h3>
+            <button class="modal-close" onclick="closeAgentModal()">✕</button>
+        </div>
+        <div class="form-group">
+            <label class="form-label">📱 Mobile Number (Read Only)</label>
+            <div class="readonly-number" id="modal-agent-mobile-display"></div>
+            <input type="hidden" id="modal-agent-mobile">
+        </div>
+        <div class="form-group">
+            <label class="form-label">👤 Full Name *</label>
+            <input class="form-control" id="modal-agent-name" placeholder="Rajesh Kumar">
+        </div>
+        <div class="form-group">
+            <label class="form-label">🏢 Company Name</label>
+            <input class="form-control" id="modal-agent-company" placeholder="ABC Logistics">
+        </div>
+        <div class="grid-2">
+            <div class="form-group"><label class="form-label">📛 PAN</label><input class="form-control" id="modal-agent-pan" placeholder="AABCP1234D"></div>
+            <div class="form-group"><label class="form-label">📛 GST</label><input class="form-control" id="modal-agent-gst" placeholder="22AABC1234D1ZP"></div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">📝 About / Details</label>
+            <textarea class="form-control" id="modal-agent-details" rows="2" placeholder="About the agent..."></textarea>
+        </div>
+        <button class="btn-primary success" onclick="saveAgentModal()">💾 Save Agent</button>
+    </div>
+</div>
+
 <!-- STATS MODAL -->
 <div class="stats-modal" id="stats-modal">
     <div class="stats-modal-content">
@@ -742,6 +776,7 @@ let pendingDeepLink = null;
 let currentTruckVehicleData = null;
 let editingLoadId = null;
 let editingTruckId = null;
+let pendingAgentContext = null;
 
 // ============================================================
 // NUMBER FORMATTING
@@ -1322,7 +1357,26 @@ async function checkUserAndShowStep(mobileNum) {
         });
         const result = await resp.json();
         showMobileLoading(false);
+        
         if (result.exists === true) {
+            // Check if it's a ghost user (front-end check)
+            const { data: userData, error: userError } = await sb.from('active_users').select('pin').eq('mobile', mobileNum).single();
+            if (!userError && userData && (userData.pin === '9999' || userData.pin === 9999 || userData.pin === null)) {
+                // Ghost user - route to OTP
+                otpPurpose = 'ghost_claim';
+                document.getElementById('step1').classList.add('hidden');
+                document.getElementById('step3').classList.remove('hidden');
+                document.getElementById('wa-display-mobile').textContent = mobileNum;
+                document.getElementById('otp-purpose').textContent = 'Verify OTP to activate your account';
+                const status = document.getElementById('mobile-status');
+                status.textContent = '📝 First time login - Verify OTP'; status.style.color = '#f59e0b';
+                const otpLoading = document.getElementById('otp-loading'); otpLoading.classList.remove('hidden');
+                await sendWhatsAppOTP();
+                otpLoading.classList.add('hidden');
+                return;
+            }
+            
+            // Normal existing user
             document.getElementById('step1').classList.add('hidden');
             document.getElementById('step2').classList.remove('hidden');
             document.getElementById('display-mobile').textContent = mobileNum;
@@ -1355,7 +1409,7 @@ async function checkUserAndShowStep(mobileNum) {
 function sendWhatsAppOTP() {
     if (!mobile || mobile.length !== 10) return;
     const otp = generateOTP(); generatedOTP = otp;
-    const purposeText = (otpPurpose === 'reset') ? 'PIN Reset' : 'Registration';
+    const purposeText = (otpPurpose === 'reset') ? 'PIN Reset' : (otpPurpose === 'ghost_claim' ? 'Account Activation' : 'Registration');
     const message = '🔐 ReturnTruck - ' + purposeText + '\n\nYour OTP is: ' + otp + '\n\nThis OTP is valid for 5 minutes.\n\n📱 Mobile: ' + mobile + '\n\n- ReturnTruck Team';
     const otpLoading = document.getElementById('otp-loading'); otpLoading.classList.remove('hidden');
     window.open('https://wa.me/91' + mobile + '?text=' + encodeURIComponent(message), '_blank');
@@ -1381,6 +1435,7 @@ function resetForm() {
 function submitPin() {
     const pin = document.getElementById('pin').value.trim();
     if (!pin || pin.length !== 4) { document.getElementById('pin-error').style.display = 'block'; document.getElementById('pin-error').textContent = '❌ Please enter a 4-digit PIN'; return; }
+    if (pin === '9999') { document.getElementById('pin-error').style.display = 'block'; document.getElementById('pin-error').textContent = '❌ PIN 9999 is reserved.'; return; }
     const btn = document.getElementById('submitBtn'); btn.textContent = '⏳ Checking...'; btn.disabled = true;
     document.getElementById('pin-error').style.display = 'none';
     fetch(EDGE_URL + '/login-user', {
@@ -1418,7 +1473,29 @@ function registerUser() {
     const pin = document.getElementById('reg-pin').value.trim();
     const conf = document.getElementById('reg-pin-confirm').value.trim();
     if (!pin || pin.length !== 4 || pin !== conf) { document.getElementById('reg-pin-confirm').value = ''; document.getElementById('reg-pin-confirm').focus(); return; }
+    if (pin === '9999') { alert('❌ PIN 9999 is reserved and not allowed. Please choose another PIN.'); return; }
+    
     const btn = document.getElementById('register-btn'); btn.textContent = '⏳ Processing...'; btn.disabled = true;
+    
+    if (otpPurpose === 'ghost_claim') {
+        // Direct frontend update for ghost user
+        sb.from('active_users').update({ pin: pin, last_active: new Date().toISOString() }).eq('mobile', mobile).then(res => {
+            if (res.error) { alert('Error: ' + res.error.message); btn.textContent = '✅ Create Account'; btn.disabled = false; return; }
+            // Fetch updated user
+            sb.from('active_users').select('*').eq('mobile', mobile).single().then(uRes => {
+                if (uRes.data) {
+                    user = uRes.data; user.mobile = mobile;
+                    localStorage.setItem('rt_user', JSON.stringify({ mobile: user.mobile, user: user }));
+                    guest = false; showHome();
+                } else {
+                    alert('Error logging in. Please try again.');
+                    btn.textContent = '✅ Create Account'; btn.disabled = false;
+                }
+            });
+        });
+        return;
+    }
+
     if (otpPurpose === 'reset') {
         fetch(EDGE_URL + '/login-user', {
             method: 'POST',
@@ -1434,6 +1511,7 @@ function registerUser() {
         });
         return;
     }
+    
     fetch(EDGE_URL + '/register-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
@@ -1484,6 +1562,9 @@ function verifyOTP() {
             if (otpPurpose === 'reset') {
                 document.getElementById('step4-purpose').textContent = 'Set your new 4-digit PIN';
                 document.getElementById('register-btn').textContent = '🔄 Reset PIN';
+            } else if (otpPurpose === 'ghost_claim') {
+                document.getElementById('step4-purpose').textContent = 'Set your 4-digit PIN for login';
+                document.getElementById('register-btn').textContent = '✅ Create Account';
             } else {
                 document.getElementById('step4-purpose').textContent = 'Set your 4-digit PIN for login';
                 document.getElementById('register-btn').textContent = '✅ Create Account';
@@ -2474,18 +2555,82 @@ function addAgentFromSearch(inputId, dropdownId, containerId, hiddenId) {
                         renderAgentsUI(); input.value = ''; updateAgentHiddenField(); toast('✅ Agent added');
                     } else toast('User is not an agent (user_type must include 3)');
                 } else {
-                    agents = addUniqueToArray(agents, mobileNum);
-                    agentDataMap[mobileNum] = { mobile: mobileNum, name: 'Agent ' + mobileNum, company: '' };
-                    renderAgentsUI(); input.value = ''; updateAgentHiddenField(); toast('✅ Agent added manually');
+                    // Open modal to create ghost agent
+                    showAgentModal(mobileNum, inputId, dropdownId);
                 }
             }).catch(() => {
-                agents = addUniqueToArray(agents, mobileNum);
-                agentDataMap[mobileNum] = { mobile: mobileNum, name: 'Agent ' + mobileNum, company: '' };
-                renderAgentsUI(); input.value = ''; updateAgentHiddenField(); toast('✅ Agent added manually');
+                // Open modal to create ghost agent
+                showAgentModal(mobileNum, inputId, dropdownId);
             });
         return;
     }
     toast('Please search and select an agent from the dropdown, or enter a 10-digit mobile number');
+}
+function showAgentModal(mobileNum, inputId, dropdownId) {
+    pendingAgentContext = { mobileNum, inputId, dropdownId };
+    document.getElementById('modal-agent-mobile-display').textContent = mobileNum;
+    document.getElementById('modal-agent-mobile').value = mobileNum;
+    document.getElementById('modal-agent-name').value = '';
+    document.getElementById('modal-agent-company').value = '';
+    document.getElementById('modal-agent-pan').value = '';
+    document.getElementById('modal-agent-gst').value = '';
+    document.getElementById('modal-agent-details').value = '';
+    document.getElementById('agent-modal').classList.add('show');
+}
+function closeAgentModal() {
+    document.getElementById('agent-modal').classList.remove('show');
+    pendingAgentContext = null;
+}
+function saveAgentModal() {
+    if (!pendingAgentContext) return;
+    const mobileNum = pendingAgentContext.mobileNum;
+    const name = document.getElementById('modal-agent-name').value.trim();
+    if (!name) { alert('❌ Name is required'); return; }
+
+    const company = document.getElementById('modal-agent-company').value.trim();
+    const pan = document.getElementById('modal-agent-pan').value.trim();
+    const gst = document.getElementById('modal-agent-gst').value.trim();
+    const details = document.getElementById('modal-agent-details').value.trim();
+
+    const ghostUser = {
+        mobile: mobileNum,
+        name: name,
+        company_name: company || null,
+        company_web: null,
+        pan: pan || null,
+        gst: gst || null,
+        details: details || null,
+        location: null,
+        user_type: [3],
+        pin: '9999',
+        vehicle_no: null,
+        preferred_routes: null,
+        agents: null,
+        views: [],
+        calls: [],
+        endorsements: [],
+        flags: [],
+        last_active: new Date().toISOString()
+    };
+
+    sb.from('active_users').insert(ghostUser).then(res => {
+        if (res.error) {
+            alert('❌ Error adding agent: ' + res.error.message);
+            return;
+        }
+        
+        // Success
+        agents = addUniqueToArray(agents, mobileNum);
+        agentDataMap[mobileNum] = { mobile: mobileNum, name: name, company: company || '' };
+        
+        renderAgentsUI();
+        document.getElementById(pendingAgentContext.inputId).value = '';
+        document.getElementById(pendingAgentContext.dropdownId).classList.remove('show');
+        updateAgentHiddenField();
+        
+        toast('✅ Agent added successfully');
+        closeAgentModal();
+    });
 }
 function removeAgent(mobile) {
     if (!confirm('Remove this agent?')) return;
@@ -3134,6 +3279,7 @@ function loadMyLoads() {
                 const eCount = getUniqueCount(l.endorsements);
                 const fCount = getUniqueCount(l.flags);
                 const isExpired = l.expires_at && new Date(l.expires_at) < new Date();
+                const agentCount = Array.isArray(l.agents) ? l.agents.length : 0;
                 
                 return '<div class="list-item" onclick="openDetail(\'LOAD\', \'' + l.id + '\')" style="cursor:pointer;">' +
                     '<div class="title">' + (isExpired ? '⚠️ ' : '') + materialName(l.material_id) + ' • ' + getLocName(l.pickup_pin) + ' → ' + getLocName(l.drop_pin) + '</div>' +
@@ -3148,6 +3294,7 @@ function loadMyLoads() {
                     '<button class="renew" onclick="event.stopPropagation(); renewLoadItem(\'' + l.id + '\')">🔄 Renew</button>' +
                     '<button class="edit" onclick="event.stopPropagation(); editLoad(\'' + l.id + '\')">✏️ Edit</button>' +
                     '<button class="delete" onclick="event.stopPropagation(); deleteLoadItem(\'' + l.id + '\')">🗑️ Delete</button>' +
+                    (agentCount > 0 ? '<button class="wa-agents" onclick="event.stopPropagation(); whatsappAllAgents(\'' + l.id + '\', \'LOAD\')">📱 WhatsApp Agents (' + agentCount + ')</button>' : '') +
                     '</div></div>';
             }).join('');
         }).catch(err => {
@@ -3179,6 +3326,7 @@ function loadMyTrucks() {
                 const eCount = getUniqueCount(t.endorsements);
                 const fCount = getUniqueCount(t.flags);
                 const isExpired = t.expires_at && new Date(t.expires_at) < new Date();
+                const agentCount = Array.isArray(t.agents) ? t.agents.length : 0;
                 
                 return '<div class="list-item" onclick="openDetail(\'TRUCK\', \'' + t.id + '\')" style="cursor:pointer;">' +
                     '<div class="title">' + (isExpired ? '⚠️ ' : '') + t.truck_no + ' • 📍 ' + getLocName(t.location_pin) + '</div>' +
@@ -3193,12 +3341,65 @@ function loadMyTrucks() {
                     '<button class="renew" onclick="event.stopPropagation(); renewTruckItem(\'' + t.id + '\')">🔄 Renew</button>' +
                     '<button class="edit" onclick="event.stopPropagation(); editTruck(\'' + t.id + '\')">✏️ Edit</button>' +
                     '<button class="delete" onclick="event.stopPropagation(); deleteTruckItem(\'' + t.id + '\')">🗑️ Delete</button>' +
+                    (agentCount > 0 ? '<button class="wa-agents" onclick="event.stopPropagation(); whatsappAllAgents(\'' + t.id + '\', \'TRUCK\')">📱 WhatsApp Agents (' + agentCount + ')</button>' : '') +
                     '</div></div>';
             }).join('');
         }).catch(err => {
             console.error('Error loading trucks:', err);
             container.innerHTML = '<div style="color:#f87171;font-size:13px;text-align:center;padding:8px">❌ Error loading trucks</div>';
         });
+}
+
+async function whatsappAllAgents(id, type) {
+    showLoading('Fetching agent details...');
+    try {
+        const table = type === 'LOAD' ? 'active_loads' : 'active_trucks';
+        const { data, error } = await sb.from(table).select('*').eq('id', id).single();
+        if (error || !data) throw new Error('Could not fetch item');
+        
+        let agentMobiles = data.agents || [];
+        if (!Array.isArray(agentMobiles) || agentMobiles.length === 0) {
+            hideLoading();
+            toast('No agents associated with this item');
+            return;
+        }
+        
+        const { data: agentUsers } = await sb.from('active_users').select('mobile, name').in('mobile', agentMobiles);
+        const agentMap = {};
+        (agentUsers || []).forEach(a => agentMap[a.mobile] = a.name);
+        
+        let msg = '';
+        if (type === 'LOAD') {
+            const fromLoc = getLoc(data.pickup_pin);
+            const toLoc = getLoc(data.drop_pin);
+            const fromStr = fromLoc ? `${fromLoc.name}, ${fromLoc.district}` : 'N/A';
+            const toStr = toLoc ? `${toLoc.name}, ${toLoc.district}` : 'N/A';
+            msg = `📦 *LOAD AVAILABLE*\n\nMaterial: ${materialName(data.material_id)}\nFrom: ${fromStr}\nTo: ${toStr}\nWeight: ${formatIndianNumber(data.weight || 0)} kg\nRate: ₹${formatIndianNumber(data.rate || 0)}\nDate: ${data.pickup_date ? new Date(data.pickup_date).toLocaleDateString('en-IN') : 'Flexible'}\n\n🔗 https://returntruck-pwa.vercel.app/?listing=LOAD_${id}`;
+        } else {
+            const loc = getLoc(data.location_pin);
+            const locStr = loc ? `${loc.name}, ${loc.district}` : 'N/A';
+            msg = `🚛 *TRUCK AVAILABLE*\n\nVehicle: ${data.truck_no}\nLocation: ${locStr}\nRate/KM: ₹${formatIndianNumber(data.rate || 0)}\nAvailable: ${data.available_date ? new Date(data.available_date).toLocaleDateString('en-IN') : 'Now'}\n\n🔗 https://returntruck-pwa.vercel.app/?listing=TRUCK_${id}`;
+        }
+        
+        hideLoading();
+        
+        if (agentMobiles.length === 1) {
+            window.open('https://wa.me/91' + agentMobiles[0] + '?text=' + encodeURIComponent(msg), '_blank');
+        } else {
+            if (!confirm(`Send WhatsApp message to ${agentMobiles.length} agents? Browsers may block multiple pop-ups. Please allow pop-ups for this site.`)) return;
+            
+            agentMobiles.forEach((mobile, index) => {
+                setTimeout(() => {
+                    window.open('https://wa.me/91' + mobile + '?text=' + encodeURIComponent(msg), '_blank');
+                }, index * 1000);
+            });
+            toast('📱 Opening WhatsApp chats. Please tap Send for each.');
+        }
+    } catch (e) {
+        console.error(e);
+        hideLoading();
+        alert('Error preparing WhatsApp message: ' + e.message);
+    }
 }
 
 function renewLoadItem(id) {
