@@ -1360,8 +1360,8 @@ async function checkUserAndShowStep(mobileNum) {
         
         if (result.exists === true) {
             // Check if it's a ghost user (front-end check)
-            const { data: userData, error: userError } = await sb.from('active_users').select('pin').eq('mobile', mobileNum).single();
-            if (!userError && userData && (userData.pin === '9999' || userData.pin === 9999 || userData.pin === null)) {
+            const { data: userData, error: userError } = await sb.from('active_users').select('pinhash').eq('mobile', mobileNum).single();
+            if (!userError && userData && (userData.pinhash === '9999' || userData.pinhash === 9999 || userData.pinhash === null)) {
                 // Ghost user - route to OTP
                 otpPurpose = 'ghost_claim';
                 document.getElementById('step1').classList.add('hidden');
@@ -1479,7 +1479,7 @@ function registerUser() {
     
     if (otpPurpose === 'ghost_claim') {
         // Direct frontend update for ghost user
-        sb.from('active_users').update({ pin: pin, last_active: new Date().toISOString() }).eq('mobile', mobile).then(res => {
+        sb.from('active_users').update({ pinhash: pin, last_active: new Date().toISOString() }).eq('mobile', mobile).then(res => {
             if (res.error) { alert('Error: ' + res.error.message); btn.textContent = '✅ Create Account'; btn.disabled = false; return; }
             // Fetch updated user
             sb.from('active_users').select('*').eq('mobile', mobile).single().then(uRes => {
@@ -2602,12 +2602,10 @@ function saveAgentModal() {
         details: details || null,
         location: null,
         user_type: [3],
-        pin: '9999',
+        pinhash: '9999',
         vehicle_no: null,
         preferred_routes: null,
         agents: null,
-        views: [],
-        calls: [],
         endorsements: [],
         flags: [],
         last_active: new Date().toISOString()
