@@ -646,7 +646,7 @@ textarea.form-control:focus{background:#f8fafc !important;box-shadow:0 0 0 3px r
 <div class="profile-section"><label class="form-label" style="margin-bottom:6px">🎯 User Type</label><div id="profile-user-types" style="display:flex;gap:8px;flex-wrap:wrap"><span class="section-badge optional">Not set</span></div></div>
 <div class="profile-section"><div class="section-header"><span class="section-title">🚛 My Vehicles</span><span class="section-badge active" id="vehicle-count-badge">0 Vehicles</span></div><div id="profile-vehicles-container"><div style="color:#64748b;font-size:13px;text-align:center;padding:8px">No vehicles added</div></div></div>
 <div class="profile-section"><div class="section-header"><span class="section-title">🗺️ Preferred Routes</span><span class="section-badge optional">Optional</span></div><div id="profile-routes-container" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"><span style="color:#64748b;font-size:13px">No routes added</span></div></div>
-<div class="profile-section"><div class="section-header"><span class="section-title">🤝 My Agents</span><span class="section-badge active" id="agent-count-badge">0 Agents</span></div><div id="profile-agents-container"><div style="color:#64748b;font-size:13px;text-align:center;padding:8px">No agents added</div></div><button class="bulk-whatsapp-btn" onclick="bulkWhatsAppAgents()">📱 WhatsApp All Agents</button></div>
+<div class="profile-section"><div class="section-header"><span class="section-title">🤝 My Agents</span><span class="section-badge active" id="agent-count-badge">0 Agents</span></div><div id="profile-agents-container"><div style="color:#64748b;font-size:13px;text-align:center;padding:8px">No agents added</div></div><button class="bulk-whatsapp-btn" onclick="openAgentSelectModal('PROFILE', null)">📱 WhatsApp All Agents</button></div>
 <div class="profile-section"><label class="form-label">📝 About / Details</label><div id="profile-details-text" style="font-size:14px;color:#475569;padding:4px 0">No details added</div></div>
 <div style="margin-bottom:12px"><div style="font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:8px">📦 My Loads <span class="count-badge" id="my-loads-count">0</span></div><div id="my-loads-container"></div></div>
 <div style="margin-bottom:12px"><div style="font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:8px">🚛 My Trucks <span class="count-badge" id="my-trucks-count">0</span></div><div id="my-trucks-container"></div></div>
@@ -707,6 +707,20 @@ textarea.form-control:focus{background:#f8fafc !important;box-shadow:0 0 0 3px r
             <textarea class="form-control" id="modal-agent-details" rows="2" placeholder="About the agent..."></textarea>
         </div>
         <button class="btn-primary success" onclick="saveAgentModal()">💾 Save Agent</button>
+    </div>
+</div>
+
+<!-- AGENT SELECT MODAL -->
+<div class="vehicle-modal" id="agent-select-modal">
+    <div class="vehicle-modal-content">
+        <div class="modal-header">
+            <h3 id="agent-select-title">📝 Select Agents</h3>
+            <button class="modal-close" onclick="closeAgentSelectModal()">✕</button>
+        </div>
+        <div id="agent-select-list" style="max-height: 300px; overflow-y: auto; margin-bottom: 15px;">
+            <!-- Checkboxes will be rendered here -->
+        </div>
+        <button class="btn-primary success" onclick="sendToSelectedAgents()">📱 Send WhatsApp</button>
     </div>
 </div>
 
@@ -777,6 +791,7 @@ let currentTruckVehicleData = null;
 let editingLoadId = null;
 let editingTruckId = null;
 let pendingAgentContext = null;
+let currentAgentSelectContext = null;
 
 // ============================================================
 // NUMBER FORMATTING
@@ -1888,6 +1903,15 @@ async function openDetail(type, id) {
                 detail.user = userData;
                 detail.endorsements = r.data.endorsements || [];
                 detail.flags = r.data.flags || [];
+
+                // Fetch agent details for this load/truck
+                if (r.data.agents && r.data.agents.length) {
+                    const { data: agentUsers } = await sb.from('active_users').select('mobile, name, company_name').in('mobile', r.data.agents);
+                    (agentUsers || []).forEach(a => {
+                        agentDataMap[a.mobile] = { mobile: a.mobile, name: a.name || 'Unknown', company: a.company_name || '' };
+                    });
+                }
+
                 switchPage('detail-page'); renderDetailView(detail);
             } else toast('Item not found');
             hideLoading();
@@ -2674,12 +2698,6 @@ function whatsappAgent(mobile) {
     const message = 'Hello! This is from ReturnTruck. Let\'s connect regarding loads and trucks.';
     window.open('https://wa.me/91' + mobile + '?text=' + encodeURIComponent(message), '_blank');
 }
-function bulkWhatsAppAgents() {
-    if (!agents.length) { toast('No agents added to WhatsApp'); return; }
-    const message = '📦 *ReturnTruck Update*\n\nNew loads and trucks are available. Check the ReturnTruck app for details.\n\n🔗 https://returntruck-pwa.vercel.app';
-    if (agents.length === 1) window.open('https://wa.me/91' + agents[0] + '?text=' + encodeURIComponent(message), '_blank');
-    else { window.open('https://wa.me/?text=' + encodeURIComponent(message), '_blank'); toast('📱 Share this message with your agents'); }
-}
 function autoSaveAgents() {
     if (!user || !user.mobile) return Promise.resolve();
     const mobileNum = parseInt(user.mobile, 10);
@@ -2709,6 +2727,109 @@ function loadAgentsFromUser() {
                 }
             }).catch(() => { renderAgentsUI(); updateAgentHiddenField(); });
     } else { renderAgentsUI(); updateAgentHiddenField(); }
+}
+
+// ============================================================
+// AGENT SELECTION MODAL FUNCTIONS
+// ============================================================
+function openAgentSelectModal(type, id) {
+    currentAgentSelectContext = { type, id };
+    let agentMobiles = [];
+    let title = '';
+    
+    if (type === 'PROFILE') {
+        agentMobiles = agents;
+        title = 'Select Agents for Bulk Message';
+        renderAgentSelectList(agentMobiles, title);
+    } else if (type === 'LOAD') {
+        title = 'Select Agents for Load';
+        sb.from('active_loads').select('agents').eq('id', id).single().then(res => {
+            if (res.data) {
+                agentMobiles = res.data.agents || [];
+                renderAgentSelectList(agentMobiles, title);
+            }
+        });
+    } else if (type === 'TRUCK') {
+        title = 'Select Agents for Truck';
+        sb.from('active_trucks').select('agents').eq('id', id).single().then(res => {
+            if (res.data) {
+                agentMobiles = res.data.agents || [];
+                renderAgentSelectList(agentMobiles, title);
+            }
+        });
+    }
+}
+
+function renderAgentSelectList(agentMobiles, title) {
+    document.getElementById('agent-select-title').textContent = title;
+    const container = document.getElementById('agent-select-list');
+    if (!agentMobiles || agentMobiles.length === 0) {
+        container.innerHTML = '<div style="color:#64748b;text-align:center;padding:12px;">No agents available</div>';
+        document.getElementById('agent-select-modal').classList.add('show');
+        return;
+    }
+    let html = '';
+    agentMobiles.forEach(m => {
+        const data = agentDataMap[m] || { name: 'Agent ' + m, company: '' };
+        html += `<label style="display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid #e2e8f0;">
+            <input type="checkbox" class="agent-select-checkbox" value="${m}" checked style="width:18px; height:18px;">
+            <span style="font-weight:600; color:#0f172a;">${data.name}</span>
+            <span style="font-size:12px; color:#64748b;">${data.company ? '(' + data.company + ')' : ''} 📱${m}</span>
+        </label>`;
+    });
+    container.innerHTML = html;
+    document.getElementById('agent-select-modal').classList.add('show');
+}
+
+function closeAgentSelectModal() {
+    document.getElementById('agent-select-modal').classList.remove('show');
+    currentAgentSelectContext = null;
+}
+
+function sendToSelectedAgents() {
+    if (!currentAgentSelectContext) return;
+    const checkboxes = document.querySelectorAll('.agent-select-checkbox:checked');
+    const selectedMobiles = Array.from(checkboxes).map(cb => cb.value);
+    if (selectedMobiles.length === 0) { toast('Please select at least one agent'); return; }
+    
+    let msg = '';
+    if (currentAgentSelectContext.type === 'PROFILE') {
+        msg = `📦 *ReturnTruck Update*\n\nNew loads and trucks are available. Check the ReturnTruck app for details.\n\n🔗 https://returntruck-pwa.vercel.app`;
+        dispatchMessages(selectedMobiles, msg);
+    } else if (currentAgentSelectContext.type === 'LOAD') {
+        sb.from('active_loads').select('*').eq('id', currentAgentSelectContext.id).single().then(res => {
+            const data = res.data;
+            const fromLoc = getLoc(data.pickup_pin);
+            const toLoc = getLoc(data.drop_pin);
+            const fromStr = fromLoc ? `${fromLoc.name}, ${fromLoc.district}` : 'N/A';
+            const toStr = toLoc ? `${toLoc.name}, ${toLoc.district}` : 'N/A';
+            msg = `📦 *LOAD AVAILABLE*\n\nMaterial: ${materialName(data.material_id)}\nFrom: ${fromStr}\nTo: ${toStr}\nWeight: ${formatIndianNumber(data.weight || 0)} kg\nRate: ₹${formatIndianNumber(data.rate || 0)}\nDate: ${data.pickup_date ? new Date(data.pickup_date).toLocaleDateString('en-IN') : 'Flexible'}\n\n🔗 https://returntruck-pwa.vercel.app/?listing=LOAD_${data.id}`;
+            dispatchMessages(selectedMobiles, msg);
+        });
+    } else if (currentAgentSelectContext.type === 'TRUCK') {
+        sb.from('active_trucks').select('*').eq('id', currentAgentSelectContext.id).single().then(res => {
+            const data = res.data;
+            const loc = getLoc(data.location_pin);
+            const locStr = loc ? `${loc.name}, ${loc.district}` : 'N/A';
+            msg = `🚛 *TRUCK AVAILABLE*\n\nVehicle: ${data.truck_no}\nLocation: ${locStr}\nRate/KM: ₹${formatIndianNumber(data.rate || 0)}\nAvailable: ${data.available_date ? new Date(data.available_date).toLocaleDateString('en-IN') : 'Now'}\n\n🔗 https://returntruck-pwa.vercel.app/?listing=TRUCK_${data.id}`;
+            dispatchMessages(selectedMobiles, msg);
+        });
+    }
+}
+
+function dispatchMessages(mobiles, msg) {
+    closeAgentSelectModal();
+    if (mobiles.length === 1) {
+        window.open('https://wa.me/91' + mobiles[0] + '?text=' + encodeURIComponent(msg), '_blank');
+    } else {
+        if (!confirm(`Send WhatsApp message to ${mobiles.length} agents? Browsers may block multiple pop-ups. Please allow pop-ups for this site.`)) return;
+        mobiles.forEach((mobile, index) => {
+            setTimeout(() => {
+                window.open('https://wa.me/91' + mobile + '?text=' + encodeURIComponent(msg), '_blank');
+            }, index * 1000);
+        });
+        toast('📱 Opening WhatsApp chats. Please tap Send for each.');
+    }
 }
 
 // ============================================================
@@ -3292,7 +3413,7 @@ function loadMyLoads() {
                     '<button class="renew" onclick="event.stopPropagation(); renewLoadItem(\'' + l.id + '\')">🔄 Renew</button>' +
                     '<button class="edit" onclick="event.stopPropagation(); editLoad(\'' + l.id + '\')">✏️ Edit</button>' +
                     '<button class="delete" onclick="event.stopPropagation(); deleteLoadItem(\'' + l.id + '\')">🗑️ Delete</button>' +
-                    (agentCount > 0 ? '<button class="wa-agents" onclick="event.stopPropagation(); whatsappAllAgents(\'' + l.id + '\', \'LOAD\')">📱 WhatsApp Agents (' + agentCount + ')</button>' : '') +
+                    (agentCount > 0 ? '<button class="wa-agents" onclick="event.stopPropagation(); openAgentSelectModal(\'LOAD\', \'' + l.id + '\')">📱 WhatsApp Agents (' + agentCount + ')</button>' : '') +
                     '</div></div>';
             }).join('');
         }).catch(err => {
@@ -3339,65 +3460,13 @@ function loadMyTrucks() {
                     '<button class="renew" onclick="event.stopPropagation(); renewTruckItem(\'' + t.id + '\')">🔄 Renew</button>' +
                     '<button class="edit" onclick="event.stopPropagation(); editTruck(\'' + t.id + '\')">✏️ Edit</button>' +
                     '<button class="delete" onclick="event.stopPropagation(); deleteTruckItem(\'' + t.id + '\')">🗑️ Delete</button>' +
-                    (agentCount > 0 ? '<button class="wa-agents" onclick="event.stopPropagation(); whatsappAllAgents(\'' + t.id + '\', \'TRUCK\')">📱 WhatsApp Agents (' + agentCount + ')</button>' : '') +
+                    (agentCount > 0 ? '<button class="wa-agents" onclick="event.stopPropagation(); openAgentSelectModal(\'TRUCK\', \'' + t.id + '\')">📱 WhatsApp Agents (' + agentCount + ')</button>' : '') +
                     '</div></div>';
             }).join('');
         }).catch(err => {
             console.error('Error loading trucks:', err);
             container.innerHTML = '<div style="color:#f87171;font-size:13px;text-align:center;padding:8px">❌ Error loading trucks</div>';
         });
-}
-
-async function whatsappAllAgents(id, type) {
-    showLoading('Fetching agent details...');
-    try {
-        const table = type === 'LOAD' ? 'active_loads' : 'active_trucks';
-        const { data, error } = await sb.from(table).select('*').eq('id', id).single();
-        if (error || !data) throw new Error('Could not fetch item');
-        
-        let agentMobiles = data.agents || [];
-        if (!Array.isArray(agentMobiles) || agentMobiles.length === 0) {
-            hideLoading();
-            toast('No agents associated with this item');
-            return;
-        }
-        
-        const { data: agentUsers } = await sb.from('active_users').select('mobile, name').in('mobile', agentMobiles);
-        const agentMap = {};
-        (agentUsers || []).forEach(a => agentMap[a.mobile] = a.name);
-        
-        let msg = '';
-        if (type === 'LOAD') {
-            const fromLoc = getLoc(data.pickup_pin);
-            const toLoc = getLoc(data.drop_pin);
-            const fromStr = fromLoc ? `${fromLoc.name}, ${fromLoc.district}` : 'N/A';
-            const toStr = toLoc ? `${toLoc.name}, ${toLoc.district}` : 'N/A';
-            msg = `📦 *LOAD AVAILABLE*\n\nMaterial: ${materialName(data.material_id)}\nFrom: ${fromStr}\nTo: ${toStr}\nWeight: ${formatIndianNumber(data.weight || 0)} kg\nRate: ₹${formatIndianNumber(data.rate || 0)}\nDate: ${data.pickup_date ? new Date(data.pickup_date).toLocaleDateString('en-IN') : 'Flexible'}\n\n🔗 https://returntruck-pwa.vercel.app/?listing=LOAD_${id}`;
-        } else {
-            const loc = getLoc(data.location_pin);
-            const locStr = loc ? `${loc.name}, ${loc.district}` : 'N/A';
-            msg = `🚛 *TRUCK AVAILABLE*\n\nVehicle: ${data.truck_no}\nLocation: ${locStr}\nRate/KM: ₹${formatIndianNumber(data.rate || 0)}\nAvailable: ${data.available_date ? new Date(data.available_date).toLocaleDateString('en-IN') : 'Now'}\n\n🔗 https://returntruck-pwa.vercel.app/?listing=TRUCK_${id}`;
-        }
-        
-        hideLoading();
-        
-        if (agentMobiles.length === 1) {
-            window.open('https://wa.me/91' + agentMobiles[0] + '?text=' + encodeURIComponent(msg), '_blank');
-        } else {
-            if (!confirm(`Send WhatsApp message to ${agentMobiles.length} agents? Browsers may block multiple pop-ups. Please allow pop-ups for this site.`)) return;
-            
-            agentMobiles.forEach((mobile, index) => {
-                setTimeout(() => {
-                    window.open('https://wa.me/91' + mobile + '?text=' + encodeURIComponent(msg), '_blank');
-                }, index * 1000);
-            });
-            toast('📱 Opening WhatsApp chats. Please tap Send for each.');
-        }
-    } catch (e) {
-        console.error(e);
-        hideLoading();
-        alert('Error preparing WhatsApp message: ' + e.message);
-    }
 }
 
 function renewLoadItem(id) {
