@@ -2205,9 +2205,9 @@ async function handleFlag(id, type) {
 
 async function handleShareClick() {
     if (!detail) { toast('No details to share'); return; }
-
     const currentMobile = (user && user.mobile) ? parseInt(user.mobile, 10) : 0;
 
+    // Increment endorsement count
     try {
         if (detail.type === 'AGENT') {
             const idVal = parseInt(detail.id, 10);
@@ -2232,101 +2232,11 @@ async function handleShareClick() {
         console.warn('Could not increment endorsement count on share:', e);
     }
 
-    const sep = '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬';
-    const fmtLabel = (label, width) => {
-        const padded = label + ' '.repeat(Math.max(0, width - label.length));
-        return '*' + padded + '*';
-    };
-    const LABEL_WIDTH = 9;
-
-    let msg = '';
-    let shareTitle = '';
-
-    if (detail.type === 'LOAD') {
-        const fromLoc = getLoc(detail.pickup_pin);
-        const toLoc = getLoc(detail.drop_pin);
-        const fromStr = fromLoc ? `${fromLoc.name}, ${fromLoc.district}, ${fromLoc.state}` : 'N/A';
-        const toStr = toLoc ? `${toLoc.name}, ${toLoc.district}, ${toLoc.state}` : 'N/A';
-        const weightStr = detail.weight ? `${formatIndianNumber(detail.weight)} kg` : 'N/A';
-        const dimStr = (detail.dimensions && detail.dimensions.length === 3)
-            ? `(${detail.dimensions[0]}x${detail.dimensions[1]}x${detail.dimensions[2]} ft)` : '';
-        const dateStr = detail.pickup_date
-            ? new Date(detail.pickup_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
-            : 'Flexible';
-        const rateStr = detail.rate ? `₹${formatIndianNumber(detail.rate)} (approx)` : 'Negotiable';
-
-        msg  = `${sep}\n`;
-        msg += `🚛 *LOAD AVAILABLE*\n`;
-        msg += `${sep}\n`;
-        msg += `${fmtLabel('Material', LABEL_WIDTH)} : ${materialName(detail.material_id)}\n`;
-        msg += `${fmtLabel('Vehicle', LABEL_WIDTH)} : ${vehicleTypeName(detail.vehicle_type_id)}\n`;
-        msg += `${fmtLabel('Weight', LABEL_WIDTH)} : ${weightStr} ${dimStr}\n`;
-        msg += `${fmtLabel('From', LABEL_WIDTH)} : ${fromStr}\n`;
-        msg += `${fmtLabel('To', LABEL_WIDTH)} : ${toStr}\n`;
-        msg += `${fmtLabel('Rate', LABEL_WIDTH)} : ${rateStr}\n`;
-        msg += `${fmtLabel('Date', LABEL_WIDTH)} : ${dateStr}\n`;
-        msg += `${sep}\n`;
-
-        shareTitle = 'ReturnTruck - ' + materialName(detail.material_id);
-
-    } else if (detail.type === 'TRUCK') {
-        const loc = getLoc(detail.location_pin);
-        const locStr = loc ? `${loc.name}, ${loc.district}, ${loc.state}` : 'N/A';
-        const dateStr = detail.available_date
-            ? new Date(detail.available_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
-            : 'Available Now';
-        const rateStr = detail.rate ? `₹${formatIndianNumber(detail.rate)}/km` : 'Negotiable';
-
-        msg  = `${sep}\n`;
-        msg += `🚛 *TRUCK AVAILABLE*\n`;
-        msg += `${sep}\n`;
-        msg += `${fmtLabel('Vehicle', LABEL_WIDTH)} : ${detail.truck_no || 'Truck'}\n`;
-        msg += `${fmtLabel('Type', LABEL_WIDTH)} : ${vehicleTypeName(detail.vehicle_type_id)}\n`;
-        msg += `${fmtLabel('Location', LABEL_WIDTH)} : ${locStr}\n`;
-        msg += `${fmtLabel('Rate', LABEL_WIDTH)} : ${rateStr}\n`;
-        msg += `${fmtLabel('Date', LABEL_WIDTH)} : ${dateStr}\n`;
-        msg += `${sep}\n`;
-
-        shareTitle = 'ReturnTruck - ' + (detail.truck_no || 'Truck');
-
-    } else {
-        const u = detail.user || {};
-        msg  = `${sep}\n`;
-        msg += `🤝 *AGENT PROFILE*\n`;
-        msg += `${sep}\n`;
-        msg += `${fmtLabel('Company', LABEL_WIDTH)} : ${u.company_name || u.name || 'N/A'}\n`;
-        msg += `${fmtLabel('Location', LABEL_WIDTH)} : ${u.location ? getLocName(u.location) : 'N/A'}\n`;
-        msg += `${fmtLabel('Contact', LABEL_WIDTH)} : +91 ${u.mobile || ''}\n`;
-        msg += `${sep}\n`;
-
-        shareTitle = 'ReturnTruck - ' + (u.company_name || u.name || 'Agent');
-    }
-
-    const shareUrl = 'https://returntruck-pwa.vercel.app/?listing=' + detail.type + '_' + detail.id;
-    msg += `\n🔗 *Tap for full details:*\n${shareUrl}`;
-
-    let truckVehicleDetails = null;
-    if (detail.type === 'TRUCK' && detail.truck_no) {
-        try {
-            const { data: vehicleData } = await sb.from('active_vehicles').select('*').eq('vehicle_number', detail.truck_no).single();
-            if (vehicleData) truckVehicleDetails = vehicleData;
-        } catch (e) { console.warn('Could not fetch vehicle details:', e); }
-    }
-    currentTruckVehicleData = truckVehicleDetails;
-
-    let file = null;
-    try {
-        const canvas = await renderShareImage(detail, truckVehicleDetails);
-        const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
-        const fileName = 'returntruck-' + detail.type.toLowerCase() + '-' + detail.id + '.png';
-        file = new File([blob], fileName, { type: 'image/png' });
-    } catch (e) {
-        console.error('Canvas generation failed:', e);
-    }
-
+    const { msg, file, title } = await generateShareData(detail.type, detail.id);
+    
     if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
-            await navigator.share({ files: [file], title: shareTitle, text: msg });
+            await navigator.share({ files: [file], title: title, text: msg });
             return;
         } catch (err) {
             if (err.name === 'AbortError') return;
@@ -2336,7 +2246,7 @@ async function handleShareClick() {
 
     if (navigator.share) {
         try {
-            await navigator.share({ title: shareTitle, text: msg });
+            await navigator.share({ title: title, text: msg });
             return;
         } catch (err) {
             if (err.name === 'AbortError') return;
@@ -2365,6 +2275,105 @@ async function handleShareClick() {
     }
 
     window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+}
+
+// ============================================================
+// SHARE DATA GENERATOR (Used for both individual and bulk)
+// ============================================================
+async function generateShareData(type, id) {
+    let data = {};
+    if (type === 'AGENT') {
+        const { data: userData } = await sb.from('active_users').select('*').eq('mobile', parseInt(id, 10)).single();
+        data = { type: 'AGENT', user: userData, mobile: parseInt(id, 10) };
+    } else {
+        const table = type === 'LOAD' ? 'active_loads' : 'active_trucks';
+        const { data: itemData } = await sb.from(table).select('*').eq('id', id).single();
+        data = itemData; data.type = type;
+        const { data: userData } = await sb.from('active_users').select('*').eq('mobile', itemData.mobile).single();
+        data.user = userData;
+    }
+
+    const sep = '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬';
+    const fmtLabel = (label, width) => {
+        const padded = label + ' '.repeat(Math.max(0, width - label.length));
+        return '*' + padded + '*';
+    };
+    const LABEL_WIDTH = 9;
+
+    let msg = '';
+    let shareTitle = '';
+
+    if (type === 'LOAD') {
+        const fromLoc = getLoc(data.pickup_pin);
+        const toLoc = getLoc(data.drop_pin);
+        const fromStr = fromLoc ? `${fromLoc.name}, ${fromLoc.district}, ${fromLoc.state}` : 'N/A';
+        const toStr = toLoc ? `${toLoc.name}, ${toLoc.district}, ${toLoc.state}` : 'N/A';
+        const weightStr = data.weight ? `${formatIndianNumber(data.weight)} kg` : 'N/A';
+        const dimStr = (data.dimensions && data.dimensions.length === 3)
+            ? `(${data.dimensions[0]}x${data.dimensions[1]}x${data.dimensions[2]} ft)` : '';
+        const dateStr = data.pickup_date
+            ? new Date(data.pickup_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+            : 'Flexible';
+        const rateStr = data.rate ? `₹${formatIndianNumber(data.rate)} (approx)` : 'Negotiable';
+
+        msg  = `${sep}\n`;
+        msg += `🚛 *LOAD AVAILABLE*\n`;
+        msg += `${sep}\n`;
+        msg += `${fmtLabel('Material', LABEL_WIDTH)} : ${materialName(data.material_id)}\n`;
+        msg += `${fmtLabel('Vehicle', LABEL_WIDTH)} : ${vehicleTypeName(data.vehicle_type_id)}\n`;
+        msg += `${fmtLabel('Weight', LABEL_WIDTH)} : ${weightStr} ${dimStr}\n`;
+        msg += `${fmtLabel('From', LABEL_WIDTH)} : ${fromStr}\n`;
+        msg += `${fmtLabel('To', LABEL_WIDTH)} : ${toStr}\n`;
+        msg += `${fmtLabel('Rate', LABEL_WIDTH)} : ${rateStr}\n`;
+        msg += `${fmtLabel('Date', LABEL_WIDTH)} : ${dateStr}\n`;
+        msg += `${sep}\n`;
+        shareTitle = 'ReturnTruck - ' + materialName(data.material_id);
+
+    } else if (type === 'TRUCK') {
+        const loc = getLoc(data.location_pin);
+        const locStr = loc ? `${loc.name}, ${loc.district}, ${loc.state}` : 'N/A';
+        const dateStr = data.available_date
+            ? new Date(data.available_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+            : 'Available Now';
+        const rateStr = data.rate ? `₹${formatIndianNumber(data.rate)}/km` : 'Negotiable';
+
+        msg  = `${sep}\n`;
+        msg += `🚛 *TRUCK AVAILABLE*\n`;
+        msg += `${sep}\n`;
+        msg += `${fmtLabel('Vehicle', LABEL_WIDTH)} : ${data.truck_no || 'Truck'}\n`;
+        msg += `${fmtLabel('Type', LABEL_WIDTH)} : ${vehicleTypeName(data.vehicle_type_id)}\n`;
+        msg += `${fmtLabel('Location', LABEL_WIDTH)} : ${locStr}\n`;
+        msg += `${fmtLabel('Rate', LABEL_WIDTH)} : ${rateStr}\n`;
+        msg += `${fmtLabel('Date', LABEL_WIDTH)} : ${dateStr}\n`;
+        msg += `${sep}\n`;
+        shareTitle = 'ReturnTruck - ' + (data.truck_no || 'Truck');
+
+    } else {
+        const u = data.user || {};
+        msg  = `${sep}\n`;
+        msg += `🤝 *AGENT PROFILE*\n`;
+        msg += `${sep}\n`;
+        msg += `${fmtLabel('Company', LABEL_WIDTH)} : ${u.company_name || u.name || 'N/A'}\n`;
+        msg += `${fmtLabel('Location', LABEL_WIDTH)} : ${u.location ? getLocName(u.location) : 'N/A'}\n`;
+        msg += `${fmtLabel('Contact', LABEL_WIDTH)} : +91 ${u.mobile || ''}\n`;
+        msg += `${sep}\n`;
+        shareTitle = 'ReturnTruck - ' + (u.company_name || u.name || 'Agent');
+    }
+
+    const shareUrl = 'https://returntruck-pwa.vercel.app/?listing=' + type + '_' + id;
+    msg += `\n🔗 *Tap for full details:*\n${shareUrl}`;
+
+    let file = null;
+    try {
+        const canvas = await renderShareImage(data, data);
+        const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+        const fileName = 'returntruck-' + type.toLowerCase() + '-' + id + '.png';
+        file = new File([blob], fileName, { type: 'image/png' });
+    } catch (e) {
+        console.error('Canvas generation failed:', e);
+    }
+
+    return { msg, file, title: shareTitle };
 }
 
 // ============================================================
@@ -2786,71 +2795,81 @@ function closeAgentSelectModal() {
     currentAgentSelectContext = null;
 }
 
-function sendToSelectedAgents() {
+async function sendToSelectedAgents() {
     if (!currentAgentSelectContext) return;
     const checkboxes = document.querySelectorAll('.agent-select-checkbox:checked');
     const selectedMobiles = Array.from(checkboxes).map(cb => cb.value);
     if (selectedMobiles.length === 0) { toast('Please select at least one agent'); return; }
     
-    let msg = '';
-    if (currentAgentSelectContext.type === 'PROFILE') {
-        msg = `📦 *ReturnTruck Update*\n\nNew loads and trucks are available. Check the ReturnTruck app for details.\n\n🔗 https://returntruck-pwa.vercel.app`;
-        dispatchMessages(selectedMobiles, msg);
-    } else if (currentAgentSelectContext.type === 'LOAD') {
-        sb.from('active_loads').select('*').eq('id', currentAgentSelectContext.id).single().then(res => {
-            const data = res.data;
-            const fromLoc = getLoc(data.pickup_pin);
-            const toLoc = getLoc(data.drop_pin);
-            const fromStr = fromLoc ? `${fromLoc.name}, ${fromLoc.district}` : 'N/A';
-            const toStr = toLoc ? `${toLoc.name}, ${toLoc.district}` : 'N/A';
-            msg = `📦 *LOAD AVAILABLE*\n\nMaterial: ${materialName(data.material_id)}\nFrom: ${fromStr}\nTo: ${toStr}\nWeight: ${formatIndianNumber(data.weight || 0)} kg\nRate: ₹${formatIndianNumber(data.rate || 0)}\nDate: ${data.pickup_date ? new Date(data.pickup_date).toLocaleDateString('en-IN') : 'Flexible'}\n\n🔗 https://returntruck-pwa.vercel.app/?listing=LOAD_${data.id}`;
-            dispatchMessages(selectedMobiles, msg);
-        });
-    } else if (currentAgentSelectContext.type === 'TRUCK') {
-        sb.from('active_trucks').select('*').eq('id', currentAgentSelectContext.id).single().then(res => {
-            const data = res.data;
-            const loc = getLoc(data.location_pin);
-            const locStr = loc ? `${loc.name}, ${loc.district}` : 'N/A';
-            msg = `🚛 *TRUCK AVAILABLE*\n\nVehicle: ${data.truck_no}\nLocation: ${locStr}\nRate/KM: ₹${formatIndianNumber(data.rate || 0)}\nAvailable: ${data.available_date ? new Date(data.available_date).toLocaleDateString('en-IN') : 'Now'}\n\n🔗 https://returntruck-pwa.vercel.app/?listing=TRUCK_${data.id}`;
-            dispatchMessages(selectedMobiles, msg);
-        });
-    }
-}
+    let type = currentAgentSelectContext.type;
+    let id = currentAgentSelectContext.id;
 
-async function dispatchMessages(mobiles, msg) {
     closeAgentSelectModal();
+    showLoading('Preparing message and image...');
 
-    // 1. Try Native Web Share API (Best for Mobile - allows selecting multiple contacts in WhatsApp)
-    if (navigator.share) {
-        try {
-            await navigator.share({
-                title: 'ReturnTruck - Agent Update',
-                text: msg
-            });
-            return;
-        } catch (err) {
-            if (err.name !== 'AbortError') {
-                console.warn('Share failed:', err);
+    try {
+        let msg = '';
+        let file = null;
+        let title = '';
+
+        if (type === 'PROFILE') {
+            msg = `📦 *ReturnTruck Update*\n\nNew loads and trucks are available. Check the ReturnTruck app for details.\n\n🔗 https://returntruck-pwa.vercel.app`;
+            title = 'ReturnTruck - Agent Update';
+            // No specific image for profile bulk message
+        } else {
+            const shareData = await generateShareData(type, id);
+            msg = shareData.msg;
+            file = shareData.file;
+            title = shareData.title;
+        }
+
+        hideLoading();
+
+        // Execute dispatch
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            // Mobile: Use Web Share API sequentially to ensure rich preview
+            if (!confirm(`You are about to share to ${selectedMobiles.length} agents.\n\nWhatsApp will open for each agent. Please select the agent, hit Send, and the next one will open automatically.\n\nProceed?`)) return;
+            
+            for (let i = 0; i < selectedMobiles.length; i++) {
+                try {
+                    await navigator.share({
+                        files: file ? [file] : [],
+                        title: title,
+                        text: msg
+                    });
+                } catch (err) {
+                    if (err.name === 'AbortError') {
+                        console.log('User cancelled share at agent ' + selectedMobiles[i]);
+                        break; // Stop the loop if the user cancels
+                    }
+                    console.warn('Share failed:', err);
+                }
             }
+        } else {
+            // Desktop: Download image once, then open WA links sequentially
+            if (file) {
+                const url = URL.createObjectURL(file);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = file.name;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 3000);
+            }
+            if (!confirm(`Your browser does not support direct file sharing. \n\nWe will download the image and open WhatsApp for each agent. Please attach the downloaded image manually.\n\nProceed?`)) return;
+            
+            for (let i = 0; i < selectedMobiles.length; i++) {
+                setTimeout(() => {
+                    window.open('https://wa.me/91' + selectedMobiles[i] + '?text=' + encodeURIComponent(msg), '_blank');
+                }, i * 1500);
+            }
+            toast('📸 Image downloaded. Please attach it in the WhatsApp chats.');
         }
-    }
-
-    // 2. Fallback for Desktop or devices without Web Share API
-    if (mobiles.length === 1) {
-        window.open('https://wa.me/91' + mobiles[0] + '?text=' + encodeURIComponent(msg), '_blank');
-    } else {
-        if (!confirm(`Send WhatsApp message to ${mobiles.length} agents?\n\nNote: Browsers block multiple pop-ups. If only one opens, please use the "Copy Message" button below to paste it manually for the rest.`)) return;
-        
-        // Open the first one immediately
-        window.open('https://wa.me/91' + mobiles[0] + '?text=' + encodeURIComponent(msg), '_blank');
-        
-        // Try to open the rest with a longer delay
-        for (let i = 1; i < mobiles.length; i++) {
-            setTimeout(() => {
-                window.open('https://wa.me/91' + mobiles[i] + '?text=' + encodeURIComponent(msg), '_blank');
-            }, i * 2000); // Increased to 2 seconds to give the browser time
-        }
-        toast('📱 Opening WhatsApp chats. If blocked, please copy the message and paste it manually.');
+    } catch (e) {
+        console.error(e);
+        hideLoading();
+        alert('Error preparing message: ' + e.message);
     }
 }
 
