@@ -2817,18 +2817,40 @@ function sendToSelectedAgents() {
     }
 }
 
-function dispatchMessages(mobiles, msg) {
+async function dispatchMessages(mobiles, msg) {
     closeAgentSelectModal();
+
+    // 1. Try Native Web Share API (Best for Mobile - allows selecting multiple contacts in WhatsApp)
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: 'ReturnTruck - Agent Update',
+                text: msg
+            });
+            return;
+        } catch (err) {
+            if (err.name !== 'AbortError') {
+                console.warn('Share failed:', err);
+            }
+        }
+    }
+
+    // 2. Fallback for Desktop or devices without Web Share API
     if (mobiles.length === 1) {
         window.open('https://wa.me/91' + mobiles[0] + '?text=' + encodeURIComponent(msg), '_blank');
     } else {
-        if (!confirm(`Send WhatsApp message to ${mobiles.length} agents? Browsers may block multiple pop-ups. Please allow pop-ups for this site.`)) return;
-        mobiles.forEach((mobile, index) => {
+        if (!confirm(`Send WhatsApp message to ${mobiles.length} agents?\n\nNote: Browsers block multiple pop-ups. If only one opens, please use the "Copy Message" button below to paste it manually for the rest.`)) return;
+        
+        // Open the first one immediately
+        window.open('https://wa.me/91' + mobiles[0] + '?text=' + encodeURIComponent(msg), '_blank');
+        
+        // Try to open the rest with a longer delay
+        for (let i = 1; i < mobiles.length; i++) {
             setTimeout(() => {
-                window.open('https://wa.me/91' + mobile + '?text=' + encodeURIComponent(msg), '_blank');
-            }, index * 1000);
-        });
-        toast('📱 Opening WhatsApp chats. Please tap Send for each.');
+                window.open('https://wa.me/91' + mobiles[i] + '?text=' + encodeURIComponent(msg), '_blank');
+            }, i * 2000); // Increased to 2 seconds to give the browser time
+        }
+        toast('📱 Opening WhatsApp chats. If blocked, please copy the message and paste it manually.');
     }
 }
 
