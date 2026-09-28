@@ -2805,56 +2805,31 @@ async function sendToSelectedAgents() {
     let id = currentAgentSelectContext.id;
 
     closeAgentSelectModal();
-    showLoading('Preparing message and image...');
+    showLoading('Preparing message...');
 
     try {
         let msg = '';
-        let file = null;
         let title = '';
 
         if (type === 'PROFILE') {
             msg = `📦 *ReturnTruck Update*\n\nNew loads and trucks are available. Check the ReturnTruck app for details.\n\n🔗 https://returntruck-pwa.vercel.app`;
             title = 'ReturnTruck - Agent Update';
         } else {
+            // For Load and Truck, we generate ONLY the text, no image.
+            // This allows us to bypass the OS Share Sheet and go directly to WhatsApp.
             const shareData = await generateShareData(type, id);
             msg = shareData.msg;
-            file = shareData.file;
             title = shareData.title;
         }
 
         hideLoading();
 
-        // 1. Use Web Share API for a single share sheet (Mobile)
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    files: file ? [file] : [],
-                    title: title,
-                    text: msg
-                });
-                return;
-            } catch (err) {
-                if (err.name !== 'AbortError') {
-                    console.warn('Share failed:', err);
-                }
-            }
-        }
-
-        // 2. Desktop Fallback (Download image + open WhatsApp Web with text)
-        if (file) {
-            const url = URL.createObjectURL(file);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = file.name;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            setTimeout(() => URL.revokeObjectURL(url), 3000);
-            toast('📸 Image downloaded. Please open WhatsApp Web, select multiple agents, and attach the image.');
-        }
+        // Direct WhatsApp Link (Bypasses OS Share Sheet)
+        // Opens WhatsApp with the text pre-filled. User selects the agents and hits send.
+        const waUrl = 'https://wa.me/?text=' + encodeURIComponent(msg);
+        window.open(waUrl, '_blank');
         
-        // Open WhatsApp Web with the message pre-filled
-        window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+        toast('📱 WhatsApp is opening. Use the "New Chat" or "Forward" feature to select multiple agents and send them this message at once.');
 
     } catch (e) {
         console.error(e);
