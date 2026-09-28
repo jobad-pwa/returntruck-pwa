@@ -2815,7 +2815,6 @@ async function sendToSelectedAgents() {
         if (type === 'PROFILE') {
             msg = `📦 *ReturnTruck Update*\n\nNew loads and trucks are available. Check the ReturnTruck app for details.\n\n🔗 https://returntruck-pwa.vercel.app`;
             title = 'ReturnTruck - Agent Update';
-            // No specific image for profile bulk message
         } else {
             const shareData = await generateShareData(type, id);
             msg = shareData.msg;
@@ -2825,47 +2824,38 @@ async function sendToSelectedAgents() {
 
         hideLoading();
 
-        // Execute dispatch
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            // Mobile: Use Web Share API sequentially to ensure rich preview
-            if (!confirm(`You are about to share to ${selectedMobiles.length} agents.\n\nWhatsApp will open for each agent. Please select the agent, hit Send, and the next one will open automatically.\n\nProceed?`)) return;
-            
-            for (let i = 0; i < selectedMobiles.length; i++) {
-                try {
-                    await navigator.share({
-                        files: file ? [file] : [],
-                        title: title,
-                        text: msg
-                    });
-                } catch (err) {
-                    if (err.name === 'AbortError') {
-                        console.log('User cancelled share at agent ' + selectedMobiles[i]);
-                        break; // Stop the loop if the user cancels
-                    }
+        // 1. Use Web Share API for a single share sheet (Mobile)
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    files: file ? [file] : [],
+                    title: title,
+                    text: msg
+                });
+                return;
+            } catch (err) {
+                if (err.name !== 'AbortError') {
                     console.warn('Share failed:', err);
                 }
             }
-        } else {
-            // Desktop: Download image once, then open WA links sequentially
-            if (file) {
-                const url = URL.createObjectURL(file);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = file.name;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                setTimeout(() => URL.revokeObjectURL(url), 3000);
-            }
-            if (!confirm(`Your browser does not support direct file sharing. \n\nWe will download the image and open WhatsApp for each agent. Please attach the downloaded image manually.\n\nProceed?`)) return;
-            
-            for (let i = 0; i < selectedMobiles.length; i++) {
-                setTimeout(() => {
-                    window.open('https://wa.me/91' + selectedMobiles[i] + '?text=' + encodeURIComponent(msg), '_blank');
-                }, i * 1500);
-            }
-            toast('📸 Image downloaded. Please attach it in the WhatsApp chats.');
         }
+
+        // 2. Desktop Fallback (Download image + open WhatsApp Web with text)
+        if (file) {
+            const url = URL.createObjectURL(file);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = file.name;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 3000);
+            toast('📸 Image downloaded. Please open WhatsApp Web, select multiple agents, and attach the image.');
+        }
+        
+        // Open WhatsApp Web with the message pre-filled
+        window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+
     } catch (e) {
         console.error(e);
         hideLoading();
